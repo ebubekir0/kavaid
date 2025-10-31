@@ -1,0 +1,64 @@
+{
+  "project_info": {
+    "project_number": "732976641832",
+    "firebase_url": "https://kavaid-2f778-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "kavaid-2f778",
+    "storage_bucket": "kavaid-2f778.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:732976641832:android:eb3cf0eeef274ac6ad821d",
+        "android_client_info": {
+          "package_name": "com.onbir.kavaid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "732976641832-2al4s2qu5kv9evh8cjse8fli6ve529e5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.onbir.kavaid",
+            "certificate_hash": "840a59b046006eb4948f768719f5fd88e518bfd6"
+          }
+        },
+        {
+          "client_id": "732976641832-4p0egi39v5rbn4hnnrjk5gku39uvlvg3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.onbir.kavaid",
+            "certificate_hash": "cfab759574c0d3ce3164814fe77195e98ccc8df8"
+          }
+        },
+        {
+          "client_id": "732976641832-q0oc125fj62v48tbh7q19mbvglcqibde.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkGrJMttVYGiCDdHMzCUQBw6O9ROAIwKE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "732976641832-q0oc125fj62v48tbh7q19mbvglcqibde.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "732976641832-e1ssald30njvpu56qaouf2mg81bg5kvu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.onbir.kavaid"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-3375249639458473~9873455703"
+    }
+  ],
+  "configuration_version": "1"
+}

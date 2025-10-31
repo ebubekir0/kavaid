@@ -1,0 +1,92 @@
+{
+  "identifier": "AD8E2C49",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "69.99",
+      "displayName": "Reklamları Kaldır",
+      "productID": "kavaid_remove_ads_lifetime_v2",
+      "referenceName": "Remove Ads Lifetime",
+      "type": "NonConsumable",
+      "localizations": [
+        {
+          "description": "Uygulamadaki tüm reklamları kalıcı olarak kaldırır",
+          "displayName": "Reklamları Kaldır",
+          "locale": "tr"
+        },
+        {
+          "description": "Remove all ads from the app permanently",
+          "displayName": "Remove Ads",
+          "locale": "en_US"
+        }
+      ]
+    },
+    {
+      "displayPrice": "89.99",
+      "displayName": "Kitabul Kıraat 1",
+      "productID": "kavaid_kitab_kiraah_1",
+      "referenceName": "Book Kiraat 1",
+      "type": "NonConsumable",
+      "localizations": [
+        {
+          "description": "Temel Kıraat Eğitimi kitabının tamamına erişim",
+          "displayName": "Kitabul Kıraat 1",
+          "locale": "tr"
+        },
+        {
+          "description": "Full access to Basic Kiraat Education book",
+          "displayName": "Book of Kiraat 1",
+          "locale": "en_US"
+        }
+      ]
+    },
+    {
+      "displayPrice": "89.99",
+      "displayName": "Kitabul Kıraat 2",
+      "productID": "kavaid_book_kiraat_2",
+      "referenceName": "Book Kiraat 2",
+      "type": "NonConsumable",
+      "localizations": [
+        {
+          "description": "İleri Seviye Kıraat kitabının tamamına erişim",
+          "displayName": "Kitabul Kıraat 2",
+          "locale": "tr"
+        },
+        {
+          "description": "Full access to Advanced Kiraat book",
+          "displayName": "Book of Kiraat 2",
+          "locale": "en_US"
+        }
+      ]
+    },
+    {
+      "displayPrice": "89.99",
+      "displayName": "Kitabul Kıraat 3",
+      "productID": "kavaid_book_kiraat_3",
+      "referenceName": "Book Kiraat 3",
+      "type": "NonConsumable",
+      "localizations": [
+        {
+          "description": "Uzman Seviye Kıraat kitabının tamamına erişim",
+          "displayName": "Kitabul Kıraat 3",
+          "locale": "tr"
+        },
+        {
+          "description": "Full access to Expert Kiraat book",
+          "displayName": "Book of Kiraat 3",
+          "locale": "en_US"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "6475303968",
+    "_developerTeamID": "XXXXXXXXXX",
+    "_lastSynchronizedDate": 738853802.564885
+  },
+  "subscriptions": [],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}

@@ -1,0 +1,2275 @@
+1. Bölüm: Selamlaşma ve Tanışma (اَلتَّحِيَّاتُ وَالتَّعَارُفُ)
+لِي - Benim var / Edat
+عِنْدِي - Yanımda, benim var / Zarf
+لَدَيَّ - Yanımda, benim var / Zarf
+سَبَحَ - Yüzdü / Mazi Fiil
+يَسْبَحُ - Yüzer, yüzüyor / Muzâri Fiil
+سِبَاحَةٌ - Yüzme / Mastar
+صَغِيرٌ - Küçük / Sıfat
+كَبِيرٌ - Büyük / Sıfat
+رَكِبَ - Bindi / Mazi Fiil
+يَرْكَبُ - Biner, biniyor / Muzâri Fiil
+رُكُوبٌ - Binme / Mastar
+رَاكِبٌ - Binen, binici / İsm-i Fâil
+هَاتِفٌ - Telefon / İsim
+جَوَّالٌ - Cep telefonu / İsim
+عَاشَ - Yaşadı / Mazi Fiil
+يَعِيشُ - Yaşar, yaşıyor / Muzâri Fiil
+عَيْشٌ - Yaşama, hayat / Mastar
+سَكَنَ - İkamet etti / Mazi Fiil
+يَسْكُنُ - İkamet eder, ikamet ediyor / Muzâri Fiil
+سَكَنٌ - İkamet etme / Mastar
+أَقَامَ - İkamet etti, konakladı / Mazi Fiil
+يُقِيمُ - İkamet eder, ikamet ediyor / Muzâri Fiil
+إِقَامَةٌ - İkamet etme, konaklama / Mastar
+حَيٌّ - Semt, mahalle / İsim
+مَحَلَّةٌ - Mahalle / İsim
+شَارِعٌ - Cadde / İsim
+جَادَّةٌ - Cadde / İsim
+طَرِيقٌ - Yol / İsim
+أُسْرَةٌ - Aile / İsim
+أُسَرٌ - Aileler / İsim
+عَائِلَةٌ - Aile / İsim
+عَائِلَاتٌ - Aileler / İsim
+عَوَائِلُ - Aileler / İsim
+عَمَلٌ حُرٌّ - Serbest meslek / Sıfat Tamlaması
+تَكَلَّمَ - Konuştu / Mazi Fiil
+تَحَدَّثَ - Konuştu / Mazi Fiil
+أَيُّ لُغَةٍ...؟ - Hangi dil...? / İsim Tamlaması
+اَلسَّنَةُ التَّحْضِيرِيَّةُ - Hazırlık yılı / Sıfat Tamlaması
+اَلسَّنَةُ التَّمْهِيدِيَّةُ - Hazırlık yılı / Sıfat Tamlaması
+حَضَّرَ - Hazırladı / Mazi Fiil
+مَهَّدَ - Hazırladı, zemin hazırladı / Mazi Fiil
+جَهَّزَ - Hazırladı, donattı / Mazi Fiil
+مُتَقَاعِدٌ - Emekli / İsm-i Fâil
+صَيْدَلِيٌّ - Eczacı / İsim
+صَيْدَلَانِيٌّ - Eczacı / İsim
+بَائِعُ الدَّوَاءِ - İlaç satıcısı / İsim Tamlaması
+اَلصَّيْدَلِيَّةُ - Eczane / İsim
+اَلْمُفَضَّلُ - Tercih edilen, favori / İsm-i Mef'ûl
+اَلْمُرَجَّحُ - Tercih edilen / İsm-i Mef'ûl
+أَخٌ - Erkek kardeş / İsim
+أَخَوَانِ - İki erkek kardeş / İsim
+إِخْوَةٌ - Erkek kardeşler / İsim
+إِخْوَانٌ - Erkek kardeşler / İsim
+أُخْتٌ - Kız kardeş / İsim
+أُخْتَانِ - İki kız kardeş / İsim
+أَخَوَاتٌ - Kız kardeşler / İsim
+لَيْسَ لِي أُخْتٌ - Kız kardeşim yok / Cümle
+لَا أُخْتَ لِي - Kız kardeşim yok / Cümle
+رَبَّةُ بَيْتٍ - Ev hanımı / İsim Tamlaması
+اَلسِّبَاحَةُ - Yüzme / Mastar
+صَيْدُ السَّمَكِ - Balık tutma / İsim Tamlaması
+مِهْنَةٌ - Meslek / İsim
+مَسْلَكٌ - Meslek, yol / İsim
+تَاجِرٌ - Tüccar / İsm-i Fâil
+رُكُوبُ الدَّرَّاجَةِ - Bisiklete binme / İsim Tamlaması
+اَلابْتِدَائِيَّةُ - İlkokul / İsim
+اَلْمُتَوَسِّطَةُ - Ortaokul / İsim
+اَلثَّانَوِيَّةُ - Lise / İsim
+أَعْزَبُ - Bekar / Sıfat
+عَازِبٌ - Bekar / İsm-i Fâil
+مُتَزَوِّجٌ - Evli / İsm-i Fâil
+مُطَلَّقٌ - Boşanmış / İsm-i Mef'ûl
+أَرْمَلُ - Dul / Sıfat
+قَرِيبٌ - Yakın, akraba / Sıfat
+أَقْرِبَاءُ - Akrabalar / İsim
+أَقَارِبُ - Akrabalar / İsim
+عَقْرَبٌ - Akrep / İsim
+عَقَارِبُ - Akrepler / İsim
+اَلْأَقَارِبُ كَالْعَقَارِبِ - Akrabalar akrep gibidir / Deyim
+كُفْتَةٌ نِيَّةٌ - Çiğ köfte / Sıfat Tamlaması
+وَزٌّ - Kaz / İsim
+بَاذِنْجَانٌ - Patlıcan / İsim
+
+2. Bölüm: Peygamber'in (s.a.v) Ailesi (عَائِلَةُ النَّبِيِّ ص)
+رَعَى - Güttü, baktı / Mazi Fiil
+يَرْعَى - Güder, bakıyor / Muzâri Fiil
+رَعْيٌ - Gütme, bakma / Mastar
+رِعَايَةٌ - Bakım, gözetim / Mastar
+اَلرَّاعِي - Çoban, güden / İsm-i Fâil
+وُلِدَ - Doğdu / Meçhul Mazi Fiil
+مَاتَ - Öldü / Mazi Fiil
+سِنٌّ - Yaş / İsim
+عُمُرٌ - Ömür, yaş / İsim
+دَفَنَ - Defnetti, gömdü / Mazi Fiil
+دُفِنَ - Defnedildi, gömüldü / Meçhul Mazi Fiil
+كَانَ - Oldu, idi / Mazi Fiil
+يَكُونُ - Olur, oluyor / Muzâri Fiil
+كَوْنٌ - Olma, oluş / Mastar
+تَكَوَّنَ مِنْ - -den oluştu / Mazi Fiil
+يَتَكَوَّنُ مِنْ - -den oluşur, -den oluşuyor / Muzâri Fiil
+تَكَوُّنٌ مِنْ - -den oluşma / Mastar
+تَأَلَّفَ مِنْ - -den oluştu, meydana geldi / Mazi Fiil
+اِبْنٌ - Oğul, erkek çocuk / İsim
+أَبْنَاءٌ - Oğullar, erkek çocuklar / İsim
+عَمٌّ - Amca / İsim
+أَعْمَامٌ - Amcalar / İsim
+عَمَّةٌ - Hala / İsim
+عَمَّاتٌ - Halalar / İsim
+خَالٌ - Dayı / İsim
+أَخْوَالٌ - Dayılar / İsim
+خَالَةٌ - Teyze / İsim
+وَلَدٌ - Çocuk, erkek çocuk / İsim
+أَوْلَادٌ - Çocuklar / İsim
+اِبْنَةٌ - Kız çocuk / İsim
+بَنَاتٌ - Kız çocuklar / İsim
+حَفِيدٌ - Torun (erkek) / İsim
+أَحْفَادٌ - Torunlar (erkek) / İsim
+اَلْحَفِيدُ هُوَ ابْنُ الْوَلَدِ أَوِ الْبِنْتِ - Torun, oğlun veya kızın oğludur / Cümle
+أَوَّلُ - İlk (eril) / Sıfat
+أُولَى - İlk (dişil) / Sıfat
+آخِرُ - Son (eril) / Sıfat
+أُخْرَى - Son (dişil), diğer / Sıfat
+خَالَاتٌ - Teyzeler / İsim
+نَشِيطٌ - Çalışkan, aktif / Sıfat
+كَسْلَانُ - Tembel / Sıfat
+عَكْسٌ - Zıt, ters / İsim
+ضِدٌّ - Zıt, karşıt / İsim
+فَلَّاحٌ - Çiftçi / İsim
+مُزَارِعٌ - Çiftçi, ziraatçı / İsm-i Fâil
+
+3. Bölüm: Abdurrahman'ın Evi (بَيْتُ عَبْدِ الرَّحْمَنِ)
+غُرْفَةٌ - Oda / İsim
+غُرَفٌ - Odalar / İsim
+صَامِتٌ - Sessiz / Sıfat
+خَفِيٌّ - Gizli, sessiz / Sıfat
+جَهْرِيٌّ - Sesli, açık / Sıfat
+قِرَاءَةٌ صَامِتَةٌ - Sessiz okuma / Sıfat Tamlaması
+قِرَاءَةٌ جَهْرِيَّةٌ - Sesli okuma / Sıfat Tamlaması
+شَاطِئٌ - Sahil, plaj / İsim
+شَوَاطِئُ - Sahiller, plajlar / İsim
+سَاحِلٌ - Sahil, kıyı / İsim
+سَوَاحِلُ - Sahiller, kıyılar / İsim
+رَفٌّ - Raf / İsim
+رُفُوفٌ - Raflar / İsim
+جَرِيدَةٌ - Gazete / İsim
+جَرَائِدُ - Gazeteler / İsim
+مِدْفَأَةٌ - Soba, şömine / İsim
+مَدَافِئُ - Sobalar, şömineler / İsim
+شُرْفَةٌ - Balkon / İsim
+شُرَفٌ - Balkonlar / İsim
+قَرِيبٌ مِنْ - -e yakın / Sıfat
+بَعِيدٌ عَنْ - -den uzak / Sıfat
+ضَيْفٌ - Misafir / İsim
+ضُيُوفٌ - Misafirler / İsim
+فَرَشَ - Döşedi, serdi / Mazi Fiil
+يَفْرِشُ - Döşer, seriyor / Muzâri Fiil
+فَرْشٌ - Döşeme, serme / Mastar
+فِرَاشٌ - Yatak, döşek / İsim
+مَفْرُوشٌ - Döşenmiş, serilmiş / İsm-i Mef'ûl
+زَهْرَةٌ - Çiçek / İsim
+مَزْهَرِيَّةٌ - Vazo / İsim
+نَافِذَةٌ - Pencere / İsim
+نَوَافِذُ - Pencereler / İsim
+سِتَارٌ - Perde / İsim
+سَتَائِرُ - Perdeler / İsim
+مُعْظَمٌ - Çoğu, ekserisi / İsim
+أَكْثَرُ - Daha çok, çoğu / İsim
+أَدَاةٌ - Alet, araç / İsim
+أَدَوَاتٌ - Aletler, araçlar / İsim
+مَقْعَدٌ - Koltuk, oturak / İsim
+مَقَاعِدُ - Koltuklar, oturaklar / İsim
+كُرْسِيٌّ - Sandalye / İsim
+كَرَاسِيُّ - Sandalyeler / İsim
+أَرِيكَةٌ - Kanepe, koltuk / İsim
+أَرَائِكُ - Kanepeler, koltuklar / İsim
+مِلْعَقَةٌ - Kaşık / İsim
+مَلَاعِقُ - Kaşıklar / İsim
+طَبَقٌ - Tabak / İsim
+أَطْبَاقٌ - Tabaklar / İsim
+صَحْنٌ - Tabak / İsim
+صُحُونٌ - Tabaklar / İsim
+قَدَحٌ - Kadeh / İsim
+أَقْدَاحٌ - Kadehler / İsim
+كَأْسٌ - Kupa, bardak / İsim
+كُؤُوسٌ - Kupalar, bardaklar / İsim
+كُوبٌ - Bardak / İsim
+أَكْوَابٌ - Bardaklar / İsim
+وَاسِعٌ - Geniş / Sıfat
+ضَيِّقٌ - Dar / Sıfat
+شَوْكَةٌ - Çatal / İsim
+أَشْوَاكٌ - Çatallar / İsim
+فِنْجَانٌ - Fincan / İsim
+فَنَاجِينُ - Fincanlar / İsim
+مِلْحٌ - Tuz / İsim
+مِمْلَحَةٌ - Tuzluk / İsim
+مِنْدِيلٌ - Mendil / İsim
+مَنَادِيلُ - Mendiller / İsim
+سِكِّينٌ - Bıçak / İsim
+سَكَاكِينُ - Bıçaklar / İsim
+مُوسٌ - Bıçak, ustura / İsim
+مُوسَى - Bıçak, ustura / İsim
+وَرَقٌ - Kağıt, yaprak / İsim
+أَوْرَاقٌ - Kağıtlar, yapraklar / İsim
+خِزَانَةُ مَلَابِسَ - Gardırop, elbise dolabı / İsim Tamlaması
+مَهْدٌ - Beşik / İsim
+مِهَادٌ - Beşikler / İsim
+اُطْلُبُوا العِلْمَ مِنَ المَهْدِ إِلَى اللَّحْدِ - Beşikten mezara kadar ilim talep ediniz / Atasözü
+غَسَّالَةُ أَوَانٍ - Bulaşık makinesi / İsim Tamlaması
+مَوْقِدٌ - Ocak / İsim
+مَوَاقِدُ - Ocaklar / İsim
+وِسَادَةٌ - Yastık / İsim
+وَسَائِدُ - Yastıklar / İsim
+غِطَاءُ فِرَاشٍ - Yatak örtüsü / İsim Tamlaması
+مِكْسَرٌ - Mikser / İsim
+خَلَّاطٌ - Mikser, karıştırıcı / İsim
+لِحَافٌ - Yorgan / İsim
+مُكَيِّفٌ - Klima / İsim
+صَابُونٌ - Sabun / İsim
+
+4. Bölüm: Yemek Masası Etrafında (حَوْلَ مَائِدَةِ الطَّعَامِ)
+شَامْبُو - Şampuan / İsim
+مِنْشَفَةٌ - Havlu / İsim
+مَنَاشِفُ - Havlular / İsim
+حَلِيبٌ - Süt / İsim
+لَبَنٌ - Süt, ayran / İsim
+شَايٌ - Çay / İsim
+مَعْجُونٌ - Macun / İsim
+مَعَاجِينُ - Macunlar / İsim
+مَعْجُونُ أَسْنَانٍ - Diş macunu / İsim Tamlaması
+فُرْشَاةُ أَسْنَانٍ - Diş fırçası / İsim Tamlaması
+بِطِّيخٌ - Karpuz / İsim
+شَمَّامٌ - Kavun / İsim
+مَاكِينَةُ حِلَاقَةٍ - Tıraş makinesi / İsim Tamlaması
+كِيسُ حَمَّامٍ - Banyo kesesi / İsim Tamlaması
+طَاسٌ - Tas / İsim
+شِبْشِبٌ - Terlik / İsim
+مِشْطٌ - Tarak / İsim
+مِرْحَاضٌ - Tuvalet, lavabo / İsim
+حَمَّامٌ - Banyo, tuvalet / İsim
+دَوْرَةُ مِيَاهٍ - Tuvalet, WC / İsim Tamlaması
+مَاءٌ - Su / İsim
+مِيَاهٌ - Sular / İsim
+مَوْضَأٌ - Abdesthane / İsim
+مِرْآةٌ - Ayna / İsim
+مِغْسَلَةٌ - Lavabo / İsim
+حَنَفِيَّةٌ - Musluk / İsim
+سَفِينَةٌ - Gemi / İsim
+سُفُنٌ - Gemiler / İsim
+وَقَفَ - Durdu, ayağa kalktı / Mazi Fiil
+يَقِفُ - Durur, duruyor / Muzâri Fiil
+وُقُوفٌ - Durma / Mastar
+قَامَ - Kalktı / Mazi Fiil
+يَقُومُ - Kalkar, kalkıyor / Muzâri Fiil
+قِيَامٌ - Kalkma / Mastar
+جَلَسَ - Oturdu / Mazi Fiil
+يَجْلِسُ - Oturur, oturuyor / Muzâri Fiil
+جُلُوسٌ - Oturma / Mastar
+وَجْبَةٌ - Öğün / İsim
+وَجَبَاتٌ - Öğünler / İsim
+عَادَ - Döndü, geri geldi / Mazi Fiil
+يَعُودُ - Döner, geri geliyor / Muzâri Fiil
+عَوْدَةٌ - Dönme, geri gelme / Mastar
+رَجَعَ - Döndü / Mazi Fiil
+يَرْجِعُ - Döner, dönüyor / Muzâri Fiil
+رُجُوعٌ - Dönme / Mastar
+وَضَعَ - Koydu / Mazi Fiil
+يَضَعُ - Koyar, koyuyor / Muzâri Fiil
+وَضْعٌ - Koyma / Mastar
+طَبَخَ - Pişirdi / Mazi Fiil
+يَطْبُخُ - Pişirir, pişiriyor / Muzâri Fiil
+طَبْخٌ - Pişirme / Mastar
+مَطْبَخٌ - Mutfak / İsim
+عَادَةً - Genellikle / Zarf
+عُمُومًا - Genellikle, genel olarak / Zarf
+أَحْيَانًا - Bazen / Zarf
+فَاكِهَةٌ - Meyve / İsim
+فَوَاكِهُ - Meyveler / İsim
+ضَحِكَ - Güldü / Mazi Fiil
+يَضْحَكُ - Güler, gülüyor / Muzâri Fiil
+ضِحْكٌ - Gülme / Mastar
+بَكَى - Ağladı / Mazi Fiil
+مَا طَعَامُكَ الْمُفَضَّلُ؟ - Favori yemeğin nedir? / Soru Cümlesi
+اَلْعِنَبُ - Üzüm / İsim
+كُمَّثْرَى - Armut / İsim
+إِجَّاصٌ - Armut / İsim
+أَنَانَاسٌ - Ananas / İsim
+بُرْتُقَالٌ - Portakal / İsim
+تُفَّاحٌ - Elma / İsim
+مَوْزٌ - Muz / İsim
+يُوسُفِيٌّ - Mandalina / İsim
+فَرَاوِلَةٌ - Çilek / İsim
+جَزَرٌ - Havuç / İsim
+رُمَّانٌ - Nar / İsim
+تِينٌ - İncir / İsim
+سَفَرْجَلٌ - Ayva / İsim
+تُوتٌ - Dut / İsim
+خَوْخٌ - Şeftali / İsim
+مِشْمِشٌ - Kayısı / İsim
+كَرَزٌ - Kiraz / İsim
+مَانْجُو - Mango / İsim
+بَرْقُوقٌ - Erik / İsim
+كَسْتَنَاءُ - Kestane / İsim
+لَيْمُونٌ - Limon / İsim
+خَضْرَاوَاتٌ - Sebzeler / İsim
+خَسٌّ - Marul / İsim
+بَصَلٌ - Soğan / İsim
+بَطَاطَا - Patates / İsim
+كُرَّاثٌ - Pırasa / İsim
+فُلْفُلٌ - Biber / İsim
+سَبَانِخُ - Ispanak / İsim
+خِيَارٌ - Salatalık / İsim
+طَمَاطِمُ - Domates / İsim
+ثُومٌ - Sarımsak / İsim
+فُومٌ - Sarımsak / İsim
+فِطْرٌ - Mantar / İsim
+ذُرَةٌ - Mısır / İsim
+فُولٌ - Bakla / İsim
+فَاصُولِيَا - Fasulye / İsim
+مَلْفُوفٌ - Lahana / İsim
+قَرْعٌ - Kabak / İsim
+عَدَسٌ - Mercimek / İsim
+بَامِيَا - Bamya / İsim
+بَقْدُونِسُ - Maydanoz / İsim
+بَاذِنْجَانٌ - Patlıcan / İsim
+وَجْبَةٌ - Öğün / İsim
+طَعَامٌ - Yemek / İsim
+أَكَلَ - Yedi / Mazi Fiil
+يَأْكُلُ - Yer, yiyor / Muzâri Fiil
+أَكْلٌ - Yeme / Mastar
+تَنَاوَلَ - Yedi, aldı / Mazi Fiil
+يَتَنَاوَلُ - Yer, alıyor / Muzâri Fiil
+ذَهَبَ - Gitti / Mazi Fiil
+يَذْهَبُ - Gider, gidiyor / Muzâri Fiil
+ذَهَابٌ - Gitme / Mastar
+عَادَ - Döndü / Mazi Fiil
+يَعُودُ - Döner, dönüyor / Muzâri Fiil
+عَوْدَةٌ - Dönme / Mastar
+رَجَعَ - Döndü / Mazi Fiil
+يَرْجِعُ - Döner, dönüyor / Muzâri Fiil
+رُجُوعٌ - Dönme / Mastar
+خَرَجَ - Çıktı / Mazi Fiil
+يَخْرُجُ - Çıkar, çıkıyor / Muzâri Fiil
+خُرُوجٌ - Çıkma / Mastar
+دَخَلَ - Girdi / Mazi Fiil
+يَدْخُلُ - Girer, giriyor / Muzâri Fiil
+دُخُولٌ - Girme / Mastar
+جَهَّزَ - Hazırladı / Mazi Fiil
+يُجَهِّزُ - Hazırlar, hazırlıyor / Muzâri Fiil
+تَجْهِيزٌ - Hazırlama / Mastar
+حَضَّرَ - Hazırladı / Mazi Fiil
+يُحَضِّرُ - Hazırlar, hazırlıyor / Muzâri Fiil
+تَحْضِيرٌ - Hazırlama / Mastar
+سَاعَدَ - Yardım etti / Mazi Fiil
+يُسَاعِدُ - Yardım eder, yardım ediyor / Muzâri Fiil
+مُسَاعَدَةٌ - Yardım etme / Mastar
+نَصَرَ - Yardım etti / Mazi Fiil
+وَضَعَ - Koydu / Mazi Fiil
+رَفَعَ - Kaldırdı / Mazi Fiil
+عَادَةً - Genellikle / Zarf
+عُمُومًا - Genellikle / Zarf
+مَقْلِيٌّ - Kızarmış / İsm-i Mef'ûl
+مَسْلُوقٌ - Haşlanmış / İsm-i Mef'ûl
+مَشْوِيٌّ - Izgara / İsm-i Mef'ûl
+طَبْخٌ - Pişirme / Mastar
+تَحَاوَرَ - Sohbet etti / Mazi Fiil
+تَكَلَّمَ - Konuştu / Mazi Fiil
+تَحَدَّثَ - Konuştu / Mazi Fiil
+تَنَاقَشَ - Tartıştı / Mazi Fiil
+تَذَاكَرَ - Müzakere etti / Mazi Fiil
+أَحْيَانًا - Bazen / Zarf
+بَعْضًا - Bazen / Zarf
+اِجْتَمَعَ - Toplandı / Mazi Fiil
+أَكَلْتُ الْيَوْمَ فَطُورِي فِي مَطْعَمٍ وَاسِعٍ - Bugün kahvaltımı geniş bir lokantada yedim / Cümle
+وَجْبَةُ الْفُطُورِ، وَجْبَتِي الْمُفَضَّلَةُ - Kahvaltı öğünü, favori öğünüm / İsim Tamlaması
+
+5. Bölüm: Üniversitede Eğitim (اَلدِّرَاسَةُ فِي الْجَامِعَةِ)
+مُتَفَوِّقٌ - Üstün başarılı / İsm-i Fâil
+نَاجِحٌ - Başarılı / İsm-i Fâil
+مُجْتَهِدٌ - Çalışkan / İsm-i Fâil
+كَسُولٌ - Tembel / Sıfat
+كَسْلَانُ - Tembel / Sıfat
+رَاسِبٌ - Başarısız, sınıfta kalan / İsm-i Fâil
+فَوْقَ - Üstünde / Zarf
+تَفَوَّقَ - Üstün oldu, başarı gösterdi / Mazi Fiil
+أَحَبَّ - Sevdi / Mazi Fiil
+يُحِبُّ - Sever, seviyor / Muzâri Fiil
+كَرِهَ - Nefret etti / Mazi Fiil
+يَكْرَهُ - Nefret eder, nefret ediyor / Muzâri Fiil
+طَوِيلٌ - Uzun / Sıfat
+قَصِيرٌ - Kısa / Sıfat
+مُسْتَقْبَلٌ - Gelecek / İsim
+اَلْمَاضِي - Geçmiş / İsim
+مُنْتَصَفٌ - Orta, yarısı / İsim
+نِصْفٌ - Yarı, yarım / İsim
+مُحَاضَرَةٌ - Ders, konferans / İsim
+دَرْسٌ - Ders / İsim
+حِصَّةٌ - Ders (saati) / İsim
+مَادَّةٌ - Ders, madde / İsim
+مَوَادٌّ - Dersler, maddeler / İsim
+سِعْرٌ - Fiyat / İsim
+أَسْعَارٌ - Fiyatlar / İsim
+ثَمَنٌ - Fiyat, bedel / İsim
+أَثْمَانٌ - Fiyatlar, bedeller / İsim
+رَخِيصٌ - Ucuz / Sıfat
+غَالٍ - Pahalı / Sıfat
+أَوَّلُ - İlk / Sıfat
+آخِرُ - Son / Sıfat
+تَخَصُّصٌ - Uzmanlık, bölüm / Mastar
+اِخْتِصَاصٌ - Uzmanlık alanı / Mastar
+أَصْبَحَ - Oldu, sabahladı / Mazi Fiil
+يُصْبِحُ - Olur, sabahlıyor / Muzâri Fiil
+إِصْبَاحٌ - Sabahlamak / Mastar
+صَبَاحٌ - Sabah / İsim
+بَدَأَ - Başladı / Mazi Fiil
+يَبْدَأُ - Başlar, başlıyor / Muzâri Fiil
+بِدَايَةٌ - Başlangıç / Mastar
+اِنْتَهَى - Bitti, sona erdi / Mazi Fiil
+يَنْتَهِي - Biter, sona eriyor / Muzâri Fiil
+نِهَايَةٌ - Son / İsim
+أُسْتَاذٌ - Profesör, hoca / İsim
+أَسَاتِذَةٌ - Profesörler, hocalar / İsim
+مُدَرِّسٌ - Öğretmen / İsm-i Fâil
+مُعَلِّمٌ - Öğretmen / İsm-i Fâil
+عَلِمَ - Bildi, öğrendi / Mazi Fiil
+عَلَّمَ - Öğretti / Mazi Fiil
+تَعَلَّمَ - Öğrendi / Mazi Fiil
+عَالَجَ - Tedavi etti, ele aldı / Mazi Fiil
+يُعَالِجُ - Tedavi eder, ele alıyor / Muzâri Fiil
+مُعَالَجَةٌ - Tedavi etme, ele alma / Mastar
+دَاوَى - Tedavi etti / Mazi Fiil
+يُدَاوِي - Tedavi eder, tedavi ediyor / Muzâri Fiil
+عَالَجَ الطَّبِيبُ الْمَرِيضَ - Doktor hastayı tedavi etti / Cümle
+عَالَجَ الْعَالِمُ الْمُشْكِلَةَ - Alim problemi ele aldı / Cümle
+مَرِيضٌ - Hasta / Sıfat
+مَرْضَى - Hastalar / İsim
+شَهْرٌ - Ay / İsim
+أَشْهُرٌ - Aylar / İsim
+آخَرُ - Diğer, başka (eril) / Sıfat
+أُخْرَى - Diğer, başka (dişil) / Sıfat
+اَلْقَهْوَةُ بِالْحَلِيبِ - Sütlü kahve / İfade
+عَاطِلٌ - İşsiz / İsm-i Fâil
+عَامِلٌ - İşçi, çalışan / İsm-i Fâil
+كُلُّ سَنَةٍ - Her yıl / İsim Tamlaması
+اِسْتَيْقَظَ - Uyandı / Mazi Fiil
+يَسْتَيْقِظُ - Uyanır, uyanıyor / Muzâri Fiil
+اِسْتِيقَاظٌ - Uyanma / Mastar
+صَحَا - Uyandı / Mazi Fiil
+يَصْحُو - Uyanır, uyanıyor / Muzâri Fiil
+صَحْوٌ - Uyanma / Mastar
+نَامَ - Uyudu / Mazi Fiil
+يَنَامُ - Uyur, uyuyor / Muzâri Fiil
+نَوْمٌ - Uyku / Mastar
+بَيْتِي - Evim / İsim
+مَنْزِلِي - Evim / İsim
+
+6. Bölüm: Meslekler ve İşler (اَلْمِهَنُ وَالْأَعْمَالُ)
+أَحَبَّ - Sevdi / Mazi Fiil
+يُحِبُّ - Sever, seviyor / Muzâri Fiil
+كَرِهَ - Nefret etti / Mazi Fiil
+يَكْرَهُ - Nefret eder, nefret ediyor / Muzâri Fiil
+كُرْهٌ - Nefret / Mastar
+كَرَاهِيَّةٌ - Nefret / Mastar
+كَارِهٌ - Nefret eden / İsm-i Fâil
+مَكْرُوهٌ - Nefret edilen / İsm-i Mef'ûl
+حَدِيثٌ شَرِيفٌ - Hadis-i Şerif / Sıfat Tamlaması
+خَطٌّ - Çizgi, hat / İsim
+خُطُوطٌ - Çizgiler, hatlar / İsim
+اَلْخُطُوطُ الْجَوِّيَّةُ - Havayolları / Sıfat Tamlaması
+هَادِئٌ - Sakin / Sıfat
+سَاكِنٌ - Sakin, oturan / İsm-i Fâil
+شَقَّةٌ - Daire (apartman) / İsim
+شُقَقٌ - Daireler / İsim
+مُطِلَّةٌ - Manzaralı, bakan / İsm-i Fâil
+نَاظِرَةٌ - Bakan / İsm-i Fâil
+جَارٌ - Komşu / İsim
+جِيرَانٌ - Komşular / İsim
+جَارُ جِوَارٍ - Yakın komşu / İsim Tamlaması
+اَلطَّابِقُ - Kat / İsim
+اَلدَّوْرُ - Kat / İsim
+اَلْمُرُورُ - Trafik, geçiş / Mastar
+اَلسَّيْرُ - Gidiş, trafik / Mastar
+اِسْتَأْجَرَ - Kiraladı / Mazi Fiil
+يَسْتَأْجِرُ - Kiralar, kiralıyor / Muzâri Fiil
+اِسْتِئْجَارٌ - Kiralama / Mastar
+اِكْتَرَى - Kiraladı / Mazi Fiil
+يَكْتَرِي - Kiralar, kiralıyor / Muzâri Fiil
+اِكْتِرَاءٌ - Kiralama / Mastar
+اَلْمَرْحَلَةُ - Aşama, evre / İsim
+اَلْمُسْتَوَى - Seviye, düzey / İsim
+دَوَاءٌ - İlaç / İsim
+أَدْوِيَةٌ - İlaçlar / İsim
+خُبْزٌ - Ekmek / İsim
+خَبَّازٌ - Fırıncı / İsim
+فَرَّانٌ - Fırıncı / İsim
+خَيَّاطٌ - Terzi / İsim
+قَصَّ - Kesti / Mazi Fiil
+يَقُصُّ - Keser, kesiyor / Muzâri Fiil
+قَصٌّ - Kesme / Mastar
+مِقَصٌّ - Makas / İsim
+بَلَدٌ - Ülke, şehir / İsim
+بِلَادٌ - Ülkeler, şehirler / İsim
+حِذَاءٌ - Ayakkabı / İsim
+أَحْذِيَةٌ - Ayakkabılar / İsim
+صَحِيفَةٌ - Gazete / İsim
+جَرِيدَةٌ - Gazete / İsim
+صَحَفِيٌّ - Gazeteci / İsim
+وَسِيلَةٌ - Vasıta, araç / İsim
+وَاسِطَةٌ - Vasıta, aracı / İsim
+سَبَبٌ - Sebep / İsim
+حَصَلَ عَلَى - Elde etti, ulaştı / Mazi Fiil
+يَحْصُلُ عَلَى - Elde eder, ulaşıyor / Muzâri Fiil
+حُصُولٌ عَلَى - Elde etme, ulaşma / Mastar
+نَالَ - Elde etti / Mazi Fiil
+يَنَالُ - Elde eder, elde ediyor / Muzâri Fiil
+نَيْلٌ عَلَى - Elde etme / Mastar
+حَاصِلٌ - Elde edilen, sonuç / İsm-i Fâil
+مَحْصُولٌ - Ürün, mahsul / İsm-i Mef'ûl
+شَجَّعَ عَلَى - Teşvik etti / Mazi Fiil
+شَوَّقَ عَلَى - Özendirdi, teşvik etti / Mazi Fiil
+قُدْوَةٌ - Örnek, rol model / İsim
+مِثَالٌ - Örnek, misal / İsim
+صِفَةٌ - Sıfat, özellik / İsim
+صِفَاتٌ - Sıfatlar, özellikler / İsim
+وَصْفٌ - Tanım, betimleme / Mastar
+أَوْصَافٌ - Tanımlar, betimlemeler / İsim
+مَارَسَ - Yaptı, icra etti / Mazi Fiil
+فَعَلَ - Yaptı / Mazi Fiil
+عَمِلَ - Çalıştı, yaptı / Mazi Fiil
+اِشْتَغَلَ - Çalıştı / Mazi Fiil
+ثَوْبٌ - Elbise / İsim
+ثِيَابٌ - Elbiseler / İsim
+لِبَاسٌ - Giyim, elbise / İsim
+أَلْبِسَةٌ - Giysiler / İsim
+مَلَابِسُ - Giysiler / İsim
+جِلْدٌ - Deri, cilt / İsim
+جُلُودٌ - Deriler, ciltler / İsim
+دِرْعٌ - Zırh / İsim
+دُرُوعٌ - Zırhlar / İsim
+صِغَرٌ - Küçüklük / Mastar
+كِبَرٌ - Büyüklük / Mastar
+شَبَابٌ - Gençlik / İsim
+شَابٌّ - Genç / İsm-i Fâil
+بَعَثَ - Gönderdi / Mazi Fiil
+يَبْعَثُ - Gönderir, gönderiyor / Muzâri Fiil
+بَعْثٌ - Gönderme / Mastar
+أَرْسَلَ - Gönderdi / Mazi Fiil
+اَلْعَمَلُ - İş / İsim
+اَلْفَرَاغُ - Boşluk, boş zaman / İsim
+فَارِغٌ - Boş / İsm-i Fâil
+مَلِيءٌ - Dolu / Sıfat
+مَمْلُوءٌ - Dolu / İsm-i Mef'ûl
+صَنَعَ - Yaptı, üretti / Mazi Fiil
+يَصْنَعُ - Yapar, üretiyor / Muzâri Fiil
+صُنْعٌ - Yapma, üretme / Mastar
+صِنَاعَةٌ - Sanayi, endüstri / Mastar
+اِحْتَرَمَ - Saygı duydu / Mazi Fiil
+يَحْتَرِمُ - Saygı duyar, saygı duyuyor / Muzâri Fiil
+اِحْتِرَامٌ - Saygı / Mastar
+قَدَّمَ - Sundu, takdim etti / Mazi Fiil
+يُقَدِّمُ - Sunar, takdim ediyor / Muzâri Fiil
+تَقْدِيمٌ - Sunma, takdim etme / Mastar
+زَمِيلٌ - Meslektaş, arkadaş / İsim
+صَدِيقٌ - Arkadaş / İsim
+أَجَابَ - Cevap verdi / Mazi Fiil
+يُجِيبُ - Cevap verir, cevap veriyor / Muzâri Fiil
+إِجَابَةٌ - Cevap / Mastar
+سَأَلَ - Sordu / Mazi Fiil
+اِشْتَرَى - Satın aldı / Mazi Fiil
+يَشْتَرِي - Satın alır, satın alıyor / Muzâri Fiil
+بَاعَ - Sattı / Mazi Fiil
+مُشْتَرٍ - Müşteri, alıcı / İsm-i Fâil
+بَائِعٌ - Satıcı / İsm-i Fâil
+فِضَّةٌ - Gümüş / İsim
+ذَهَبٌ - Altın / İsim
+صَاغَ - Şekil verdi (kuyumcu) / Mazi Fiil
+صَائِغٌ - Kuyumcu / İsm-i Fâil
+بِلَا عَمَلٍ - İşsiz / İfade
+بِدُونِ عَمَلٍ - İşsiz / İfade
+نِجَارَةٌ - Marangozluk / Mastar
+زِرَاعَةٌ - Tarım, ziraat / Mastar
+صِيَاغَةٌ - Kuyumculuk / Mastar
+خِيَاطَةٌ - Terzilik / Mastar
+سِيَاقَةٌ - Sürücülük, şoförlük / Mastar
+حِدَادَةٌ - Demircilik / Mastar
+حِلَاقَةٌ - Berberlik / Mastar
+رِعَايَةٌ - Bakım, gözetim / Mastar
+تِجَارَةٌ - Ticaret / Mastar
+صِنَاعَةٌ - Sanayi / Mastar
+اَلْجَزَّارُ - Kasap / İsim
+اَلْخَبَّازُ - Fırıncı / İsim
+اَلْخَيَّاطُ - Terzi / İsim
+اَلْحَلَّاقُ - Berber / İsim
+اَلْبَنَّاءُ - İnşaatçı, duvarcı / İsim
+اَلنَّجَّارُ - Marangoz / İsim
+اَلْعَطَّارُ - Aktar, parfümeri / İsim
+عِطْرٌ - Parfüm, koku / İsim
+عُطُورٌ - Parfümler, kokular / İsim
+اَلتِّلْفَازُ - Televizyon / İsim
+
+7. Bölüm: Bir Müslümanın Hayatında Bir Gün (اَلْيَوْمُ فِي حَيَااةِ الْمُسْلِمِ)
+اَلْمُذِيعُ - Spiker, sunucu / İsim
+اَلشَّخْصُ الَّذِي يَنْقُلُ الْأَخْبَارَ - Haberleri aktaran kişi / Tanım Cümlesi
+اَلْقَسَمُ - Yemin / İsim
+اَلْيَمِينُ - Yemin / İsim
+أَقْسَمَ - Yemin etti / Mazi Fiil
+حَلَفَ - Yemin etti / Mazi Fiil
+خُسْرٌ - Zarar, ziyan / Mastar
+خُسْرَانٌ - Zarar, ziyan / Mastar
+اَلْوَصِيَّةُ - Vasiyet, tavsiye / İsim
+اَلنَّصِيحَةُ - Nasihat, tavsiye / İsim
+تَوَاصَى - Birbirine tavsiye etti / Mazi Fiil
+تَنَاصَحَ - Birbirine nasihat etti / Mazi Fiil
+اِسْتَيْقَظَ - Uyandı / Mazi Fiil
+نَامَ - Uyudu / Mazi Fiil
+وَقَفَ - Durdu, ayağa kalktı / Mazi Fiil
+قَامَ - Kalktı / Mazi Fiil
+جَلَسَ - Oturdu / Mazi Fiil
+يَقُومُ - Kalkar, kalkıyor / Muzâri Fiil
+قِيَامٌ - Kalkma / Mastar
+قَامَ بِ - Yaptı, yerine getirdi / Mazi Fiil
+عَمِلَ - Yaptı, çalıştı / Mazi Fiil
+فَعَلَ - Yaptı / Mazi Fiil
+اِسْتَعَدَّ لِ - -e hazırlandı / Mazi Fiil
+تَجَهَّزَ لِ - -e hazırlandı / Mazi Fiil
+تَحَضَّرَ لِ - -e hazırlandı / Mazi Fiil
+كَنَسَ - Süpürdü / Mazi Fiil
+يَكْنُسُ - Süpürür, süpürüyor / Muzâri Fiil
+مِكْنَسَةٌ - Süpürge / İsim
+كَسَا - Giydirdi / Mazi Fiil
+يَكْسُو - Giydirir, giydiriyor / Muzâri Fiil
+كُسْوَةٌ - Giysi, elbise / İsim
+حِصْنٌ - Kale / İsim
+حُصُونٌ - Kaleler / İsim
+سِلَاحٌ - Silah / İsim
+أَسْلِحَةٌ - Silahlar / İsim
+مَرَضٌ - Hastalık / İsim
+أَمْرَاضٌ - Hastalıklar / İsim
+خَصَّصَ - Tahsis etti, ayırdı / Mazi Fiil
+يُخَصِّصُ - Tahsis eder, ayırıyor / Muzâri Fiil
+تَخْصِيصٌ - Tahsis etme, ayırma / Mastar
+بَرْنَامَجٌ - Program / İsim
+بَرَامِجُ - Programlar / İsim
+اِسْتَطَاعَ - Ebildi, gücü yetti / Mazi Fiil
+يَسْتَطِيعُ - Ebilir, gücü yetiyor / Muzâri Fiil
+اِسْتِطَاعَةٌ - Güç yetirebilme / Mastar
+تَوَضَّأَ - Abdest aldı / Mazi Fiil
+يَتَوَضَّأُ - Abdest alır, abdest alıyor / Muzâri Fiil
+وُضُوءٌ - Abdest / Mastar
+أَذَّنَ - Ezan okudu / Mazi Fiil
+يُؤَذِّنُ - Ezan okur, ezan okuyor / Muzâri Fiil
+رَدَّدَ - Tekrar etti / Mazi Fiil
+يُرَدِّدُ - Tekrar eder, tekrar ediyor / Muzâri Fiil
+تَرْدِيدٌ - Tekrar etme / Mastar
+كَرَّرَ - Tekrar etti / Mazi Fiil
+يُكَرِّرُ - Tekrar eder, tekrar ediyor / Muzâri Fiil
+تَكْرِيرٌ - Tekrar etme / Mastar
+اَلتَّامَّةُ - Tam, eksiksiz / Sıfat
+اَلْكَامِلَةُ - Tam, kamil / Sıfat
+اَلنَّاقِصَةُ - Eksik / Sıfat
+أَتَى - Geldi / Mazi Fiil
+يَأْتِي - Gelir, geliyor / Muzâri Fiil
+إِتْيَانٌ - Gelme / Mastar
+جَاءَ - Geldi / Mazi Fiil
+حَضَرَ - Geldi, hazır oldu / Mazi Fiil
+قَدِمَ - Geldi / Mazi Fiil
+آتَى - Verdi / Mazi Fiil
+يُؤْتِي - Verir, veriyor / Muzâri Fiil
+إِيتَاءٌ - Verme / Mastar
+أَعْطَى - Verdi / Mazi Fiil
+وَعَدَ - Söz verdi / Mazi Fiil
+يَعِدُ - Söz verir, söz veriyor / Muzâri Fiil
+وَعْدٌ - Söz, vaat / Mastar
+وَصَلَ - Ulaştı, vardı / Mazi Fiil
+يَصِلُ - Ulaşır, varıyor / Muzâri Fiil
+وُصُولٌ - Ulaşma, varma / Mastar
+بَلَغَ - Ulaştı / Mazi Fiil
+تَوَاصَلَ - İletişim kurdu / Mazi Fiil
+يَتَوَاصَلُ - İletişim kurar, iletişim kuruyor / Muzâri Fiil
+اِرْتَبَطَ - Bağlandı / Mazi Fiil
+يَرْتَبِطُ - Bağlanır, bağlanıyor / Muzâri Fiil
+اِرْتِبَاطٌ - Bağlantı, irtibat / Mastar
+اَلْآتِي - Gelen, sonraki / İsm-i Fâil
+اَلتَّالِي - Sonraki, takip eden / İsm-i Fâil
+اَلْيَوْمُ التَّالِي - Ertesi gün / Sıfat Tamlaması
+اَلْيَوْمُ الْآتِي - Gelecek gün / Sıfat Tamlaması
+خِلَالَ - Esnasında, sırasında / Zarf
+أَثْنَاءَ - Esnasında, sırasında / Zarf
+هَاتِفٌ ذَكِيٌّ - Akıllı telefon / Sıfat Tamlaması
+اَلْهَوَاتِفُ الذَّكِيَّةُ - Akıllı telefonlar / Sıfat Tamlaması
+قَضَى - Geçirdi (zaman), hükmetti / Mazi Fiil
+يَقْضِي - Geçirir, hükmeder / Muzâri Fiil
+قَضَاءٌ - Geçirme, hükmetme / Mastar
+حَكَمَ - Hükmetti / Mazi Fiil
+يَحْكُمُ - Hükmeder, hükmediyor / Muzâri Fiil
+حُكْمٌ - Hüküm / Mastar
+اَلْقَاضِي - Kadı, hakim / İsm-i Fâil
+اَلْحَاكِمُ - Yönetici, hakim / İsm-i Fâil
+أَمْضَى - Geçirdi (zaman) / Mazi Fiil
+قَضَى عَلَى - Yok etti, helak etti / Mazi Fiil
+أَهْلَكَ - Helak etti / Mazi Fiil
+اِسْتَرَاحَ - Dinlendi / Mazi Fiil
+يَسْتَرِيحُ - Dinlenir, dinleniyor / Muzâri Fiil
+اِسْتِرَاحَةٌ - Dinlenme, istirahat / Mastar
+تَعِبَ - Yoruldu / Mazi Fiil
+يَتْعَبُ - Yorulur, yoruluyor / Muzâri Fiil
+تَعَبٌ - Yorgunluk / Mastar
+طَلَعَ - Çıktı, doğdu (güneş) / Mazi Fiil
+يَطْلُعُ - Çıkar, doğuyor / Muzâri Fiil
+طُلُوعٌ - Çıkma, doğma / Mastar
+أَشْرَقَ - Doğdu, parladı (güneş) / Mazi Fiil
+يُشْرِقُ - Doğar, parlıyor / Muzâri Fiil
+إِشْرَاقٌ - Doğma, parlama / Mastar
+اِتَّصَلَ - Temas kurdu, aradı / Mazi Fiil
+اِسْتَخْدَمَ - Kullandı / Mazi Fiil
+اِسْتَعْمَلَ - Kullandı / Mazi Fiil
+أَدَارَ - Yönetti, idare etti / Mazi Fiil
+يُدِيرُ - Yönetir, idare ediyor / Muzâri Fiil
+إِدَارَةٌ - Yönetim, idare / Mastar
+اِغْتَسَلَ - Yıkandı, gusletti / Mazi Fiil
+اِسْتَحَمَّ - Banyo yaptı, yıkandı / Mazi Fiil
+أَعَدَّ - Hazırladı / Mazi Fiil
+حَضَّرَ - Hazırladı / Mazi Fiil
+طَبَخَ - Pişirdi / Mazi Fiil
+جَهَّزَ - Hazırladı / Mazi Fiil
+
+8. Bölüm: Hayatımdaki En İyi İnsanlar (مِنْ أَفْضَلِ الْأَشْخَاصِ فِي حَيَاتِي)
+كَوَى - Ütüledi / Mazi Fiil
+يَكْوِي - Ütüler, ütülüyor / Muzâri Fiil
+كَيٌّ - Ütüleme / Mastar
+مَكْوِيٌّ - Ütülenmiş / İsm-i Mef'ûl
+مِكْوَاةٌ - Ütü / İsim
+كَوَّايَةٌ - Ütü / İsim
+وَصَفَ - Vasıflandırdı, niteledi / Mazi Fiil
+يَصِفُ - Vasıflandırır, niteliyor / Muzâri Fiil
+وَصْفٌ - Vasıflandırma, niteleme / Mastar
+صِفَةٌ - Sıfat, özellik / İsim
+نَعَتَ - Niteledi / Mazi Fiil
+يَنْعَتُ - Niteler, niteliyor / Muzâri Fiil
+نَعْتٌ - Niteleme / Mastar
+طَالَ - Uzadı / Mazi Fiil
+يَطُولُ - Uzar, uzuyor / Muzâri Fiil
+طُولٌ - Uzunluk / Mastar
+قَصُرَ - Kısaldı / Mazi Fiil
+يَقْصُرُ - Kısalır, kısalıyor / Muzâri Fiil
+قِصَرٌ - Kısalık / Mastar
+قَصِيرٌ - Kısa / Sıfat
+طَوِيلٌ - Uzun / Sıfat
+اَلْوَزْنُ - Ağırlık / İsim
+اَلثِّقَلُ - Ağırlık, yük / İsim
+سَاعَدَ - Yardım etti / Mazi Fiil
+نَصَرَ - Yardım etti / Mazi Fiil
+سَمِينٌ - Şişman / Sıfat
+نَحِيفٌ - Zayıf / Sıfat
+اِلْتَقَى بِ - ile buluştu, karşılaştı / Mazi Fiil
+يَلْتَقِي بِ - ile buluşur, karşılaşıyor / Muzâri Fiil
+لِقَاءٌ بِ - ile buluşma, karşılaşma / Mastar
+قَابَلَ - Karşıladı, buluştu / Mazi Fiil
+يُقَابِلُ - Karşılar, buluşuyor / Muzâri Fiil
+فَضَّلَ - Tercih etti / Mazi Fiil
+يُفَضِّلُ - Tercih eder, tercih ediyor / Muzâri Fiil
+رَجَّحَ - Tercih etti, üstün tuttu / Mazi Fiil
+يُرَجِّحُ - Tercih eder, üstün tutuyor / Muzâri Fiil
+تَرْجِيحٌ - Tercih etme / Mastar
+أَسْوَدُ - Siyah (eril) / Sıfat
+سَوْدَاءُ - Siyah (dişil) / Sıfat
+أَبْيَضُ - Beyaz (eril) / Sıfat
+بَيْضَاءُ - Beyaz (dişil) / Sıfat
+أَحْمَرُ - Kırmızı (eril) / Sıfat
+حَمْرَاءُ - Kırmızı (dişil) / Sıfat
+أَسْمَرُ - Esmer / Sıfat
+أَزْرَقُ - Mavi / Sıfat
+أَصْفَرُ - Sarı / Sıfat
+أَخْضَرُ - Yeşil / Sıfat
+أَمْلَسُ - Pürüzsüz / Sıfat
+مُجَعَّدٌ - Kıvırcık, buruşuk / İsm-i Mef'ûl
+بَشَرَةٌ - Cilt, ten / İsim
+جِلْدٌ - Cilt, deri / İsim
+بُنٌّ - Kahverengi / İsim
+قَهْوَةٌ - Kahve / İsim
+فَتَاةٌ - Genç kız / İsim
+فَتَيَاتٌ - Genç kızlar / İsim
+شَابَّةٌ - Genç kadın / İsim
+رَمَادِيٌّ - Gri / Sıfat
+بَنَفْسَجِيٌّ - Mor / Sıfat
+كُحْلِيٌّ - Lacivert / Sıfat
+بُرْتُقَالِيٌّ - Turuncu / Sıfat
+وَرْدِيٌّ - Pembe / Sıfat
+ذَهَبِيٌّ - Altın rengi / Sıfat
+أَزْرَقُ فَاتِحٌ - Açık mavi / Sıfat Tamlaması
+أَزْرَقُ غَامِقٌ - Koyu mavi / Sıfat Tamlaması
+دَاكِنٌ - Koyu / Sıfat
+فَاتِحٌ - Açık / Sıfat
+أَحْمَرُ مُشَكَّلٌ - Karışık kırmızı / Sıfat Tamlaması
+حِذَاءٌ رِيَاضِيٌّ - Spor ayakkabı / Sıfat Tamlaması
+أَنِيقٌ - Şık, zarif / Sıfat
+ظَرِيفٌ - Zarif, hoş / Sıfat
+رَتَّبَ - Düzenledi / Mazi Fiil
+نَظَّمَ - Düzenledi, organize etti / Mazi Fiil
+مُرَتَّبٌ - Düzenli / İsm-i Mef'ûl
+مُنَظَّمٌ - Düzenli, organize / İsm-i Mef'ûl
+عَشْوَائِيٌّ - Rastgele, dağınık / Sıfat
+ذُو - Sahibi / İsim
+صَاحِبٌ - Sahip, arkadaş / İsim
+ذُو أَخْلَاقٍ - Ahlak sahibi / İsim Tamlaması
+ذُو أَدَبٍ - Edepli / İsim Tamlaması
+ذُو نَظَّارَةٍ - Gözlüklü / İsim Tamlaması
+ذَاتُ نَظَّارَةٍ - Gözlüklü (dişil) / İsim Tamlaması
+ذُو لِحْيَةٍ - Sakallı / İsim Tamlaması
+وَاسِعٌ - Geniş / Sıfat
+ضَيِّقٌ - Dar / Sıfat
+خُلُقٌ - Ahlak, karakter / İsim
+أَخْلَاقٌ - Ahlak / İsim
+خُلُقِيٌّ - Ahlaki / Sıfat
+خَلْقِيٌّ - Yaratılışla ilgili / Sıfat
+وَقَعَ - Düştü, oldu / Mazi Fiil
+يَقَعُ - Düşer, olur / Muzâri Fiil
+وُقُوعٌ - Düşme, olma / Mastar
+حَدَثَ - Oldu, meydana geldi / Mazi Fiil
+فُصُولُ السَّنَةِ - Yılın mevsimleri / İsim Tamlaması
+
+9. Bölüm: Yılın Mevsimleri (فُصُولُ السَّنَةِ)
+فَصْلٌ - Mevsim / İsim
+مَوْسِمٌ - Mevsim, sezon / İsim
+أَفْضَلُ - En iyi, daha iyi / İsm-i Tafdîl
+أَرْجَحُ - Daha üstün, tercih edilen / İsm-i Tafdîl
+فَتَحَ - Açtı / Mazi Fiil
+تَفَتَّحَ - Açıldı (çiçek) / Mazi Fiil
+يَتَفَتَّحُ - Açılır, açılıyor / Muzâri Fiil
+أَزْهَرَ - Çiçek açtı / Mazi Fiil
+يُزْهِرُ - Çiçek açar, çiçek açıyor / Muzâri Fiil
+إِزْهَارٌ - Çiçek açma / Mastar
+نَمَا - Büyüdü, gelişti / Mazi Fiil
+يَنْمُو - Büyür, gelişiyor / Muzâri Fiil
+نُمُوٌّ - Büyüme, gelişme / Mastar
+زَادَ - Arttı, çoğaldı / Mazi Fiil
+يَزِيدُ - Artar, çoğalıyor / Muzâri Fiil
+زِيَادَةٌ - Artış, fazlalık / Mastar
+كَ - Gibi / Edat
+مِثْلُ - Gibi / İsim
+اَلْجُورِيُّ - Gül / İsim
+اَلْوَرْدُ - Gül / İsim
+لَبِسَ - Giydi / Mazi Fiil
+اِرْتَدَى - Giydi / Mazi Fiil
+خَلَعَ - Çıkardı (giysi) / Mazi Fiil
+مُعْتَدِلٌ - Ilıman, ölçülü / İsm-i Fâil
+ثَقِيلٌ - Ağır / Sıfat
+خَفِيفٌ - Hafif / Sıfat
+غَابَةٌ - Orman / İsim
+غَابَاتٌ - Ormanlar / İsim
+اِسْتَمْتَعَ بِ - Keyif aldı, zevk aldı / Mazi Fiil
+تَمَتَّعَ بِ - Keyif aldı, zevk aldı / Mazi Fiil
+تَذَوَّقَ - Tattı / Mazi Fiil
+رَوَّحَ عَنْ نَفْسِهِ - Dinlendi, rahatladı / Mazi Fiil
+اِسْتَرَاحَ - Dinlendi / Mazi Fiil
+مَصِيفٌ - Yazlık, sayfiye / İsim
+مَصَايِفُ - Yazlıklar, sayfiyeler / İsim
+مَسْبَحٌ - Yüzme havuzu / İsim
+مَسَابِحُ - Yüzme havuzları / İsim
+أَعَدَّ - Hazırladı / Mazi Fiil
+جَهَّزَ - Hazırladı / Mazi Fiil
+حَضَّرَ - Hazırladı / Mazi Fiil
+مَهَّدَ - Hazırladı / Mazi Fiil
+سَقَطَ - Düştü / Mazi Fiil
+يَسْقُطُ - Düşer, düşüyor / Muzâri Fiil
+سُقُوطٌ - Düşme / Mastar
+وَقَعَ - Düştü, oldu / Mazi Fiil
+تَسَاقَطَ - Döküldü (yapraklar) / Mazi Fiil
+يَتَسَاقَطُ - Dökülür, dökülüyor / Muzâri Fiil
+تَسَاقُطٌ - Dökülme / Mastar
+مَالَ إِلَى - -e eğilim gösterdi, -e meyletti / Mazi Fiil
+غَيْمٌ - Bulut / İsim
+غُيُومٌ - Bulutlar / İsim
+غَمَامٌ - Bulut / İsim
+سَحَابٌ - Bulut / İsim
+سُحُبٌ - Bulutlar / İsim
+اَلْبُرُودَةُ - Soğukluk / İsim
+اَلْحَرَارَةُ - Sıcaklık / İsim
+هَبَّ - Esti (rüzgar) / Mazi Fiil
+يَهُبُّ - Eser, esiyor / Muzâri Fiil
+رِيحٌ - Rüzgar / İsim
+رِيَاحٌ - Rüzgarlar / İsim
+هَطَلَ - Yağdı (yağmur) / Mazi Fiil
+يَهْطِلُ - Yağar, yağıyor / Muzâri Fiil
+هَطُولٌ - Yağma / Mastar
+نَزَلَ - İndi, yağdı / Mazi Fiil
+يَنْزِلُ - İner, yağıyor / Muzâri Fiil
+نُزُولٌ - İnme, yağma / Mastar
+مَطَرٌ - Yağmur / İsim
+أَمْطَارٌ - Yağmurlar / İsim
+غَزِيرٌ - Bol, şiddetli / Sıfat
+كَثِيرٌ - Çok / Sıfat
+اِصْفَرَّ - Sarardı / Mazi Fiil
+اِحْمَرَّ - Kızardı / Mazi Fiil
+اِخْضَرَّ - Yeşerdi / Mazi Fiil
+اِزْرَقَّ - Mavileşti / Mazi Fiil
+اِبْيَضَّ - Beyazladı / Mazi Fiil
+اِسْوَدَّ - Karardı / Mazi Fiil
+قَلَّ - Azaldı / Mazi Fiil
+كَثُرَ - Çoğaldı / Mazi Fiil
+اَلطَّقْسُ - Hava durumu / İsim
+اَلْجَوُّ - Hava / İsim
+اَلْحَدَائِقُ الْخَضْرَاءُ - Yeşil bahçeler / Sıfat Tamlaması
+اَلْمُتَنَزَّهَاتُ - Parklar, mesire yerleri / İsim
+حَمَى - Korudu / Mazi Fiil
+يَحْمِي - Korur, koruyor / Muzâri Fiil
+حِمَايَةٌ - Koruma / Mastar
+حَفِظَ - Korudu, ezberledi / Mazi Fiil
+يَحْفَظُ - Korur, ezberliyor / Muzâri Fiil
+حِفْظٌ - Koruma, ezberleme / Mastar
+ثَمَرٌ - Meyve, ürün / İsim
+ثِمَارٌ - Meyveler, ürünler / İsim
+ثَمَرَةٌ - Meyve (tekil) / İsim
+ثَمَرَاتٌ - Meyveler / İsim
+أَثْمَرَ - Meyve verdi / Mazi Fiil
+خَرَجَ - Çıktı / Mazi Fiil
+أَخْرَجَ - Çıkardı / Mazi Fiil
+مُشْمِسٌ - Güneşli / İsm-i Fâil
+غَائِمٌ - Bulutlu / İsm-i Fâil
+شَمَّ - Kokladı / Mazi Fiil
+يَشُمُّ - Koklar, kokluyor / Muzâri Fiil
+تَنَفَّسَ الرَّائِحَةَ - Kokuyu içine çekti / Cümle
+نَضِجَ - Olgunlaştı / Mazi Fiil
+يَنْضِجُ - Olgunlaşır, olgunlaşıyor / Muzâri Fiil
+وَجْبَةُ الْغَدَاءِ، وَجْبَتِي الْمُفَضَّلَةُ - Öğle yemeği, favori öğünüm / İsim Tamlaması
+
+10. Bölüm: Alışveriş Günü (يَوْمُ التَّسَوُّقِ)
+اَلتَّسَوُّقُ - Alışveriş / Mastar
+اَلْبَيْعُ وَالشِّرَاءُ - Alış ve satış / İfade
+بَاعَ - Sattı / Mazi Fiil
+يَبِيعُ - Satar, satıyor / Muzâri Fiil
+بَيْعٌ - Satma, satış / Mastar
+اِشْتَرَى - Satın aldı / Mazi Fiil
+حَضَرَ - Geldi, hazır bulundu / Mazi Fiil
+جَاءَ - Geldi / Mazi Fiil
+أَمْتَعَ - Zevk verdi, eğlendirdi / Mazi Fiil
+يُمْتِعُ - Zevk verir, eğlendiriyor / Muzâri Fiil
+إِمْتَاعٌ - Zevk verme, eğlendirme / Mastar
+أَدْخَلَ الْمُتْعَةَ - Zevk/eğlence kattı / Cümle
+بَاكِرٌ - Erken / Zarf
+مُبَكِّرٌ - Erken / İsm-i Fâil
+مُتَأَخِّرٌ - Geç / İsm-i Fâil
+جُبْنٌ - Peynir / İsim
+أَجْبَانٌ - Peynirler / İsim
+لَبَنٌ - Süt, ayran / İsim
+أَلْبَانٌ - Süt ürünleri / İsim
+بِضَاعَةٌ - Mal, ürün / İsim
+بَضَائِعُ - Mallar, ürünler / İsim
+اَلْمَالُ التِّجَارِيُّ - Ticari mal / Sıfat Tamlaması
+زَبُونٌ - Müşteri / İsim
+زَبَائِنُ - Müşteriler / İsim
+اَلْمُشْتَرِي - Alıcı, müşteri / İsm-i Fâil
+مُعْظَمٌ - Çoğu, ekserisi / İsim
+أَكْثَرِيَّةٌ - Çoğunluk / İsim
+أَغْلَبِيَّةٌ - Çoğunluk / İsim
+بَائِتٌ - Bayat / İsm-i Fâil
+طَازَجٌ - Taze / Sıfat
+نَوْعٌ - Tür, çeşit / İsim
+أَنْوَاعٌ - Türler, çeşitler / İsim
+مَحَلٌّ - Dükkan, mağaza / İsim
+دُكَّانٌ - Dükkan / İsim
+مَحَلَّاتٌ - Dükkanlar, mağazalar / İsim
+دَكَاكِينُ - Dükkanlar / İsim
+عَرَضَ - Sundu, sergiledi / Mazi Fiil
+يَعْرِضُ - Sunar, sergiliyor / Muzâri Fiil
+عَرْضٌ - Sunum, sergi / Mastar
+قَدَّمَ - Sundu, takdim etti / Mazi Fiil
+لَازِمٌ - Gerekli şey, ihtiyaç / İsim
+لَوَازِمُ - Gerekli şeyler, ihtiyaçlar / İsim
+اِحْتِيَاجٌ - İhtiyaç / Mastar
+اِحْتِيَاجَاتٌ - İhtiyaçlar / İsim
+
+11. Bölüm: Doktorun Yanında (عِنْدَ الطَّبِيبِ)
+اَلصُّدَاعُ - Baş ağrısı / İsim
+أَلَمُ الرَّأْسِ - Baş ağrısı / İsim Tamlaması
+اِتَّصَلَ بِ - ile temas kurdu, -i aradı / Mazi Fiil
+يَتَّصِلُ بِ - ile temas kurar, -i arıyor / Muzâri Fiil
+اِتِّصَالٌ بِ - ile temas kurma, arama / Mastar
+اَلاِتِّصَالَاتُ - İletişim, telekomünikasyon / İsim
+ضَغْطٌ - Basınç, tansiyon / İsim
+فَحَصَ - Muayene etti / Mazi Fiil
+عَايَنَ - Muayene etti, gözlemledi / Mazi Fiil
+يُعَايِنُ - Muayene eder, gözlemliyor / Muzâri Fiil
+مُعَايَنَةٌ - Muayene / Mastar
+قَاسَ - Ölçtü / Mazi Fiil
+يَقِيسُ - Ölçer, ölçüyor / Muzâri Fiil
+قِيَاسٌ - Ölçme, ölçü / Mastar
+مِقْيَاسٌ - Ölçü aleti, ölçek / İsim
+بَطْنٌ - Karın / İsim
+نَادَى - Seslendi, çağırdı / Mazi Fiil
+يُنَادِي - Seslenir, çağırıyor / Muzâri Fiil
+نِدَاءٌ - Seslenme, çağrı / Mastar
+صَاحَ - Bağırdı / Mazi Fiil
+يَصِيحُ - Bağırır, bağırıyor / Muzâri Fiil
+دَارَ - Döndü / Mazi Fiil
+يَدُورُ - Döner, dönüyor / Muzâri Fiil
+دَوَرَانٌ - Dönme / Mastar
+دُوَارٌ - Baş dönmesi / İsim
+زُكَامٌ - Nezle, grip / İsim
+اَلنَّزْلَةُ - Nezle / İsim
+ضَغَطَ - Bastırdı, basınç uyguladı / Mazi Fiil
+يَضْغَطُ - Bastırır, basınç uyguluyor / Muzâri Fiil
+صَدْرٌ - Göğüs / İsim
+صُدُورٌ - Göğüsler / İsim
+عَرَضٌ - Belirti, semptom / İsim
+أَعْرَاضٌ - Belirtiler, semptomlar / İsim
+عَلَامَةٌ - İşaret, belirti / İsim
+مُصَابٌ بِ - -e yakalanmış, -den muzdarip / İsm-i Mef'ûl
+جَانِبٌ - Yan, taraf / İsim
+عِنْدَ - Yanında / Zarf
+وَصَفَ - Reçete yazdı, tanımladı / Mazi Fiil
+يَصِفُ - Reçete yazar, tanımlıyor / Muzâri Fiil
+وَصْفٌ - Reçete, tanım / Mastar
+سَلِيمٌ - Sağlam, sağlıklı / Sıfat
+صَحِيحٌ - Doğru, sağlıklı / Sıfat
+مَرِيضٌ - Hasta / Sıfat
+عَلِيلٌ - Hasta / Sıfat
+سَقِيمٌ - Hasta / Sıfat
+شَعَرَ بِ - Hissetti / Mazi Fiil
+أَحَسَّ بِ - Hissetti / Mazi Fiil
+أَصَابَ - İsabet etti, yakalandı / Mazi Fiil
+يُصِيبُ - İsabet eder, yakalanıyor / Muzâri Fiil
+إِصَابَةٌ بِ - Yakalanma / Mastar
+مُصِيبٌ - İsabet ettiren / İsm-i Fâil
+مُصَابٌ - İsabet alan, yakalanmış / İsm-i Mef'ûl
+اِسْتَرَاحَ - Dinlendi / Mazi Fiil
+اِرْتَاحَ - Rahatladı, dinlendi / Mazi Fiil
+قَابَلَ - Görüştü, karşıladı / Mazi Fiil
+رَاجَعَ - Kontrole gitti, gözden geçirdi / Mazi Fiil
+تَعَافَى - İyileşti / Mazi Fiil
+تَحَسَّنَ - İyileşti, düzeldi / Mazi Fiil
+مَرِضَ - Hastalandı / Mazi Fiil
+أُصِيبَ بِمَرَضٍ - Hastalığa yakalandı / Cümle
+
+12. Bölüm: Hobiler (اَلْهِوَايَاتُ)
+مَارَسَ - Yaptı, icra etti / Mazi Fiil
+اِشْتَغَلَ - Çalıştı, meşgul oldu / Mazi Fiil
+اَلنَّشَاطُ - Aktivite, faaliyet / İsim
+اَلْفَعَالِيَّةُ - Etkinlik, faaliyet / İsim
+فَرَغَ - Boşaldı, bitirdi / Mazi Fiil
+يَفْرُغُ - Boşalır, bitiriyor / Muzâri Fiil
+فَرَاغٌ - Boşluk, boş zaman / Mastar
+فَارِغٌ - Boş / İsm-i Fâil
+مَلِيءٌ - Dolu / Sıfat
+اَلْمُتْعَةُ - Zevk, keyif / İsim
+اَلذَّوْقُ - Zevk, tat / İsim
+اَلتَّسْلِيَةُ - Eğlence / İsim
+مَلَّ - Sıkıldı, bıktı / Mazi Fiil
+يَمَلُّ - Sıkılır, bıkıyor / Muzâri Fiil
+مَلَلٌ - Sıkıntı, bıkkınlık / Mastar
+سَئِمَ - Sıkıldı, usandı / Mazi Fiil
+يَسْأَمُ - Sıkılır, usanıyor / Muzâri Fiil
+سَآمَةٌ - Usanç, bıkkınlık / Mastar
+أَعْطَى - Verdi / Mazi Fiil
+يُعْطِي - Verir, veriyor / Muzâri Fiil
+إِعْطَاءٌ - Verme / Mastar
+عَطَاءٌ - Verme, bağış / Mastar
+أَخَذَ - Aldı / Mazi Fiil
+اَلْعَنَاءُ - Yorgunluk, zahmet / İsim
+اَلتَّعَبُ - Yorgunluk / İsim
+اَلْمَشَقَّةُ - Meşakkat, zorluk / İsim
+اَلْإِرْهَاقُ - Aşırı yorgunluk / İsim
+نَمَا - Büyüdü, arttı / Mazi Fiil
+كَثُرَ - Çoğaldı / Mazi Fiil
+زَادَ - Arttı / Mazi Fiil
+يَزِيدُ - Artar, artıyor / Muzâri Fiil
+زِيَادَةٌ - Artış / Mastar
+نَقَصَ - Azaldı / Mazi Fiil
+يَنْقُصُ - Azalır, azalıyor / Muzâri Fiil
+نَقْصٌ - Azalma, eksiklik / Mastar
+نُقْصَانٌ - Eksilme / Mastar
+قَوَّى - Güçlendirdi / Mazi Fiil
+يُقَوِّي - Güçlendirir, güçlendiriyor / Muzâri Fiil
+تَقْوِيَةٌ - Güçlendirme / Mastar
+اَلنَّفْسِيَّةُ - Psikolojik, ruhi / Sıfat
+اَلرُّوحِيَّةُ - Ruhi, manevi / Sıfat
+رَغِبَ فِي - -i istedi, arzuladı / Mazi Fiil
+شَجَّعَ عَلَى - Teşvik etti / Mazi Fiil
+شَوَّقَ عَلَى - Özendirdi, teşvik etti / Mazi Fiil
+اَلْمَعْرُوفُ - Bilinen, iyilik / İsim
+اَلْمَعْلُومُ - Bilinen, malum / İsim
+جَرَى - Koştu / Mazi Fiil
+يَجْرِي - Koşar, koşuyor / Muzâri Fiil
+جَرْيٌ - Koşma / Mastar
+مَشَى - Yürüdü / Mazi Fiil
+يَمْشِي - Yürür, yürüyor / Muzâri Fiil
+مَشْيٌ - Yürüme / Mastar
+اِهْتَمَّ بِ - Önem verdi, ilgilendi / Mazi Fiil
+يَهْتَمُّ بِ - Önem verir, ilgileniyor / Muzâri Fiil
+اِهْتِمَامٌ بِ - Önem verme, ilgilenme / Mastar
+اِعْتَنَى بِ - İlgilendi, özen gösterdi / Mazi Fiil
+يَعْتَنِي بِ - İlgilenir, özen gösteriyor / Muzâri Fiil
+اِعْتِنَاءٌ بِ - İlgilenme, özen gösterme / Mastar
+قَالَ - Dedi, söyledi / Mazi Fiil
+يَقُولُ - Der, söylüyor / Muzâri Fiil
+قَوْلٌ - Söz, söyleme / Mastar
+رَمَى - Attı / Mazi Fiil
+يَرْمِي - Atar, atıyor / Muzâri Fiil
+رَمْيٌ - Atma / Mastar
+رِمَايَةٌ - Atıcılık / Mastar
+اَلرَّامِي - Atıcı / İsm-i Fâil
+مَرْمِيٌّ - Atılmış / İsm-i Mef'ûl
+اَلْعَهْدُ - Dönem, zaman, söz / İsim
+اَلزَّمَنُ - Zaman / İsim
+اَلْوَعْدُ - Söz, vaat / İsim
+اِشْتَهَرَ بِ - ile meşhur oldu, tanındı / Mazi Fiil
+مَشْهُورٌ - Meşhur, ünlü / İsm-i Mef'ûl
+مَعْلُومٌ - Bilinen / İsm-i Mef'ûl
+تَسَلَّقَ - Tırmandı / Mazi Fiil
+بَدَنِيَّةٌ - Bedensel / Sıfat
+جِسْمِيَّةٌ - Fiziksel, bedensel / Sıfat
+مِنْضَدَةٌ - Masa / İsim
+طَاوِلَةٌ - Masa / İsim
+اَلْقَلَقُ - Endişe, kaygı / İsim
+اَلْخَوْفُ - Korku / İsim
+كَبِيرٌ فِي السِّنِّ - Yaşlı / İfade
+صَغِيرٌ فِي السِّنِّ - Genç, küçük yaşta / İfade
+مَرِيضٌ - Hasta / Sıfat
+صَحِيحٌ - Sağlıklı / Sıfat
+قِسْمٌ - Bölüm, kısım / İsim
+اِنْقَسَمَ - Bölündü / Mazi Fiil
+مَسْرَحٌ - Tiyatro, sahne / İsim
+اَلتَّصْوِيرُ - Fotoğrafçılık / Mastar
+اَلتَّطْرِيزُ - Nakış, işleme / Mastar
+اَلنَّقْشُ - Oyma, işleme / Mastar
+اَلْبَسْتَنَةُ - Bahçıvanlık / Mastar
+فِكْرِيَّةٌ - Zihinsel, düşünsel / Sıfat
+اَلتَّزَلُّجُ - Kayak yapma / Mastar
+اَلصَّيْدُ - Avcılık / Mastar
+اَلْمُصَارَعَةُ - Güreş / Mastar
+اَلسَّيْفُ - Kılıç / İsim
+اَلْقَدِيمَةُ - Eski / Sıfat
+اَلْأَشْكَالُ - Şekiller, biçimler / İsim
+
+13. Bölüm: Yaz Tatili (اَلْإِجَازَةُ الصَّيْفِيَّةُ)
+أَجَازَ - İzin verdi / Mazi Fiil
+يُجِيزُ - İzin verir, izin veriyor / Muzâri Fiil
+إِجَازَةٌ - İzin, tatil / Mastar
+أَذِنَ - İzin verdi / Mazi Fiil
+يَأْذَنُ - İzin verir, izin veriyor / Muzâri Fiil
+إِذْنٌ - İzin / Mastar
+عُطْلَةٌ - Tatil / İsim
+ذِكْرَى - Anı, hatıra / İsim
+ذِكْرَيَاتٌ - Anılar, hatıralar / İsim
+خَاطِرَةٌ - Hatıra, düşünce / İsim
+خَاطِرَاتٌ - Hatıralar, düşünceler / İsim
+مُمَيَّزَةٌ - Özel, seçkin / İsm-i Mef'ûl
+فَرِيدَةٌ - Eşsiz, benzersiz / Sıfat
+وَقَعَ - Oldu, meydana geldi / Mazi Fiil
+يَقَعُ - Olur, meydana geliyor / Muzâri Fiil
+وُقُوعٌ - Olma, meydana gelme / Mastar
+حَدَثَ - Oldu / Mazi Fiil
+سَقَطَ - Düştü / Mazi Fiil
+اِعْتَبَرَ - Saydı, kabul etti / Mazi Fiil
+يَعْتَبِرُ - Sayar, kabul ediyor / Muzâri Fiil
+اِعْتِبَارٌ - Sayma, kabul etme / Mastar
+عَدَّ - Saydı / Mazi Fiil
+عَرِيقٌ - Köklü, eski / Sıfat
+عَمِيقٌ - Derin / Sıfat
+كَثِيفٌ - Yoğun, sık / Sıfat
+غَزِيرٌ - Bol, yoğun / Sıfat
+كَسَا - Giydirdi, kapladı / Mazi Fiil
+يَكْسُو - Giydirir, kaplıyor / Muzâri Fiil
+أَلْبَسَ - Giydirdi / Mazi Fiil
+يُلْبِسُ - Giydirir, giydiriyor / Muzâri Fiil
+إِلْبَاسٌ - Giydirme / Mastar
+غَطَّى - Örttü, kapladı / Mazi Fiil
+سَتَرَ - Örttü, gizledi / Mazi Fiil
+كَاسٍ - Giydiren, kaplayan / İsm-i Fâil
+مَكْسُوٌّ - Giydirilmiş, kaplanmış / İsm-i Mef'ûl
+مُغَطًّى - Örtülü, kaplı / İsm-i Mef'ûl
+مَسْتُورٌ - Örtülü, gizli / İsm-i Mef'ûl
+كِسَاءٌ - Giysi, örtü / İsim
+لِبَاسٌ - Giysi / İsim
+كِسْوَةٌ - Giysi / İsim
+غَالِبًا - Genellikle, çoğunlukla / Zarf
+عُمُومًا - Genellikle / Zarf
+نَوْعٌ - Tür, çeşit / İsim
+تَنَوَّعَ - Çeşitlendi / Mazi Fiil
+تَعَدَّدَ - Çoğaldı, çeşitlendi / Mazi Fiil
+كَثُرَ - Çoğaldı / Mazi Fiil
+بَرٌّ - Kara / İsim
+بَحْرٌ - Deniz / İsim
+بَرِّيٌّ - Karasal / Sıfat
+بَحْرِيٌّ - Denizsel / Sıfat
+اَلنَّبَاتُ الْبَرِّيُّ - Yabani bitki / Sıfat Tamlaması
+اَلْحَيَوَانَاتُ الْبَرِّيَّةُ - Vahşi hayvanlar / Sıfat Tamlaması
+اَلْبَرِّيَّةُ - Kır, yaban hayatı / İsim
+اَلْوَحْشِيَّةُ - Vahşi doğa / İsim
+طِوَالَ - Boyunca / Zarf
+خِلَالَ - Esnasında, boyunca / Zarf
+أَثْنَاءَ - Esnasında / Zarf
+اَلْمُدَوَّرُ - Yuvarlak / İsm-i Mef'ûl
+اَلدَّائِرِيُّ - Dairesel / Sıfat
+عَجِبَ - Şaşırdı, hayret etti / Mazi Fiil
+يَعْجَبُ - Şaşırır, hayret ediyor / Muzâri Fiil
+عَجَبٌ - Şaşkınlık, hayret / Mastar
+أَعْجَبَ - Beğendirdi, hayran bıraktı / Mazi Fiil
+يُعْجِبُ - Beğendirir, hayran bırakıyor / Muzâri Fiil
+إِعْجَابٌ - Beğeni, hayranlık / Mastar
+اَلسَّاحِرَةُ - Büyüleyici, çekici / İsm-i Fâil
+اَلْجَاذِبَةُ - Çekici / İsm-i Fâil
+عُرِفَ بِ - ile tanındı / Meçhul Mazi Fiil
+اُشْتُهِرَ بِ - ile meşhur oldu / Meçhul Mazi Fiil
+اَلْمُرْتَفِعُ - Yüksek / İsm-i Fâil
+اَلْعَالِي - Yüksek / Sıfat
+بَعْدَ - Sonra / Zarf
+قُرْبَ - Yakın / Zarf
+اَلسَّيْرُ - Yürüyüş, gidiş / Mastar
+اَلْمَشْيُ - Yürüyüş / Mastar
+سَقْفٌ - Tavan / İsim
+سَطْحٌ - Yüzey, çatı / İsim
+جِدَارٌ - Duvar / İsim
+حَائِطٌ - Duvar / İsim
+اَلْفَرَحُ - Sevinç, neşe / İsim
+اَلشُّرُورُ - Kötülükler / İsim
+اَلْحُزْنُ - Hüzün / İsim
+حَارِسٌ - Bekçi, koruma / İsm-i Fâil
+حُرَّاسٌ - Bekçiler, korumalar / İsim
+مُنَاوِبٌ - Nöbetçi / İsm-i Fâil
+اَلطَّبِيبُ الْمُنَاوِبُ - Nöbetçi doktor / Sıfat Tamlaması
+مَنَعَ - Engelledi, yasakladı / Mazi Fiil
+فَكَّرَ فِي - Düşündü / Mazi Fiil
+اَلْأَثَرِيَّةُ - Tarihi eserler, arkeolojik / Sıfat
+اَلتَّارِيخِيَّةُ - Tarihi / Sıfat
+اَلْبَادِيَةُ - Çöl, bozkır / İsim
+اَلصَّحْرَاءُ - Çöl / İsim
+
+14. Bölüm: Boş Zamanlar (أَوْقَاتُ الْفَرَاغِ) - Tam Liste
+قَضَى - Geçirdi (zaman) / Mazi Fiil
+يَقْضِي - Geçirir, geçiriyor / Muzâri Fiil
+قَضَاءٌ - Geçirme / Mastar
+اَلْقَاضِي - Kadı, hakim / İsm-i Fâil
+رُبْعٌ - Çeyrek / İsim
+أَرْبَاعٌ - Çeyrekler / İsim
+مَلَّ - Sıkıldı / Mazi Fiil
+سَئِمَ - Sıkıldı, usandı / Mazi Fiil
+أَمَلٌ - Umut / İsim
+مُمِلٌّ - Sıkıcı / İsm-i Fâil
+مُمْتِعٌ - Eğlenceli / İsm-i Fâil
+كَرَّرَ - Tekrar etti / Mazi Fiil
+رَدَّدَ - Tekrar etti / Mazi Fiil
+حَاوَلَ - Denedi, çabaladı / Mazi Fiil
+اِجْتَهَدَ - Çalıştı, çabaladı / Mazi Fiil
+سَعَى - Çabaladı, gayret etti / Mazi Fiil
+قَوِيٌّ - Güçlü / Sıfat
+سَيِّئٌ - Kötü / Sıfat
+قَبِيحٌ - Çirkin / Sıfat
+حَسَنٌ - İyi, güzel / Sıfat
+جَيِّدٌ - İyi / Sıfat
+دِرَاسَاتٌ - Çalışmalar, araştırmalar / İsim
+بُحُوثٌ - Araştırmalar / İsim
+فَصْلٌ دِرَاسِيٌّ - Akademik dönem, sömestr / Sıfat Tamlaması
+عَامٌ دِرَاسِيٌّ - Akademik yıl / Sıfat Tamlaması
+وَجَدَ - Buldu / Mazi Fiil
+يَجِدُ - Bulur, buluyor / Muzâri Fiil
+وَجْدٌ - Bulma, aşk / Mastar
+وُجُودٌ - Varlık, bulunuş / Mastar
+وِجْدَانٌ - Vicdan, duygu / İsim
+فَقَدَ - Kaybetti / Mazi Fiil
+يَفْقِدُ - Kaybeder, kaybediyor / Muzâri Fiil
+فَقْدٌ - Kaybetme / Mastar
+فِقْدَانٌ - Kayıp / Mastar
+ضَارَّةٌ - Zararlı / Sıfat
+نَافِعَةٌ - Faydalı / Sıfat
+قَوَّى - Güçlendirdi / Mazi Fiil
+يُقَوِّي - Güçlendirir, güçlendiriyor / Muzâri Fiil
+تَقْوِيَةٌ - Güçlendirme / Mastar
+اَلنَّشَاطَاتُ - Aktiviteler, faaliyetler / İsim
+اَلْفَعَالِيَّاتُ - Etkinlikler, faaliyetler / İsim
+حَتَّى - -e kadar, için / Edat
+لِ - İçin / Edat
+طَبَّقَ - Uyguladı / Mazi Fiil
+نَفَّذَ - Uyguladı, yerine getirdi / Mazi Fiil
+اَلتَّمْرِينَاتُ - Alıştırmalar / İsim
+اَلتَّدْرِيبَاتُ - Antrenmanlar, alıştırmalar / İsim
+فَرِيقٌ - Takım / İsim
+حِزْبٌ - Parti, grup / İsim
+طَقْمٌ - Takım, set / İsim
+مَقْهًى - Kafe / İsim
+مَقَاهٍ - Kafeler / İsim
+إِيجَابِيٌّ - Pozitif / Sıfat
+سَلْبِيٌّ - Negatif / Sıfat
+لُعْبَةٌ - Oyun / İsim
+أَلْعَابٌ - Oyunlar / İsim
+أُسْلُوبٌ - Üslup, yöntem / İsim
+أَسَالِيبُ - Üsluplar, yöntemler / İsim
+
+15. Bölüm: İnsan ve Ulaşım Araçları (اَلْإِنْسَانُ وَوَسَائِلُ النَّقْلِ)
+بَغْلٌ - Katır / İsim
+بِغَالٌ - Katırlar / İsim
+اِسْتَمَرَّ - Devam etti / Mazi Fiil
+اِسْتَغْرَقَ - Sürdü (zaman) / Mazi Fiil
+دَامَ - Devam etti, sürdü / Mazi Fiil
+يَدُومُ - Devam eder, sürüyor / Muzâri Fiil
+دَوَامٌ - Devamlılık / Mastar
+أَشْعَلَ - Yaktı, tutuşturdu / Mazi Fiil
+أَوْقَدَ - Yaktı, ateşledi / Mazi Fiil
+سَلْبِيٌّ - Negatif / Sıfat
+إِيجَابِيٌّ - Pozitif / Sıfat
+اِنْخَفَضَ - Alçaldı, düştü / Mazi Fiil
+اِرْتَفَعَ - Yükseldi / Mazi Fiil
+دَرْبٌ - Yol, patika / İsim
+مَرِنٌ - Esnek / Sıfat
+عَوَّدَ عَلَى - Alıştırdı / Mazi Fiil
+تَدَرَّبَ عَلَى - Alıştırma yaptı, antrenman yaptı / Mazi Fiil
+وَفَّرَ - Sağladı, tasarruf etti / Mazi Fiil
+يُوَفِّرُ - Sağlar, tasarruf ediyor / Muzâri Fiil
+تَوْفِيرٌ - Sağlama, tasarruf / Mastar
+أَمَّنَ - Güvence verdi, sağladı / Mazi Fiil
+يُؤَمِّنُ - Güvence verir, sağlıyor / Muzâri Fiil
+تَأْمِينٌ - Güvence, sigorta / Mastar
+وَصَلَ - Ulaştı / Mazi Fiil
+يَصِلُ - Ulaşır, ulaşıyor / Muzâri Fiil
+وُصُولٌ - Ulaşma / Mastar
+بَلَغَ - Ulaştı / Mazi Fiil
+أَوْصَلَ - Ulaştırdı / Mazi Fiil
+يُوصِلُ - Ulaştırır, ulaştırıyor / Muzâri Fiil
+إِيصَالٌ - Ulaştırma / Mastar
+لُعْبَةٌ - Oyun / İsim
+أَلْعَابٌ - Oyunlar / İsim
+سَاعَدَ عَلَى - -e yardım etti / Mazi Fiil
+نَصَرَ - Yardım etti / Mazi Fiil
+آمِنٌ - Güvenli / İsm-i Fâil
+مَأْمُونٌ - Güvenli, emin / İsm-i Mef'ûl
+خَطِيرٌ - Tehlikeli / Sıfat
+خَطَرٌ - Tehlike / İsim
+تَعَارَفَ عَلَى - ile tanıştı / Mazi Fiil
+تَعَرَّفَ عَلَى - ile tanıştı / Mazi Fiil
+سَوَاءٌ... أَمْ... - Gerek... gerekse... / Bağlaç
+مَرْكَبٌ - Araç, binek / İsim
+سَفِينَةٌ - Gemi / İsim
+حَدِيثٌ - Modern, yeni / Sıfat
+جَدِيدٌ - Yeni / Sıfat
+قَدِيمٌ - Eski / Sıfat
+عَتِيقٌ - Antika, eski / Sıfat
+طَوَّرَ - Geliştirdi / Mazi Fiil
+تَطَوَّرَ - Gelişti / Mazi Fiil
+تَقَدَّمَ - İlerledi / Mazi Fiil
+تَخَلَّفَ - Geri kaldı / Mazi Fiil
+سَهْلٌ - Kolay / Sıfat
+يَسِيرٌ - Kolay / Sıfat
+صَعْبٌ - Zor / Sıfat
+عَسِيرٌ - Zor, güç / Sıfat
+سُهُولَةٌ - Kolaylık / Mastar
+صُعُوبَةٌ - Zorluk / Mastar
+يُسْرٌ - Kolaylık / Mastar
+عُسْرٌ - Zorluk / Mastar
+بَطِيءٌ - Yavaş / Sıfat
+سَرِيعٌ - Hızlı / Sıfat
+قَرْنٌ - Yüzyıl, asır / İsim
+عَصْرٌ - Çağ, asır / İsim
+عَبْرَ - Aracılığıyla, üzerinden / Zarf
+خِلَالَ - Esnasında, içinden / Zarf
+عَنْ طَرِيقِ - Yoluyla / İfade
+قُرُونٌ - Yüzyıllar, asırlar / İsim
+عُصُورٌ - Çağlar, asırlar / İsim
+بِدَائِيٌّ - İlkel / Sıfat
+حَضَارِيٌّ - Medeni, uygar / Sıfat
+اَلْحَضَارَةُ - Medeniyet, uygarlık / İsim
+اَلْمَدَنِيَّةُ - Medeniyet / İsim
+عَانَى مِنْ - -den sıkıntı çekti, -den muzdarip oldu / Mazi Fiil
+يُعَانِي مِنْ - -den sıkıntı çeker, -den muzdarip oluyor / Muzâri Fiil
+مُعَانَاةٌ - Sıkıntı çekme / Mastar
+قَاسَى - Katlandı, sıkıntı çekti / Mazi Fiil
+يُقَاسِي - Katlanır, sıkıntı çekiyor / Muzâri Fiil
+مُقَاسَاةٌ - Katlanma, sıkıntı çekme / Mastar
+اَلْعَنَاءُ - Zahmet, yorgunluk / İsim
+اَلْمَشَقَّةُ - Meşakkat, zorluk / İsim
+غَالِبًا - Genellikle / Zarf
+عُمُومًا - Genellikle / Zarf
+كَثِيرًا مَا - Çoğu zaman / İfade
+تَعَرَّضَ لِ - -e maruz kaldı / Mazi Fiil
+يَتَعَرَّضُ لِ - -e maruz kalır, -e maruz kalıyor / Muzâri Fiil
+تَعَرُّضٌ لِ - -e maruz kalma / Mastar
+وَاجَهَ - Yüzleşti, karşılaştı / Mazi Fiil
+قَابَلَ - Karşıladı, karşılaştı / Mazi Fiil
+خَطَرٌ - Tehlike / İsim
+أَخْطَارٌ - Tehlikeler / İsim
+اَلتَّهْلُكَةُ - Tehlike, helak / İsim
+صَعْبٌ - Zorluk / İsim
+مَصَاعِبُ - Zorluklar / İsim
+صُعُوبَاتٌ - Zorluklar / İsim
+أَهْدَرَ - Boşa harcadı, heba etti / Mazi Fiil
+أَهْلَكَ - Helak etti / Mazi Fiil
+أَتْلَفَ - Bozdu, tahrip etti / Mazi Fiil
+بَذَلَ - Harcadı, sarf etti / Mazi Fiil
+يَبْذُلُ - Harcar, sarf ediyor / Muzâri Fiil
+بَذْلٌ - Harcama, sarf etme / Mastar
+صَرَفَ - Harcadı / Mazi Fiil
+يَصْرِفُ - Harcar, harcıyor / Muzâri Fiil
+صَرْفٌ - Harcama / Mastar
+مَنَحَ - Verdi, bahşetti / Mazi Fiil
+يَمْنَحُ - Verir, bahşediyor / Muzâri Fiil
+مَنْحٌ - Verme, bahşetme / Mastar
+وَهَبَ - Bağışladı, verdi / Mazi Fiil
+يَهَبُ - Bağışlar, veriyor / Muzâri Fiil
+هِبَةٌ - Hibe, bağış / İsim
+مِنْحَةٌ - Burs, bağış / İsim
+اَلثَّمِينُ - Değerli, kıymetli / Sıfat
+اَلْغَالِي - Pahalı, değerli / Sıfat
+مُرِيحٌ - Rahat / İsm-i Fâil
+مُتْعِبٌ - Yorucu / İsm-i Fâil
+رَاكِبٌ - Yolcu, binen / İsm-i Fâil
+رُكَّابٌ - Yolcular / İsim
+مُسَافِرٌ - Yolcu, seyahat eden / İsm-i Fâil
+مِنْ أَجْلِ هَذَا - Bu yüzden, bunun için / İfade
+بِسَبَبِ هَذَا - Bu sebeple / İfade
+لِذَا - Bu yüzden / Edat
+لِذَلِكَ - Bu yüzden, onun için / Edat
+اَلْوَارِدُ - Gelen, mevcut / İsm-i Fâil
+اَلْمَوْجُودُ - Mevcut, var olan / İsm-i Mef'ûl
+ذَكَرَ - Andı, zikretti / Mazi Fiil
+قَالَ - Dedi / Mazi Fiil
+تَحَدَّثَ - Konuştu / Mazi Fiil
+تَكَلَّمَ - Konuştu / Mazi Fiil
+وَرَاءَ - Arkasında / Zarf
+خَلْفَ - Arkasında / Zarf
+أَنْجَزَ - Başardı, tamamladı / Mazi Fiil
+يُنْجِزُ - Başarır, tamamlıyor / Muzâri Fiil
+إِنْجَازٌ - Başarma, tamamlama / Mastar
+حَقَّقَ - Gerçekleştirdi / Mazi Fiil
+يُحَقِّقُ - Gerçekleştirir, gerçekleştiriyor / Muzâri Fiil
+تَحْقِيقٌ - Gerçekleştirme / Mastar
+حَرَصَ عَلَى - Özen gösterdi / Mazi Fiil
+اِهْتَمَّ بِ - İlgilendi, önem verdi / Mazi Fiil
+وَاجَهَ - Yüzleşti / Mazi Fiil
+قَابَلَ - Karşılaştı / Mazi Fiil
+أَمْرٌ - İş, durum / İsim
+أُمُورٌ - İşler, durumlar / İsim
+شَيْءٌ - Şey / İsim
+أَشْيَاءُ - Şeyler / İsim
+اِسْتَخْدَمَ - Kullandı / Mazi Fiil
+اِسْتَعْمَلَ - Kullandı / Mazi Fiil
+خَيْلٌ - At / İsim
+خُيُولٌ - Atlar / İsim
+حِمَارٌ - Eşek / İsim
+حَمِيرٌ - Eşekler / İsim
+مَرْكَبٌ - Araç, binek / İsim
+مَرَاكِبُ - Araçlar, binekler / İsim
+خَطَرٌ - Tehlike / İsim
+أَخْطَارٌ - Tehlikeler / İsim
+اِخْتِرَاعٌ - İcat / Mastar
+اِكْتِشَافٌ - Keşif / Mastar
+إِيجَادٌ - Bulma, icat etme / Mastar
+اَلنَّفَقُ - Tünel / İsim
+اَلْأَنْفَاقُ - Tüneller / İsim
+حَلَّقَ - Uçtu, daire çizdi / Mazi Fiil
+يُحَلِّقُ - Uçar, daire çiziyor / Muzâri Fiil
+تَحْلِيقٌ - Uçma / Mastar
+طَافَ - Dolaştı, tavaf etti / Mazi Fiil
+يَطُوفُ - Dolaşır, tavaf ediyor / Muzâri Fiil
+طَوَافٌ - Dolaşma, tavaf / Mastar
+
+16. Bölüm: Şeyh Muhammed Mütevelli Eş-Şa'râvî (اَلشَّيْخُ مُحَمَّد مُتَوَلِّي الشَّعْرَاوِي)
+سَبَقَ - Geçti, önce geldi / Mazi Fiil
+يَسْبِقُ - Geçer, önce geliyor / Muzâri Fiil
+سَبْقٌ - Geçme, öncelik / Mastar
+مَضَى - Geçti, gitti / Mazi Fiil
+يَمْضِي - Geçer, gidiyor / Muzâri Fiil
+مُضِيٌّ - Geçme, gitme / Mastar
+اَلسَّابِقُ - Önceki, geçmiş / İsm-i Fâil
+اَلْمَاضِي - Geçmiş / İsim
+فَسَّرَ - Açıkladı, tefsir etti / Mazi Fiil
+بَيَّنَ - Açıkladı, beyan etti / Mazi Fiil
+شَرَحَ - Açıkladı, şerh etti / Mazi Fiil
+شَهِيرٌ - Meşhur, ünlü / Sıfat
+مَشْهُورٌ - Meşhur, ünlü / İsm-i Mef'ûl
+أَشْهَرُ - En meşhur / İsm-i Tafdîl
+وُلِدَ - Doğdu / Meçhul Mazi Fiil
+تُوُفِّيَ - Vefat etti / Meçhul Mazi Fiil
+مُحَافَظَةٌ - İl, vilayet / İsim
+مُقَاطَعَةٌ - Bölge, ilçe / İsim
+قَرْيَةٌ - Köy / İsim
+قُرًى - Köyler / İsim
+بَسَّطَ - Basitleştirdi / Mazi Fiil
+بَسِيطٌ - Basit / Sıfat
+سَهَّلَ - Kolaylaştırdı / Mazi Fiil
+سَهْلٌ - Kolay / Sıfat
+صَعَّبَ - Zorlaştırdı / Mazi Fiil
+صَعْبٌ - Zor / Sıfat
+مُبَسَّطٌ - Basitleştirilmiş / İsm-i Mef'ûl
+مُسَهَّلٌ - Kolaylaştırılmış / İsm-i Mef'ûl
+تَابِعٌ لِ - -e bağlı / İsm-i Fâil
+مَرْبُوطٌ بِ - -e bağlı / İsm-i Mef'ûl
+دَعَا - Çağırdı, davet etti / Mazi Fiil
+يَدْعُو - Çağırır, davet ediyor / Muzâri Fiil
+دَعْوَةٌ - Çağrı, davet / Mastar
+اَلدَّاعِي - Davetçi / İsm-i Fâil
+اَلدُّعَاةُ - Davetçiler / İsim
+وَلَدَ - Doğurdu / Mazi Fiil
+أَنْجَبَ - Çocuk sahibi oldu / Mazi Fiil
+وُلِدَ - Doğdu / Meçhul Mazi Fiil
+أُنْجِبَ - Doğuruldu / Meçhul Mazi Fiil
+تَخَرَّجَ فِي - -den mezun oldu / Mazi Fiil
+اِلْتَحَقَ بِ - -e katıldı, kaydoldu / Mazi Fiil
+اِنْتَقَلَ إِلَى - -e taşındı, geçti / Mazi Fiil
+رَحَلَ - Göç etti, taşındı / Mazi Fiil
+اِسْتَقَرَّ - Yerleşti / Mazi Fiil
+خِبْرَةٌ - Tecrübe, deneyim / İsim
+تَجْرِبَةٌ - Tecrübe, deneme / İsim
+فَتْرَةٌ - Dönem, süre / İsim
+عَهْدٌ - Dönem, devir / İsim
+أُمُّ الْقُرَى - Mekke / İsim Tamlaması
+حَوَالَيْ - Yaklaşık / Zarf
+تَقْرِيبًا - Yaklaşık olarak / Zarf
+دَرَسَ - Ders çalıştı, okudu / Mazi Fiil
+يَدْرُسُ - Ders çalışır, okuyor / Muzâri Fiil
+دِرَاسَةٌ - Eğitim, çalışma / Mastar
+دَرَّسَ - Ders verdi, öğretti / Mazi Fiil
+يُدَرِّسُ - Ders verir, öğretiyor / Muzâri Fiil
+تَدْرِيسٌ - Öğretim / Mastar
+عِلْمٌ - İlim, bilim / İsim
+أَلَّفَ - Yazdı, telif etti / Mazi Fiil
+يُؤَلِّفُ - Yazar, telif ediyor / Muzâri Fiil
+تَأْلِيفٌ - Yazma, telif / Mastar
+كَتَبَ كِتَابًا - Kitap yazdı / Cümle
+مُؤَلِّفٌ - Yazar / İsm-i Fâil
+كَاتِبٌ - Yazar / İsm-i Fâil
+مُؤَلَّفٌ - Telif edilmiş eser, kitap / İsm-i Mef'ûl
+كِتَابٌ - Kitap / İsim
+عَدَدٌ - Sayı / İsim
+كَثِيرٌ - Çok / Sıfat
+عِدَّةٌ - Birkaç, çok sayıda / İsim
+أُسْتَاذٌ - Hoca, profesör / İsim
+أَسَاتِذَةٌ - Hocalar, profesörler / İsim
+أُسْتَاذَةٌ - Hoca (kadın) / İsim
+أُسْتَاذَاتٌ - Hocalar (kadın) / İsim
+مُدِيرٌ - Müdür / İsim
+مُدِيرُونَ - Müdürler / İsim
+مُدَرَاءُ - Müdürler / İsim
+لَقَّبَ بِ - ile lakaplandırdı / Mazi Fiil
+سَمَّى بِ - ile isimlendirdi / Mazi Fiil
+مَجَالٌ - Alan, saha / İsim
+سَاحَةٌ - Alan, meydan / İsim
+
+17. Bölüm: İslam'da Bayramlar (اَلْأَعْيَادُ فِي الْإِسْلَامِ)
+اِحْتَفَلَ بِ - Kutladı / Mazi Fiil
+يَحْتَفِلُ بِ - Kutlar, kutluyor / Muzâri Fiil
+اِحْتِفَالٌ بِ - Kutlama / Mastar
+أَقَامَ مَرَاسِمَ - Tören düzenledi / Cümle
+صَامَ - Oruç tuttu / Mazi Fiil
+يَصُومُ - Oruç tutar, oruç tutuyor / Muzâri Fiil
+صَوْمٌ - Oruç / Mastar
+صِيَامٌ - Oruç / Mastar
+كَافَأَ - Ödüllendirdi / Mazi Fiil
+يُكَافِئُ - Ödüllendirir, ödüllendiriyor / Muzâri Fiil
+مُكَافَأَةٌ - Ödül / Mastar
+جَازَى - Karşılığını verdi, mükafatlandırdı / Mazi Fiil
+يُجَازِي - Karşılığını verir, mükafatlandırıyor / Muzâri Fiil
+مُجَازَاةٌ - Karşılık verme, mükafatlandırma / Mastar
+عَايَدَ - Bayramlaştı / Mazi Fiil
+يُعَايِدُ - Bayramlaşır, bayramlaşıyor / Muzâri Fiil
+مُعَايَدَةٌ - Bayramlaşma / Mastar
+أَدَّى - Yaptı, yerine getirdi / Mazi Fiil
+يُؤَدِّي - Yapar, yerine getiriyor / Muzâri Fiil
+أَدَاءٌ - Yapma, yerine getirme / Mastar
+عَمِلَ - Yaptı / Mazi Fiil
+قَامَ بِ - Yaptı / Mazi Fiil
+قِيَامٌ - Yapma / Mastar
+رَتَّبَ - Düzenledi / Mazi Fiil
+يُرَتِّبُ - Düzenler, düzenliyor / Muzâri Fiil
+نَظَّمَ - Düzenledi / Mazi Fiil
+تَرْتِيبٌ - Düzenleme / Mastar
+تَنْظِيمٌ - Organizasyon / Mastar
+اِسْتَقْبَلَ - Karşıladı / Mazi Fiil
+وَدَّعَ - Uğurladı, veda etti / Mazi Fiil
+عَاوَنَ - Yardım etti / Mazi Fiil
+يُعَاوِنُ - Yardım eder, yardım ediyor / Muzâri Fiil
+مُعَاوَنَةٌ - Yardım etme / Mastar
+سَاعَدَ - Yardım etti / Mazi Fiil
+نَصَرَ - Yardım etti / Mazi Fiil
+تَعَاوَنَ - Yardımlaştı / Mazi Fiil
+تَنَاصَرَ - Yardımlaştı / Mazi Fiil
+جَهَّزَ - Hazırladı / Mazi Fiil
+أَعَدَّ - Hazırladı / Mazi Fiil
+حَضَّرَ - Hazırladı / Mazi Fiil
+مَهَّدَ - Hazırladı / Mazi Fiil
+اِسْتَعَدَّ - Hazırlandı / Mazi Fiil
+تَجَهَّزَ - Hazırlandı / Mazi Fiil
+تَوَجَّهَ إِلَى - -e yöneldi / Mazi Fiil
+ذَهَبَ - Gitti / Mazi Fiil
+حَشَا - Doldurdu / Mazi Fiil
+يَحْشُو - Doldurur, dolduruyor / Muzâri Fiil
+حَشْوٌ - Doldurma / Mastar
+مَلَأَ - Doldurdu / Mazi Fiil
+مَحْشِيٌّ - Dolma, doldurulmuş / İsm-i Mef'ûl
+قَبْلَ - Önce / Zarf
+بَعْدَ - Sonra / Zarf
+ضَيْفٌ - Misafir / İsim
+ضُيُوفٌ - Misafirler / İsim
+تَبَادَلَ السَّلَامَ - Selamlaştı / Cümle
+هَنَّأَ - Tebrik etti / Mazi Fiil
+يُهَنِّئُ - Tebrik eder, tebrik ediyor / Muzâri Fiil
+تَهْنِئَةٌ - Tebrik / Mastar
+بَارَكَ - Tebrik etti, kutladı / Mazi Fiil
+يُبَارِكُ - Tebrik eder, kutluyor / Muzâri Fiil
+اَلتَّهْنِئَةُ - Tebrik / İsim
+اَلتَّهَانِي - Tebrikler / İsim
+اَلتَّبْرِيكُ - Tebrik / İsim
+اَلتَّبْرِيكَاتُ - Tebrikler / İsim
+زَارَ - Ziyaret etti / Mazi Fiil
+يَزُورُ - Ziyaret eder, ziyaret ediyor / Muzâri Fiil
+زِيَارَةٌ - Ziyaret / Mastar
+قَرَّرَ - Karar verdi / Mazi Fiil
+يُقَرِّرُ - Karar verir, karar veriyor / Muzâri Fiil
+تَقْرِيرٌ - Karar, rapor / Mastar
+قَرَارٌ - Karar / İsim
+غَسَلَ - Yıkadı / Mazi Fiil
+يَغْسِلُ - Yıkar, yıkıyor / Muzâri Fiil
+غَسْلٌ - Yıkama / Mastar
+غُسْلٌ - Gusül / Mastar
+اِغْتَسَلَ - Yıkandı, gusletti / Mazi Fiil
+اِسْتَحَمَّ - Banyo yaptı / Mazi Fiil
+غَسَلْتُ جِسْمِي - Vücudumu yıkadım / Cümle
+بَقِيَ - Kaldı / Mazi Fiil
+يَبْقَى - Kalır, kalıyor / Muzâri Fiil
+بَقَاءٌ - Kalma / Mastar
+هُوَ الْبَاقِي - O Bâki'dir (Kalıcıdır) / Cümle
+اِسْتَيْقَظَ - Uyandı / Mazi Fiil
+صَحَا - Uyandı / Mazi Fiil
+يَصْحُو - Uyanır, uyanıyor / Muzâri Fiil
+صَحْوٌ - Uyanma / Mastar
+سُرُورٌ - Sevinç / İsim
+فَرَحٌ - Sevinç / İsim
+أَطَاعَ - İtaat etti / Mazi Fiil
+يُطِيعُ - İtaat eder, itaat ediyor / Muzâri Fiil
+إِطَاعَةٌ - İtaat / Mastar
+عَصَى - İsyan etti, karşı geldi / Mazi Fiil
+يَعْصِي - İsyan eder, karşı geliyor / Muzâri Fiil
+عِصْيَانٌ - İsyan / Mastar
+بَيْعٌ - Satış / Mastar
+شِرَاءٌ - Alış / Mastar
+أُرْجُوحَةٌ - Salıncak / İsim
+أَرَاجِيحُ - Salıncaklar / İsim
+
+18. Bölüm: İstanbul (إِسْطَنْبُولُ)
+نَاحِيَةٌ - Yön, taraf, bölge / İsim
+أَنْحَاءٌ - Yönler, taraflar, bölgeler / İsim
+نَوَاحٍ - Bölgeler / İsim
+طَرَفٌ - Taraf, uç / İsim
+أَطْرَافٌ - Taraflar, uçlar / İsim
+قَارَّةٌ - Kıta / İsim
+قَارَّاتٌ - Kıtalar / İsim
+مَوْقِعٌ - Konum, yer / İsim
+مَوَاقِعُ - Konumlar, yerler / İsim
+كَنِيسَةٌ - Kilise / İsim
+كَنَائِسُ - Kiliseler / İsim
+مَعْبَدٌ - Mabet, tapınak / İsim
+مَعَابِدُ - Mabetler, tapınaklar / İsim
+عَلَمٌ - Bayrak, simge / İsim
+مَعْلَمٌ - Simge, anıt / İsim
+مَعَالِمُ - Simgeler, anıtlar / İsim
+رَمْزٌ - Sembol, simge / İsim
+اَلْوَحِيدَةُ - Tek, yegane / Sıfat
+اَلْفَرِيدَةُ - Eşsiz / Sıfat
+اَلْمُمَيَّزَةُ - Seçkin, özel / İsm-i Mef'ûl
+مُتَنَوِّعَةٌ - Çeşitli / İsm-i Fâil
+مُخْتَلِفَةٌ - Farklı / İsm-i Fâil
+مُتَعَدِّدَةٌ - Çok sayıda, çeşitli / İsm-i Fâil
+اَلْوَفِيرُ - Bol, bereketli / Sıfat
+اَلْكَثِيرُ - Çok / Sıfat
+اَلْغَزِيرُ - Bol, şiddetli / Sıfat
+جَذَبَ - Çekti / Mazi Fiil
+جَذْبٌ - Çekme, cazibe / Mastar
+سَحَرَ - Büyüledi / Mazi Fiil
+يَسْحَرُ - Büyüler, büyülüyor / Muzâri Fiil
+سِحْرٌ - Büyü, sihir / Mastar
+سَائِحٌ - Turist / İsm-i Fâil
+زَائِرٌ - Ziyaretçi / İsm-i Fâil
+سُيَّاحٌ - Turistler / İsim
+زُوَّارٌ - Ziyaretçiler / İsim
+اَلْمَدْحُ - Övgü / Mastar
+اَلثَّنَاءُ - Övgü, sena / Mastar
+مَدَحَ - Övdü / Mazi Fiil
+ذَمَّ - Yerdi, kınadı / Mazi Fiil
+هَجَا - Hicvetti, yerdi / Mazi Fiil
+مِنْ قِبَلِ - Tarafından / İfade
+مِنْ طَرَفِ - Tarafından / İfade
+سَهْلٌ - Ova / İsim
+سُهُولٌ - Ovalar / İsim
+أَسْهَلُ - En kolay / İsm-i Tafdîl
+سَهَّلَ - Kolaylaştırdı / Mazi Fiil
+يُسَهِّلُ - Kolaylaştırır, kolaylaştırıyor / Muzâri Fiil
+تَسْهِيلٌ - Kolaylaştırma / Mastar
+بَشَّرَ - Müjdeledi / Mazi Fiil
+اِحْتَفَظَ بِ - Korudu, muhafaza etti / Mazi Fiil
+اِهْتَمَّ - Önem verdi / Mazi Fiil
+أَهْمَلَ - İhmal etti / Mazi Fiil
+أَنْشَأَ - İnşa etti, kurdu / Mazi Fiil
+بَنَى - İnşa etti / Mazi Fiil
+هَدَمَ - Yıktı / Mazi Fiil
+ضَيِّقٌ - Dar / Sıfat
+مَضِيقٌ - Boğaz / İsim
+ذِكْرَى - Anı, hatıra / İsim
+خَاطِرَةٌ - Hatıra / İsim
+جَمَعَ بَيْنَ - Birleştirdi / Mazi Fiil
+وَحَّدَ - Birleştirdi / Mazi Fiil
+غَرَضٌ - Amaç, gaye / İsim
+هَدَفٌ - Hedef, amaç / İsim
+اِحْتَوَى عَلَى - İçerdi, kapsadı / Mazi Fiil
+ضَمَّ - İçerdi, kattı / Mazi Fiil
+يَسَّرَ - Kolaylaştırdı / Mazi Fiil
+صَعَّبَ - Zorlaştırdı / Mazi Fiil
+عَسَّرَ - Zorlaştırdı / Mazi Fiil
+
+19. Bölüm: İki Kutsal Şehir (مَدِينَتَانِ مُقَدَّسَتَانِ)
+وَقَعَ - Bulunur, yer alır, oldu / Mazi Fiil
+يَقَعُ - Bulunur, yer alıyor, oluyor / Muzâri Fiil
+وُقُوعٌ - Bulunma, olma / Mastar
+حَدَثَ - Oldu / Mazi Fiil
+سَقَطَ - Düştü / Mazi Fiil
+اَلْمَعْلَمُ - Anıt, simge / İsim
+مَعَالِمُ - Anıtlar, simgeler / İsim
+اَلْأَثَرُ - Eser, iz / İsim
+اَلْآثَارُ - Eserler, izler / İsim
+وَضَعَ بَيْتًا - Ev inşa etti / Cümle
+أَنْشَأَ - İnşa etti / Mazi Fiil
+بَنَى - İnşa etti / Mazi Fiil
+وَضَعَ كِتَابًا - Kitap yazdı, telif etti / Cümle
+أَلَّفَ - Telif etti / Mazi Fiil
+وَضَعَتْ وَلَدًا - Çocuk doğurdu / Cümle
+أَنْجَبَتْ - Çocuk doğurdu / Mazi Fiil
+تَوَجَّهَ - Yöneldi / Mazi Fiil
+اِتَّجَهَ - Yöneldi / Mazi Fiil
+أَقْبَلَ - Yöneldi, geldi / Mazi Fiil
+اَلْمُشَرَّفَةُ - Şerefli / İsm-i Mef'ûl
+اَلْمُقَدَّسَةُ - Kutsal / İsm-i Mef'ûl
+اَلْمُحَرَّمَةُ - Haram (kutsal), dokunulmaz / İsm-i Mef'ûl
+اَلْمُبَارَكَةُ - Mübarek, bereketli / İsm-i Mef'ûl
+اَلْحَرَامُ - Haram (kutsal) / İsim
+بُقْعَةٌ - Yer, bölge / İsim
+بِقَاعٌ - Yerler, bölgeler / İsim
+قِطْعَةُ أَرْضٍ - Arazi parçası / İsim Tamlaması
+هَاجَرَ إِلَى - -e hicret etti / Mazi Fiil
+اِنْتَقَلَ إِلَى - -e taşındı / Mazi Fiil
+لَقِيَ - Karşılaştı, buldu / Mazi Fiil
+قَابَلَ - Karşılaştı / Mazi Fiil
+اِلْتَقَى - Buluştu / Mazi Fiil
+كَعْبٌ - Topuk, küp / İsim
+مُكَعَّبٌ - Küp şeklinde / İsm-i Mef'ûl
+مَشْعَرٌ - Hac ibadetinin yapıldığı yer, alamet / İsim
+مَشَاعِرُ - Hac ibadetinin yapıldığı yerler, duygular / İsim
+بَنَى - İnşa etti / Mazi Fiil
+أَنْشَأَ - İnşa etti / Mazi Fiil
+حُجْرَةٌ - Oda / İsim
+غُرْفَةٌ - Oda / İsim
+ثَنِيَّةٌ - Tepe, yokuş / İsim
+تَلَّةٌ - Tepe / İsim
+وَجَبَ - Gerekti, farz oldu / Mazi Fiil
+أَصْبَحَ فَرْضًا - Farz oldu / Cümle
+اَلْمَبْعُوثُ - Gönderilen, elçi / İsm-i Mef'ûl
+اَلْمُرْسَلُ - Gönderilen, elçi / İsm-i Mef'ûl
+بَعَثَ - Gönderdi / Mazi Fiil
+أَرْسَلَ - Gönderdi / Mazi Fiil
+أَطَاعَ - İtaat etti / Mazi Fiil
+طَاعَ - İtaat etti / Mazi Fiil
+عَصَى - İsyan etti / Mazi Fiil
+مُطِيعٌ - İtaatkar / İsm-i Fâil
+مُطَاعٌ - İtaat edilen / İsm-i Mef'ûl
+مَا - Boyunca / Zarf
+طِوَالَ - Boyunca / Zarf
+
+20. Bölüm: Köy ve Şehir Arasında (بَيْنَ الْقَرْيَةِ وَالْمَدِينَةِ)
+طُولَ - Boyunca / Zarf
+خِلَالَ - Esnasında, sırasında / Zarf
+أَثْنَاءَ - Esnasında, sırasında / Zarf
+طِوَالَ الْحَيَاةِ - Hayat boyunca / İsim Tamlaması
+اَلْحَالِيُّ - Şimdiki, mevcut / Sıfat
+اَلْآنَ - Şimdi / Zarf
+سُمِّيَ - İsimlendirildi / Meçhul Mazi Fiil
+يُسَمَّى - İsimlendirilir, isimlendiriliyor / Meçhul Muzâri Fiil
+لُقِّبَ - Lakap takıldı / Meçhul Mazi Fiil
+قَالَ - Dedi / Mazi Fiil
+يَقُولُ - Der, diyor / Muzâri Fiil
+قِيلَ - Denildi / Meçhul Mazi Fiil
+يُقَالُ لِ - -e denir / Meçhul Muzâri Fiil
+أَوَّلُ - İlk / Sıfat
+أَوَائِلُ - İlkler, başlar / İsim
+آخِرُ - Son / Sıfat
+أَوَاخِرُ - Sonlar / İsim
+مُنْذُ ذَلِكَ الْوَقْتِ - O zamandan beri / İfade
+أَدَّى - Yaptı, yerine getirdi / Mazi Fiil
+يُؤَدِّي - Yapar, yerine getiriyor / Muzâri Fiil
+قَامَ بِ - Yaptı / Mazi Fiil
+عَمِلَ - Yaptı / Mazi Fiil
+بِئْرٌ - Kuyu / İsim
+آبَارٌ - Kuyular / İsim
+جُبٌّ - Kuyu / İsim
+بِئْرُ زَمْزَمَ - Zemzem kuyusu / İsim Tamlaması
+طَلَعَ - Çıktı, göründü / Mazi Fiil
+ظَهَرَ - Göründü / Mazi Fiil
+تَوَفَّرَ - Mevcut oldu, bol oldu / Mazi Fiil
+يَتَوَفَّرُ - Mevcut olur, bol oluyor / Muzâri Fiil
+اَلْمُتَوَفِّرُ - Mevcut olan / İsm-i Fâil
+اَلْمَوْجُودُ بِكَثْرَةٍ - Bolca bulunan / İfade
+اِنْطَلَقَ نَحْوَ - -e doğru yola çıktı / Mazi Fiil
+تَوَجَّهَ إِلَى - -e yöneldi / Mazi Fiil
+ذَهَبَ إِلَى - -e gitti / Mazi Fiil
+تَحَرَّكَ إِلَى - -e hareket etti / Mazi Fiil
+تَرَكَ - Terk etti / Mazi Fiil
+تَجَوَّلَ - Dolaştı, gezdi / Mazi Fiil
+طَافَ - Dolaştı / Mazi Fiil
+يَطُوفُ - Dolaşır, dolaşıyor / Muzâri Fiil
+طَوَافٌ - Dolaşma / Mastar
+حَلَّقَ - Uçtu, daire çizdi / Mazi Fiil
+شَاهَدَ - Gördü, izledi / Mazi Fiil
+رَأَى - Gördü / Mazi Fiil
+فَكَّرَ فِي - Düşündü / Mazi Fiil
+تَأَمَّلَ فِي - Derinlemesine düşündü / Mazi Fiil
+اَلْمَحَلُّ - Dükkan / İsim
+اَلْمَحَلَّاتُ - Dükkanlar / İsim
+اَلدَّكَاكِينُ - Dükkanlar / İsim
+اَلْيَوْمُ التَّالِي - Ertesi gün / Sıfat Tamlaması
+اَلْيَوْمُ الْآتِي - Gelecek gün / Sıfat Tamlaması
+اَلْيَوْمُ الْقَادِمُ - Gelecek gün / Sıfat Tamlaması
+اَلْعَالِيَةُ - Yüksek / Sıfat
+اَلْمُرْتَفِعَةُ - Yüksek / Sıfat
+فِي الْوَقْتِ نَفْسِهِ - Aynı zamanda / İfade
+يَوْمًا بَعْدَ يَوْمٍ - Günden güne / Zarf
+يَوْمًا فَيَوْمًا - Günden güne / Zarf
+قَلِقَ - Endişelendi / Mazi Fiil
+يَقْلَقُ - Endişelenir, endişeleniyor / Muzâri Fiil
+قَلَقٌ - Endişe / Mastar
+حُزْنٌ - Hüzün / İsim
+خَافَ - Korktu / Mazi Fiil
+ضَاقَ - Daraldı, sıkıldı / Mazi Fiil
+يَضِيقُ - Daralır, sıkılıyor / Muzâri Fiil
+ضِيقٌ - Darlık, sıkıntı / Mastar
+مَلَّ - Sıkıldı / Mazi Fiil
+يَمَلُّ - Sıkılır, sıkılıyor / Muzâri Fiil
+مَلَلٌ - Sıkıntı / Mastar
+رَاحَةٌ - Rahatlık / İsim
+اَلضَّوْضَاءُ - Gürültü / İsim
+اَلضَّجِيجُ - Gürültü / İsim
+اَلْعَلِيلُ - Esintili, hoş (hava) / Sıfat
+اَلنَّظِيفُ - Temiz / Sıfat
+مُلَوَّثٌ - Kirli / İsm-i Mef'ûl
+اَلزِّرَاعَةُ - Tarım / Mastar
+اَلْفِلَاحَةُ - Çiftçilik / Mastar
+اَلْحِرَاثَةُ - Toprağı sürme / Mastar
+صَادَ - Avladı / Mazi Fiil
+يَصِيدُ - Avlar, avlıyor / Muzâri Fiil
+صَيْدٌ - Av / Mastar
+أَغْلَبُ - Çoğu / İsim
+أَكْثَرُ - Daha çok, çoğu / İsim
+أَغْلَبِيَّةٌ - Çoğunluk / İsim
+أَكْثَرِيَّةٌ - Çoğunluk / İsim
+أَقَلِّيَّةٌ - Azınlık / İsim
+اِخْتَلَفَ - Farklı oldu, anlaşamadı / Mazi Fiil
+اِتَّحَدَ - Birleşti / Mazi Fiil
+اِتَّفَقَ - Anlaştı / Mazi Fiil
+غَالٍ - Pahalı / Sıfat
+رَخِيصٌ - Ucuz / Sıfat
+غَلَاءٌ - Pahalılık / İsim
+رُخْصٌ - Ucuzluk / İsim
+حِرْفَةٌ - Meslek, zanaat / İsim
+حِرَفٌ - Meslekler, zanaatlar / İsim
+اَلصَّنْعَةُ - Sanat, zanaat / İsim
+اَلْمَسْلَكُ - Meslek, yol / İsim
+قِطَاعٌ - Sektör / İsim
+مَجَالٌ - Alan / İsim
+رَبَطَ - Bağladı / Mazi Fiil
+يَرْبِطُ - Bağlar, bağlıyor / Muzâri Fiil
+رَبْطٌ - Bağlama / Mastar
+عَقَدَ - Bağladı, düğümledi / Mazi Fiil
+رَابِطٌ - Bağlantı / İsim
+رَوَابِطُ - Bağlantılar / İsim
+رَابِطَةٌ - Bağ, ilişki / İsim
+رَابِطَاتٌ - Bağlar, ilişkiler / İsim
+عَلَاقَةٌ - İlişki / İsim
+عَلَاقَاتٌ - İlişkiler / İsim
+مُقَارَنَةٌ بِ - -e kıyasla / Mastar
+قِيَاسًا بِ - -e kıyasla / Mastar
+وَثِيقٌ - Sağlam, sıkı / Sıfat
+قَوِيٌّ - Güçlü / Sıfat
+صَعْبٌ - Zor / Sıfat
+صُعُوبَةٌ - Zorluk / Mastar
+سَهْلٌ - Kolay / Sıfat
+سُهُولَةٌ - Kolaylık / Mastar
+سَلْبِيٌّ - Negatif / Sıfat
+إِيجَابِيٌّ - Pozitif / Sıfat
+سَلْبِيَّاتٌ - Negatif yönler / İsim
+إِيجَابِيَّاتٌ - Pozitif yönler / İsim
+اَلتَّفَكُّكُ الاِجْتِمَاعِيُّ - Sosyal çözülme / Sıfat Tamlaması
+اَلاِرْتِبَاطُ الاِجْتِمَاعِيُّ - Sosyal bağ / Sıfat Tamlaması
+
+21. Bölüm: Ramazan Gelenekleri (اَلْعَادَاتُ الرَّمَضَانِيَّةُ)
+رُكْنٌ - Rükün, temel direk / İsim
+أَسَاسٌ - Temel, esas / İsim
+صَامَ - Oruç tuttu / Mazi Fiil
+يَصُومُ - Oruç tutar, oruç tutuyor / Muzâri Fiil
+صَوْمٌ - Oruç / Mastar
+صِيَامٌ - Oruç / Mastar
+بَيِّنَةٌ - Delil, kanıt / İsim
+دَلِيلٌ - Delil / İsim
+بُرْهَانٌ - Kanıt, delil / İsim
+لِتَكْتُبْ - Yazman için, yazasın / Emir Fiili
+لِأَكْتُb - Yazmam için, yazayım / Emir Fiili
+زِينَةٌ - Süs / İsim
+زَيَّنَ - Süsledi / Mazi Fiil
+تَزَيَّnَ - Süslendi / Mazi Fiil
+لِذَلِكَ - Bu yüzden, bunun için / Edat
+مِنْ أَجْلِ ذَلِكَ - Bunun için / İfade
+أَكْثَرُ - Daha çok / İsim
+أَقَلُّ - Daha az / İsim
+وَرِثَ - Miras aldı / Mazi Fiil
+أَخَذَ مِنَ الْجَدِّ - Dededen aldı / Cümle
+اِسْتَضَافَ - Misafir etti / Mazi Fiil
+اَلاِحْتِفَالُ - Kutlama / Mastar
+اَلْمَرَاسِمُ - Törenler / İsim
+اَلطَّقْسُ - Hava durumu, ayin / İsim
+اَلْجَوُّ - Hava / İsim
+كُلٌّ مِنْهُمُ الْآخَرَ - Her biri diğerini / İfade
+بَعْضُهُمُ الْبَعْضَ - Birbirlerini / İfade
+صَحَا - Uyandı / Mazi Fiil
+اِسْتَيْقَظَ - Uyandı / Mazi Fiil
+نَهَضَ - Kalktı / Mazi Fiil
+أَيْقَظَ - Uyandırdı / Mazi Fiil
+يُوقِظُ - Uyandırır, uyandırıyor / Muzâri Fiil
+إِيقَاظٌ - Uyandırma / Mastar
+أَنْذَرَ - Uyardı / Mazi Fiil
+يُنْذِرُ - Uyarır, uyarıyor / Muzâri Fiil
+إِنْذَارٌ - Uyarı / Mastar
+لَدَى - Yanında / Zarf
+عِنْدَ - Yanında / Zarf
+أَذِنَ - İzin verdi, bildirdi / Mazi Fiil
+يَأْذَنُ - İzin verir, bildiriyor / Muzâri Fiil
+أَذَانٌ - Ezan, bildiri / İsim
+أَخْبَرَ - Haber verdi / Mazi Fiil
+أَعْلَمَ - Bildirdi / Mazi Fiil
+مِئْذَنَةٌ - Minare / İsim
+مَآذِنُ - Minareler / İsim
+وَرِثَ - Miras aldı / Mazi Fiil
+يَرِثُ - Miras alır, miras alıyor / Muzâri Fiil
+إِرْثٌ - Miras / Mastar
+مِيرَاثٌ - Miras / İsim
+اَلتُّرَاثُ - Miras, kültürel miras / İsim
+اَلْمَرَقُ - Et suyu, çorba / İsim
+اَلْحَسَاءُ - Çorba / İsim
+تَنَوَّعَ - Çeşitlendi / Mazi Fiil
+يَتَنَوَّعُ - Çeşitlenir, çeşitleniyor / Muzâri Fiil
+تَنَوُّعٌ - Çeşitlilik / Mastar
+تَلَوَّnَ - Renklendi / Mazi Fiil
+اِخْتَلَفَ - Farklılaştı / Mazi Fiil
+يَخْتَلِفُ - Farklılaşır, farklılaşıyor / Muzâri Fiil
+اِخْتِلَافٌ - Farklılık / Mastar
+تَعَدَّدَ - Çeşitlendi, çoğaldı / Mazi Fiil
+أُسْرَةٌ - Aile / İsim
+أُسَرٌ - Aileler / İsim
+صَرَّ - Sardı, bağladı / Mazi Fiil
+يَصُرُّ - Sarar, bağlıyor / Muzâri Fiil
+لَفَّ - Sardı / Mazi Fiil
+يَلُفُّ - Sarar, sarıyor / Muzâri Fiil
+ضَعْفٌ - Zayıflık / İsim
+قُوَّةٌ - Güç / İsim
+فَارِغٌ - Boş / İsm-i Fâil
+مَلِيءٌ - Dolu / Sıfat
+مُخْتَلِفٌ - Farklı / İsm-i Fâil
+مُتَشَابِهٌ - Benzer / İsm-i Fâil
+مُتَقَارِبٌ - Yakın / İsm-i Fâil
+جَمِيلٌ - Güzel / Sıfat
+قَبِيحٌ - Çirkin / Sıfat
+اَلْفَرَجُ - Ferahlık, kurtuluş / İsim
+اَلرَّاحَةُ - Rahatlık / İsim
+اَلْفَرَحُ - Sevinç / İsim
+اَلسُّرُورُ - Sevinç, neşe / İsim
+اَلضِّيقُ - Darlık, sıkıntı / İsim
+اَلْحُزْنُ - Hüzün / İsim
+خَاصٌّ - Özel / Sıfat
+خُصُوصِيٌّ - Özel / Sıfat
+عَامٌّ - Genel / Sıfat
+عُمُومِيٌّ - Genel / Sıfat
+آخَرُ - Diğer, son (eril) / Sıfat
+أَوَاخِرُ - Sonlar / İsim
+أُخْرَى - Diğer, son (dişil) / Sıfat
+أُخَرُ - Diğerleri / İsim
+أُخْرَيَاتٌ - Diğerleri / İsim
+
+22. Bölüm: Hac İbadeti (عِبَادَةُ الْحَجِّ)
+Ailelerin birbirlerini ziyaretleri ramazan ayında çoğalır - Türkçe Cümle
+تَكْثُرُ زِيَارَةُ الْعَائِلَاتِ لِبَعْضِهِمُ الْبَعْضَ فِي شَهْرِ رَمَضَانَ - Ailelerin birbirlerini ziyaretleri ramazan ayında çoğalır / Arapça Cümle
+Arkadaşım benden kendisiyle beraber Üsküdar'ın mahallelerini dolaşmamı istedi. - Türkçe Cümle
+أَرَادَتْ صَدِيقَتِي مِنِّي التَّجَوُّلَ أَنْ أَتَجَوَّلَ أَحْيَاءَ أُسْكُدَارَ مَعَهَا - Arkadaşım benden kendisiyle beraber Üsküdar'ın mahallelerini dolaşmamı istedi / Arapça Cümle
+مَظْهَرٌ - Görünüm, manzara / İsim
+مَنْظَرٌ - Manzara / İsim
+بَنَى - İnşa etti / Mazi Fiil
+أَنْشَأَ - İnşa etti, kurdu / Mazi Fiil
+اِسْتَطَاعَ - Ebildi, gücü yetti / Mazi Fiil
+يَسْتَطِيعُ - Ebilir, gücü yetiyor / Muzâri Fiil
+اِسْتِطَاعَةٌ - Güç yetirebilme / Mastar
+قَدَرَ - Gücü yetti / Mazi Fiil
+يَقْدِرُ - Gücü yeter, gücü yetiyor / Muzâri Fiil
+قُدْرَةٌ - Güç, kudret / Mastar
+قَدِمَ - Geldi / Mazi Fiil
+يَقْدَمُ - Gelir, geliyor / Muzâri Fiil
+قُدُومٌ - Gelme / Mastar
+أَتَى - Geldi / Mazi Fiil
+يَأْتِي - Gelir, geliyor / Muzâri Fiil
+إِتْيَانٌ - Gelme / Mastar
+جَاءَ - Geldi / Mazi Fiil
+حَضَرَ - Geldi, hazır bulundu / Mazi Fiil
+وَرَدَ - Geldi, ulaştı / Mazi Fiil
+آتَى - Verdi / Mazi Fiil
+يُؤْتِي - Verir, veriyor / Muzâri Fiil
+إِيتَاءٌ - Verme / Mastar
+أَعْطَى - Verdi / Mazi Fiil
+مُؤْتَمَرٌ - Konferans, kongre / İsim
+اِجْتِمَاعٌ - Toplantı / İsim
+مَنْسَكٌ - Hac ibadeti, kurban kesme yeri / İsim
+مَنَاسِكُ - Hac ibadetleri / İsim
+مِيقَاتٌ - Mikat (hac için belirlenmiş zaman/yer) / İsim
+مَوَاقِيتُ - Mikatlar / İsim
+اَلْمُحَدَّدَةُ - Belirlenmiş, sınırlanmış / İsm-i Mef'ûl
+اَلْمُعَيَّنَةُ - Belirlenmiş, tayin edilmiş / İsm-i Mef'ûl
+غَادَرَ - Ayrıldı, terk etti / Mazi Fiil
+يُغَادِرُ - Ayrılır, terk ediyor / Muzâri Fiil
+مُغَادَرَةٌ - Ayrılma, terk etme / Mastar
+تَرَكَ - Terk etti / Mazi Fiil
+حَاجٌّ - Hacı / İsm-i Fâil
+حُجَّاجٌ - Hacılar / İsim
+اَلْمَمْلُوكُ - Köle, sahip olunan / İsm-i Mef'ûl
+اَلْعَبْدُ - Köle, kul / İsim
+اَلْحُرُّ - Hür, özgür / Sıfat
+مَبْرُورٌ - Kabul edilmiş, makbul / İsm-i Mef'ûl
+مَقْبُولٌ - Kabul edilmiş / İsm-i Mef'ûl
+رَمَى - Attı / Mazi Fiil
+يَرْمِي - Atar, atıyor / Muzâri Fiil
+رَمْيٌ - Atma / Mastar
+أَلْقَى - Attı / Mazi Fiil
+حَشَرَ - Topladı, haşretti / Mazi Fiil
+يَحْشُرُ - Toplar, haşrediyor / Muzâri Fiil
+حَشْرٌ - Toplama, haşir / Mastar
+جَمَعَ - Topladı / Mazi Fiil
+يَجْمَعُ - Toplar, topluyor / Muzâri Fiil
+جَمْعٌ - Toplama / Mastar
+بَيْنَ يَدَيْ - Önünde / Zarf
+أَمَامَ - Önünde / Zarf
+بَلَغَ - Ulaştı / Mazi Fiil
+وَصَلَ - Ulaştı / Mazi Fiil
+نَشِيدٌ - Marş, ilahi / İsim
+أَنَاشِيدُ - Marşlar, ilahiler / İsim
+مَعَانِي الْحَجِّ - Haccın anlamları / İsim Tamlaması
+اَلْمُسَاوَاةُ - Eşitlik / Mastar
+سَوَاسِيَةٌ - Eşitlik / İsim
+اَلسُّرُورُ بِمَغْفِرَةِ الذُّنُوبِ - Günahların affıyla gelen sevinç / İfade
+اَلتَّذْكِيرُ بِيَوْمِ الْحَشْرِ - Haşir gününü hatırlatma / İfade
+بِمَعْنَى - Anlamında / İfade
+أَيْ - Yani / Edat
+
+23. Bölüm: İletişim Araçları (وَسَائِلُ الاِتِّصَالِ)
+اَلْأُسْلُوبُ - Üslup, tarz, yöntem / İsim
+اَلطَّرِيقُ - Yol, yöntem / İsim
+اَلطِّرَازُ - Tarz, model / İsim
+اِبْتَكَرَ - İcat etti / Mazi Fiil
+اِكْتَشَفَ - Keşfetti / Mazi Fiil
+اِخْتَرَعَ - İcat etti / Mazi Fiil
+أَوْجَدَ - Var etti, icat etti / Mazi Fiil
+مَرَّ - Geçti / Mazi Fiil
+يَمُرُّ - Geçer, geçiyor / Muzâri Fiil
+مُرُورٌ - Geçme / Mastar
+ذَهَبَ - Gitti / Mazi Fiil
+مَضَى - Geçti, gitti / Mazi Fiil
+مَرَّ بِ - -e uğradı / Mazi Fiil
+مَرْحَلَةٌ - Aşama, evre / İsim
+مَرَاحِلُ - Aşamalar, evreler / İsim
+وَصَّلَ - Ulaştırdı, bağladı / Mazi Fiil
+أَوْصَلَ - Ulaştırdı / Mazi Fiil
+دَرَّبَ - Eğitti, antrenman yaptırdı / Mazi Fiil
+مَرَّنَ - Alıştırdı / Mazi Fiil
+عَوَّدَ عَلَى - Alıştırdı / Mazi Fiil
+أَشْعَلَ - Yaktı, açtı (cihazı) / Mazi Fiil
+أَطْفَأَ - Söndürdü, kapattı (cihazı) / Mazi Fiil
+سَهْلٌ - Kolay / Sıfat
+صَعْبٌ - Zor / Sıfat
+جَرَى - Oldu, meydana geldi / Mazi Fiil
+حَدَثَ - Oldu / Mazi Fiil
+إِلَى أَنْ - -e kadar / Edat
+حَتَّى - -e kadar / Edat
+تَوَاصَلَ - İletişim kurdu / Mazi Fiil
+اِتَّصَلَ بِ - ile temas kurdu / Mazi Fiil
+مِنْ خِلَالِ - Aracılığıyla / İfade
+عَنْ طَرِيقِ - Yoluyla / İfade
+بِوَاسِطَةِ - Vasıtasıyla / İfade
+مُبَاشِرٌ - Doğrudan, direkt / Sıfat
+غَيْرُ مُبَاشِرٍ - Dolaylı / Sıfat
+اِسْتَمَرَّ - Devam etti / Mazi Fiil
+دَامَ - Devam etti / Mazi Fiil
+اِسْتَغْرَقَ - Sürdü (zaman) / Mazi Fiil
+تَطَوَّرَ - Gelişti / Mazi Fiil
+تَقَدَّمَ - İlerledi / Mazi Fiil
+اَلنَّهْضَةُ - Kalkınma, ilerleme / İsim
+أَذَاعَ - Yayınladı, duyurdu / Mazi Fiil
+نَشَرَ - Yaydı, yayınladı / Mazi Fiil
+إِذَاعَةٌ - Radyo, yayın / İsim
+مُذِيعٌ - Spiker / İsm-i Fâil
+مِذْيَاعٌ - Radyo / İsim
+وَفَّرَ - Sağladı, temin etti / Mazi Fiil
+أَمَّنَ - Güvence altına aldı / Mazi Fiil
+أَدَّى إِلَى - Sebep oldu, yol açtı / Mazi Fiil
+سَبَّبَ - Sebep oldu / Mazi Fiil
+أَنْتَجَ - Üretti, sonuç verdi / Mazi Fiil
+سَمْعِيَّةٌ - İşitsel / Sıfat
+بَصَرِيَّةٌ - Görsel / Sıfat
+رَخِيصٌ - Ucuz / Sıfat
+بُطْءٌ - Yavaşlık / İsim
+سُرْعَةٌ - Hız / İsim
+بِدَائِيٌّ - İlkel / Sıfat
+حَدِيثٌ - Modern / Sıfat
+ظَهَرَ - Ortaya çıktı, göründü / Mazi Fiil
+اِخْتَفَى - Kayboldu, gizlendi / Mazi Fiil
+اَلْجِهَازُ الْعَارِضُ - Projeksiyon cihazı / Sıfat Tamlaması
+عَدَدٌ - Sayı / İsim
+كَثِيرٌ - Çok / Sıfat
+عَلَى يَدِ - Eliyle, sayesinde / İfade
+بِفَضْلِ - Sayesinde / İfade
+سَاعَدَ فِي - -e yardım etti / Mazi Fiil
+سَاهَمَ فِي - -e katkıda bulundu / Mazi Fiil
+شَارَكَ فِي - -e katıldı / Mazi Fiil
+عَدَّاءٌ - Koşucu / İsim
+
+24. Bölüm: Emevi Camii (اَلْمَسْجِدُ الْأُمَوِيُّ)
+رَائِعٌ - Harika, muhteşem / Sıfat
+رَوَائِعُ - Harikalar, şaheserler / İsim
+عَجِيبَةٌ - Harika, acayip / Sıfat
+عَجَائِبُ - Harikalar / İsim
+مُمْتَازٌ - Mükemmel / Sıfat
+كَمْ - Ne kadar, nice / Soru Edatı
+رُبُعٌ - Dörtte bir / İsim
+مُرَبَّعٌ - Kare / İsim
+خُمُسٌ - Beşte bir / İsim
+مُخَمَّسٌ - Beşgen / İsim
+قُرْبٌ - Yakınlık / İsim
+بُعْدٌ - Uzaklık / İsim
+قَرِيبٌ - Yakın / Sıfat
+بَعِيدٌ - Uzak / Sıfat
+حَوَّلَ - Dönüştürdü, değiştirdi / Mazi Fiil
+غَيَّرَ - Değiştirdi / Mazi Fiil
+بَدَّلَ - Değiştirdi / Mazi Fiil
+تَحَوَّلَ إِلَى - -e dönüştü / Mazi Fiil
+تَغَيَّرَ إِلَى - -e değişti / Mazi Fiil
+تَبَدَّلَ إِلَى - -e değişti / Mazi Fiil
+أَثَرِيَّةٌ - Tarihi, arkeolojik / Sıfat
+تَارِيخِيَّةٌ - Tarihi / Sıfat
+ضَرْبٌ - Vuruş, tür / İsim
+حَدٌّ - Sınır / İsim
+يَحُدُّ - Sınırlar, sınırlıyor / Muzâri Fiil
+حُدُودٌ - Sınırlar / İsim
+ضَرِيحٌ - Türbe / İsim
+أَضْرِحَةٌ - Türbeler / İsim
+قَبْرٌ - Mezar / İsim
+قُبُورٌ - Mezarlar / İsim
+كَنِيسَةٌ - Kilise / İsim
+كَنَائِسُ - Kiliseler / İsim
+لَمَّا - -dığı zaman, -ınca / Zarf
+عِنْدَمَا - -dığı zaman / Zarf
+اَلْحَرْبُ - Savaş / İsim
+اَلسِّلْمُ - Barış / İsim
+أَعَادَ بِنَاءَ - Yeniden inşa etti / Mazi Fiil
+جَدَّدَ - Yeniledi / Mazi Fiil
+كَسَا - Giydirdi, kapladı / Mazi Fiil
+أَلْبَسَ - Giydirdi / Mazi Fiil
+يُلْبِسُ - Giydirir, giydiriyor / Muzâri Fiil
+إِلْبَاسٌ - Giydirme / Mastar
+غَطَّى - Örttü / Mazi Fiil
+بَلَغَ - Ulaştı / Mazi Fiil
+وَصَلَ - Ulaştı / Mazi Fiil
+فِنَاءٌ - Avlu / İsim
+أَفْنِيَةٌ - Avlular / İsim
+عَرْضٌ - Genişlik, en / İsim
+طُولٌ - Uzunluk, boy / İsim
+اِحْتَلَّ - İşgal etti / Mazi Fiil
+شَغَلَ - Meşgul etti, işgal etti / Mazi Fiil
+مِحْرَابٌ - Mihrap / İsim
+مَحَارِيبُ - Mihraplar / İsim
+عَرُوسٌ - Gelin / İsim
+عَرِيسٌ - Damat / İsim
+تَعْلِيمٌ - Eğitim, öğretim / Mastar
+تَعَلُّمٌ - Öğrenme / Mastar
+اِحْتَوَى عَلَى - İçerdi, kapsadı / Mazi Fiil
+ضَمَّ - İçerdi / Mazi Fiil
+سَاكِنٌ - Sakin, oturan / İsm-i Fâil
+سُكَّانٌ - Sakinler, nüfus / İsim
+نَفْسٌ - Nefis, can, kişi / İsim
+نُفُوسٌ - Nefisler, canlar, kişiler / İsim
+حَوَالَيْ - Yaklaşık / Zarf
+تَقْرِيبًا - Yaklaşık olarak / Zarf
+جَمَالٌ - Güzellik / İsim
+حُسْنٌ - Güzellik, iyilik / İsim
+قُبْحٌ - Çirkinlik / İsim
+زَيَّنَ - Süsledi / Mazi Fiil
+زَخْرَفَ - Süsledi, tezyin etti / Mazi Fiil
+يُزَخْرِفُ - Süsler, tezyin ediyor / Muzâri Fiil
+زَخْرَفَةٌ - Süsleme, tezyinat / Mastar
+رَئِيسٌ - Başkan, ana, temel / İsim
+أَسَاسِيٌّ - Temel, ana / Sıfat
+
+25. Bölüm: Orta Doğu (اَلشَّرْقُ الْأَوْسَطُ)
+مَدَّ - Uzattı, yaydı / Mazi Fiil
+يَمُدُّ - Uzatır, yayıyor / Muzâri Fiil
+مَدٌّ - Uzatma, yayma / Mastar
+اِمْتَدَّ مِنْ... إِلَى... - -den ... -e uzandı / Mazi Fiil
+يَمْتَدُّ - Uzanır, uzanıyor / Muzâri Fiil
+اِمْتِدَادٌ - Uzanma, uzantı / Mastar
+ضَمَّ - İçerdi, kapsadı / Mazi Fiil
+يَضُمُّ - İçerir, kapsıyor / Muzâri Fiil
+ضَمٌّ - İçerme, kapsama / Mastar
+اِحْتَوَى - İçerdi / Mazi Fiil
+مَهْدٌ - Beşik / İsim
+مِهَادٌ - Beşiklər / İsim
+اَلْقَلْبُ - Kalp / İsim
+اَلْمَرْكَزُ - Merkez / İsim
+تَوَافَدَ - Akın etti, topluca geldi / Mazi Fiil
+حَضَرَ جَمَاعَةً - Topluca geldi / Cümle
+أَشْرَفَ عَلَى - -e nazır oldu, -i denetledi / Mazi Fiil
+أَطَلَّ عَلَى - -e baktı, nazır oldu / Mazi Fiil
+شُرْفَةٌ - Balkon / İsim
+شَكَّلَ - Şekillendirdi, oluşturdu / Mazi Fiil
+كَوَّنَ - Oluşturdu / Mazi Fiil
+خِصْبٌ - Verimli, bereketli / Sıfat
+مُثْمِرٌ - Meyveli, verimli / İsm-i Fâil
+أَقْصَدَ - Kastetti / Mazi Fiil
+ذَهَبَ - Gitti / Mazi Fiil
+رَبَطَ - Bağladı / Mazi Fiil
+وَصَلَ - Ulaştı, bağladı / Mazi Fiil
+سَبَقَ - Geçti, önce geldi / Mazi Fiil
+يَسْبِقُ - Geçer, önce geliyor / Muzâri Fiil
+سَبْقٌ - Geçme, öncelik / Mastar
+مَضَى - Geçti, gitti / Mazi Fiil
+تَمَيَّزَ بِ - ile ayrıldı, ile öne çıktı / Mazi Fiil
+اِنْفَرَدَ بِ - ile tek oldu, ayrıldı / Mazi Fiil
+مُنَاخٌ - İklim / İsim
+طَقْسٌ - Hava durumu / İsim
+جَوٌّ - Hava / İsim
+بَلَدٌ - Ülke, şehir / İsim
+بِلَادٌ - Ülkeler, şehirler / İsim
+بُلْدَانٌ - Ülkeler / İsim
+دَوْلَةٌ - Devlet / İsim
+دُوَلٌ - Devletler / İsim
+اَلسَّابِقَةُ - Önceki, geçmiş / Sıfat
+اَلْمَاضِيَةُ - Geçmiş / Sıfat
+اَلْحَضَارَةُ - Medeniyet, uygarlık / İsim
+اَلْمَدَنِيَّةُ - Medeniyet / İsim
+صَدَّرَ - İhraç etti / Mazi Fiil
+يُصَدِّرُ - İhraç eder, ihraç ediyor / Muzâri Fiil
+تَصْدِيرٌ - İhracat / Mastar
+اِسْتَوْرَدَ - İthal etti / Mazi Fiil
+يَسْتَوْرِدُ - İthal eder, ithal ediyor / Muzâri Fiil
+اِسْتِيرَادٌ - İthalat / Mastar
+مُصَدِّرٌ - İhracatçı / İsm-i Fâil
+مُسْتَوْرِدٌ - İthalatçı / İsm-i Fâil
+قَصَدَ - Yöneldi, kastetti / Mazi Fiil
+أَقْبَلَ عَلَى - Yöneldi / Mazi Fiil
+تَوَجَّهَ - Yöneldi / Mazi Fiil
+اِتَّجَهَ إِلَى - -e yöneldi / Mazi Fiil
+تَابِعٌ - Tabi olan, bağlı / İsm-i Fâil
+أَتْبَاعٌ - Tabi olanlar, bağlılar / İsim
+مُنْتَسِبٌ - Mensup, üye / İsm-i Fâil
+عَبَرَ - Geçti / Mazi Fiil
+يَعْبُرُ - Geçer, geçiyor / Muzâri Fiil
+عُبُورٌ - Geçiş / Mastar
+عَبْرَ - Aracılığıyla, üzerinden / Zarf
+مِنْ خِلَالِ - Aracılığıyla / İfade
+زَخَرَ بِ - ile dolup taştı / Mazi Fiil
+يَزْخَرُ بِ - ile dolup taşar, dolup taşıyor / Muzâri Fiil
+اِمْتَلَأَ بِ - ile doldu / Mazi Fiil
+اَلْمُعَاصِرُ - Çağdaş, modern / İsm-i Fâil
+اَلْحَدِيثُ - Modern, yeni / Sıfat
+جَافٌّ - Kuru, kurak / Sıfat
+يَابِسٌ - Kuru / Sıfat
+رَطْبٌ - Nemli, yaş / Sıfat
+رُطُوبَةٌ - Nem, rutubet / İsim
+حَامِضٌ - Ekşi / Sıfat
+حُلْوٌ - Tatlı / Sıfat
+حَمْضِيٌّ - Asitli, ekşi / Sıfat

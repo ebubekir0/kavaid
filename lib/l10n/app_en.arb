@@ -1,0 +1,159 @@
+{
+  "@@locale": "en",
+  "@@last_modified": "2024-01-01T00:00:00.000Z",
+  
+  "searchPlaceholder": "Kelime ara",
+  "@searchPlaceholder": {
+    "description": "Arama kutusu placeholder metni"
+  },
+  
+  "profile": "Profil",
+  "@profile": {
+    "description": "Profil ekranı başlığı"
+  },
+  
+  "appName": "Kavaid",
+  "@appName": {
+    "description": "Uygulama adı"
+  },
+  
+  "rateApp": "Uygulamayı Değerlendir",
+  "@rateApp": {
+    "description": "Uygulama değerlendirme butonu"
+  },
+  
+  "tryAgain": "Tekrar Dene",
+  "@tryAgain": {
+    "description": "AI arama tekrar dene butonu"
+  },
+  
+  "notFound": "Bulunamadı",
+  "@notFound": {
+    "description": "Sonuç bulunamadı mesajı"
+  },
+  
+  "searchWithAI": "AI ile Ara",
+  "@searchWithAI": {
+    "description": "AI ile arama butonu"
+  },
+  
+  "noResults": "Sonuç bulunamadı",
+  "@noResults": {
+    "description": "Arama sonucu bulunamadı mesajı"
+  },
+  
+  "language": "Dil",
+  "@language": {
+    "description": "Dil seçeneği"
+  },
+  
+  "languageTurkish": "Türkçe",
+  "@languageTurkish": {
+    "description": "Türkçe dil seçeneği"
+  },
+  
+  "languageArabic": "العربية",
+  "@languageArabic": {
+    "description": "Arapça dil seçeneği"
+  },
+  
+  "selectLanguage": "Dil Seçin",
+  "@selectLanguage": {
+    "description": "Dil seçimi dialog başlığı"
+  },
+  
+  "settings": "Ayarlar",
+  "@settings": {
+    "description": "Ayarlar başlığı"
+  },
+  
+  "premium": "Premium",
+  "@premium": {
+    "description": "Premium seçeneği"
+  },
+  
+  "removeAds": "Reklamları Kaldır",
+  "@removeAds": {
+    "description": "Reklam kaldırma butonu"
+  },
+  
+  "restorePurchases": "Satın Alımları Geri Yükle",
+  "@restorePurchases": {
+    "description": "Satın alımları geri yükleme butonu"
+  },
+  
+  "share": "Paylaş",
+  "@share": {
+    "description": "Paylaş butonu"
+  },
+  
+  "contact": "İletişim",
+  "@contact": {
+    "description": "İletişim butonu"
+  },
+  
+  "privacyPolicy": "Gizlilik Politikası",
+  "@privacyPolicy": {
+    "description": "Gizlilik politikası"
+  },
+  
+  "credits": "Hak: {count}",
+  "@credits": {
+    "description": "Kullanıcı hakkı",
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  
+  "loading": "Yükleniyor...",
+  "@loading": {
+    "description": "Yükleniyor mesajı"
+  },
+  
+  "searching": "Aranıyor...",
+  "@searching": {
+    "description": "Arama yapılırken gösterilen mesaj"
+  },
+  
+  "wordMeaning": "Kelime Anlamı",
+  "@wordMeaning": {
+    "description": "Kelime anlamı başlığı"
+  },
+  
+  "exampleSentence": "Örnek Cümle",
+  "@exampleSentence": {
+    "description": "Örnek cümle başlığı"
+  },
+  
+  "saved": "Kaydedildi",
+  "@saved": {
+    "description": "Kaydedildi mesajı"
+  },
+  
+  "save": "Kaydet",
+  "@save": {
+    "description": "Kaydet butonu"
+  },
+  
+  "savedWords": "Kaydedilen Kelimeler",
+  "@savedWords": {
+    "description": "Kaydedilen kelimeler başlığı"
+  },
+  
+  "home": "Ana Sayfa",
+  "@home": {
+    "description": "Ana sayfa"
+  },
+  
+  "darkMode": "Koyu Tema",
+  "@darkMode": {
+    "description": "Koyu tema seçeneği"
+  },
+  
+  "lightMode": "Açık Tema",
+  "@lightMode": {
+    "description": "Açık tema seçeneği"
+  }
+} 

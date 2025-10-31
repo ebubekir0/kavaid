@@ -1,0 +1,23 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "server_time_check": {
+      ".read": true,
+      ".write": true
+    },
+    "general_chat": {
+      ".read": true,
+      ".write": true,
+      "$messageId": {
+        ".validate": "newData.hasChildren(['text', 'senderId', 'senderName', 'timestamp']) && newData.child('text').isString() && newData.child('senderId').isString() && newData.child('senderName').isString()"
+      }
+    },
+    "active_users": {
+      ".read": true,
+      "$userId": {
+        ".write": "$userId == auth.uid || auth == null"
+      }
+    }
+  }
+} 

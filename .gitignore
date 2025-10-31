@@ -1,0 +1,17 @@
+# Build artifacts 
+*.apk 
+*.aab 
+kavaid-* 
+build/ 
+debug-info/ 
+release_output/
+.dart_tool/
+*.so
+.flutter-plugins-dependencies 
+
+# Sensitive files (do not commit)
+*.jks
+*.keystore
+*.p8
+*.mobileprovision
+ios/Runner/GoogleService-Info.plist

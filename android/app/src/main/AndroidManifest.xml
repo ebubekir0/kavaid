@@ -1,0 +1,158 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- AdMob için gerekli internet permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- Ağ durumu kontrolü için -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    <!-- In-App Purchase için gerekli permission -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+    
+    <!-- Text-to-Speech için gerekli permissions -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    
+    <!-- Image Picker için permission gerekli değil - Android Photo Picker kullanıyoruz -->
+    <!-- Eski Android sürümleri için sadece sınırlı depolama erişimi -->
+    <!-- NOT: Google Play Politikası gereği READ_MEDIA_IMAGES kaldırıldı -->
+    
+    <!-- 🚀 PERFORMANCE MOD: Yüksek FPS desteği -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false"/>
+    <uses-feature android:name="android.hardware.faketouch" android:required="false"/>
+    
+    <!-- 🚀 PERFORMANCE MOD: Yüksek refresh rate desteği -->
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
+    <uses-feature android:name="android.hardware.screen.landscape" android:required="false"/>
+    
+    <application
+        android:label="Kavaid"
+        android:name="${applicationName}"
+        android:icon="@mipmap/launcher_icon"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true"
+        android:usesCleartextTraffic="false"
+        android:requestLegacyExternalStorage="false"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true">
+        
+        <!-- AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-3375249639458473~9873455703"/>
+            
+        <!-- Delay app measurement -->
+        <meta-data
+            android:name="com.google.android.gms.ads.DELAY_APP_MEASUREMENT_INIT"
+            android:value="true"/>
+            
+        <!-- ⚡ FPS OPTIMIZATION: AdMob Performance Flags -->
+        <!-- Background thread'de ad initialization (Main thread'i bloklamaz) -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true"/>
+        
+        <!-- Background thread'de ad loading (UI jank'ini önler) -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true"/>
+            
+        <!-- Native ad rendering optimizasyonu -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_PERFORMANCE_MODE"
+            android:value="true"/>
+            
+        <!-- WebView hardware acceleration -->
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.WEBVIEW_ACCELERATION"
+            android:value="true"/>
+            
+        <!-- ⚡ ADVANCED WebView Performance -->
+        <!-- WebView process isolation (UI jank'ini önler) -->
+        <meta-data
+            android:name="android.webkit.WebView.ProcessIsolationEnabled"
+            android:value="true"/>
+            
+        <!-- GPU rasterization for WebView -->
+        <meta-data
+            android:name="android.webkit.WebView.EnableGPURasterization"
+            android:value="true"/>
+            
+        <!-- Smooth scrolling for WebView -->
+        <meta-data
+            android:name="android.webkit.WebView.SmoothScrollingEnabled"
+            android:value="true"/>
+            
+        <!-- 🚀 PERFORMANCE FIX: Impeller'ı düşük performanslı cihazlarda devre dışı bırak -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableImpeller"
+            android:value="false" />
+        
+        <!-- Yüksek performans modu -->
+        <meta-data
+            android:name="io.flutter.embedding.android.EnableSustainedPerformanceMode"
+            android:value="true" />
+            
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
+            android:resizeableActivity="false"
+            android:supportsPictureInPicture="false">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+        <!-- URL launcher için gerekli -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" />
+        </intent>
+        <!-- Image Picker için gerekli -->
+        <intent>
+            <action android:name="android.intent.action.GET_CONTENT" />
+            <data android:mimeType="image/*" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PICK" />
+            <data android:mimeType="image/*" />
+        </intent>
+    </queries>
+</manifest>

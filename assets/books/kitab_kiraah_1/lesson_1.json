@@ -1,0 +1,415 @@
+{
+  "ders_bilgisi": {
+    "ders_no": 1,
+    "ders_adi": "Selamlaşma ve Tanışma",
+    "kelimeler": [
+      {
+        "arapca": "لِي",
+        "turkce": "Benim var",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عِنْدِي",
+        "turkce": "Yanımda, benim var",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَدَيَّ",
+        "turkce": "Yanımda, benim var",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سَبَحَ",
+        "turkce": "Yüzdü",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "يَسْبَحُ",
+        "turkce": "Yüzer, yüzüyor",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "سِبَاحَة",
+        "turkce": "Yüzme",
+        "tip": "isim"
+      },
+      {
+        "arapca": "صَغِير",
+        "turkce": "Küçük",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "كَبِير",
+        "turkce": "Büyük",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "رَكِبَ",
+        "turkce": "Bindi",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "يَرْكَبُ",
+        "turkce": "Biner, biniyor",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "رُكُوب",
+        "turkce": "Binme",
+        "tip": "isim"
+      },
+      {
+        "arapca": "رَاكِب",
+        "turkce": "Binen, binici",
+        "tip": "isim"
+      },
+      {
+        "arapca": "هَاتِف",
+        "turkce": "Telefon",
+        "tip": "isim"
+      },
+      {
+        "arapca": "جَوَّال",
+        "turkce": "Cep telefonu",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَاشَ",
+        "turkce": "Yaşadı",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "يَعِيشُ",
+        "turkce": "Yaşar, yaşıyor",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "عَيْش",
+        "turkce": "Yaşama, hayat",
+        "tip": "isim"
+      },
+      {
+        "arapca": "سَكَنَ",
+        "turkce": "İkamet etti",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "يَسْكُنُ",
+        "turkce": "İkamet eder, ikamet ediyor",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "سَكَن",
+        "turkce": "İkamet etme",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَقَامَ",
+        "turkce": "İkamet etti, konakladı",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "يُقِيمُ",
+        "turkce": "İkamet eder, ikamet ediyor",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "إِقَامَة",
+        "turkce": "İkamet etme, konaklama",
+        "tip": "isim"
+      },
+      {
+        "arapca": "حَيّ",
+        "turkce": "Semt, mahalle",
+        "tip": "isim"
+      },
+      {
+        "arapca": "مَحَلَّة",
+        "turkce": "Mahalle",
+        "tip": "isim"
+      },
+      {
+        "arapca": "شَارِع",
+        "turkce": "Cadde",
+        "tip": "isim"
+      },
+      {
+        "arapca": "جَادَّة",
+        "turkce": "Cadde",
+        "tip": "isim"
+      },
+      {
+        "arapca": "طَرِيق",
+        "turkce": "Yol",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أُسْرَة",
+        "turkce": "Aile",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أُسَر",
+        "turkce": "Aileler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَائِلَة",
+        "turkce": "Aile",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَائِلَات",
+        "turkce": "Aileler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَوَائِل",
+        "turkce": "Aileler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَمَل حُرّ",
+        "turkce": "Serbest meslek",
+        "tip": "isim"
+      },
+      {
+        "arapca": "تَكَلَّمَ",
+        "turkce": "Konuştu",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "تَحَدَّثَ",
+        "turkce": "Konuştu",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "أَيُّ لُغَة...؟",
+        "turkce": "Hangi dil...?",
+        "tip": "soru"
+      },
+      {
+        "arapca": "السَّنَة التَّحْضِيرِيَّة",
+        "turkce": "Hazırlık yılı",
+        "tip": "isim"
+      },
+      {
+        "arapca": "السَّنَة التَّمْهِيدِيَّة",
+        "turkce": "Hazırlık yılı",
+        "tip": "isim"
+      },
+      {
+        "arapca": "حَضَّرَ",
+        "turkce": "Hazırladı",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "مَهَّدَ",
+        "turkce": "Hazırladı, zemin hazırladı",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "جَهَّزَ",
+        "turkce": "Hazırladı, donattı",
+        "tip": "fiil"
+      },
+      {
+        "arapca": "مُتَقَاعِد",
+        "turkce": "Emekli",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "صَيْدَلِيّ",
+        "turkce": "Eczacı",
+        "tip": "meslek"
+      },
+      {
+        "arapca": "صَيْدَلَانِيّ",
+        "turkce": "Eczacı",
+        "tip": "meslek"
+      },
+      {
+        "arapca": "بَائِع الدَّوَاء",
+        "turkce": "İlaç satıcısı",
+        "tip": "meslek"
+      },
+      {
+        "arapca": "الصَّيْدَلِيَّة",
+        "turkce": "Eczane",
+        "tip": "isim"
+      },
+      {
+        "arapca": "المُفَضَّل",
+        "turkce": "Tercih edilen, favori",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "المُرَجَّح",
+        "turkce": "Tercih edilen",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "أَخٌ",
+        "turkce": "Erkek kardeş",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَخَوَانِ",
+        "turkce": "İki erkek kardeş",
+        "tip": "isim"
+      },
+      {
+        "arapca": "إِخْوَة",
+        "turkce": "Erkek kardeşler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "إِخْوَان",
+        "turkce": "Erkek kardeşler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أُخْتٌ",
+        "turkce": "Kız kardeş",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أُخْتَانِ",
+        "turkce": "İki kız kardeş",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَخَوَات",
+        "turkce": "Kız kardeşler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "لَيْسَ لِي أُخْت",
+        "turkce": "Kız kardeşim yok",
+        "tip": "cümle"
+      },
+      {
+        "arapca": "لَا أُخْتَ لِي",
+        "turkce": "Kız kardeşim yok",
+        "tip": "cümle"
+      },
+      {
+        "arapca": "رَبَّةُ بَيْت",
+        "turkce": "Ev hanımı",
+        "tip": "meslek"
+      },
+      {
+        "arapca": "السِّبَاحَة",
+        "turkce": "Yüzme",
+        "tip": "isim"
+      },
+      {
+        "arapca": "صَيْدُ السَّمَك",
+        "turkce": "Balık tutma",
+        "tip": "isim"
+      },
+      {
+        "arapca": "مِهْنَة",
+        "turkce": "Meslek",
+        "tip": "isim"
+      },
+      {
+        "arapca": "مَسْلَك",
+        "turkce": "Meslek, yol",
+        "tip": "isim"
+      },
+      {
+        "arapca": "تَاجِر",
+        "turkce": "Tüccar",
+        "tip": "meslek"
+      },
+      {
+        "arapca": "رُكُوبُ الدَّرَاجَة",
+        "turkce": "Bisiklete binme",
+        "tip": "isim"
+      },
+      {
+        "arapca": "الابْتِدَائِيَّة",
+        "turkce": "İlkokul",
+        "tip": "isim"
+      },
+      {
+        "arapca": "المُتَوَسِّطَة",
+        "turkce": "Ortaokul",
+        "tip": "isim"
+      },
+      {
+        "arapca": "الثَّانَوِيَّة",
+        "turkce": "Lise",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَعْزَب",
+        "turkce": "Bekar",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "عَازِب",
+        "turkce": "Bekar",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "مُتَزَوِّج",
+        "turkce": "Evli",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "مُطَلَّق",
+        "turkce": "Boşanmış",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "أَرْمَل",
+        "turkce": "Dul",
+        "tip": "sıfat"
+      },
+      {
+        "arapca": "قَرِيب",
+        "turkce": "Yakın, akraba",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَقْرِبَاء",
+        "turkce": "Akrabalar",
+        "tip": "isim"
+      },
+      {
+        "arapca": "أَقَارِب",
+        "turkce": "Akrabalar",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَقْرَب",
+        "turkce": "Akrep",
+        "tip": "isim"
+      },
+      {
+        "arapca": "عَقَارِب",
+        "turkce": "Akrepler",
+        "tip": "isim"
+      },
+      {
+        "arapca": "كُفْتَة نِيَّة",
+        "turkce": "Çiğ köfte",
+        "tip": "isim"
+      },
+      {
+        "arapca": "وَزّ",
+        "turkce": "Kaz",
+        "tip": "isim"
+      },
+      {
+        "arapca": "بَاذِنْجَان",
+        "turkce": "Patlıcan",
+        "tip": "isim"
+      }
+    ]
+  }
+}
+
+

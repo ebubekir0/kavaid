@@ -1,0 +1,371 @@
+workflows:
+  ios-test-ipa:
+    name: iOS Test IPA (Unsigned)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Get Flutter packages
+        script: flutter packages pub get
+      - name: Provision GoogleService-Info.plist (from base64 env)
+        script: |
+          if [ -n "${GOOGLE_SERVICE_INFO_B64:-}" ]; then
+            echo "Decoding GOOGLE_SERVICE_INFO_B64 into ios/Runner/GoogleService-Info.plist"
+            echo "$GOOGLE_SERVICE_INFO_B64" | base64 --decode > ios/Runner/GoogleService-Info.plist
+            ls -la ios/Runner/GoogleService-Info.plist || true
+          else
+            echo "GOOGLE_SERVICE_INFO_B64 is empty; skipping plist provisioning"
+          fi
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: Build iOS app
+        script: flutter build ios --release --no-codesign
+      - name: Create unsigned IPA
+        script: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          # For TEST IPA we can copy the plist into the app bundle post-build (no codesign)
+          if [ -f ../../../../ios/Runner/GoogleService-Info.plist ]; then
+            cp -f ../../../../ios/Runner/GoogleService-Info.plist Runner.app/GoogleService-Info.plist
+          fi
+          cp -r Runner.app Payload/
+          cd Payload
+          zip -r ../Kavaid-Test.ipa .
+          cd ..
+          echo "=== IPA oluşturuldu ==="
+          ls -la *.ipa
+    artifacts:
+      - build/ios/iphoneos/Kavaid-Test.ipa
+    publishing:
+      email:
+        recipients:
+          - ebubekirkul6153@gmail.com
+        notify:
+          success: true
+          failure: false
+
+  ios-app-store:
+    name: iOS App Store (TestFlight)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        BUNDLE_ID: com.onbir.kavaid
+    integrations:
+      app_store_connect: "kavaid"
+    scripts:
+      - name: Flutter packages
+        script: flutter pub get
+      - name: Inject Firebase keys to Info.plist for FirebaseOptions
+        script: |
+          set -euo pipefail
+          PLIST="ios/Runner/Info.plist"
+          # Only inject if env vars are present
+          if [ -n "${FIREBASE_GOOGLE_APP_ID:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_GOOGLE_APP_ID string ${FIREBASE_GOOGLE_APP_ID}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_GOOGLE_APP_ID ${FIREBASE_GOOGLE_APP_ID}" "$PLIST"
+          fi
+          if [ -n "${FIREBASE_API_KEY:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_API_KEY string ${FIREBASE_API_KEY}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_API_KEY ${FIREBASE_API_KEY}" "$PLIST"
+          fi
+          if [ -n "${FIREBASE_PROJECT_ID:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_PROJECT_ID string ${FIREBASE_PROJECT_ID}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_PROJECT_ID ${FIREBASE_PROJECT_ID}" "$PLIST"
+          fi
+          if [ -n "${FIREBASE_GCM_SENDER_ID:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_GCM_SENDER_ID string ${FIREBASE_GCM_SENDER_ID}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_GCM_SENDER_ID ${FIREBASE_GCM_SENDER_ID}" "$PLIST"
+          fi
+          if [ -n "${FIREBASE_STORAGE_BUCKET:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_STORAGE_BUCKET string ${FIREBASE_STORAGE_BUCKET}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_STORAGE_BUCKET ${FIREBASE_STORAGE_BUCKET}" "$PLIST"
+          fi
+          if [ -n "${FIREBASE_DATABASE_URL:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_DATABASE_URL string ${FIREBASE_DATABASE_URL}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_DATABASE_URL ${FIREBASE_DATABASE_URL}" "$PLIST"
+          fi
+          # Optional kill switch to disable Firebase init for testing
+          if [ -n "${FIREBASE_DISABLE_INIT:-}" ]; then
+            /usr/libexec/PlistBuddy -c "Add :FIREBASE_DISABLE_INIT string ${FIREBASE_DISABLE_INIT}" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :FIREBASE_DISABLE_INIT ${FIREBASE_DISABLE_INIT}" "$PLIST"
+          fi
+          /usr/libexec/PlistBuddy -c "Print" "$PLIST" | sed -n '1,120p'
+      - name: Regenerate iOS app icons (no alpha)
+        script: |
+          dart --version || true
+          dart run flutter_launcher_icons
+          # Force-remove alpha from ios-marketing icon (1024x1024) to satisfy App Store validation
+          ICON_PATH="ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png"
+          if [ -f "$ICON_PATH" ]; then
+            echo "Flattening alpha channel on $ICON_PATH"
+            cp "$ICON_PATH" "$ICON_PATH.bak" || true
+            # Convert to JPEG (no alpha), then back to PNG
+            sips -s format jpeg "$ICON_PATH" --out "${ICON_PATH%.png}.jpg" >/dev/null
+            sips -s format png "${ICON_PATH%.png}.jpg" --out "$ICON_PATH" >/dev/null
+            rm -f "${ICON_PATH%.png}.jpg"
+          else
+            echo "WARNING: $ICON_PATH not found; continuing"
+          fi
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: Set up code signing (Apple integration)
+        script: |
+          set -euo pipefail
+          keychain initialize
+          BUNDLE_ID=${BUNDLE_ID:-com.onbir.kavaid}
+          echo "BUNDLE_ID=$BUNDLE_ID"
+          # Yeni bir Distribution sertifikası oluşturabilmek için RSA özel anahtar üret (geçici)
+          KEY_PATH="$(pwd)/tmp_signing_key.pem"
+          openssl genrsa -out "$KEY_PATH" 2048
+          # Önce mevcut imzalama dosyalarını OLUŞTURMADAN çekmeyi dene
+          # Eğer mevcut sertifika/profil bulunuyorsa 409 hatasına düşmeden devam eder
+          # Bulunamazsa ikinci komutta --create ile yeni oluşturmayı dene
+          # shellcheck disable=SC2086
+          if ! app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE; then
+            echo "No existing signing files found. Creating new signing certificate and profile..."
+            app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create --certificate-key @file:"$KEY_PATH"
+          fi
+          keychain add-certificates
+          security find-identity -p codesigning -v || true
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles || true
+          xcode-project use-profiles --verbose
+      - name: Build iOS (no codesign)
+        script: |
+          set -euo pipefail
+          BUNDLE_ID=${BUNDLE_ID:-com.onbir.kavaid}
+          echo "Fetching latest TestFlight build number for $BUNDLE_ID..."
+          LATEST_BUILD_NUMBER_RAW=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || true)
+          # Normalize to integer
+          if [[ -z "${LATEST_BUILD_NUMBER_RAW:-}" ]]; then
+            LATEST_BUILD_NUMBER=0
+          else
+            LATEST_BUILD_NUMBER=${LATEST_BUILD_NUMBER_RAW}
+          fi
+          echo "Latest TestFlight build number: ${LATEST_BUILD_NUMBER}"
+
+          # Read current build number from pubspec.yaml (after '+')
+          PUBSPEC_BUILD=$(grep -E '^version:' pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/' || echo 0)
+          if [[ -z "${PUBSPEC_BUILD:-}" ]]; then PUBSPEC_BUILD=0; fi
+          echo "Pubspec build number: ${PUBSPEC_BUILD}"
+
+          # Choose NEXT as max(PUBSPEC_BUILD, LATEST_BUILD_NUMBER + 1)
+          CANDIDATE_FROM_TESTFLIGHT=$((LATEST_BUILD_NUMBER + 1))
+          if (( PUBSPEC_BUILD > CANDIDATE_FROM_TESTFLIGHT )); then
+            NEXT_BUILD_NUMBER=${PUBSPEC_BUILD}
+          else
+            NEXT_BUILD_NUMBER=${CANDIDATE_FROM_TESTFLIGHT}
+          fi
+
+          echo "Using NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}"
+          # Persist for subsequent steps
+          echo "NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}" >> "$CM_ENV"
+          # Build with explicit build number to avoid duplicate CFBundleVersion
+          flutter build ios --release --no-codesign --build-number ${NEXT_BUILD_NUMBER}
+      - name: Ensure Info.plist CFBundleVersion matches NEXT_BUILD_NUMBER
+        script: |
+          set -euo pipefail
+          PLIST="ios/Runner/Info.plist"
+          # Apply the computed NEXT_BUILD_NUMBER to Info.plist so Xcode archive uses it
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${NEXT_BUILD_NUMBER}" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string ${NEXT_BUILD_NUMBER}" "$PLIST"
+          echo "CFBundleVersion set to: $(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$PLIST")"
+      - name: Archive & Export IPA with signing
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner \
+            --archive-flags "-destination 'generic/platform=iOS'"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/**/app.dSYM.zip
+      - build/**/symbols.json
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+      email:
+        recipients:
+          - ebubekirkul6153@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  ios-sim-debug:
+    name: iOS Simulator Debug (No TestFlight)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        BUNDLE_ID: com.onbir.kavaid
+    scripts:
+      - name: Flutter packages
+        script: flutter pub get
+      - name: Inject Firebase keys to Info.plist (optional)
+        script: |
+          set -euo pipefail
+          PLIST="ios/Runner/Info.plist"
+          for KEY in FIREBASE_GOOGLE_APP_ID FIREBASE_API_KEY FIREBASE_PROJECT_ID FIREBASE_GCM_SENDER_ID FIREBASE_STORAGE_BUCKET FIREBASE_DATABASE_URL; do
+            VAL=${!KEY:-}
+            if [ -n "$VAL" ]; then
+              /usr/libexec/PlistBuddy -c "Add :$KEY string $VAL" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :$KEY $VAL" "$PLIST"
+            fi
+          done
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$PLIST" || true
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: Boot iOS Simulator (iPhone 15)
+        script: |
+          set -euo pipefail
+          DEVICE_NAME="iPhone 15"
+          # Create if missing, then boot
+          RUNTIME=$(xcrun simctl list runtimes | grep -E "iOS .*" | tail -n 1 | awk -F'[()]' '{print $2}')
+          xcrun simctl list devices | grep -q "$DEVICE_NAME (" || xcrun simctl create "$DEVICE_NAME" com.apple.CoreSimulator.SimDeviceType.iPhone-15 "$RUNTIME" || true
+          xcrun simctl boot "$DEVICE_NAME" || true
+          /usr/bin/open -a Simulator || true
+          xcrun simctl bootstatus "$DEVICE_NAME" -b
+      - name: Build for iOS Simulator
+        script: |
+          set -euo pipefail
+          flutter build ios --simulator --debug --dart-define=DEBUG_LOGS=true
+      - name: Install & Launch on Simulator, capture logs
+        script: |
+          set -euo pipefail
+          APP_PATH="build/ios/iphonesimulator/Runner.app"
+          if [ ! -d "$APP_PATH" ]; then
+            echo "Runner.app not found at $APP_PATH" >&2
+            exit 1
+          fi
+          xcrun simctl install booted "$APP_PATH"
+          # Launch the app and keep it running in background
+          xcrun simctl launch booted com.onbir.kavaid || true
+          echo "App launched. Waiting 30 seconds to collect logs..."
+          sleep 30
+          # Collect last 10 minutes of syslog (trim to last 1000 lines)
+          xcrun simctl spawn booted log show --style syslog --last 10m | tail -n 1000 > build/ios/iphonesimulator/simulator_syslog.txt || true
+          # Take a screenshot for visual confirmation
+          xcrun simctl io booted screenshot build/ios/iphonesimulator/simulator_screenshot.png || true
+    artifacts:
+      - build/ios/iphonesimulator/simulator_syslog.txt
+      - build/ios/iphonesimulator/simulator_screenshot.png
+      - build/ios/iphonesimulator/Runner.app
+    publishing:
+      email:
+        recipients:
+          - ebubekirkul6153@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  ios-internal-debug:
+    name: iOS Internal Debug (TestFlight)
+    instance_type: mac_mini_m1
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        BUNDLE_ID: com.onbir.kavaid
+    integrations:
+      app_store_connect: "kavaid"
+    scripts:
+      - name: Flutter packages
+        script: flutter pub get
+      - name: Inject Firebase keys to Info.plist
+        script: |
+          set -euo pipefail
+          PLIST="ios/Runner/Info.plist"
+          for KEY in FIREBASE_GOOGLE_APP_ID FIREBASE_API_KEY FIREBASE_PROJECT_ID FIREBASE_GCM_SENDER_ID FIREBASE_STORAGE_BUCKET FIREBASE_DATABASE_URL; do
+            VAL=${!KEY:-}
+            if [ -n "$VAL" ]; then
+              /usr/libexec/PlistBuddy -c "Add :$KEY string $VAL" "$PLIST" || /usr/libexec/PlistBuddy -c "Set :$KEY $VAL" "$PLIST"
+            fi
+          done
+          /usr/libexec/PlistBuddy -c "Print" "$PLIST" | sed -n '1,120p'
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: Compute NEXT_BUILD_NUMBER
+        script: |
+          set -euo pipefail
+          BUNDLE_ID=${BUNDLE_ID:-com.onbir.kavaid}
+          echo "Fetching latest TestFlight build number for $BUNDLE_ID..."
+          LATEST_BUILD_NUMBER_RAW=$(app-store-connect get-latest-testflight-build-number "$BUNDLE_ID" || true)
+          if [[ -z "${LATEST_BUILD_NUMBER_RAW:-}" ]]; then
+            LATEST_BUILD_NUMBER=0
+          else
+            LATEST_BUILD_NUMBER=${LATEST_BUILD_NUMBER_RAW}
+          fi
+          PUBSPEC_BUILD=$(grep -E '^version:' pubspec.yaml | sed -E 's/.*\+([0-9]+).*/\1/' || echo 0)
+          if [[ -z "${PUBSPEC_BUILD:-}" ]]; then PUBSPEC_BUILD=0; fi
+          CANDIDATE_FROM_TESTFLIGHT=$((LATEST_BUILD_NUMBER + 1))
+          if (( PUBSPEC_BUILD > CANDIDATE_FROM_TESTFLIGHT )); then
+            NEXT_BUILD_NUMBER=${PUBSPEC_BUILD}
+          else
+            NEXT_BUILD_NUMBER=${CANDIDATE_FROM_TESTFLIGHT}
+          fi
+          echo "Using NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}"
+          echo "NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}" >> "$CM_ENV"
+      - name: Build iOS (release with debug flags via dart-define)
+        script: |
+          set -euo pipefail
+          # DEBUG flags you can read in Dart via const bool.fromEnvironment('DEBUG_LOGS')
+          flutter build ios --release --no-codesign \
+            --build-number ${NEXT_BUILD_NUMBER} \
+            --dart-define=DEBUG_LOGS=true
+      - name: Ensure Info.plist CFBundleVersion matches
+        script: |
+          set -euo pipefail
+          PLIST="ios/Runner/Info.plist"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${NEXT_BUILD_NUMBER}" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string ${NEXT_BUILD_NUMBER}" "$PLIST"
+      - name: Archive & Export IPA (sign and export)
+        script: |
+          xcode-project build-ipa \
+            --workspace ios/Runner.xcworkspace \
+            --scheme Runner \
+            --archive-flags "-destination 'generic/platform=iOS'"
+      - name: Upload dSYMs to Crashlytics
+        script: |
+          set -euo pipefail
+          # Find upload-symbols script from CocoaPods
+          UPLOAD_SCRIPT="ios/Pods/FirebaseCrashlytics/upload-symbols"
+          if [ ! -f "$UPLOAD_SCRIPT" ]; then
+            echo "upload-symbols script not found at $UPLOAD_SCRIPT" >&2
+          else
+            echo "Searching for dSYM bundles..."
+            find build -name "*.dSYM" -type d -print0 | while IFS= read -r -d '' DSYM; do
+              echo "Uploading dSYM: $DSYM"
+              bash "$UPLOAD_SCRIPT" -gsp ios/Runner/GoogleService-Info.plist -p ios "$DSYM" || true
+            done
+          fi
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - build/**/app.dSYM.zip
+      - build/**/symbols.json
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
+      email:
+        recipients:
+          - ebubekirkul6153@gmail.com
+        notify:
+          success: true
+          failure: true

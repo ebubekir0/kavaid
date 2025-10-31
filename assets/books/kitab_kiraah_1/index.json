@@ -1,0 +1,30 @@
+{
+  "bookId": "kitab_kiraah_1",
+  "metinler": [
+    { "id": "lesson_1", "title": "Ders 1 — Selamlaşma ve Tanışma (التحيات والتعارف)" },
+    { "id": "lesson_2", "title": "Ders 2 — Peygamber'in Ailesi (عائلة النبي)" },
+    { "id": "lesson_3", "title": "Ders 3 — Abdurrahman'ın Evi (بيت عبد الرحمن)" },
+    { "id": "lesson_4", "title": "Ders 4 — Yemek Masası Etrafında (حول مائدة الطعام)" },
+    { "id": "lesson_5", "title": "Ders 5 — Üniversitede Eğitim (الدراسة في الجامعة)" },
+    { "id": "lesson_6", "title": "Ders 6 — Meslekler ve İşler (المهن والأعمال)" },
+    { "id": "lesson_7", "title": "Ders 7 — Bir Müslümanın Hayatında Bir Gün (اليوم في حياة المسلم)" },
+    { "id": "lesson_8", "title": "Ders 8 — Hayatımdaki En İyi İnsanlar (من أفضل الأشخاص في حياتي)" },
+    { "id": "lesson_9", "title": "Ders 9 — Yılın Mevsimleri (فصول السنة)" },
+    { "id": "lesson_10", "title": "Ders 10 — Alışveriş Günü (يوم التسوق)" },
+    { "id": "lesson_11", "title": "Ders 11 — Doktorun Yanında (عند الطبيب)" },
+    { "id": "lesson_12", "title": "Ders 12 — Hobiler (الهوايات)" },
+    { "id": "lesson_13", "title": "Ders 13 — Yaz Tatili (الإجازة الصيفية)" },
+    { "id": "lesson_14", "title": "Ders 14 — Boş Zamanlar (أوقات الفراغ)" },
+    { "id": "lesson_15", "title": "Ders 15 — İnsan ve Ulaşım Araçları (الإنسان ووسائل النقل)" },
+    { "id": "lesson_16", "title": "Ders 16 — Şeyh Muhammed Mütevelli Eş-Şa'râvî (الشيخ محمد متولي الشعراوي)" },
+    { "id": "lesson_17", "title": "Ders 17 — İslam'da Bayramlar (الأعياد في الإسلام)" },
+    { "id": "lesson_18", "title": "Ders 18 — İstanbul (إسطنبول)" },
+    { "id": "lesson_19", "title": "Ders 19 — İki Kutsal Şehir (مدينتان مقدستان)" },
+    { "id": "lesson_20", "title": "Ders 20 — Köy ve Şehir Arasında (بين القرية والمدينة)" },
+    { "id": "lesson_21", "title": "Ders 21 — Ramazan Gelenekleri (العادات الرمضانية)" },
+    { "id": "lesson_22", "title": "Ders 22 — Hac İbadeti (عبادة الحج)" },
+    { "id": "lesson_23", "title": "Ders 23 — İletişim Araçları (وسائل الاتصال)" },
+    { "id": "lesson_24", "title": "Ders 24 — Emevi Camii (المسجد الأموي)" },
+    { "id": "lesson_25", "title": "Ders 25 — Orta Doğu (الشرق الأوسط)" }
+  ]
+}

@@ -15,6 +15,7 @@ import '../services/admin_service.dart';
 import '../services/auth_service.dart';
 import '../services/message_tracking_service.dart';
 import '../services/profile_sync_service.dart';
+import '../services/user_profile_service.dart';
 import '../models/chat_message.dart';
 import 'dart:async' as async;
 import '../services/saved_words_service.dart';
@@ -35,13 +36,14 @@ class CommunityChatScreen extends StatefulWidget {
 
 class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true; // Widget state'ini koru
+  bool get wantKeepAlive => false; // PERFORMANCE: Sadece aktif sekmede çalışsın
   final CommunityChatService _chatService = CommunityChatService();
   final AdminService _adminService = AdminService();
   final SavedWordsService _savedWordsService = SavedWordsService();
   final AuthService _authService = AuthService();
   final MessageTrackingService _trackingService = MessageTrackingService();
   final ProfileSyncService _profileSync = ProfileSyncService();
+  final UserProfileService _profileService = UserProfileService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _messageController = TextEditingController();
@@ -1145,6 +1147,11 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
               return _buildEmptyState(isDarkMode);
             }
 
+            // Profil önbelleği: ekranda görünen kullanıcıların profillerini topluca preload et
+            final uniqueUids = messages.map((m) => m.userId).toSet();
+            // UI'yi bloklamadan, mikro görev olarak çalıştır
+            Future.microtask(() => _profileService.preloadProfiles(uniqueUids));
+
             return ListView.builder(
               controller: _scrollController,
               reverse: true,
@@ -1593,6 +1600,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
   // Modern Telegram avatar - profil resmi destekli (tıklanabilir)
   Widget _buildAvatar(ChatMessage message) {
     final baseColor = _getUsernameColor(message.userId);
+    // Önce cache'ten kullanıcı profilini dene
+    final cached = _profileService.getCached(message.userId);
+    final photoUrl = cached?.photoUrl ?? message.userPhotoUrl;
     
     return GestureDetector(
       onTap: () => _showUserProfile(message),
@@ -1605,15 +1615,19 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: message.userPhotoUrl?.isNotEmpty == true
+          child: photoUrl?.isNotEmpty == true
               ? Image.network(
-                  message.userPhotoUrl!,
+                  photoUrl!,
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
-                  filterQuality: FilterQuality.high, // Yüksek kalite
-                  cacheWidth: 120, // Daha yüksek cache kalitesi
-                  cacheHeight: 120,
+                  filterQuality: FilterQuality.medium,
+                  cacheWidth: 96,
+                  cacheHeight: 96,
+                  gaplessPlayback: true,
+                  frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                    return child; // ani görüntü değişiminde titreme olmasın
+                  },
                   errorBuilder: (context, error, stackTrace) {
                     // Resim yüklenemezse harf göster
                     return Center(
@@ -1918,54 +1932,42 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Kullanıcı rolü widget'ı
   Widget _buildUserRoleWidget(ChatMessage message) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .doc(message.userId)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        
-        final userData = snapshot.data!.data() as Map<String, dynamic>?;
-        final role = userData?['role'] as String? ?? 'user';
-        
-        // Kurucu kontrolu iyileştirildi - email ile de kontrol
-        final userEmail = userData?['email'] as String? ?? '';
-        final isFounder = role == 'founder' || userEmail.toLowerCase() == 'ebubekir@gmail.com';
-        
-        String roleText;
-        if (isFounder) {
-          roleText = 'Kurucu';
-        } else if (role == 'moderator') {
-          roleText = 'Moderatör';
-        } else {
-          return const SizedBox.shrink();
-        }
-        
-        final roleColor = Colors.grey[700]!; // Biraz daha koyu gri
-        
-        // Orijinal konum ve boyutta rol badge tasarımı
-        return Container(
-          margin: const EdgeInsets.only(left: 6, top: 1), // Orijinal konum
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1), // Daha ince yükseklik
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(4),
-            // Çerçeve kaldırıldı
-          ),
-          child: Text(
-            roleText,
-            style: TextStyle(
-              fontSize: 11, // Daha da büyük yazı
-              color: roleColor,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        );
-      },
+    // Önce cache'ten dener, yoksa arka planda yükler
+    final cached = _profileService.getCached(message.userId);
+    if (cached == null) {
+      _profileService.getProfile(message.userId).then((_) {
+        if (mounted) setState(() {});
+      });
+    }
+    final role = (cached?.role ?? '').toLowerCase();
+    if (role == 'founder') {
+      return _buildRoleChip('Kurucu', const Color(0xFFFF9500));
+    } else if (role == 'moderator') {
+      return _buildRoleChip('Moderatör', const Color(0xFF34C759));
+    } else if (role == 'admin') {
+      return _buildRoleChip('Admin', const Color(0xFF5856D6));
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildRoleChip(String roleText, Color roleColor) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+      decoration: BoxDecoration(
+        color: roleColor.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        roleText,
+        style: TextStyle(
+          fontSize: 11,
+          color: roleColor,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
   }
-  
+
   // Yönetici kontrolü (geriye uyumluluk için)
   bool _isUserAdmin(String userId) {
     return false; // Artık _buildUserRoleWidget kullanılacak

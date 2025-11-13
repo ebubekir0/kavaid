@@ -86,13 +86,15 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
   bool _isExpanded = false;
   bool _hasEverExpanded = false; // İlk defa açılma durumu için
   
-  // PERFORMANCE: Animasyon controller'ı optimize et
+  // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
   Animation<double>? _expandAnimation;
+  bool _animationInitialized = false;
 
   @override
   void initState() {
     super.initState();
+    // Animasyonu hemen başlatma - sadece gerektiğinde init et
   }
 
   @override

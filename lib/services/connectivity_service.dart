@@ -16,22 +16,18 @@ class ConnectivityService {
   Future<bool> hasInternetConnection() async {
     try {
       final connectivityResult = await _connectivity.checkConnectivity();
-      debugPrint('🌐 Bağlantı durumu: $connectivityResult');
       
       // Daha detaylı kontrol
       bool hasConnection = false;
       for (var result in connectivityResult) {
-        debugPrint('📡 Bağlantı tipi: $result');
         if (result != ConnectivityResult.none) {
           hasConnection = true;
           break;
         }
       }
       
-      debugPrint('✅ İnternet var mı: $hasConnection');
       return hasConnection;
     } catch (e) {
-      debugPrint('❌ Bağlantı kontrolü hatası: $e');
       return false;
     }
   }
@@ -47,6 +43,12 @@ class ConnectivityService {
   
   // Dinlemeyi durdur
   void stopListening() {
+    _connectivitySubscription?.cancel();
+    _connectivitySubscription = null;
+  }
+  
+  // CRITICAL: Memory leak önleme için dispose
+  void dispose() {
     _connectivitySubscription?.cancel();
     _connectivitySubscription = null;
   }

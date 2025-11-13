@@ -666,25 +666,38 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
         // 🚀 PERFORMANCE MOD: Yüksek FPS için optimize edilmiş MediaQuery
         final mediaQuery = MediaQuery.of(context);
 
-        return MediaQuery(
-          data: mediaQuery.copyWith(
-            // Performans için optimize edilmiş değerler
-            devicePixelRatio: mediaQuery.devicePixelRatio,
-            // Text scaling'i stabil tut
-            textScaleFactor: mediaQuery.textScaleFactor.clamp(0.8, 1.2),
-          ),
-          child: ScrollConfiguration(
-            // Overscroll glow efektini kaldır - performans artışı sağlar
-            behavior: NoGlowScrollBehavior(),
-            child: RepaintBoundary(
-              // 🚀 PERFORMANCE MOD: Ana uygulama RepaintBoundary ile sarılı
-              child: FPSOverlay(
-                showFPS: false, // Debug mesajlarını önlemek için tamamen kapalı
-                detailedFPS: false,
-                child: SafeArea(
-                  // 🔧 ANDROID 15 FIX: Global SafeArea - Navigation bar overlap fix
-                  bottom: true,
-                  child: child!,
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            // Her dokunuşta klavyeyi kapat (sistem + Arapça)
+            FocusManager.instance.primaryFocus?.unfocus();
+            SystemChannels.textInput.invokeMethod('TextInput.hide');
+          },
+          onPanDown: (_) {
+            // Scroll gerekmeksizin ilk temasla kapat
+            FocusManager.instance.primaryFocus?.unfocus();
+            SystemChannels.textInput.invokeMethod('TextInput.hide');
+          },
+          child: MediaQuery(
+            data: mediaQuery.copyWith(
+              // Performans için optimize edilmiş değerler
+              devicePixelRatio: mediaQuery.devicePixelRatio,
+              // Text scaling'i stabil tut
+              textScaleFactor: mediaQuery.textScaleFactor.clamp(0.8, 1.2),
+            ),
+            child: ScrollConfiguration(
+              // Overscroll glow efektini kaldır - performans artışı sağlar
+              behavior: NoGlowScrollBehavior(),
+              child: RepaintBoundary(
+                // 🚀 PERFORMANCE MOD: Ana uygulama RepaintBoundary ile sarılı
+                child: FPSOverlay(
+                  showFPS: false, // Debug mesajlarını önlemek için tamamen kapalı
+                  detailedFPS: false,
+                  child: SafeArea(
+                    // 🔧 ANDROID 15 FIX: Global SafeArea - Navigation bar overlap fix
+                    bottom: true,
+                    child: child!,
+                  ),
                 ),
               ),
             ),
@@ -1132,67 +1145,97 @@ class _MainScreenState extends State<MainScreen> {
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          // 1. Ana İçerik
+          // 1. Ana İçerik - IndexedStack ile sekmelerin state'ini koru
           Positioned.fill(
             child: RepaintBoundary(
-              child: IndexedStack(
-                index: _currentIndex,
-                children: [
-                  HomeScreen(
-                    isActive: _currentIndex == 0,
-                    bottomPadding: _bannerHeight + navBarHeight + systemNavBarHeight, // Banner + nav bar + system nav bar
-                    isDarkMode: widget.isDarkMode,
-                    onThemeToggle: widget.onThemeToggle,
-                    onArabicKeyboardStateChanged: _setArabicKeyboardState,
-                    isFirstOpen: _isFirstOpen && _currentIndex == 0,
-                    onKeyboardOpened: () {
-                      if (_isFirstOpen) setState(() => _isFirstOpen = false);
-                    },
-                  ),
-                  SavedWordsScreen(
-                    bottomPadding: _bannerHeight + navBarHeight + systemNavBarHeight,
-                    onRefreshCallback: (callback) => _refreshSavedWords = callback,
-                  ),
-                  // Öğren sekmesi için iç içe Navigator: bottom bar görünür kalır
-                  Padding(
-                    padding: EdgeInsets.only(
-                      bottom: _bannerHeight + navBarHeight + systemNavBarHeight,
-                    ),
-                    child: Navigator(
-                      key: _learningTabNavKey,
-                      onGenerateRoute: (settings) {
-                        return MaterialPageRoute(
-                          builder: (_) => LearningScreen(
-                            bottomPadding: 0, // Dış padding verildi
-                            isDarkMode: widget.isDarkMode,
-                            onThemeToggle: widget.onThemeToggle,
-                          ),
-                          settings: settings,
-                        );
-                      },
-                    ),
-                  ),
-                  // Topluluk ekranı - her zaman mevcut (index koru)
-                  _communityEnabled 
-                    ? CommunityChatScreen(
-                        // Topluluk ekranında banner üstte (SafeArea zaten viewPadding.top ekliyor)
-                        topPadding: _bannerHeight,
-                        bottomPadding: navBarHeight + systemNavBarHeight,
-                      )
-                    : Container(), // Placeholder - index korumak için
-                  ProfileScreen(
-                    bottomPadding: _bannerHeight + navBarHeight + systemNavBarHeight,
-                    isDarkMode: widget.isDarkMode,
-                    onThemeToggle: widget.onThemeToggle,
-                    onCommunityToggle: _onCommunityToggleChanged,
-                  ),
-                  // Admin Console (sadece admin için)
-                  if (_adminService.isAdmin())
-                    AdminConsoleScreen(
-                      topPadding: _bannerHeight,
-                      bottomPadding: navBarHeight + systemNavBarHeight,
-                    ),
-                ],
+              child: Builder(
+                builder: (context) {
+                  const navBarHeight = 56.0;
+                  final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
+                  final totalBottomPadding = _bannerHeight + navBarHeight + systemNavBarHeight;
+
+                  return IndexedStack(
+                    index: _currentIndex,
+                    children: [
+                      // 0: Sözlük (Home) - her zaman ağaçta, state korunur
+                      HomeScreen(
+                        key: const ValueKey('home_screen'),
+                        isActive: _currentIndex == 0,
+                        bottomPadding: totalBottomPadding,
+                        isDarkMode: widget.isDarkMode,
+                        onThemeToggle: widget.onThemeToggle,
+                        onArabicKeyboardStateChanged: _setArabicKeyboardState,
+                        isFirstOpen: _isFirstOpen,
+                        onKeyboardOpened: () {
+                          if (_isFirstOpen) setState(() => _isFirstOpen = false);
+                        },
+                      ),
+
+                      // 1: Kaydedilenler - sadece aktifken oluştur
+                      _currentIndex == 1
+                          ? SavedWordsScreen(
+                              key: const ValueKey('saved_words_screen'),
+                              bottomPadding: totalBottomPadding,
+                              onRefreshCallback: (callback) => _refreshSavedWords = callback,
+                            )
+                          : const SizedBox.shrink(),
+
+                      // 2: Öğren (iç Navigator) - sadece aktifken oluştur
+                      _currentIndex == 2
+                          ? Padding(
+                              key: const ValueKey('learning_screen'),
+                              padding: EdgeInsets.only(bottom: totalBottomPadding),
+                              child: Navigator(
+                                key: _learningTabNavKey,
+                                onGenerateRoute: (settings) {
+                                  return MaterialPageRoute(
+                                    builder: (_) => LearningScreen(
+                                      bottomPadding: 0,
+                                      isDarkMode: widget.isDarkMode,
+                                      onThemeToggle: widget.onThemeToggle,
+                                    ),
+                                    settings: settings,
+                                  );
+                                },
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+
+                      // 3: Topluluk - sadece aktifken oluştur
+                      _currentIndex == 3
+                          ? (_communityEnabled
+                              ? CommunityChatScreen(
+                                  key: const ValueKey('community_screen'),
+                                  topPadding: _bannerHeight,
+                                  bottomPadding: navBarHeight + systemNavBarHeight,
+                                )
+                              : _buildErrorScreen('Topluluk sekmesi devre dışı'))
+                          : const SizedBox.shrink(),
+
+                      // 4: Profil - sadece aktifken oluştur
+                      _currentIndex == 4
+                          ? ProfileScreen(
+                              key: const ValueKey('profile_screen'),
+                              bottomPadding: totalBottomPadding,
+                              isDarkMode: widget.isDarkMode,
+                              onThemeToggle: widget.onThemeToggle,
+                              onCommunityToggle: _onCommunityToggleChanged,
+                            )
+                          : const SizedBox.shrink(),
+
+                      // 5: Admin Console - sadece aktifken oluştur
+                      _currentIndex == 5
+                          ? (_adminService.isAdmin()
+                              ? AdminConsoleScreen(
+                                  key: const ValueKey('admin_screen'),
+                                  topPadding: _bannerHeight,
+                                  bottomPadding: navBarHeight + systemNavBarHeight,
+                                )
+                              : _buildErrorScreen('Admin yetkisi gerekli'))
+                          : const SizedBox.shrink(),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -1349,6 +1392,110 @@ class _MainScreenState extends State<MainScreen> {
       ),
     ),
   );
+  }
+
+  /// 🚀 PERFORMANCE: Sadece aktif sekmeyi göster (IndexedStack yerine)
+  Widget _buildActiveScreen() {
+    const navBarHeight = 56.0;
+    final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
+    final totalBottomPadding = _bannerHeight + navBarHeight + systemNavBarHeight;
+
+    switch (_currentIndex) {
+      case 0: // Ana Sekme - Sözlük
+        return HomeScreen(
+          key: const ValueKey('home_screen'),
+          isActive: true,
+          bottomPadding: totalBottomPadding,
+          isDarkMode: widget.isDarkMode,
+          onThemeToggle: widget.onThemeToggle,
+          onArabicKeyboardStateChanged: _setArabicKeyboardState,
+          isFirstOpen: _isFirstOpen,
+          onKeyboardOpened: () {
+            if (_isFirstOpen) setState(() => _isFirstOpen = false);
+          },
+        );
+
+      case 1: // Kaydedilenler
+        return SavedWordsScreen(
+          key: const ValueKey('saved_words_screen'),
+          bottomPadding: totalBottomPadding,
+          onRefreshCallback: (callback) => _refreshSavedWords = callback,
+        );
+
+      case 2: // Öğren - Navigator ile
+        return Padding(
+          key: const ValueKey('learning_screen'),
+          padding: EdgeInsets.only(bottom: totalBottomPadding),
+          child: Navigator(
+            key: _learningTabNavKey,
+            onGenerateRoute: (settings) {
+              return MaterialPageRoute(
+                builder: (_) => LearningScreen(
+                  bottomPadding: 0,
+                  isDarkMode: widget.isDarkMode,
+                  onThemeToggle: widget.onThemeToggle,
+                ),
+                settings: settings,
+              );
+            },
+          ),
+        );
+
+      case 3: // Topluluk (sadece enabled ise)
+        if (_communityEnabled) {
+          return CommunityChatScreen(
+            key: const ValueKey('community_screen'),
+            topPadding: _bannerHeight,
+            bottomPadding: navBarHeight + systemNavBarHeight,
+          );
+        }
+        return _buildErrorScreen('Topluluk sekmesi devre dışı');
+
+      case 4: // Profil
+        return ProfileScreen(
+          key: const ValueKey('profile_screen'),
+          bottomPadding: totalBottomPadding,
+          isDarkMode: widget.isDarkMode,
+          onThemeToggle: widget.onThemeToggle,
+          onCommunityToggle: _onCommunityToggleChanged,
+        );
+
+      case 5: // Admin Console
+        if (_adminService.isAdmin()) {
+          return AdminConsoleScreen(
+            key: const ValueKey('admin_screen'),
+            topPadding: _bannerHeight,
+            bottomPadding: navBarHeight + systemNavBarHeight,
+          );
+        }
+        return _buildErrorScreen('Admin yetkisi gerekli');
+
+      default:
+        return _buildErrorScreen('Geçersiz sekme: $_currentIndex');
+    }
+  }
+
+  Widget _buildErrorScreen(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 48,
+            color: widget.isDarkMode ? Colors.red[300] : Colors.red[600],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(
+              fontSize: 16,
+              color: widget.isDarkMode ? Colors.white70 : Colors.black87,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

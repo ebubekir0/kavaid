@@ -81,7 +81,6 @@ class PerformanceUtils {
       );
       
       if (deviceInfo != null) {
-        debugPrint('📱 Cihaz Bilgileri Alındı: $deviceInfo');
         
         // Cihaz bilgilerini parse et
         final totalRamMB = deviceInfo['totalRamMB'] as int? ?? 0;
@@ -106,23 +105,10 @@ class PerformanceUtils {
         if (performanceCategory != 'unknown') {
           _deviceCategory = performanceCategory;
           _isLowEndDevice = performanceCategory == 'low_end';
-          debugPrint('🎯 Cihaz Kategorisi: $_deviceCategory');
         }
         
-        // Detaylı cihaz raporu
-        debugPrint('📊 === KAVAID PERFORMANS RAPORU ===');
-        debugPrint('📱 Cihaz: $manufacturer $model ($device)');
-        debugPrint('🧠 RAM: $totalRamMB MB (Kullanılabilir: $availableRamMB MB)');
-        debugPrint('🎮 GPU: OpenGL ES $glEsVersion');
-        debugPrint('💻 CPU: $cpuCores çekirdek');
-        debugPrint('📱 API Level: $apiLevel');
-        debugPrint('🖥️ Refresh Rate: ${_refreshRate}Hz');
-        debugPrint('🏷️ Kategori: $_deviceCategory');
-        
         if (_isXiaomiDevice) {
-          debugPrint('📱 XIAOMI/REDMI cihaz tespit edildi');
           if (_miuiVersion.isNotEmpty) {
-            debugPrint('📱 MIUI Version: $_miuiVersion');
           }
           // MIUI için özel optimizasyonlar
           _applyMiuiOptimizations();

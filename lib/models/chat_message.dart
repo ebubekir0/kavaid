@@ -32,7 +32,10 @@ class ChatMessage {
       userName: data['userName'] ?? 'Anonim',
       userPhotoUrl: data['photoUrl'] ?? data['userPhotoUrl'], // Hem photoUrl hem userPhotoUrl destekle
       phoneNumber: data['phoneNumber'],
-      timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      // Sunucu zamanı henüz çözülmediyse, clientSentAt'i (yerel) kullan
+      timestamp: (data['timestamp'] as Timestamp?)?.toDate() 
+          ?? (data['clientSentAt'] as Timestamp?)?.toDate()
+          ?? DateTime.now(),
       isDeleted: data['isDeleted'] ?? false,
       deletedAt: data['deletedAt'] != null 
           ? (data['deletedAt'] as Timestamp).toDate() 

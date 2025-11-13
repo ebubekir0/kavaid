@@ -22,7 +22,7 @@ class AdminConsoleScreen extends StatefulWidget {
 
 class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false; // PERFORMANCE: Lazy loading için false
   final AdminService _adminService = AdminService();
   final AuthService _authService = AuthService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

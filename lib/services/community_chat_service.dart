@@ -98,6 +98,8 @@ class CommunityChatService {
         'userId': user.uid,
         'userName': userData['username'] ?? 'Kullanıcı', // Sadece username kullan
         'photoUrl': photoUrl,
+        // Yerel saat ile hemen gösterim için
+        'clientSentAt': Timestamp.fromDate(DateTime.now()),
         'timestamp': FieldValue.serverTimestamp(),
         'isDeleted': false,
       };

@@ -123,11 +123,45 @@ class DatabaseInitializationService {
     };
   }
   
+  /// Database'i temizle ve embedded data'yı yeniden yükle
+  Future<bool> forceReloadEmbeddedData() async {
+    try {
+      debugPrint('🔄 Force reload embedded data başlatılıyor...');
+      
+      // SharedPreferences'ı temizle
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('embedded_data_loaded');
+      await prefs.remove('database_version');
+      await prefs.remove('last_update_date');
+      debugPrint('✅ SharedPreferences temizlendi');
+      
+      // Database'i sıfırla
+      final dbService = DatabaseService.instance;
+      await dbService.recreateWordsTable([]);
+      debugPrint('✅ Database temizlendi');
+      
+      // Yeni embedded data'yı yükle
+      final success = await initializeDatabase();
+      
+      if (success) {
+        debugPrint('✅ Embedded data başarıyla yeniden yüklendi');
+        return true;
+      } else {
+        debugPrint('❌ Embedded data yüklenemedi');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ Force reload hatası: $e');
+      return false;
+    }
+  }
+  
   /// Database'i temizle (sadece geliştirme için)
   Future<void> clearDatabase() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('database_version');
     await prefs.remove('last_update_date');
+    await prefs.remove('embedded_data_loaded');
     
     final dbService = DatabaseService.instance;
     await dbService.recreateWordsTable([]);

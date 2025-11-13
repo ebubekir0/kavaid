@@ -26,14 +26,8 @@ class _RecentWordsSectionState extends State<RecentWordsSection> {
 
   Future<void> _loadRecentWords() async {
     try {
-      // Rastgele 10 kelime getir
-      final List<WordModel> randomWords = [];
-      for (int i = 0; i < 10; i++) {
-        final word = await _dbService.getRandomWord();
-        if (word != null) {
-          randomWords.add(word);
-        }
-      }
+      // PERFORMANCE: 10 ayrı çağrı yerine tek çağrı ile rastgele kelimeler
+      final randomWords = await _dbService.getRandomWords(10);
       
       // Toplam kelime sayısını al
       final count = await _dbService.getWordsCount();

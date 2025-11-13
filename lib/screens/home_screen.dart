@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../models/word_model.dart';
 import '../services/gemini_service.dart';
 import '../services/database_service.dart'; // YEREL VERİTABANI SERVİSİ
+import '../services/database_initialization_service.dart';
 import '../services/credits_service.dart';
 import '../services/book_store_service.dart';
 import '../services/turkce_analytics_service.dart';
@@ -73,6 +74,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   bool _didAutoOpenKeyboard = false; // Bir kez klavye açıldı mı?
   String _lastSearchText = ''; // Son arama metnini takip et
   bool _hasInternet = true; // İnternet bağlantısı var mı?
+  bool _scrollDebounce = false; // Scroll başlangıcını throttle et
+  bool _prewarmPending = false; // İlk detay açılış jank'ını önlemek için prewarm
 
   NativeAd? _nativeAd;
   bool _isAdLoaded = false;
@@ -88,7 +91,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   bool _hasShownTapHint = false;
   bool get _debugAlwaysShowHint => kDebugMode;
 
-  bool get wantKeepAlive => true; // Widget state'ini koru
+  bool get wantKeepAlive => true; // Keep alive açık: sekmeler arası geçişte state korunsun
+
+  bool _containsArabic(String s) => RegExp(r'[\u0600-\u06FF]').hasMatch(s);
 
   @override
   void initState() {
@@ -400,10 +405,13 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       _handleSecretUnlock();
       return;
     }
-
-    // Önceki debounce'ı iptal et
-    _debounceTimer?.cancel();
-
+    
+    // Gizli kod kontrolü - FORCE RELOAD EMBEDDED DATA
+    if (cleanText.toLowerCase() == 'reloaddb') {
+      _handleForceReloadDatabase();
+      return;
+    }
+    
     if (cleanText.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -416,8 +424,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       return;
     }
 
-    // 180ms debouncing: her tuş vuruşunda aramayı geciktir, ana iş parçacığını rahatlat
-    _debounceTimer = Timer(const Duration(milliseconds: 180), () {
+    // 350ms debouncing: her tuş vuruşunda aramayı geciktir, ana iş parçacığını rahatlat
+    _debounceTimer = Timer(const Duration(milliseconds: 350), () {
       if (mounted) {
         _performSearch(cleanText);
       }
@@ -470,6 +478,74 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     }
   }
 
+  Future<void> _handleForceReloadDatabase() async {
+    try {
+      // Klavyeyi kapat ve inputu temizle
+      _searchFocusNode.unfocus();
+      _searchController.clear();
+      _lastSearchText = '';
+      
+      // Loading göster
+      setState(() {
+        _searchResults = [];
+        _selectedWord = null;
+        _isSearching = false;
+        _showAIButton = false;
+        _showNotFound = false;
+        _isSearchInProgress = false;
+        _isLoading = true;
+      });
+      
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sözlük güncelleniyor... Lütfen bekleyin.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      
+      // DatabaseInitializationService'i import et
+      final dbInitService = DatabaseInitializationService.instance;
+      final success = await dbInitService.forceReloadEmbeddedData();
+      
+      if (!mounted) return;
+      
+      if (success) {
+        // Database bilgilerini al
+        final info = await dbInitService.getDatabaseInfo();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sözlük başarıyla güncellendi! ${info['wordCount']} kelime yüklendi.'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sözlük güncellenirken hata oluştu!'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      
+      // Loading'i kapat
+      setState(() {
+        _isLoading = false;
+      });
+      
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Database reload hatası: $e')),
+      );
+    }
+  }
+
   Future<void> _performSearch(String query) async {
     // Query'yi temizle - başındaki ve sonundaki boşlukları kaldır
     final cleanQuery = query.trim();
@@ -495,9 +571,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
 
       // DatabaseService.searchWords() zaten doğru sırala yapıyor, ek sıralama gereksiz
       final sortedResults = results;
-      
-      // Analytics event'i gönder
-      await TurkceAnalyticsService.kelimeArandiNormal(cleanQuery, sortedResults.length);
       
       if (mounted) {
         setState(() {
@@ -533,7 +606,12 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     // İpucu overlay açıksa kapat
     _removeTapHintOverlay();
     
-    // Analytics event'i gönder
+    // Analytics event'leri gönder
+    final searchQuery = _searchController.text.trim();
+    if (searchQuery.isNotEmpty) {
+      // Arama analytics'i sadece kelime seçildiğinde gönder (performans için)
+      await TurkceAnalyticsService.kelimeArandiNormal(searchQuery, _searchResults.length);
+    }
     await TurkceAnalyticsService.kelimeDetayiGoruntulendi(word.kelime);
     
     // Artık hak kontrolü yok, direkt kelimeyi göster
@@ -718,6 +796,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
           _isLoading = false;
           _isSearching = true;
           _showNotFound = false;
+          _prewarmPending = true; // İlk kez kartı ısıt
         });
       } else {
         // AI sonucu bulunamadı
@@ -754,6 +833,28 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       });
       widget.onArabicKeyboardStateChanged?.call(false);
     }
+  }
+
+  // Scroll başladığında tüm klavyeleri kapat (normal + Arapça)
+  void _dismissForScroll() {
+    if (_searchFocusNode.hasFocus) {
+      _searchFocusNode.unfocus();
+    }
+    if (_showArabicKeyboard) {
+      setState(() {
+        _showArabicKeyboard = false;
+      });
+      widget.onArabicKeyboardStateChanged?.call(false);
+    }
+  }
+
+  void _onScrollStart() {
+    if (_scrollDebounce) return;
+    _scrollDebounce = true;
+    _dismissForScroll();
+    Future.delayed(const Duration(milliseconds: 120), () {
+      _scrollDebounce = false;
+    });
   }
 
   @override
@@ -795,23 +896,17 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
               onTap: _dismissKeyboard,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification is UserScrollNotification) {
-                    _dismissKeyboard();
-                    // Sadece sözlük görünümünde ve ilk kaydırmada hemen ipucunu göster (yalnızca bir kez)
-                    if (_isSearching && _selectedWord == null && ((_debugAlwaysShowHint) || !_hasShownTapHint) && _searchResults.isNotEmpty && _tapHintOverlay == null) {
-                      // İpucunu hemen göster (bekleme süresi kaldırıldı)
-                      if (mounted) {
-                        _showTapHintOverlayIfNeeded();
-                      }
-                    }
+                  if (notification is ScrollStartNotification) {
+                    _onScrollStart();
                   }
                   return false;
                 },
                 child: RepaintBoundary(
                   child: CustomScrollView(
                     // PERFORMANCE: Scroll performans optimizasyonları
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    cacheExtent: PerformanceUtils.listCacheExtent, // PERFORMANCE: Adaptif cache
+                    physics: const ClampingScrollPhysics(),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    cacheExtent: hasKeyboard ? 300.0 : PerformanceUtils.listCacheExtent, // Klavye açıkken daha küçük cache
                     // PERFORMANCE: Scroll optimizasyonu için key
                     key: const PageStorageKey<String>('home_scroll'),
                     slivers: <Widget>[
@@ -871,49 +966,59 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                   Expanded(
                                     child: Container(
                                       alignment: Alignment.center, // TextField'ı dikeyde ortala
-                                      child: TextField(
-                                        controller: _searchController,
-                                        focusNode: _searchFocusNode,
-                                        autofocus: false, // Manuel focus yapacağız
-                                        textAlignVertical: TextAlignVertical.center, // Dikey ortalama
-                                        keyboardAppearance: widget.isDarkMode ? Brightness.dark : Brightness.light,
-                                        cursorColor: const Color(0xFF007AFF), // iOS mavi cursor
-                                        showCursor: true,
-                                        // Klavye performans optimizasyonları
-                                        enableInteractiveSelection: true, // Metin seçimini etkin tut
-                                        autocorrect: false,
-                                        enableSuggestions: false,
-                                        smartDashesType: SmartDashesType.disabled,
-                                        smartQuotesType: SmartQuotesType.disabled,
-                                        style: TextStyle(
-                                          fontSize: 16, // 14'ten 16'ya büyüttüm
+                                      child: Directionality(
+                                        textDirection: _containsArabic(_searchController.text)
+                                            ? TextDirection.rtl
+                                            : TextDirection.ltr,
+                                        child: TextField(
+                                          controller: _searchController,
+                                          focusNode: _searchFocusNode,
+                                          autofocus: false, // Manuel focus yapacağız
+                                          textAlignVertical: TextAlignVertical.center, // Dikey ortalama
+                                          textAlign: _containsArabic(_searchController.text)
+                                              ? TextAlign.right
+                                              : TextAlign.left,
+                                          keyboardAppearance: widget.isDarkMode ? Brightness.dark : Brightness.light,
+                                          cursorColor: const Color(0xFF007AFF), // iOS mavi cursor
+                                          showCursor: true,
+                                          // Klavye performans optimizasyonları
+                                          enableInteractiveSelection: true, // Metin seçimini etkin tut
+                                          autocorrect: false,
+                                          enableSuggestions: false,
+                                          smartDashesType: SmartDashesType.disabled,
+                                          smartQuotesType: SmartQuotesType.disabled,
+                                          style: TextStyle(
+                                          fontSize: _containsArabic(_searchController.text) ? 19 : 15, // Türkçe için küçültüldü (17->15)
+                                          height: 1.15, // diakritiklerde satır yüksekliğini optimize et
+                                          letterSpacing: 0.0, // harf arası boşluk olmasın
                                           color: widget.isDarkMode
                                               ? Colors.white
                                               : const Color(0xFF1C1C1E),
                                           fontWeight: FontWeight.w500,
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: 'Kelime ara',
-                                          hintStyle: TextStyle(
-                                            color: widget.isDarkMode
-                                                ? const Color(0xFF8E8E93).withOpacity(0.8)
-                                                : const Color(0xFF8E8E93),
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w400,
                                           ),
-                                          border: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          isDense: true, // Daha kompakt
-                                          contentPadding: EdgeInsets.zero, // Padding'i sıfırla
+                                          decoration: InputDecoration(
+                                            hintText: 'Kelime ara',
+                                            hintStyle: TextStyle(
+                                              color: widget.isDarkMode
+                                                  ? const Color(0xFF8E8E93).withOpacity(0.8)
+                                                  : const Color(0xFF8E8E93),
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w400,
+                                            ),
+                                            border: InputBorder.none,
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                            isDense: true, // Daha kompakt
+                                            contentPadding: EdgeInsets.zero, // Padding'i sıfırla
+                                          ),
+                                          textInputAction: TextInputAction.search,
+                                          onTap: () {
+                                            // TextField'a dokunulduğunda klavyeyi kesinlikle aç
+                                            _openKeyboardWithFocus();
+                                          },
+                                          onSubmitted: (_) => _searchWithAI(),
+                                          readOnly: _showArabicKeyboard,
                                         ),
-                                        textInputAction: TextInputAction.search,
-                                        onTap: () {
-                                          // TextField'a dokunulduğunda klavyeyi kesinlikle aç
-                                          _openKeyboardWithFocus();
-                                        },
-                                        onSubmitted: (_) => _searchWithAI(),
-                                        readOnly: _showArabicKeyboard,
                                       ),
                                     ),
                                   ),
@@ -1152,28 +1257,26 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                   if (index >= _searchResults.length) return const SizedBox.shrink();
                   
                   final word = _searchResults[index];
-                  return RepaintBoundary(
+                  return SearchResultCard(
                     key: ValueKey('result_${word.kelime}_$index'),
-                    child: SearchResultCard(
-                      word: word,
-                      onTap: () => _selectWord(word),
-                      searchQuery: _searchController.text.trim(), // Arama terimini geç
-                      onExpand: () {
-                        // İpucu overlay açıksa kapat
-                        _removeTapHintOverlay();
-                        if (_showArabicKeyboard) {
-                          setState(() {
-                            _showArabicKeyboard = false;
-                          });
-                          widget.onArabicKeyboardStateChanged?.call(false);
-                        }
-                      },
-                    ),
+                    word: word,
+                    onTap: () => _selectWord(word),
+                    searchQuery: _searchController.text.trim(), // Arama terimini geç
+                    onExpand: () {
+                      // İpucu overlay açıksa kapat
+                      _removeTapHintOverlay();
+                      if (_showArabicKeyboard) {
+                        setState(() {
+                          _showArabicKeyboard = false;
+                        });
+                        widget.onArabicKeyboardStateChanged?.call(false);
+                      }
+                    },
                   );
                 },
                 childCount: _searchResults.length,
-                addAutomaticKeepAlives: true,
-                addRepaintBoundaries: false,
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: true,
                 addSemanticIndexes: false,
               ),
             ),

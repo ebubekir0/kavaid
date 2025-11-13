@@ -108,19 +108,42 @@ class FirebaseService {
             
             words.add(word);
             
-            // Sadece başlangıç eşleşmeleri - kelime başında olmalı
+            // Kelime eşleşme kontrolü - geniş arama
             final lowerQuery = query.toLowerCase();
             final lowerKelime = word.kelime.toLowerCase();
             final lowerHarekeli = word.harekeliKelime?.toLowerCase() ?? '';
             final lowerAnlam = word.anlam?.toLowerCase() ?? '';
-            final lowerKey = key.toLowerCase(); // Key'i de kontrol et
+            final lowerKey = key.toLowerCase();
             
-            if (lowerKelime.startsWith(lowerQuery) || 
-                lowerHarekeli.startsWith(lowerQuery) ||
-                lowerKey.startsWith(lowerQuery) ||
-                _checkMeaningStartsWith(lowerAnlam, lowerQuery)) { // Tüm anlamları kontrol et
+            // Arapça hareke normalizasyonu
+            final normalizedQuery = _removeArabicDiacritics(lowerQuery);
+            final normalizedKelime = _removeArabicDiacritics(lowerKelime);
+            final normalizedHarekeli = _removeArabicDiacritics(lowerHarekeli);
+            
+            bool matches = false;
+            
+            // 1. Tam eşleşme kontrolü
+            if (lowerKelime == lowerQuery || lowerHarekeli == lowerQuery || lowerKey == lowerQuery ||
+                normalizedKelime == normalizedQuery || normalizedHarekeli == normalizedQuery) {
+              matches = true;
+            }
+            // 2. Başlangıç eşleşmesi
+            else if (lowerKelime.startsWith(lowerQuery) || lowerHarekeli.startsWith(lowerQuery) ||
+                     normalizedKelime.startsWith(normalizedQuery) || normalizedHarekeli.startsWith(normalizedQuery)) {
+              matches = true;
+            }
+            // 3. İçinde geçme (kök eşleşmesi)
+            else if (lowerKelime.contains(lowerQuery) || lowerHarekeli.contains(lowerQuery) ||
+                     normalizedKelime.contains(normalizedQuery) || normalizedHarekeli.contains(normalizedQuery)) {
+              matches = true;
+            }
+            // 4. Anlam kontrolü
+            else if (_checkMeaningMatch(lowerAnlam, lowerQuery)) {
+              matches = true;
+            }
+            
+            if (matches) {
               results.add(word);
-              
               // Limit kontrolü
               if (results.length >= limit) break;
             }
@@ -136,9 +159,9 @@ class FirebaseService {
       _cachedData = {'all': words};
       _lastCacheTime = now;
 
-      // Hızlı sıralama - sadece score hesapla
+      // YENİ GELİŞTİRİLMİŞ SIRALAMA - DatabaseService ile aynı mantık
       results.sort((a, b) => 
-        b.searchScore(query).compareTo(a.searchScore(query)));
+        _compareWordsByNewPriority(a, b, query));
 
       return results;
     } catch (e) {
@@ -160,17 +183,41 @@ class FirebaseService {
       final lowerHarekeli = word.harekeliKelime?.toLowerCase() ?? '';
       final lowerAnlam = word.anlam?.toLowerCase() ?? '';
       
-      if (lowerKelime.startsWith(lowerQuery) || 
-          lowerHarekeli.startsWith(lowerQuery) ||
-          _checkMeaningStartsWith(lowerAnlam, lowerQuery)) { // Tüm anlamları kontrol et
+      // Aynı eşleşme mantığını kullan
+      final normalizedQuery = _removeArabicDiacritics(lowerQuery);
+      final normalizedKelime = _removeArabicDiacritics(lowerKelime);
+      final normalizedHarekeli = _removeArabicDiacritics(lowerHarekeli);
+      
+      bool matches = false;
+      
+      // 1. Tam eşleşme kontrolü
+      if (lowerKelime == lowerQuery || lowerHarekeli == lowerQuery ||
+          normalizedKelime == normalizedQuery || normalizedHarekeli == normalizedQuery) {
+        matches = true;
+      }
+      // 2. Başlangıç eşleşmesi
+      else if (lowerKelime.startsWith(lowerQuery) || lowerHarekeli.startsWith(lowerQuery) ||
+               normalizedKelime.startsWith(normalizedQuery) || normalizedHarekeli.startsWith(normalizedQuery)) {
+        matches = true;
+      }
+      // 3. İçinde geçme (kök eşleşmesi)
+      else if (lowerKelime.contains(lowerQuery) || lowerHarekeli.contains(lowerQuery) ||
+               normalizedKelime.contains(normalizedQuery) || normalizedHarekeli.contains(normalizedQuery)) {
+        matches = true;
+      }
+      // 4. Anlam kontrolü
+      else if (_checkMeaningMatch(lowerAnlam, lowerQuery)) {
+        matches = true;
+      }
+      
+      if (matches) {
         results.add(word);
-        
         if (results.length >= limit) break;
       }
     }
 
     results.sort((a, b) => 
-      b.searchScore(query).compareTo(a.searchScore(query)));
+      _compareWordsByNewPriority(a, b, query));
 
     return results;
   }
@@ -216,11 +263,11 @@ class FirebaseService {
               );
             }
             
-            // Sadece başlangıç eşleşmeleri
+            // Sadece başlangıç eşleşmeleri öneriler için
             final kelimeMatch = word.kelime.toLowerCase().startsWith(query.toLowerCase());
             final harekeliMatch = word.harekeliKelime?.toLowerCase().startsWith(query.toLowerCase()) ?? false;
             final keyMatch = keyStr.toLowerCase().startsWith(query.toLowerCase());
-            final anlamMatch = _checkMeaningStartsWith(word.anlam?.toLowerCase() ?? '', query.toLowerCase()); // Tüm anlamları kontrol et
+            final anlamMatch = _checkMeaningStartsWith(word.anlam?.toLowerCase() ?? '', query.toLowerCase());
             
             if (kelimeMatch || harekeliMatch || keyMatch || anlamMatch) {
               suggestions.add(word);
@@ -233,10 +280,208 @@ class FirebaseService {
 
       // Arama skoruna göre sırala ve sınırla
       suggestions.sort((a, b) => 
-        b.searchScore(query).compareTo(a.searchScore(query)));
+        _compareWordsByNewPriority(a, b, query));
 
       return suggestions.take(5).toList();
     });
+  }
+
+  /// YENİ GELİŞTİRİLMİŞ ARAMA SIRALAMASI - DatabaseService ile aynı mantık
+  /// 1. TAM EŞLEŞME - Arama terimi ile tam uyuşan kelimeler
+  /// 2. İÇİNDE GEÇEN - Arama teriminin kelime içinde geçtiği durumlar
+  /// 3. KÖK EŞLEŞMESI - Kök olarak içinde geçenler
+  static int _compareWordsByNewPriority(WordModel a, WordModel b, String originalQuery) {
+    final lowerTurkishQuery = originalQuery.toLowerCase();
+    final aAnlam = (a.anlam ?? '').toLowerCase();
+    final bAnlam = (b.anlam ?? '').toLowerCase();
+    
+    // Arapça arama için normalleştirilmiş kelimeler (hareke kaldırma)
+    final aNormKelime = _removeArabicDiacritics(a.kelime);
+    final aNormHarekeli = _removeArabicDiacritics(a.harekeliKelime ?? '');
+    final bNormKelime = _removeArabicDiacritics(b.kelime);
+    final bNormHarekeli = _removeArabicDiacritics(b.harekeliKelime ?? '');
+    final normalizedQuery = _removeArabicDiacritics(originalQuery);
+
+    // ============= 1. ÖNCE TÜRKÇE ANLAM KONTROLÜ =============
+    
+    // 1a. TAM ANLAM EŞLEŞMESI - "katıldı" aradığında "katıldı" anlamı olan kelimeler en önce
+    final aExactMeaningMatch = _hasExactMeaningMatch(aAnlam, lowerTurkishQuery);
+    final bExactMeaningMatch = _hasExactMeaningMatch(bAnlam, lowerTurkishQuery);
+    
+    if (aExactMeaningMatch && !bExactMeaningMatch) return -1;
+    if (bExactMeaningMatch && !aExactMeaningMatch) return 1;
+    
+    // 1b. ANLAM BAŞLANGICI - "kat" aradığında "katıldı, katılmak" olan kelimeler (SADECE BAŞLANGIÇ!)
+    final aMeaningStartsWith = _hasMeaningStartsWith(aAnlam, lowerTurkishQuery);
+    final bMeaningStartsWith = _hasMeaningStartsWith(bAnlam, lowerTurkishQuery);
+    
+    if (aMeaningStartsWith && !bMeaningStartsWith) return -1;
+    if (bMeaningStartsWith && !aMeaningStartsWith) return 1;
+    
+    // 1c. TÜRKÇE İÇİN İÇİNDE GEÇME KALDIRILDI - Sadece başlangıç eşleşmeleri!
+
+    // ============= 2. ARAPÇA KELİME KONTROLÜ =============
+    
+    // 2a. TAM KELİME EŞLEŞMESI
+    final aExactMatch = aNormKelime.toLowerCase() == normalizedQuery.toLowerCase() || 
+                       aNormHarekeli.toLowerCase() == normalizedQuery.toLowerCase();
+    final bExactMatch = bNormKelime.toLowerCase() == normalizedQuery.toLowerCase() || 
+                       bNormHarekeli.toLowerCase() == normalizedQuery.toLowerCase();
+    
+    if (aExactMatch && !bExactMatch) return -1;
+    if (bExactMatch && !aExactMatch) return 1;
+    
+    // 2b. KELİME BAŞLANGICI
+    final aStartsWith = aNormKelime.toLowerCase().startsWith(normalizedQuery.toLowerCase()) || 
+                       aNormHarekeli.toLowerCase().startsWith(normalizedQuery.toLowerCase());
+    final bStartsWith = bNormKelime.toLowerCase().startsWith(normalizedQuery.toLowerCase()) || 
+                       bNormHarekeli.toLowerCase().startsWith(normalizedQuery.toLowerCase());
+    
+    if (aStartsWith && !bStartsWith) return -1;
+    if (bStartsWith && !aStartsWith) return 1;
+    
+    // 2c. KÖK EŞLEŞMESI (ARAPÇA KÖK KURALLARINA GÖRE) - İÇİNDE GEÇENLERDEN ÖNCE
+    final aRootMatch = _isRootMatch(aNormKelime, aNormHarekeli, normalizedQuery) || 
+                      _isRootMatch(a.kelime, a.harekeliKelime ?? '', originalQuery);
+    final bRootMatch = _isRootMatch(bNormKelime, bNormHarekeli, normalizedQuery) ||
+                      _isRootMatch(b.kelime, b.harekeliKelime ?? '', originalQuery);
+    
+    if (aRootMatch && !bRootMatch) return -1;
+    if (bRootMatch && !aRootMatch) return 1;
+    
+    // 2d. KELİME İÇİNDE GEÇİYOR (GENEL CONTAINS - EN SON)
+    final aContains = aNormKelime.toLowerCase().contains(normalizedQuery.toLowerCase()) || 
+                     aNormHarekeli.toLowerCase().contains(normalizedQuery.toLowerCase());
+    final bContains = bNormKelime.toLowerCase().contains(normalizedQuery.toLowerCase()) || 
+                     bNormHarekeli.toLowerCase().contains(normalizedQuery.toLowerCase());
+    
+    if (aContains && !bContains) return -1;
+    if (bContains && !aContains) return 1;
+    
+    // ============= 3. KELIME UZUNLUĞU (KISA KELİMELER DAHA ÖNCELİKLİ) =============
+    final aMinLength = [aNormKelime.length, aNormHarekeli.length]
+        .where((l) => l > 0)
+        .fold(999, (prev, curr) => prev < curr ? prev : curr);
+    final bMinLength = [bNormKelime.length, bNormHarekeli.length]
+        .where((l) => l > 0)
+        .fold(999, (prev, curr) => prev < curr ? prev : curr);
+    
+    if (aMinLength != bMinLength) return aMinLength.compareTo(bMinLength);
+    
+    // ============= 4. ANLAM UZUNLUĞU (KISA ANLAMLAR DAHA ÖNCELİKLİ) =============
+    final aAnlamLength = aAnlam.length;
+    final bAnlamLength = bAnlam.length;
+    
+    return aAnlamLength.compareTo(bAnlamLength);
+  }
+  
+  /// Arapça harekelerini kaldır (normalizasyon)
+  static String _removeArabicDiacritics(String text) {
+    // Arapça harekeler: َ ِ ُ ً ٌ ٍ ّ ْ ٓ ٰ ٔ ٕ
+    return text.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]'), '');
+  }
+  
+  /// Kök eşleşmesi kontrolü - Arapça morfoloji kurallarına göre
+  static bool _isRootMatch(String kelime1, String kelime2, String query) {
+    if (query.length < 2) return false; // En az 2 harf olmalı
+    
+    final lowerQuery = query.toLowerCase();
+    final lowerKelime1 = kelime1.toLowerCase(); 
+    final lowerKelime2 = kelime2.toLowerCase();
+    
+    // Kök eşleşmesi: query'nin harfleri sırasıyla kelimede geçiyor mu?
+    // Örnek: "كتب" kökü "كاتب", "مكتوب", "كتابة" kelimelerinde geçer
+    return _hasSequentialLetters(lowerKelime1, lowerQuery) || 
+           _hasSequentialLetters(lowerKelime2, lowerQuery);
+  }
+  
+  /// Harflerin sıralı olarak geçip geçmediğini kontrol eder
+  static bool _hasSequentialLetters(String word, String query) {
+    if (word.isEmpty || query.isEmpty) return false;
+    
+    int queryIndex = 0;
+    
+    for (int i = 0; i < word.length && queryIndex < query.length; i++) {
+      if (word[i] == query[queryIndex]) {
+        queryIndex++;
+      }
+    }
+    
+    // Sorgunun tüm harfleri sırasıyla bulundu mu?
+    return queryIndex == query.length;
+  }
+  
+  /// Tam anlam eşleşmesi kontrolü - "katıldı" aradığında "katıldı" anlamı olan kelimeler
+  static bool _hasExactMeaningMatch(String meanings, String query) {
+    if (meanings.isEmpty || query.isEmpty) return false;
+    
+    final meaningList = meanings
+        .split(RegExp(r'[,;.\n]'))
+        .map((m) => m.trim())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    
+    return meaningList.any((meaning) => meaning == query);
+  }
+  
+  /// Anlam başlangıcı kontrolü - "kat" aradığında "katıldı, katılmak" olan kelimeler
+  static bool _hasMeaningStartsWith(String meanings, String query) {
+    if (meanings.isEmpty || query.isEmpty) return false;
+    
+    final meaningList = meanings
+        .split(RegExp(r'[,;.\n]'))
+        .map((m) => m.trim())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    
+    return meaningList.any((meaning) => meaning.startsWith(query) && meaning != query);
+  }
+  
+  /// Anlam içinde geçme kontrolü - "katıl" aradığında "iştirak, katılım" olan kelimeler
+  static bool _hasMeaningContains(String meanings, String query) {
+    if (meanings.isEmpty || query.isEmpty) return false;
+    
+    final meaningList = meanings
+        .split(RegExp(r'[,;.\n]'))
+        .map((m) => m.trim())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    
+    return meaningList.any((meaning) => 
+        meaning.contains(query) && 
+        !meaning.startsWith(query) && 
+        meaning != query
+    );
+  }
+
+  // Anlam eşleşmesi kontrolü - tüm anlamları kontrol eder (genel)
+  bool _checkMeaningMatch(String meanings, String query) {
+    if (meanings.isEmpty || query.isEmpty) return false;
+    
+    final meaningList = meanings
+        .split(RegExp(r'[,;.\n]'))
+        .map((m) => m.trim())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    
+    return meaningList.any((meaning) => 
+        meaning == query || 
+        meaning.startsWith(query) || 
+        meaning.contains(query)
+    );
+  }
+
+  // Anlam başlangıcı kontrolü (öneriler için)
+  bool _checkMeaningStartsWith(String meanings, String query) {
+    if (meanings.isEmpty || query.isEmpty) return false;
+    
+    final meaningList = meanings
+        .split(RegExp(r'[,;.\n]'))
+        .map((m) => m.trim())
+        .where((m) => m.isNotEmpty)
+        .toList();
+    
+    return meaningList.any((meaning) => meaning.startsWith(query));
   }
 
   // Yeni kelime kaydet
@@ -350,14 +595,15 @@ class FirebaseService {
             }
           }
         } catch (e) {
-          debugPrint('Kelime kontrol hatası: $e');
+          debugPrint('Kelime arama parse hatası: $e');
+          continue;
         }
       }
       
       debugPrint('❌ Firebase\'de kelime bulunamadı: $searchTerm');
       return null;
     } catch (e) {
-      print('Kelime getirme hatası: $e');
+      print('Kelime arama hatası: $e');
       return null;
     }
   }
@@ -366,7 +612,7 @@ class FirebaseService {
   Future<List<WordModel>> getRecentWords({int limit = 10}) async {
     try {
       final snapshot = await _wordsRef.get();
-
+      
       if (!snapshot.exists) return [];
 
       final data = snapshot.value as Map<dynamic, dynamic>;
@@ -498,24 +744,6 @@ class FirebaseService {
     }
   }
 
-  // Anlam eşleşmesi kontrolü - tüm anlamları kontrol eder
-  bool _checkMeaningStartsWith(String meanings, String query) {
-    if (meanings.isEmpty || query.isEmpty) return false;
-    
-    // Anlamları ayır (virgül, noktalı virgül, satır sonu ile)
-    final meaningList = meanings
-        .split(RegExp(r'[,;.\n]'))
-        .map((m) => m.trim())
-        .where((m) => m.isNotEmpty)
-        .toList();
-    
-    for (final meaning in meaningList) {
-      if (meaning.startsWith(query)) return true;
-    }
-    
-    return false;
-  }
-
   // ============== SYNC METOTLARI ==============
 
   Future<Set<String>> getExistingWordKeys() async {
@@ -613,4 +841,4 @@ class FirebaseService {
       return [];
     }
   }
-} 
+}

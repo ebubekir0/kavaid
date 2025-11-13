@@ -37,11 +37,13 @@ class _SavedWordsScreenState extends State<SavedWordsScreen> with AutomaticKeepA
   WordModel? _selectedWord;
   String _searchQuery = '';
   
+  bool _containsArabic(String s) => RegExp(r'[\u0600-\u06FF]').hasMatch(s);
+  
   // Gizli kod için
   static const String _secretCode = 'hxpruatksj7v';
 
   @override
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false; // PERFORMANCE: Lazy loading için false
 
   @override
   void initState() {
@@ -438,44 +440,54 @@ class _SavedWordsScreenState extends State<SavedWordsScreen> with AutomaticKeepA
                               Expanded(
                                 child: Container(
                                   alignment: Alignment.center,
-                                  child: TextField(
-                                    controller: _searchController,
-                                    focusNode: _searchFocusNode,
-                                    textAlignVertical: TextAlignVertical.center,
-                                    enableInteractiveSelection: true,
-                                    autocorrect: false,
-                                    enableSuggestions: false,
-                                    smartDashesType: SmartDashesType.disabled,
-                                    smartQuotesType: SmartQuotesType.disabled,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: isDarkMode
-                                          ? Colors.white
-                                          : const Color(0xFF1C1C1E),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'Kaydedilen kelimelerde ara',
-                                      hintStyle: TextStyle(
+                                  child: Directionality(
+                                    textDirection: _containsArabic(_searchController.text)
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
+                                    child: TextField(
+                                      controller: _searchController,
+                                      focusNode: _searchFocusNode,
+                                      textAlignVertical: TextAlignVertical.center,
+                                      textAlign: _containsArabic(_searchController.text)
+                                          ? TextAlign.right
+                                          : TextAlign.left,
+                                      enableInteractiveSelection: true,
+                                      autocorrect: false,
+                                      enableSuggestions: false,
+                                      smartDashesType: SmartDashesType.disabled,
+                                      smartQuotesType: SmartQuotesType.disabled,
+                                      style: TextStyle(
+                                        fontSize: _containsArabic(_searchController.text) ? 18 : 16,
+                                        height: 1.15,
+                                        letterSpacing: 0.0,
                                         color: isDarkMode
-                                            ? const Color(0xFF8E8E93).withOpacity(0.8)
-                                            : const Color(0xFF8E8E93),
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w400,
+                                            ? Colors.white
+                                            : const Color(0xFF1C1C1E),
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      border: InputBorder.none,
-                                      enabledBorder: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
+                                      decoration: InputDecoration(
+                                        hintText: 'Kaydedilen kelimelerde ara',
+                                        hintStyle: TextStyle(
+                                          color: isDarkMode
+                                              ? const Color(0xFF8E8E93).withOpacity(0.8)
+                                              : const Color(0xFF8E8E93),
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w400,
+                                        ),
+                                        border: InputBorder.none,
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                      textInputAction: TextInputAction.search,
+                                      onSubmitted: (value) {
+                                        // Enter'a basıldığında gizli kodu kontrol et
+                                        if (value == _secretCode) {
+                                          _togglePremiumFeature();
+                                        }
+                                      },
                                     ),
-                                    textInputAction: TextInputAction.search,
-                                    onSubmitted: (value) {
-                                      // Enter'a basıldığında gizli kodu kontrol et
-                                      if (value == _secretCode) {
-                                        _togglePremiumFeature();
-                                      }
-                                    },
                                   ),
                                 ),
                               ),

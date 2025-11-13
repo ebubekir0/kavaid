@@ -417,9 +417,13 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         allMaps = await db.rawQuery('''
           SELECT * FROM (
               -- Anlam bazlı eşleşmeler (case-insensitive) - en yüksek öncelik, sadece BAŞLANGIÇ
-              SELECT *, 0 AS rank FROM words WHERE LOWER(anlam) LIKE ?
+              SELECT *, 0 AS rank FROM words WHERE (
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+              )
               UNION ALL
-              SELECT *, 0 AS rank FROM pending_ai_words WHERE LOWER(anlam) LIKE ?
+              SELECT *, 0 AS rank FROM pending_ai_words WHERE (
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+              )
 
               -- Arapça kelime tahmini ile prefix (anlamlardan sonra gelsin)
               UNION ALL
@@ -437,7 +441,11 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           LIMIT 120
         ''', [
           '${lowerTurkishQuery}%',
+          '%,${lowerTurkishQuery}%',
+          '%, ${lowerTurkishQuery}%',
           '${lowerTurkishQuery}%',
+          '%,${lowerTurkishQuery}%',
+          '%, ${lowerTurkishQuery}%',
           arabicPrefix, arabicPrefix,
           arabicPrefix, arabicPrefix,
           arabicContains, arabicContains,
@@ -447,15 +455,19 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         allMaps = await db.rawQuery('''
           SELECT * FROM (
               SELECT * FROM words 
-              WHERE LOWER(anlam) LIKE ?
+              WHERE (
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+              )
               UNION ALL
               SELECT * FROM pending_ai_words 
-              WHERE LOWER(anlam) LIKE ?
+              WHERE (
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+              )
           )
           LIMIT 100
         ''', [
-          '${lowerTurkishQuery}%',
-          '${lowerTurkishQuery}%'
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%',
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%',
         ]);
       }
     }
@@ -501,6 +513,15 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       }
       
       // LATİN SORGU: Arapça tahmine göre BAŞLANGIÇ eşleşmelerini kabul et
+      // Ancak TÜRKÇE aramalarda anlamla uyuşmayanları tamamen çıkar.
+      if (!hasArabicChars) {
+        final meaningPos = _getMeaningPosition(anlam, lowerTurkishQuery);
+        if (meaningPos == 999) {
+          // Anlamda hiç eşleşme yoksa, latin tahminiyle gelenler dahil çıkar
+          continue;
+        }
+      }
+
       if (isLatinGuessActive) {
         final normKel = _removeArabicDiacritics(kelime);
         final normHar = _removeArabicDiacritics(harekeliKelime);
@@ -1119,7 +1140,12 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         
         if (aMeaningStartsWith && !bMeaningStartsWith) return -1;
         if (bMeaningStartsWith && !aMeaningStartsWith) return 1;
-        
+
+        // 1c. ANLAM POZISYONU ÖNCELİĞİ - ilk anlamda geçenler daha önde
+        final aMeaningPos = _getMeaningPosition(aAnlam, lowerTurkishQuery);
+        final bMeaningPos = _getMeaningPosition(bAnlam, lowerTurkishQuery);
+        if (aMeaningPos != bMeaningPos) return aMeaningPos.compareTo(bMeaningPos);
+
         // 1c. TÜRKÇE İÇİN İÇİNDE GEÇME KALDIRILDI - Sadece başlangıç eşleşmeleri!
 
         // ============= 2. LATİN SORGU İÇİN ARAPÇA TAHMİN ÖNCELİĞİ =============

@@ -13,7 +13,7 @@ import 'turkce_analytics_service.dart';
 import 'admob_service.dart';
 
 class OneTimePurchaseService extends ChangeNotifier {
-  static const String _removeAdsProductId = 'kavaid_remove_ads_lifetime_v2';
+  static const String _removeAdsProductId = 'kavaid_remove_ads_lifetime';
   
   final InAppPurchase _inAppPurchase = InAppPurchase.instance;
   final DeviceDataService _deviceDataService = DeviceDataService();

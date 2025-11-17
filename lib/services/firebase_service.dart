@@ -160,10 +160,42 @@ class FirebaseService {
       _lastCacheTime = now;
 
       // YENİ GELİŞTİRİLMİŞ SIRALAMA - DatabaseService ile aynı mantık
-      results.sort((a, b) => 
-        _compareWordsByNewPriority(a, b, query));
+      // Arapça sorgularda normalize tam eşleşmeleri en üste al
+      final hasArabicChars = RegExp(r'[\u0600-\u06FF]').hasMatch(query);
+      if (hasArabicChars) {
+        final normalizedQuery = _removeArabicDiacritics(query).toLowerCase();
+        final exactNormalized = <WordModel>[];
+        final others = <WordModel>[];
+        for (final w in results) {
+          final n1 = _removeArabicDiacritics(w.kelime).toLowerCase();
+          final n2 = _removeArabicDiacritics(w.harekeliKelime ?? '').toLowerCase();
+          if (n1 == normalizedQuery || n2 == normalizedQuery) {
+            exactNormalized.add(w);
+          } else {
+            others.add(w);
+          }
+        }
 
-      return results;
+        // Tam eşleşme grubunda daha kısa baz formları öne al
+        exactNormalized.sort((a, b) {
+          int lenA = [_removeArabicDiacritics(a.kelime).length, _removeArabicDiacritics(a.harekeliKelime ?? '').length]
+              .where((l) => l > 0)
+              .fold(999, (p, c) => p < c ? p : c);
+          int lenB = [_removeArabicDiacritics(b.kelime).length, _removeArabicDiacritics(b.harekeliKelime ?? '').length]
+              .where((l) => l > 0)
+              .fold(999, (p, c) => p < c ? p : c);
+          return lenA.compareTo(lenB);
+        });
+
+        others.sort((a, b) =>
+          _compareWordsByNewPriority(a, b, query));
+
+        return [...exactNormalized, ...others];
+      } else {
+        results.sort((a, b) => 
+          _compareWordsByNewPriority(a, b, query));
+        return results;
+      }
     } catch (e) {
       print('Firebase arama hatası: $e');
       return [];
@@ -216,10 +248,42 @@ class FirebaseService {
       }
     }
 
-    results.sort((a, b) => 
-      _compareWordsByNewPriority(a, b, query));
+    // Arapça sorgularda normalize tam eşleşmeleri en üste al
+    final hasArabicChars = RegExp(r'[\u0600-\u06FF]').hasMatch(query);
+    if (hasArabicChars) {
+      final normalizedQuery = _removeArabicDiacritics(query).toLowerCase();
+      final exactNormalized = <WordModel>[];
+      final others = <WordModel>[];
+      for (final w in results) {
+        final n1 = _removeArabicDiacritics(w.kelime).toLowerCase();
+        final n2 = _removeArabicDiacritics(w.harekeliKelime ?? '').toLowerCase();
+        if (n1 == normalizedQuery || n2 == normalizedQuery) {
+          exactNormalized.add(w);
+        } else {
+          others.add(w);
+        }
+      }
 
-    return results;
+      exactNormalized.sort((a, b) {
+        int lenA = [_removeArabicDiacritics(a.kelime).length, _removeArabicDiacritics(a.harekeliKelime ?? '').length]
+            .where((l) => l > 0)
+            .fold(999, (p, c) => p < c ? p : c);
+        int lenB = [_removeArabicDiacritics(b.kelime).length, _removeArabicDiacritics(b.harekeliKelime ?? '').length]
+            .where((l) => l > 0)
+            .fold(999, (p, c) => p < c ? p : c);
+        return lenA.compareTo(lenB);
+      });
+
+      others.sort((a, b) =>
+        _compareWordsByNewPriority(a, b, query));
+
+      return [...exactNormalized, ...others];
+    } else {
+      results.sort((a, b) => 
+        _compareWordsByNewPriority(a, b, query));
+
+      return results;
+    }
   }
 
   // Öneriler için hızlı arama (debounce ile her harf girişinde)

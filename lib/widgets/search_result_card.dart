@@ -626,7 +626,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
 
   List<Widget> _buildWordInfoChips(bool isDarkMode) {
     final chips = <Widget>[];
-    
+
     // Kelime türü chip'i: önce dilbilgiselOzellikler['tur'], yoksa WordModel.tip
     String? typeText;
     if (widget.word.dilbilgiselOzellikler?.containsKey('tur') == true) {
@@ -636,47 +636,46 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
     }
 
     if (typeText != null && typeText!.trim().isNotEmpty) {
-      chips.add(Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 6, // Eskisinden daha kompakt
-          vertical: 2,   // Eskisinden daha kompakt
-        ),
-        decoration: BoxDecoration(
-          color: isDarkMode 
-              ? const Color(0xFF007AFF).withOpacity(0.2)
-              : const Color(0xFF007AFF).withOpacity(0.12),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(
-            color: isDarkMode 
-                ? const Color(0xFF007AFF).withOpacity(0.3)
-                : const Color(0xFF007AFF).withOpacity(0.2),
-            width: 0.5,
+      chips.add(
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: isDarkMode
+                ? const Color(0xFF007AFF).withOpacity(0.2)
+                : const Color(0xFF007AFF).withOpacity(0.12),
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isDarkMode
+                  ? const Color(0xFF007AFF).withOpacity(0.3)
+                  : const Color(0xFF007AFF).withOpacity(0.2),
+              width: 0.5,
+            ),
+          ),
+          child: Text(
+            typeText!,
+            style: GoogleFonts.inter(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+              color: isDarkMode
+                  ? const Color(0xFF007AFF)
+                  : const Color(0xFF007AFF).withOpacity(0.9),
+              letterSpacing: 0.2,
+            ),
           ),
         ),
-        child: Text(
-          typeText!,
-          style: GoogleFonts.inter(
-            fontSize: 9.5,
-            fontWeight: FontWeight.w600,
-            color: isDarkMode 
-                ? const Color(0xFF007AFF)
-                : const Color(0xFF007AFF).withOpacity(0.9),
-            letterSpacing: 0.2,
-          ),
-        ),
-      ));
+      );
     }
-    
+
     return chips;
   }
 
   Widget _buildRootAndPluralRow(bool isDarkMode) {
     final hasRoot = widget.word.koku?.isNotEmpty == true;
-    final hasPlural = widget.word.dilbilgiselOzellikler?.containsKey('cogulForm') == true && 
-                      widget.word.dilbilgiselOzellikler!['cogulForm']?.toString().trim().isNotEmpty == true;
-    
+    final hasPlural = widget.word.dilbilgiselOzellikler?.containsKey('cogulForm') == true &&
+        widget.word.dilbilgiselOzellikler!['cogulForm']?.toString().trim().isNotEmpty == true;
+
     if (!hasRoot && !hasPlural) return const SizedBox.shrink();
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -686,7 +685,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: isDarkMode 
+                    colors: isDarkMode
                         ? [
                             const Color(0xFF2C2C2E),
                             const Color(0xFF2C2C2E).withOpacity(0.8),
@@ -700,7 +699,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                   ),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDarkMode 
+                    color: isDarkMode
                         ? const Color(0xFF48484A).withOpacity(0.5)
                         : const Color(0xFFD0D0D0),
                     width: 0.8,
@@ -708,14 +707,13 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                 ),
                 child: Stack(
                   children: [
-                    // Üst etiket
                     Positioned(
                       top: 0,
                       left: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: isDarkMode 
+                          color: isDarkMode
                               ? const Color(0xFF8E8E93).withOpacity(0.2)
                               : const Color(0xFF007AFF).withOpacity(0.08),
                           borderRadius: const BorderRadius.only(
@@ -728,7 +726,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: isDarkMode 
+                            color: isDarkMode
                                 ? const Color(0xFF8E8E93)
                                 : const Color(0xFF007AFF).withOpacity(0.8),
                             letterSpacing: 0.3,
@@ -736,7 +734,6 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                         ),
                       ),
                     ),
-                    // Ana içerik
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 26, 8, 8),
                       child: Center(
@@ -745,9 +742,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                           style: GoogleFonts.scheherazadeNew(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: isDarkMode 
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
+                            color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
                             height: 1.2,
                             fontFeatures: const [
                               ui.FontFeature.enable('liga'),
@@ -770,7 +765,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: isDarkMode 
+                    colors: isDarkMode
                         ? [
                             const Color(0xFF2C2C2E),
                             const Color(0xFF2C2C2E).withOpacity(0.8),
@@ -784,7 +779,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                   ),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
-                    color: isDarkMode 
+                    color: isDarkMode
                         ? const Color(0xFF48484A).withOpacity(0.5)
                         : const Color(0xFFD0D0D0),
                     width: 0.8,
@@ -792,14 +787,13 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                 ),
                 child: Stack(
                   children: [
-                    // Üst etiket
                     Positioned(
                       top: 0,
                       left: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: isDarkMode 
+                          color: isDarkMode
                               ? const Color(0xFF8E8E93).withOpacity(0.2)
                               : const Color(0xFF007AFF).withOpacity(0.08),
                           borderRadius: const BorderRadius.only(
@@ -812,7 +806,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                           style: TextStyle(
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
-                            color: isDarkMode 
+                            color: isDarkMode
                                 ? const Color(0xFF8E8E93)
                                 : const Color(0xFF007AFF).withOpacity(0.8),
                             letterSpacing: 0.3,
@@ -820,7 +814,6 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                         ),
                       ),
                     ),
-                    // Ana içerik
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8, 26, 8, 8),
                       child: Center(
@@ -829,9 +822,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                           style: GoogleFonts.scheherazadeNew(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: isDarkMode 
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
+                            color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
                             height: 1.2,
                             fontFeatures: const [
                               ui.FontFeature.enable('liga'),
@@ -855,64 +846,60 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
 
   Widget _buildExampleSentences(bool isDarkMode) {
     if (widget.word.ornekCumleler?.isNotEmpty != true) {
-      debugPrint('⚠️ SearchResultCard: Örnek cümleler boş veya null - ${widget.word.kelime}');
       return const SizedBox.shrink();
     }
-    
-    debugPrint('✅ SearchResultCard: ${widget.word.ornekCumleler!.length} örnek cümle bulundu - ${widget.word.kelime}');
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 4),
-                 Container(
-           decoration: BoxDecoration(
-             gradient: isDarkMode 
-                 ? null
-                 : const LinearGradient(
-                     colors: [
-                       Color(0xFFF8F9FA),
-                       Color(0xFFF2F2F7),
-                     ],
-                     begin: Alignment.topCenter,
-                     end: Alignment.bottomCenter,
-                   ),
-                            color: isDarkMode ? const Color(0xFF2C2C2E) : null,
-               borderRadius: BorderRadius.circular(8),
-               border: Border.all(
-                 color: isDarkMode 
-                     ? const Color(0xFF48484A).withOpacity(0.5)
-                     : const Color(0xFFD0D0D0),
-                 width: 0.8,
-               ),
-             boxShadow: [
-               BoxShadow(
-                 color: isDarkMode 
-                     ? Colors.black.withOpacity(0.2)
-                     : Colors.black.withOpacity(0.04),
-                 blurRadius: isDarkMode ? 4 : 6,
-                 offset: Offset(0, isDarkMode ? 2 : 2),
-                 spreadRadius: isDarkMode ? 0 : 0.3,
-               ),
-               if (!isDarkMode) ...[
-                 BoxShadow(
-                   color: Colors.white.withOpacity(0.8),
-                   blurRadius: 1,
-                   offset: const Offset(0, -1),
-                   spreadRadius: 0,
-                 ),
-               ],
-             ],
-           ),
+        Container(
+          decoration: BoxDecoration(
+            gradient: isDarkMode
+                ? null
+                : const LinearGradient(
+                    colors: [
+                      Color(0xFFF8F9FA),
+                      Color(0xFFF2F2F7),
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+            color: isDarkMode ? const Color(0xFF2C2C2E) : null,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isDarkMode
+                  ? const Color(0xFF48484A).withOpacity(0.5)
+                  : const Color(0xFFD0D0D0),
+              width: 0.8,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDarkMode
+                    ? Colors.black.withOpacity(0.2)
+                    : Colors.black.withOpacity(0.04),
+                blurRadius: isDarkMode ? 4 : 6,
+                offset: Offset(0, isDarkMode ? 2 : 2),
+                spreadRadius: isDarkMode ? 0 : 0.3,
+              ),
+              if (!isDarkMode) ...[
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.8),
+                  blurRadius: 1,
+                  offset: const Offset(0, -1),
+                  spreadRadius: 0,
+                ),
+              ],
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Başlık - Kutu içinde üstte
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isDarkMode 
+                  color: isDarkMode
                       ? const Color(0xFF007AFF).withOpacity(0.15)
                       : const Color(0xFF007AFF).withOpacity(0.08),
                   borderRadius: const BorderRadius.only(
@@ -930,36 +917,31 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                   ),
                 ),
               ),
-              // İçerik
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
                   children: widget.word.ornekCumleler!.take(2).map((example) {
-                    final isLast = example == widget.word.ornekCumleler!.take(2).last;
-                    
-                    // Debug: Her örnek cümlenin içeriğini kontrol et
-                    debugPrint('📚 Örnek cümle kontrolü:');
-                    debugPrint('  - arapcaCumle: ${example['arapcaCumle']}');
-                    debugPrint('  - arapcaCümle (eski): ${example['arapcaCümle']}');
-                    debugPrint('  - turkceCeviri: ${example['turkceCeviri']}');
-                    debugPrint('  - turkceAnlam (eski): ${example['turkceAnlam']}');
-                    
+                    final examples = widget.word.ornekCumleler!.take(2).toList();
+                    final isLast = example == examples.last;
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Arapça cümle - tüm fallback'leri kontrol et
-                        if (example['arapcaCumle'] != null || 
-                            example['arapcaCümle'] != null || 
+                        if (example['arapcaCumle'] != null ||
+                            example['arapcaCümle'] != null ||
                             example['arapca'] != null) ...[
-                          Container(
+                          SizedBox(
                             width: double.infinity,
                             child: Text(
-                              (example['arapcaCumle'] ?? 
-                               example['arapcaCümle'] ??  // Eski format - Türkçe ü harfi
-                               example['arapca'] ?? 
-                               '').toString(),
+                              (example['arapcaCumle'] ??
+                                      example['arapcaCümle'] ??
+                                      example['arapca'] ??
+                                      '')
+                                  .toString(),
                               style: _FontCache.getExampleArabicStyle().copyWith(
-                                color: isDarkMode ? const Color(0xFFE5E5EA) : const Color(0xFF1C1C1E),
+                                color: isDarkMode
+                                    ? const Color(0xFFE5E5EA)
+                                    : const Color(0xFF1C1C1E),
                               ),
                               textDirection: TextDirection.rtl,
                               textAlign: TextAlign.left,
@@ -971,14 +953,14 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                           const SizedBox(height: 6),
                         ],
                         Text(
-                          example['turkceAnlam']?.toString() ?? 
-                          example['turkceCeviri']?.toString() ?? 
-                          example['turkce']?.toString() ?? 
-                          example.toString(),
+                          example['turkceAnlam']?.toString() ??
+                              example['turkceCeviri']?.toString() ??
+                              example['turkce']?.toString() ??
+                              example.toString(),
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: isDarkMode 
+                            color: isDarkMode
                                 ? const Color(0xFF8E8E93)
                                 : const Color(0xFF6D6D70),
                             height: 1.4,
@@ -993,7 +975,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
                               gradient: LinearGradient(
                                 colors: [
                                   Colors.transparent,
-                                  isDarkMode 
+                                  isDarkMode
                                       ? const Color(0xFF48484A).withOpacity(0.3)
                                       : const Color(0xFFE5E5EA).withOpacity(0.5),
                                   Colors.transparent,
@@ -1017,26 +999,29 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
 
   Widget _buildConjugationRow(bool isDarkMode) {
     if (widget.word.fiilCekimler?.isNotEmpty != true) return const SizedBox.shrink();
-    
+
     final conjugations = <String, String>{};
     final fiilCekimler = widget.word.fiilCekimler!;
-    
-    // Sadece dolu olanları ekle
-    if (fiilCekimler.containsKey('maziForm') && fiilCekimler['maziForm']?.toString().trim().isNotEmpty == true) {
+
+    if (fiilCekimler.containsKey('maziForm') &&
+        fiilCekimler['maziForm']?.toString().trim().isNotEmpty == true) {
       conjugations['Mazi'] = fiilCekimler['maziForm'].toString();
     }
-    if (fiilCekimler.containsKey('muzariForm') && fiilCekimler['muzariForm']?.toString().trim().isNotEmpty == true) {
+    if (fiilCekimler.containsKey('muzariForm') &&
+        fiilCekimler['muzariForm']?.toString().trim().isNotEmpty == true) {
       conjugations['Müzari'] = fiilCekimler['muzariForm'].toString();
     }
-    if (fiilCekimler.containsKey('mastarForm') && fiilCekimler['mastarForm']?.toString().trim().isNotEmpty == true) {
+    if (fiilCekimler.containsKey('mastarForm') &&
+        fiilCekimler['mastarForm']?.toString().trim().isNotEmpty == true) {
       conjugations['Mastar'] = fiilCekimler['mastarForm'].toString();
     }
-    if (fiilCekimler.containsKey('emirForm') && fiilCekimler['emirForm']?.toString().trim().isNotEmpty == true) {
+    if (fiilCekimler.containsKey('emirForm') &&
+        fiilCekimler['emirForm']?.toString().trim().isNotEmpty == true) {
       conjugations['Emir'] = fiilCekimler['emirForm'].toString();
     }
-    
+
     if (conjugations.isEmpty) return const SizedBox.shrink();
-    
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -1051,8 +1036,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
       ),
     );
   }
-
-  Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
+Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,

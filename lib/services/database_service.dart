@@ -369,6 +369,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       // 3) İçinde geçen (%query%)
 
       final likePatternStarts = '${_buildArabicWildcardPattern(query)}%';    // ذ%ه%ب%
+      final containsWildcard = '%${_buildArabicWildcardPattern(query)}%';    // %ذ%ه%ب%
       final startsQuery = '$query%';                                        // ذهب%
       final startsNormalized = '${_removeArabicDiacritics(query)}%';        // normalize prefix (e.g., ذهب%)
       final containsQuery = '%$query%';                                     // %ذهب%
@@ -388,11 +389,11 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           SELECT *, 1 AS rank FROM pending_ai_words 
           WHERE (kelime LIKE ? OR harekeliKelime LIKE ? OR kelime LIKE ? OR harekeliKelime LIKE ? OR kelime LIKE ? OR harekeliKelime LIKE ?)
 
-          -- 2: İÇİNDE GEÇEN (küçük limitli kalacak)
+          -- 2: İÇİNDE GEÇEN (küçük limitli kalacak) + KÖK-BENZERİ WILDCARD
           UNION ALL
-          SELECT *, 2 AS rank FROM words WHERE (kelime LIKE ? OR harekeliKelime LIKE ?)
+          SELECT *, 2 AS rank FROM words WHERE (kelime LIKE ? OR harekeliKelime LIKE ? OR kelime LIKE ? OR harekeliKelime LIKE ?)
           UNION ALL
-          SELECT *, 2 AS rank FROM pending_ai_words WHERE (kelime LIKE ? OR harekeliKelime LIKE ?)
+          SELECT *, 2 AS rank FROM pending_ai_words WHERE (kelime LIKE ? OR harekeliKelime LIKE ? OR kelime LIKE ? OR harekeliKelime LIKE ?)
         )
         ORDER BY rank ASC, LENGTH(kelime) ASC
         LIMIT 200
@@ -403,9 +404,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         // 1 - PREFIX (query%, normalizedQuery%, likePatternStarts)
         startsQuery, startsQuery, startsNormalized, startsNormalized, likePatternStarts, likePatternStarts,
         startsQuery, startsQuery, startsNormalized, startsNormalized, likePatternStarts, likePatternStarts,
-        // 2 - CONTAINS (%query%)
-        containsQuery, containsQuery,
-        containsQuery, containsQuery,
+        // 2 - CONTAINS (%query%) + ROOT-LIKE (%q%u%e%)
+        containsQuery, containsQuery, containsWildcard, containsWildcard,
+        containsQuery, containsQuery, containsWildcard, containsWildcard,
       ]);
       
     } else {
@@ -452,22 +453,23 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           arabicContains, arabicContains,
         ]);
       } else {
+        // Türkçe/LATİN sorgu: anlamın BAŞINDA ve İÇİNDE eşleşmeleri al
         allMaps = await db.rawQuery('''
           SELECT * FROM (
               SELECT * FROM words 
               WHERE (
-                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
               )
               UNION ALL
               SELECT * FROM pending_ai_words 
               WHERE (
-                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
+                LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ? OR LOWER(anlam) LIKE ?
               )
           )
           LIMIT 100
         ''', [
-          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%',
-          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%',
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','%${lowerTurkishQuery}%',
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','%${lowerTurkishQuery}%',
         ]);
       }
     }
@@ -477,7 +479,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     for (final map in allMaps) {
       final kelime = map['kelime'] as String? ?? '';
       final harekeliKelime = map['harekeliKelime'] as String? ?? '';
+      // Harekeli kelime 2'den fazla kelime içeriyorsa (ör. uzun ifade/cümle) bu kaydı sözlük sonuçlarından çıkar
+      final hkTrim = harekeliKelime.trim();
+      if (hkTrim.isNotEmpty) {
+        final wordCount = hkTrim.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).length;
+        if (wordCount > 2) {
+          continue;
+        }
+      }
+
       final anlam = (map['anlam'] as String? ?? '').toLowerCase();
+      final koku = (map['koku'] as String? ?? '').trim();
       
       // LATİN HARF KONTROLÜ - Latin harf içeren kelimeleri çıkar
       if (kelime.isNotEmpty && !_hasOnlyArabicCharacters(kelime)) {
@@ -498,28 +510,45 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
             continue;
           }
         } else {
-          // ✅ Kullanıcı harekesiz yazdı → harekesiz karşılaştır (tüm versiyonlar çıksın)
+          // ✅ Kullanıcı harekesiz yazdı → sadece başlangıç + KÖK eşleşmesi
           final normalizedKelime = _removeArabicDiacritics(kelime);
           final normalizedHarekeli = _removeArabicDiacritics(harekeliKelime);
-          
-          // Harekesiz formlarda eşleşme var mı kontrol et
-          if (normalizedKelime.contains(normalizedQuery) || 
-              normalizedHarekeli.contains(normalizedQuery)) {
+          final normalizedKoku = _removeArabicDiacritics(koku);
+
+          // Başlangıç eşleşmesi (prefix)
+          final bool prefixMatch = normalizedKelime.startsWith(normalizedQuery) ||
+              normalizedHarekeli.startsWith(normalizedQuery);
+
+          // Kök eşleşmesi: Önce 'koku' alanına göre, yoksa harf-sıralama fallback
+          bool rootMatch = false;
+          if (normalizedQuery.length >= 2) {
+            if (normalizedKoku.isNotEmpty) {
+              rootMatch = normalizedKoku == normalizedQuery;
+            } else {
+              rootMatch = _hasSequentialLetters(normalizedKelime, normalizedQuery) ||
+                         _hasSequentialLetters(normalizedHarekeli, normalizedQuery);
+            }
+          }
+
+          if (prefixMatch || rootMatch) {
             filteredWords.add(_dbMapToWord(map));
-            debugPrint('   ✅ Eşleşti: "$kelime" / "$harekeliKelime"');
             continue;
           }
         }
       }
       
-      // LATİN SORGU: Arapça tahmine göre BAŞLANGIÇ eşleşmelerini kabul et
-      // Ancak TÜRKÇE aramalarda anlamla uyuşmayanları tamamen çıkar.
+      // LATİN/TÜRKÇE SORGU: anlamın TÜM parçalarında arama yap
+      // _getMeaningPosition, virgüllerle ayrılmış tüm anlamlarda tam, başlangıç
+      // ve içinde geçme eşleşmelerini kontrol eder. 999 değilse bu kelimeyi kabul et.
       if (!hasArabicChars) {
         final meaningPos = _getMeaningPosition(anlam, lowerTurkishQuery);
         if (meaningPos == 999) {
           // Anlamda hiç eşleşme yoksa, latin tahminiyle gelenler dahil çıkar
           continue;
         }
+
+        filteredWords.add(_dbMapToWord(map));
+        continue;
       }
 
       if (isLatinGuessActive) {
@@ -534,13 +563,8 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         }
       }
 
-      // TÜRKÇE ANLAM KONTROLÜ - SADECE BAŞLANGIÇ EŞLEŞMESI!
-      if (anlam.startsWith(lowerTurkishQuery) ||
-          anlam.contains(',$lowerTurkishQuery') ||
-          anlam.contains(', $lowerTurkishQuery')) {
-        filteredWords.add(_dbMapToWord(map));
-        continue;
-      }
+      // Buraya yalnızca ARAPÇA sorgularda düşeriz; Türkçe/LATİN sorgular yukarıda
+      // anlam eşleşmesi ile zaten filteredWords'e eklenmiştir.
     }
 
     // Filtreleme sonucu
@@ -562,14 +586,37 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           others.add(w);
         }
       }
-      // exactNormalized içinde daha kısa olanı öne al (tam taban form önce)
+      // exactNormalized içinde baz formu öne al:
+      // 1) Kullanıcının yazdığı string ile bire bir eşit olan kelimeler (kelime/harekeliKelime == query)
+      // 2) Prefix cezası (س ، سوف ، و ، ل vb. ile başlayan çekimleri geriye at)
+      // 3) Uzunluk (sorgu uzunluğuna en yakın / kısa formu öne al)
       exactNormalized.sort((a, b) {
-        int lenA = [_removeArabicDiacritics(a.kelime).length, _removeArabicDiacritics(a.harekeliKelime ?? '').length]
+        // 1) Doğrudan giriş eşleşmesi (normalize etmeden)
+        final aDirect = a.kelime == query || (a.harekeliKelime ?? '') == query;
+        final bDirect = b.kelime == query || (b.harekeliKelime ?? '') == query;
+        if (aDirect != bDirect) return aDirect ? -1 : 1;
+
+        // 2) Prefix cezası
+        final aPref = _getArabicPrefixPenalty(a.harekeliKelime ?? '');
+        final bPref = _getArabicPrefixPenalty(b.harekeliKelime ?? '');
+        if (aPref != bPref) return aPref.compareTo(bPref);
+
+        // 3) Uzunluk yakınlığı
+        final normAKel = _removeArabicDiacritics(a.kelime);
+        final normAHar = _removeArabicDiacritics(a.harekeliKelime ?? '');
+        final normBKel = _removeArabicDiacritics(b.kelime);
+        final normBHar = _removeArabicDiacritics(b.harekeliKelime ?? '');
+        int lenA = [normAKel.length, normAHar.length]
             .where((l) => l > 0)
             .fold(999, (p, c) => p < c ? p : c);
-        int lenB = [_removeArabicDiacritics(b.kelime).length, _removeArabicDiacritics(b.harekeliKelime ?? '').length]
+        int lenB = [normBKel.length, normBHar.length]
             .where((l) => l > 0)
             .fold(999, (p, c) => p < c ? p : c);
+        final qLen = normalizedQuery.toLowerCase().length;
+        final aDist = (lenA - qLen).abs();
+        final bDist = (lenB - qLen).abs();
+        if (aDist != bDist) return aDist.compareTo(bDist);
+
         return lenA.compareTo(lenB);
       });
       others.sort((a, b) => _compareWordsByNewPriority(
@@ -1061,15 +1108,8 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
               if (aHarekeliNormEq != bHarekeliNormEq) return aHarekeliNormEq ? -1 : 1;
 
               // 2.2 Prefiks cezası: harekeliKelime başında parçacık varsa (س, سوف, و, ل) cezalandır
-              int prefixPenalty(String s) {
-                if (s.isEmpty) return 0;
-                final starts = s;
-                if (starts.startsWith('سوف')) return 2;
-                if (starts.startsWith('س') || starts.startsWith('و') || starts.startsWith('ل')) return 1;
-                return 0;
-              }
-              final aPref = prefixPenalty(a.harekeliKelime ?? '');
-              final bPref = prefixPenalty(b.harekeliKelime ?? '');
+              final aPref = _getArabicPrefixPenalty(a.harekeliKelime ?? '');
+              final bPref = _getArabicPrefixPenalty(b.harekeliKelime ?? '');
               if (aPref != bPref) return aPref.compareTo(bPref);
 
               // 2.3 Uzunluk yakınlığı - baz formu öne al
@@ -1199,30 +1239,42 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           if (bStartsWith && !aStartsWith) return 1;
         } else {
           // Harekesiz arama için normalize ederek karşılaştır
-          
+          final nqLower = normalizedQuery.toLowerCase();
+
           // 2a. TAM KELİME EŞLEŞMESI
-          final aExactMatch = aNormKelime.toLowerCase() == normalizedQuery.toLowerCase() || 
-                             aNormHarekeli.toLowerCase() == normalizedQuery.toLowerCase();
-          final bExactMatch = bNormKelime.toLowerCase() == normalizedQuery.toLowerCase() || 
-                             bNormHarekeli.toLowerCase() == normalizedQuery.toLowerCase();
+          final aExactMatch = aNormKelime.toLowerCase() == nqLower || 
+                             aNormHarekeli.toLowerCase() == nqLower;
+          final bExactMatch = bNormKelime.toLowerCase() == nqLower || 
+                             bNormHarekeli.toLowerCase() == nqLower;
           
           if (aExactMatch && !bExactMatch) return -1;
           if (bExactMatch && !aExactMatch) return 1;
           
-          // 2b. KELİME BAŞLANGICI
-          final aStartsWith = aNormKelime.toLowerCase().startsWith(normalizedQuery.toLowerCase()) || 
-                             aNormHarekeli.toLowerCase().startsWith(normalizedQuery.toLowerCase());
-          final bStartsWith = bNormKelime.toLowerCase().startsWith(normalizedQuery.toLowerCase()) || 
-                             bNormHarekeli.toLowerCase().startsWith(normalizedQuery.toLowerCase());
+          // 2b. KÖK EŞLEŞMESI - harfler sıralı olarak geçiyor mu? (normalized)
+          final aRootMatch = nqLower.length >= 2 && (
+              _hasSequentialLetters(aNormKelime.toLowerCase(), nqLower) ||
+              _hasSequentialLetters(aNormHarekeli.toLowerCase(), nqLower));
+          final bRootMatch = nqLower.length >= 2 && (
+              _hasSequentialLetters(bNormKelime.toLowerCase(), nqLower) ||
+              _hasSequentialLetters(bNormHarekeli.toLowerCase(), nqLower));
+
+          if (aRootMatch && !bRootMatch) return -1;
+          if (bRootMatch && !aRootMatch) return 1;
+          
+          // 2c. KELİME BAŞLANGICI
+          final aStartsWith = aNormKelime.toLowerCase().startsWith(nqLower) || 
+                             aNormHarekeli.toLowerCase().startsWith(nqLower);
+          final bStartsWith = bNormKelime.toLowerCase().startsWith(nqLower) || 
+                             bNormHarekeli.toLowerCase().startsWith(nqLower);
           
           if (aStartsWith && !bStartsWith) return -1;
           if (bStartsWith && !aStartsWith) return 1;
           
-          // 2c. KELİME İÇİNDE GEÇİYOR (KÖK EŞLEŞMESI)
-          final aContains = aNormKelime.toLowerCase().contains(normalizedQuery.toLowerCase()) || 
-                           aNormHarekeli.toLowerCase().contains(normalizedQuery.toLowerCase());
-          final bContains = bNormKelime.toLowerCase().contains(normalizedQuery.toLowerCase()) || 
-                           bNormHarekeli.toLowerCase().contains(normalizedQuery.toLowerCase());
+          // 2d. KELİME İÇİNDE GEÇİYOR (DOĞRUDAN SUBSTRING)
+          final aContains = aNormKelime.toLowerCase().contains(nqLower) || 
+                           aNormHarekeli.toLowerCase().contains(nqLower);
+          final bContains = bNormKelime.toLowerCase().contains(nqLower) || 
+                           bNormHarekeli.toLowerCase().contains(nqLower);
           
           if (aContains && !bContains) return -1;
           if (bContains && !aContains) return 1;
@@ -1288,24 +1340,14 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         );
       }
 
-      // PERFORMANCE: Tek seferde rastgele kelimeler çek (10 ayrı çağrı yerine)
-      Future<List<WordModel>> getRandomWords(int count) async {
-        if (kIsWeb) return [];
-        final db = await instance.database;
-        if (db == null) return [];
-        
-        try {
-          // Tek query ile rastgele kelimeler çek
-          final List<Map<String, dynamic>> maps = await db.rawQuery('''
-            SELECT * FROM words 
-            ORDER BY RANDOM() 
-            LIMIT ?
-          ''', [count]);
-          
-          return maps.map((map) => _dbMapToWord(map)).toList();
-        } catch (e) {
-          return [];
-        }
+      /// Arapça fiillerde geleceğe / bağlaçlara işaret eden önekler için küçük ceza
+      /// "سوف" başlarsa 2, "س" veya "و" veya "ل" ile başlarsa 1, diğer tüm durumlarda 0 döner
+      int _getArabicPrefixPenalty(String s) {
+        if (s.isEmpty) return 0;
+        final trimmed = _removeArabicDiacritics(s);
+        if (trimmed.startsWith('سوف')) return 2;
+        if (trimmed.startsWith('س') || trimmed.startsWith('و') || trimmed.startsWith('ل')) return 1;
+        return 0;
       }
 
       /// Kök eşleşmesi kontrolü - Arapça morfoloji kurallarına göre

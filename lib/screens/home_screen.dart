@@ -780,7 +780,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       }
 
       final aiResult = await _geminiService.searchWord(query);
-      
+
       // AI arama analytics event'i gönder
       await TurkceAnalyticsService.kelimeArandiAI(query, aiResult.bulunduMu);
       
@@ -886,333 +886,334 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
         }
       },
       child: Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          // Ana içerik
-          Positioned.fill(
-            bottom: 0, // İçerik her zaman en alta kadar uzanacak
-            child: GestureDetector(
-              onTap: _dismissKeyboard,
-              child: NotificationListener<ScrollNotification>(
-                onNotification: (notification) {
-                  if (notification is ScrollStartNotification) {
-                    _onScrollStart();
+        resizeToAvoidBottomInset: false,
+        body: Stack(
+          children: [
+            // Ana içerik
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _dismissKeyboard,
+                onVerticalDragStart: (_) {
+                  // Scroll hareketi başlarken de (liste kısa olsa bile) klavyeleri kapat
+                  if (_showArabicKeyboard || _searchFocusNode.hasFocus) {
+                    _dismissForScroll();
                   }
-                  return false;
                 },
-                child: RepaintBoundary(
-                  child: CustomScrollView(
-                    // PERFORMANCE: Scroll performans optimizasyonları
-                    physics: const ClampingScrollPhysics(),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    cacheExtent: hasKeyboard ? 300.0 : PerformanceUtils.listCacheExtent, // Klavye açıkken daha küçük cache
-                    // PERFORMANCE: Scroll optimizasyonu için key
-                    key: const PageStorageKey<String>('home_scroll'),
-                    slivers: <Widget>[
-                      SliverAppBar(
-                      backgroundColor: widget.isDarkMode 
-                          ? const Color(0xFF1C1C1E)  // Dark tema için siyah
-                          : const Color(0xFF007AFF), // Light tema için mavi
-                      elevation: 0,
-                      pinned: true,
-                      floating: true,
-                      snap: true,
-                      toolbarHeight: 0, // Toolbar'ı gizle
-                      expandedHeight: 0, // Genişletilmiş yüksekliği 0 yap
-                      bottom: PreferredSize(
-                        preferredSize: const Size.fromHeight(56), // Sadece input alanı için yükseklik
-                        child: Container(
-                          width: double.infinity,
-                          color: widget.isDarkMode 
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification is ScrollStartNotification) {
+                      _onScrollStart();
+                    }
+                    return false;
+                  },
+                  child: RepaintBoundary(
+                    child: CustomScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      cacheExtent: hasKeyboard ? 300.0 : PerformanceUtils.listCacheExtent,
+                      key: const PageStorageKey<String>('home_scroll'),
+                      slivers: <Widget>[
+                        SliverAppBar(
+                          backgroundColor: widget.isDarkMode
                               ? const Color(0xFF1C1C1E)
                               : const Color(0xFF007AFF),
-                          child: Container(
-                            padding: const EdgeInsets.fromLTRB(8, 8, 8, 8), // Yan padding'leri daha da azalttım (12'den 8'e)
+                          elevation: 0,
+                          pinned: true,
+                          floating: true,
+                          snap: true,
+                          toolbarHeight: 0,
+                          expandedHeight: 0,
+                          bottom: PreferredSize(
+                            preferredSize: const Size.fromHeight(56),
                             child: Container(
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: widget.isDarkMode
-                                    ? const Color(0xFF2C2C2E)
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(4), // 8'den 4'e düşürdüm (daha sert)
-                                border: Border.all(
-                                  color: widget.isDarkMode
-                                      ? const Color(0xFF48484A).withOpacity(0.3)
-                                      : const Color(0xFFE5E5EA).withOpacity(0.5),
-                                  width: 0.5,
-                                ),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center, // Ortalama için
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10), // 12'den 10'a düşürdüm
-                                    child: GestureDetector(
-                                      onLongPress: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => const LogScreen()),
-                                        );
-                                      },
-                                      child: Icon(
-                                        Icons.search_rounded,
-                                        color: widget.isDarkMode
-                                            ? const Color(0xFF8E8E93)
-                                            : const Color(0xFF8E8E93),
-                                        size: 20,
-                                      ),
+                              width: double.infinity,
+                              color: widget.isDarkMode
+                                  ? const Color(0xFF1C1C1E)
+                                  : const Color(0xFF007AFF),
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                                child: Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: widget.isDarkMode
+                                        ? const Color(0xFF2C2C2E)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: widget.isDarkMode
+                                          ? const Color(0xFF48484A).withOpacity(0.3)
+                                          : const Color(0xFFE5E5EA).withOpacity(0.5),
+                                      width: 0.5,
                                     ),
                                   ),
-                                  Expanded(
-                                    child: Container(
-                                      alignment: Alignment.center, // TextField'ı dikeyde ortala
-                                      child: Directionality(
-                                        textDirection: _containsArabic(_searchController.text)
-                                            ? TextDirection.rtl
-                                            : TextDirection.ltr,
-                                        child: TextField(
-                                          controller: _searchController,
-                                          focusNode: _searchFocusNode,
-                                          autofocus: false, // Manuel focus yapacağız
-                                          textAlignVertical: TextAlignVertical.center, // Dikey ortalama
-                                          textAlign: _containsArabic(_searchController.text)
-                                              ? TextAlign.right
-                                              : TextAlign.left,
-                                          keyboardAppearance: widget.isDarkMode ? Brightness.dark : Brightness.light,
-                                          cursorColor: const Color(0xFF007AFF), // iOS mavi cursor
-                                          showCursor: true,
-                                          // Klavye performans optimizasyonları
-                                          enableInteractiveSelection: true, // Metin seçimini etkin tut
-                                          autocorrect: false,
-                                          enableSuggestions: false,
-                                          smartDashesType: SmartDashesType.disabled,
-                                          smartQuotesType: SmartQuotesType.disabled,
-                                          style: TextStyle(
-                                          fontSize: _containsArabic(_searchController.text) ? 19 : 15, // Türkçe için küçültüldü (17->15)
-                                          height: 1.15, // diakritiklerde satır yüksekliğini optimize et
-                                          letterSpacing: 0.0, // harf arası boşluk olmasın
-                                          color: widget.isDarkMode
-                                              ? Colors.white
-                                              : const Color(0xFF1C1C1E),
-                                          fontWeight: FontWeight.w500,
-                                          ),
-                                          decoration: InputDecoration(
-                                            hintText: 'Kelime ara',
-                                            hintStyle: TextStyle(
-                                              color: widget.isDarkMode
-                                                  ? const Color(0xFF8E8E93).withOpacity(0.8)
-                                                  : const Color(0xFF8E8E93),
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w400,
-                                            ),
-                                            border: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            isDense: true, // Daha kompakt
-                                            contentPadding: EdgeInsets.zero, // Padding'i sıfırla
-                                          ),
-                                          textInputAction: TextInputAction.search,
-                                          onTap: () {
-                                            // TextField'a dokunulduğunda klavyeyi kesinlikle aç
-                                            _openKeyboardWithFocus();
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                                        child: GestureDetector(
+                                          onLongPress: () {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(builder: (_) => const LogScreen()),
+                                            );
                                           },
-                                          onSubmitted: (_) => _searchWithAI(),
-                                          readOnly: _showArabicKeyboard,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  // Arapça klavye ikonu - daha belirgin tasarım
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 4, left: 4),
-                                    child: Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            _showArabicKeyboard = !_showArabicKeyboard;
-                                            if (_showArabicKeyboard) {
-                                              _searchFocusNode.unfocus();
-                                              // Arapça klavye açıldığında analytics event'i gönder
-                                              TurkceAnalyticsService.arapcaKlavyeKullanildi();
-                                            }
-                                          });
-                                          // Main ekrana klavye durumunu bildir
-                                          widget.onArabicKeyboardStateChanged?.call(_showArabicKeyboard);
-                                        },
-                                        borderRadius: BorderRadius.circular(20),
-                                        child: Container(
-                                          width: 36, // 32'den 36'ya büyüttüm
-                                          height: 36, // 32'den 36'ya büyüttüm
-                                          decoration: BoxDecoration(
-                                            color: _showArabicKeyboard
-                                                ? const Color(0xFF007AFF)
-                                                : widget.isDarkMode
-                                                    ? const Color(0xFF3A3A3C).withOpacity(0.5)
-                                                    : const Color(0xFFE5E5EA).withOpacity(0.5),
-                                            shape: BoxShape.circle,
-                                          ),
                                           child: Icon(
-                                            Icons.keyboard_alt_outlined,
-                                            color: _showArabicKeyboard
-                                                ? Colors.white
-                                                : (widget.isDarkMode
-                                                    ? const Color(0xFF8E8E93)
-                                                    : const Color(0xFF636366)),
-                                            size: 22, // 20'den 22'ye büyüttüm
+                                            Icons.search_rounded,
+                                            color: widget.isDarkMode
+                                                ? const Color(0xFF8E8E93)
+                                                : const Color(0xFF8E8E93),
+                                            size: 20,
                                           ),
                                         ),
                                       ),
-                                    ),
+                                      Expanded(
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          child: Directionality(
+                                            textDirection: _containsArabic(_searchController.text)
+                                                ? TextDirection.rtl
+                                                : TextDirection.ltr,
+                                            child: TextField(
+                                              controller: _searchController,
+                                              focusNode: _searchFocusNode,
+                                              autofocus: false,
+                                              textAlignVertical: TextAlignVertical.center,
+                                              textAlign: _containsArabic(_searchController.text)
+                                                  ? TextAlign.right
+                                                  : TextAlign.left,
+                                              keyboardAppearance: widget.isDarkMode
+                                                  ? Brightness.dark
+                                                  : Brightness.light,
+                                              cursorColor: const Color(0xFF007AFF),
+                                              showCursor: true,
+                                              enableInteractiveSelection: true,
+                                              autocorrect: false,
+                                              enableSuggestions: false,
+                                              smartDashesType: SmartDashesType.disabled,
+                                              smartQuotesType: SmartQuotesType.disabled,
+                                              style: TextStyle(
+                                                fontSize: _containsArabic(_searchController.text) ? 19 : 15,
+                                                height: 1.15,
+                                                letterSpacing: 0.0,
+                                                color: widget.isDarkMode
+                                                    ? Colors.white
+                                                    : const Color(0xFF1C1C1E),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              decoration: InputDecoration(
+                                                hintText: 'Kelime ara',
+                                                hintStyle: TextStyle(
+                                                  color: widget.isDarkMode
+                                                      ? const Color(0xFF8E8E93).withOpacity(0.8)
+                                                      : const Color(0xFF8E8E93),
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w400,
+                                                ),
+                                                border: InputBorder.none,
+                                                enabledBorder: InputBorder.none,
+                                                focusedBorder: InputBorder.none,
+                                                isDense: true,
+                                                contentPadding: EdgeInsets.zero,
+                                              ),
+                                              textInputAction: TextInputAction.search,
+                                              onTap: () {
+                                                _openKeyboardWithFocus();
+                                              },
+                                              onSubmitted: (_) => _searchWithAI(),
+                                              readOnly: _showArabicKeyboard,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(right: 4, left: 4),
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            onTap: () {
+                                              setState(() {
+                                                _showArabicKeyboard = !_showArabicKeyboard;
+                                                if (_showArabicKeyboard) {
+                                                  _searchFocusNode.unfocus();
+                                                  TurkceAnalyticsService.arapcaKlavyeKullanildi();
+                                                }
+                                              });
+                                              widget.onArabicKeyboardStateChanged?.call(_showArabicKeyboard);
+                                            },
+                                            borderRadius: BorderRadius.circular(20),
+                                            child: Container(
+                                              width: 36,
+                                              height: 36,
+                                              decoration: BoxDecoration(
+                                                color: _showArabicKeyboard
+                                                    ? const Color(0xFF007AFF)
+                                                    : widget.isDarkMode
+                                                        ? const Color(0xFF3A3A3C).withOpacity(0.5)
+                                                        : const Color(0xFFE5E5EA).withOpacity(0.5),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.keyboard_alt_outlined,
+                                                color: _showArabicKeyboard
+                                                    ? Colors.white
+                                                    : (widget.isDarkMode
+                                                        ? const Color(0xFF8E8E93)
+                                                        : const Color(0xFF636366)),
+                                                size: 22,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      if (_searchController.text.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 6),
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              onTap: () {
+                                                _searchController.clear();
+                                                _lastSearchText = '';
+                                                setState(() {
+                                                  _searchResults = [];
+                                                  _selectedWord = null;
+                                                  _isSearching = false;
+                                                  _showAIButton = false;
+                                                  _showNotFound = false;
+                                                });
+                                              },
+                                              borderRadius: BorderRadius.circular(14),
+                                              child: Container(
+                                                width: 28,
+                                                height: 28,
+                                                decoration: BoxDecoration(
+                                                  color: widget.isDarkMode
+                                                      ? Colors.white.withOpacity(0.08)
+                                                      : const Color(0xFF8E8E93).withOpacity(0.08),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  Icons.clear,
+                                                  color: widget.isDarkMode
+                                                      ? const Color(0xFF8E8E93).withOpacity(0.8)
+                                                      : const Color(0xFF8E8E93),
+                                                  size: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                  if (_searchController.text.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 6),
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: () {
-                                            _searchController.clear();
-                                            _lastSearchText = ''; // Son arama metnini sıfırla
-                                            setState(() {
-                                              _searchResults = [];
-                                              _selectedWord = null;
-                                              _isSearching = false;
-                                              _showAIButton = false;
-                                              _showNotFound = false;
-                                            });
-                                          },
-                                          borderRadius: BorderRadius.circular(14),
-                                          child: Container(
-                                            width: 28,
-                                            height: 28,
-                                            decoration: BoxDecoration(
-                                              color: widget.isDarkMode
-                                                  ? Colors.white.withOpacity(0.08)
-                                                  : const Color(0xFF8E8E93).withOpacity(0.08),
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              Icons.clear,
-                                              color: widget.isDarkMode
-                                                  ? const Color(0xFF8E8E93).withOpacity(0.8)
-                                                  : const Color(0xFF8E8E93),
-                                              size: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    
-                    ..._buildMainContentSlivers(),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          ),
-          
-          // Değerlendirme butonu - kelime kartlarının üstünde katman olarak
-          if (!_reviewService.hasRated && (_appUsageService.shouldShowRating && _hasInternet || kDebugMode))
-            Positioned(
-              top: 60, // Yukarı kaydırıldı
-              right: 6, // Daha sağa kaydırıldı
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () async {
-                    // Google Play değerlendirme aç
-                    await _reviewService.requestReview();
-                    // Butonu kalıcı olarak kaldır
-                    if (mounted) {
-                      setState(() {
-                        // hasRated true olduğu için buton bir daha gösterilmez
-                      });
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFFFD700), // Altın
-                          Color(0xFFFFA500), // Turuncu
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFFFFD700).withOpacity(0.4),
-                          blurRadius: 8,
-                          spreadRadius: 0,
-                          offset: const Offset(0, 2),
-                        ),
+                        ..._buildMainContentSlivers(),
                       ],
-                    ),
-                    child: const Icon(
-                      Icons.star_rounded,
-                      size: 24, // Yıldız büyütüldü
-                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             ),
-          
-          // Arapça klavye
-          if (_showArabicKeyboard)
-            Positioned(
-              bottom: 0, // Ekranın en altından başla
-              left: 0,
-              right: 0,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // Arapça klavye açıkken banner yukarıda olduğu için
-                  // sadece nav bar + system nav bar kadar padding yeterli
-                  // widget.bottomPadding banner yüksekliğini de içeriyor, onu çıkar
-                  final navBarHeight = 56.0;
-                  final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
-                  final keyboardPadding = navBarHeight + systemNavBarHeight;
-                  
-                  return Container(
-                    color: widget.isDarkMode 
-                        ? const Color(0xFF1C1C1E) 
-                        : const Color(0xFFF5F7FB), // Arka plan rengi
-                    padding: EdgeInsets.only(bottom: keyboardPadding), // Navigation bar üstünde
-                    child: SizedBox(
-                      height: 280,
-                      child: ArabicKeyboard(
-                        controller: _searchController,
-                        onSearch: _searchWithAI,
-                        onClose: () {
-                          setState(() {
-                            _showArabicKeyboard = false;
-                          });
-                          // Main ekrana klavye durumunu bildir
-                          widget.onArabicKeyboardStateChanged?.call(false);
-                        },
+
+            // Değerlendirme butonu - kelime kartlarının üstünde katman olarak
+            if (!_reviewService.hasRated &&
+                (_appUsageService.shouldShowRating && _hasInternet || kDebugMode))
+              Positioned(
+                top: 60, // Yukarı kaydırıldı
+                right: 6, // Daha sağa kaydırıldı
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () async {
+                      // Google Play değerlendirme aç
+                      await _reviewService.requestReview();
+                      // Butonu kalıcı olarak kaldır
+                      if (mounted) {
+                        setState(() {
+                          // hasRated true olduğu için buton bir daha gösterilmez
+                        });
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(8),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFFFFD700), // Altın
+                            Color(0xFFFFA500), // Turuncu
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFFFFD700).withOpacity(0.4),
+                            blurRadius: 8,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.star_rounded,
+                        size: 24, // Yıldız büyütüldü
+                        color: Colors.white,
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
+            
+            // Arapça klavye
+            if (_showArabicKeyboard)
+              Positioned(
+                bottom: 0, // Ekranın en altından başla
+                left: 0,
+                right: 0,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Arapça klavye açıkken banner yukarıda olduğu için
+                    // sadece nav bar + system nav bar kadar padding yeterli
+                    // widget.bottomPadding banner yüksekliğini de içeriyor, onu çıkar
+                    final navBarHeight = 56.0;
+                    final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
+                    final keyboardPadding = navBarHeight + systemNavBarHeight;
+                    
+                    return Container(
+                      color: widget.isDarkMode 
+                          ? const Color(0xFF1C1C1E) 
+                          : const Color(0xFFF5F7FB), // Arka plan rengi
+                      padding: EdgeInsets.only(bottom: keyboardPadding), // Navigation bar üstünde
+                      child: SizedBox(
+                        height: 280,
+                        child: ArabicKeyboard(
+                          controller: _searchController,
+                          onSearch: _searchWithAI,
+                          onClose: () {
+                            setState(() {
+                              _showArabicKeyboard = false;
+                            });
+                            // Main ekrana klavye durumunu bildir
+                            widget.onArabicKeyboardStateChanged?.call(false);
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
 
-        ],
+          ],
+        ),
       ),
-    ), // Scaffold kapanışı
-  ); // PopScope kapanışı
+    );
   }
 
   List<Widget> _buildMainContentSlivers() {
@@ -1248,33 +1249,76 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
 
     if (_isSearching) {
       if (_searchResults.isNotEmpty) {
+        // Eşleşme tipine göre gruplanmış sonuç listesi oluştur
+        final groupedResults = _buildGroupedSearchResults(
+          _searchResults,
+          _searchController.text.trim(),
+        );
         slivers.add(
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: EdgeInsets.fromLTRB(8, 8, 8, widget.bottomPadding + 8),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  if (index >= _searchResults.length) return const SizedBox.shrink();
-                  
-                  final word = _searchResults[index];
+                  if (index >= groupedResults.length) return const SizedBox.shrink();
+                  final item = groupedResults[index];
+                  if (item is _MatchHeaderItem) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
+
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              height: 1,
+                              color: const Color(0xFFE5E5EA),
+                            ),
+                          ),
+                          Text(
+                            item.title,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF8E8E93),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                              margin: const EdgeInsets.only(left: 8),
+                              height: 1,
+                              color: const Color(0xFFE5E5EA),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (item is _AiButtonItem && _showAIButton) {
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 12, 4, 8),
+                      child: _buildAiSearchButtonContent(),
+                    );
+                  }
+                  final word = item as WordModel;
                   return SearchResultCard(
                     key: ValueKey('result_${word.kelime}_$index'),
                     word: word,
-                    onTap: () => _selectWord(word),
-                    searchQuery: _searchController.text.trim(), // Arama terimini geç
+                    // Karta dokunulduğunda klavyeleri kapat + kelimeyi seç
+                    onTap: () {
+                      _dismissKeyboard();
+                      _selectWord(word);
+                    },
+                    searchQuery: _searchController.text.trim(),
                     onExpand: () {
-                      // İpucu overlay açıksa kapat
                       _removeTapHintOverlay();
-                      if (_showArabicKeyboard) {
-                        setState(() {
-                          _showArabicKeyboard = false;
-                        });
-                        widget.onArabicKeyboardStateChanged?.call(false);
-                      }
+                      // Kart genişlerken de klavyeleri kapat (normal + Arapça)
+                      _dismissKeyboard();
                     },
                   );
                 },
-                childCount: _searchResults.length,
+                childCount: groupedResults.length,
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: true,
                 addSemanticIndexes: false,
@@ -1285,63 +1329,14 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       }
 
       // AI ile kelime ara butonu
-      if (_showAIButton) {
+      if (_showAIButton && _searchResults.isEmpty) {
         slivers.add(
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8, 12, 8, widget.bottomPadding + 20),
+              padding: EdgeInsets.fromLTRB(8, 12, 8, widget.bottomPadding + 8),
               child: Column(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF007AFF),
-                          const Color(0xFF0051D5),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF007AFF).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _searchWithAI,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.search,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                'Kelimeyi Ara',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  _buildAiSearchButtonContent(),
 
                   // AI ile arama sonucu bulunamadıysa mesajı göster
                   if (_showNotFound)
@@ -1386,4 +1381,172 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     slivers.add(const SliverToBoxAdapter(child: SizedBox.shrink()));
     return slivers;
   }
-} 
+
+  Widget _buildAiSearchButtonContent() {
+    return SizedBox(
+      width: double.infinity,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [
+              Color(0xFF007AFF),
+              Color(0xFF0051D5),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF007AFF).withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: _searchWithAI,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.search,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  SizedBox(width: 8),
+                  Text(
+                    'Kelimeyi Ara',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MatchHeaderItem {
+  final String title;
+  const _MatchHeaderItem(this.title);
+}
+
+class _AiButtonItem {
+  const _AiButtonItem();
+}
+
+List<Object> _buildGroupedSearchResults(List<WordModel> words, String query) {
+  if (words.isEmpty || query.trim().isEmpty) {
+    return words.cast<Object>();
+  }
+
+  final trimmedQuery = query.trim();
+  final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmedQuery);
+  final normalizedQuery = hasArabic
+      ? _removeArabicDiacriticsForUi(trimmedQuery)
+      : trimmedQuery.toLowerCase();
+
+  final exact = <WordModel>[];
+  final root = <WordModel>[];
+  final prefix = <WordModel>[];
+  final others = <WordModel>[];
+
+  for (final w in words) {
+    if (hasArabic) {
+      final normKelime = _removeArabicDiacriticsForUi(w.kelime);
+      final normHar = _removeArabicDiacriticsForUi(w.harekeliKelime ?? '');
+
+      if (normKelime == normalizedQuery || normHar == normalizedQuery) {
+        exact.add(w);
+        continue;
+      }
+      final bool prefixMatch = normKelime.startsWith(normalizedQuery) ||
+          normHar.startsWith(normalizedQuery);
+      if (prefixMatch) {
+        prefix.add(w);
+        continue;
+      }
+
+      final koku = (w.koku ?? '').trim();
+      final normKoku = _removeArabicDiacriticsForUi(koku);
+      final bool rootMatch = normalizedQuery.length >= 2 && normKoku == normalizedQuery;
+      if (rootMatch) {
+        root.add(w);
+      } else {
+        others.add(w);
+      }
+    } else {
+      // TÜRKÇE/LATİN SORGU: anlamın TÜMÜNDE eşleşme kontrolü
+      final anlam = (w.anlam ?? '').toLowerCase();
+
+      if (anlam == normalizedQuery) {
+        // Tam anlam eşleşmesi
+        exact.add(w);
+      } else if (
+          anlam.startsWith(normalizedQuery) ||
+          anlam.contains(',$normalizedQuery') ||
+          anlam.contains(', $normalizedQuery') ||
+          anlam.contains(' $normalizedQuery') ||
+          anlam.contains('$normalizedQuery ') ||
+          anlam.contains(normalizedQuery)) {
+        // Başta veya anlamın herhangi bir yerinde geçen tüm eşleşmeleri prefix grubunda göster
+        prefix.add(w);
+      } else {
+        // Eşleşmeyenler (Türkçe aramada ekranda gösterilmeyecek)
+        others.add(w);
+      }
+    }
+  }
+
+  final result = <Object>[];
+  if (exact.isNotEmpty) {
+    result.addAll(exact);
+  }
+
+  if (prefix.isNotEmpty) {
+    result.addAll(prefix);
+  }
+
+  if (exact.isNotEmpty || prefix.isNotEmpty) {
+    result.add(const _AiButtonItem());
+  }
+
+  root.sort((a, b) => _rootTypeRank(a).compareTo(_rootTypeRank(b)));
+  if (root.isNotEmpty) {
+    result.add(const _MatchHeaderItem('Kök eşleşme'));
+    result.addAll(root);
+  }
+
+  return result;
+}
+
+String _removeArabicDiacriticsForUi(String text) {
+  return text.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]'), '');
+}
+
+int _rootTypeRank(WordModel word) {
+  String? typeText;
+  if (word.dilbilgiselOzellikler?.containsKey('tur') == true) {
+    typeText = word.dilbilgiselOzellikler!['tur']?.toString();
+  } else if (word.tip?.isNotEmpty == true) {
+    typeText = word.tip;
+  }
+
+  final t = (typeText ?? '').toLowerCase().trim();
+  if (t.contains('isim')) return 0;
+  if (t.contains('fiil')) return 2;
+  return 1;
+}

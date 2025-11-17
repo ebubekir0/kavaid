@@ -714,8 +714,9 @@ fiilCekimler (object): Fiilse çekimler.
               await databaseService.addPendingAiWord(newWordModel);
               debugPrint('✅ Kelime pending_ai_words tablosuna eklendi: $harekeliKelime');
               
-              // Eşik kontrolü yap ve gerekirse Firebase senkronizasyonu tetikle
-              await _checkAndTriggerSync(databaseService);
+              // Eşik kontrolü yap ve gerekirse Firebase senkronizasyonunu arka planda tetikle
+              // UI'de AI sonucu hemen gösterilsin, senkronizasyon beklenmesin.
+              _checkAndTriggerSync(databaseService);
               
               // Bu yeni kelime olduğunu belirtmek için return wordModel kullan
             }

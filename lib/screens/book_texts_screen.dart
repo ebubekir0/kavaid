@@ -952,85 +952,174 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                 },
                 itemBuilder: (context, index) {
                   final word = words[index];
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    curve: Curves.easeOut,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDarkMode
-                              ? Colors.black.withOpacity(0.35)
-                              : Colors.black.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        setState(() {
-                          _showMeaning = !_showMeaning;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(height: 8),
-                            Expanded(
+                  final displayWord = word.harekeliKelime?.isNotEmpty == true 
+                      ? word.harekeliKelime! 
+                      : word.kelime;
+                  
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showMeaning = !_showMeaning;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 120),
+                      curve: Curves.easeOut,
+                      clipBehavior: Clip.antiAlias, // Köşelerdeki kareliği çözer
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode
+                                ? Colors.black.withOpacity(0.35)
+                                : Colors.black.withOpacity(0.08),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Ses Butonu - En Üstte
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: IconButton(
+                              onPressed: () {
+                                _ttsService.speak(word.kelime);
+                              },
+                              icon: Icon(
+                                Icons.volume_up_rounded,
+                                color: subTextColor.withOpacity(0.7),
+                                size: 28,
+                              ),
+                              tooltip: 'Dinle',
+                            ),
+                          ),
+
+                          // Kelime/Anlam Bölümü - Tam Merkezde Sabit
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16).copyWith(bottom: 70),
                               child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 80),
+                                duration: const Duration(milliseconds: 100),
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(opacity: animation, child: child);
+                                },
                                 child: _showMeaning
-                                    ? Column(
+                                    ? Text(
+                                        word.anlam ?? '',
                                         key: const ValueKey('meaning'),
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            word.anlam ?? '',
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 21,
-                                              fontWeight: FontWeight.w600,
-                                              color: textColor,
-                                            ),
-                                          ),
-                                        ],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                          height: 1.4,
+                                        ),
                                       )
-                                    : Column(
+                                    : Text(
+                                        displayWord,
                                         key: const ValueKey('word'),
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            word.kelime,
-                                            textAlign: TextAlign.center,
-                                            style: GoogleFonts.scheherazadeNew(
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.w700,
-                                              color: textColor,
-                                              height: 1.2,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          if (index == 0)
-                                            Text(
-                                              'Anlam için karta dokun',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: subTextColor,
-                                              ),
-                                            ),
-                                        ],
+                                        textAlign: TextAlign.center,
+                                        textDirection: ui.TextDirection.rtl,
+                                        style: GoogleFonts.scheherazadeNew(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w700,
+                                          color: textColor,
+                                          height: 1.3,
+                                        ),
                                       ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+
+                          // Örnek Cümle - Minimalist
+                          Positioned(
+                            left: 10,
+                            right: 10,
+                            bottom: 10,
+                            child: Builder(
+                              builder: (context) {
+                                final ornekler = word.ornekCumleler;
+                                if (ornekler == null || ornekler.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                final ornek = ornekler[0];
+                                if (ornek is! Map<String, dynamic>) {
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                // Farklı format desteği (arapcaCümle vs arapcaCumle, turkceAnlam vs turkceCeviri)
+                                final arapcaCumle = (ornek['arapcaCumle'] ?? ornek['arapcaCümle'] ?? ornek['arapca'] ?? '').toString();
+                                final turkceCeviri = (ornek['turkceCeviri'] ?? ornek['turkceAnlam'] ?? ornek['turkce'] ?? '').toString();
+                                
+                                // Dinamik font boyutu - uzun cümleler için küçültme
+                                final double fontSize = arapcaCumle.length > 90 ? 17 : (arapcaCumle.length > 50 ? 19 : 21);
+
+                                if (arapcaCumle.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                return Container(
+                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode 
+                                        ? Colors.white.withOpacity(0.03)
+                                        : Colors.black.withOpacity(0.025),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isDarkMode 
+                                          ? Colors.white.withOpacity(0.1)
+                                          : Colors.black.withOpacity(0.05),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Arapça örnek cümle
+                                      Text(
+                                        arapcaCumle,
+                                        textAlign: TextAlign.center,
+                                        textDirection: ui.TextDirection.rtl,
+                                        style: GoogleFonts.scheherazadeNew(
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor.withOpacity(0.85),
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                      
+                                      // Türkçe çeviri - Smooth
+                                      AnimatedSize(
+                                        duration: const Duration(milliseconds: 200),
+                                        curve: Curves.easeOut,
+                                        child: _showMeaning && turkceCeviri.isNotEmpty
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(top: 8),
+                                                child: Text(
+                                                  turkceCeviri,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: subTextColor,
+                                                    fontStyle: FontStyle.italic,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -1039,7 +1128,7 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
             ),
           ),
         ),
-        // Unified navigation component with page number and slider
+        // Slider navigasyon
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           child: Container(
@@ -1091,7 +1180,7 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                                 final target = _currentCardIndex - 1;
                                 _pageController.animateToPage(
                                   target,
-                                  duration: const Duration(milliseconds: 140),
+                                  duration: const Duration(milliseconds: 200),
                                   curve: Curves.easeOut,
                                 );
                               }
@@ -1126,8 +1215,6 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                           thumbColor: const Color(0xFF007AFF),
                           overlayColor: const Color(0xFF007AFF).withOpacity(0.2),
                           trackShape: const RoundedRectSliderTrackShape(),
-                          tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 2),
-                          showValueIndicator: ShowValueIndicator.never,
                         ),
                         child: Slider(
                           value: _currentCardIndex.toDouble(),
@@ -1142,14 +1229,6 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                             });
                             _pageController.jumpToPage(pageIndex);
                           },
-                          onChangeEnd: (value) {
-                            final pageIndex = value.round();
-                            _pageController.animateToPage(
-                              pageIndex,
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeOut,
-                            );
-                          },
                         ),
                       ),
                     ),
@@ -1163,7 +1242,7 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                                 final target = _currentCardIndex + 1;
                                 _pageController.animateToPage(
                                   target,
-                                  duration: const Duration(milliseconds: 140),
+                                  duration: const Duration(milliseconds: 200),
                                   curve: Curves.easeOut,
                                 );
                               }

@@ -828,86 +828,195 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   final displayWord = wordModel.harekeliKelime?.isNotEmpty == true 
                       ? wordModel.harekeliKelime! 
                       : wordModel.kelime;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 120),
-                    curve: Curves.easeOut,
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDarkMode
-                              ? Colors.black.withOpacity(0.35)
-                              : Colors.black.withOpacity(0.08),
-                          blurRadius: 18,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(18),
-                      onTap: () {
-                        setState(() {
-                          _showMeaning = !_showMeaning;
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const SizedBox(height: 8),
-                            Expanded(
+                  
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showMeaning = !_showMeaning;
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 120),
+                      curve: Curves.easeOut,
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode
+                                ? Colors.black.withOpacity(0.35)
+                                : Colors.black.withOpacity(0.08),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Ses Butonu - En Üstte
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: IconButton(
+                              onPressed: () {
+                                _ttsService.speak(word.arabic);
+                              },
+                              icon: Icon(
+                                Icons.volume_up_rounded,
+                                color: subTextColor.withOpacity(0.7),
+                                size: 28,
+                              ),
+                              tooltip: 'Dinle',
+                            ),
+                          ),
+
+                          // Kelime/Anlam Bölümü - Tam Merkezde Sabit
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16).copyWith(bottom: 70),
                               child: AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 80),
+                                duration: const Duration(milliseconds: 100),
+                                transitionBuilder: (child, animation) {
+                                  return FadeTransition(opacity: animation, child: child);
+                                },
                                 child: _showMeaning
-                                    ? Column(
+                                    ? Text(
+                                        word.turkish,
                                         key: const ValueKey('meaning'),
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            word.turkish,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 21,
-                                              fontWeight: FontWeight.w600,
-                                              color: textColor,
-                                            ),
-                                          ),
-                                        ],
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor,
+                                          height: 1.4,
+                                        ),
                                       )
-                                    : Column(
+                                    : Text(
+                                        displayWord,
                                         key: const ValueKey('word'),
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            displayWord,
-                                            textAlign: TextAlign.center,
-                                            textDirection: TextDirection.rtl,
-                                            style: GoogleFonts.scheherazadeNew(
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.w700,
-                                              color: textColor,
-                                              height: 1.2,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 16),
-                                          if (index == 0)
-                                            Text(
-                                              'Anlam için karta dokun',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                color: subTextColor,
-                                              ),
-                                            ),
-                                        ],
+                                        textAlign: TextAlign.center,
+                                        textDirection: TextDirection.rtl,
+                                        style: GoogleFonts.scheherazadeNew(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w700,
+                                          color: textColor,
+                                          height: 1.3,
+                                        ),
                                       ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          
+                          // Örnek Cümle - Minimalist
+                          Positioned(
+                            left: 10,
+                            right: 10,
+                            bottom: 10,
+                            child: Builder(
+                              builder: (context) {
+                                // wordData içinden direkt erişim
+                                List<dynamic>? ornekler;
+                                
+                                // Debug: wordData içeriğini kontrol et
+                                print('🔍 CustomWord wordData: ${word.wordData}');
+                                print('🔍 CustomWord wordData ornekCumleler: ${word.wordData?['ornekCumleler']}');
+                                
+                                // Önce wordData'dan dene
+                                if (word.wordData != null && word.wordData!['ornekCumleler'] != null) {
+                                  ornekler = word.wordData!['ornekCumleler'] as List<dynamic>?;
+                                  print('✅ ornekler wordData\'dan alındı: $ornekler');
+                                }
+                                
+                                // Eğer yoksa toWordModel() ile dene
+                                if (ornekler == null || ornekler.isEmpty) {
+                                  final wordModel = word.toWordModel();
+                                  ornekler = wordModel.ornekCumleler;
+                                  print('⚠️ ornekler toWordModel()\'dan alındı: $ornekler');
+                                }
+                                
+                                if (ornekler == null || ornekler.isEmpty) {
+                                  print('❌ Örnek cümle bulunamadı');
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                final ornek = ornekler[0];
+                                print('📖 İlk örnek: $ornek');
+                                
+                                if (ornek is! Map<String, dynamic>) {
+                                  print('❌ Örnek Map değil: ${ornek.runtimeType}');
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                // Farklı format desteği (arapcaCümle vs arapcaCumle, turkceAnlam vs turkceCeviri)
+                                final arapcaCumle = (ornek['arapcaCumle'] ?? ornek['arapcaCümle'] ?? ornek['arapca'] ?? '').toString();
+                                final turkceCeviri = (ornek['turkceCeviri'] ?? ornek['turkceAnlam'] ?? ornek['turkce'] ?? '').toString();
+                                print('📝 arapcaCumle: $arapcaCumle');
+                                print('📝 turkceCeviri: $turkceCeviri');
+                                
+                                // Dinamik font boyutu - uzun cümleler için küçültme
+                                final double fontSize = arapcaCumle.length > 90 ? 17 : (arapcaCumle.length > 50 ? 19 : 21);
+
+                                if (arapcaCumle.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                
+                                return Container(
+                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode 
+                                        ? Colors.white.withOpacity(0.03)
+                                        : Colors.black.withOpacity(0.025),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isDarkMode 
+                                          ? Colors.white.withOpacity(0.1)
+                                          : Colors.black.withOpacity(0.05),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      // Arapça örnek cümle
+                                      Text(
+                                        arapcaCumle,
+                                        textAlign: TextAlign.center,
+                                        textDirection: TextDirection.rtl,
+                                        style: GoogleFonts.scheherazadeNew(
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: textColor.withOpacity(0.85),
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                      
+                                      // Türkçe çeviri - Smooth
+                                      AnimatedSize(
+                                        duration: const Duration(milliseconds: 200),
+                                        curve: Curves.easeOut,
+                                        child: _showMeaning && turkceCeviri.isNotEmpty
+                                            ? Padding(
+                                                padding: const EdgeInsets.only(top: 8),
+                                                child: Text(
+                                                  turkceCeviri,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: subTextColor,
+                                                    fontStyle: FontStyle.italic,
+                                                    height: 1.3,
+                                                  ),
+                                                ),
+                                              )
+                                            : const SizedBox.shrink(),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );

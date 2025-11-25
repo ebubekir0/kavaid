@@ -108,15 +108,17 @@ class DatabaseService {
       }
     }
     
-    // 3. KELİME İÇİ EŞLEŞİR - anlam sırasına göre
+    // 3. KELİME BAŞI EŞLEŞİR (yeni kelimeye başlayan) - anlam sırasına göre
     for (int i = 0; i < meanings.length; i++) {
       final meaning = meanings[i].toLowerCase().trim();
       final queryLower = query.toLowerCase().trim();
       
-      // Kelime arasında geçiyor mu
-      if (meaning.contains(' $queryLower') || meaning.contains('-$queryLower') || 
-          meaning.contains('$queryLower ') || meaning.contains(queryLower)) {
-        return 200 + i; // Kelime içi: 200, 201, 202...
+      // Yeni kelime başında mı geçiyor (boşluk veya tire sonrası)
+      // Örn: "okul, ilim" aramasında "i" yazınca "ilim" eşleşir
+      // Ama "güçlendirici" gibi kelime içinde geçenler eşleşmez
+      if (meaning.contains(' $queryLower') || meaning.contains('-$queryLower') ||
+          meaning.contains(', $queryLower') || meaning.contains('; $queryLower')) {
+        return 200 + i; // Kelime başı: 200, 201, 202...
       }
     }
     
@@ -443,17 +445,18 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         ''', [
           '${lowerTurkishQuery}%',
           '%,${lowerTurkishQuery}%',
-          '%, ${lowerTurkishQuery}%',
+          '% ${lowerTurkishQuery}%',
           '${lowerTurkishQuery}%',
           '%,${lowerTurkishQuery}%',
-          '%, ${lowerTurkishQuery}%',
+          '% ${lowerTurkishQuery}%',
           arabicPrefix, arabicPrefix,
           arabicPrefix, arabicPrefix,
           arabicContains, arabicContains,
           arabicContains, arabicContains,
         ]);
       } else {
-        // Türkçe/LATİN sorgu: anlamın BAŞINDA ve İÇİNDE eşleşmeleri al
+        // Türkçe/LATİN sorgu: anlamın BAŞINDA veya YENİ KELİME BAŞINDA eşleşmeleri al
+        // İÇİNDE GEÇEN (rastgele) eşleşmeler KALDIRILDI
         allMaps = await db.rawQuery('''
           SELECT * FROM (
               SELECT * FROM words 
@@ -468,8 +471,8 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           )
           LIMIT 100
         ''', [
-          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','%${lowerTurkishQuery}%',
-          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','%${lowerTurkishQuery}%',
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','% ${lowerTurkishQuery}%',
+          '${lowerTurkishQuery}%','%,${lowerTurkishQuery}%','%, ${lowerTurkishQuery}%','% ${lowerTurkishQuery}%',
         ]);
       }
     }

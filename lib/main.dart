@@ -1164,26 +1164,24 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
 
-                      // 1: Öğren (iç Navigator) - sadece aktifken oluştur
-                      _currentIndex == 1
-                          ? Padding(
-                              key: const ValueKey('learning_screen'),
-                              padding: EdgeInsets.only(bottom: totalBottomPadding),
-                              child: Navigator(
-                                key: _learningTabNavKey,
-                                onGenerateRoute: (settings) {
-                                  return MaterialPageRoute(
-                                    builder: (_) => LearningScreen(
-                                      bottomPadding: 0,
-                                      isDarkMode: widget.isDarkMode,
-                                      onThemeToggle: widget.onThemeToggle,
-                                    ),
-                                    settings: settings,
-                                  );
-                                },
+                      // 1: Öğren (iç Navigator) - state korunur
+                      Padding(
+                        key: const ValueKey('learning_screen'),
+                        padding: EdgeInsets.only(bottom: totalBottomPadding),
+                        child: Navigator(
+                          key: _learningTabNavKey,
+                          onGenerateRoute: (settings) {
+                            return MaterialPageRoute(
+                              builder: (_) => LearningScreen(
+                                bottomPadding: 0,
+                                isDarkMode: widget.isDarkMode,
+                                onThemeToggle: widget.onThemeToggle,
                               ),
-                            )
-                          : const SizedBox.shrink(),
+                              settings: settings,
+                            );
+                          },
+                        ),
+                      ),
 
                       // 2: Topluluk - sadece aktifken oluştur
                       _currentIndex == 2

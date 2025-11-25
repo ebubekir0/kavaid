@@ -44,21 +44,11 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
 
     await _service.migrateSavedWords();
 
+    // En az bir liste olduğundan emin ol
+    await _service.getOrCreateDefaultList();
     var lists = await _service.getLists();
     
-    // "Kaydedilenler" listesi yoksa oluştur (her zaman olmalı)
-    final hasDefaultList = lists.any((l) => l.name == 'Kaydedilenler');
-    if (!hasDefaultList) {
-      await _service.createList('Kaydedilenler');
-      lists = await _service.getLists();
-    }
-    
-    // "Kaydedilenler" listesi her zaman en üstte olsun
-    lists.sort((a, b) {
-      if (a.name == 'Kaydedilenler') return -1;
-      if (b.name == 'Kaydedilenler') return 1;
-      return b.createdAt.compareTo(a.createdAt);
-    });
+    // Sıralama: En çok kelime olan en üstte, aynıysa en eski oluşturulan üstte
 
     // Her liste için kelime sayısını al
     final counts = <String, int>{};
@@ -66,6 +56,19 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
       final words = await _service.getWordsByList(list.id);
       counts[list.id] = words.length;
     }
+
+    // Listeleri kelime sayısına göre sırala (çoktan aza, aynıysa eski üstte)
+    lists.sort((a, b) {
+      // Kelime sayısına göre (çoktan aza)
+      final countA = counts[a.id] ?? 0;
+      final countB = counts[b.id] ?? 0;
+      if (countA != countB) {
+        return countB.compareTo(countA); // Çok olan üstte
+      }
+      
+      // Kelime sayısı aynıysa oluşturma tarihine göre (eski üstte)
+      return a.createdAt.compareTo(b.createdAt);
+    });
 
     if (!mounted) return;
     setState(() {
@@ -225,7 +228,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         backgroundColor: const Color(0xFF007AFF),
         elevation: 0,
         title: const Text(
-          'Kelimelerim',
+          'Kelime Listelerim',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -242,42 +245,14 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
               : Column(
                   children: [
                     Expanded(
-                      // Listeleri sıralanabilir yap
-                      child: ReorderableListView.builder(
+                      // Listeler otomatik kelime sayısına göre sıralanır
+                      child: ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                         itemCount: _lists.length,
-                        onReorder: (oldIndex, newIndex) async {
-                          setState(() {
-                            if (oldIndex < newIndex) {
-                              newIndex -= 1;
-                            }
-                            final item = _lists.removeAt(oldIndex);
-                            _lists.insert(newIndex, item);
-                          });
-                          await _service.saveListsOrder(_lists);
-                        },
-                        proxyDecorator: (child, index, animation) {
-                          return AnimatedBuilder(
-                            animation: animation,
-                            builder: (BuildContext context, Widget? child) {
-                              return Material(
-                                elevation: 8,
-                                color: Colors.transparent,
-                                shadowColor: Colors.black.withOpacity(0.2),
-                                child: child,
-                              );
-                            },
-                            child: child,
-                          );
-                        },
                         itemBuilder: (context, index) {
                           final list = _lists[index];
                           final wordCount = _wordCounts[list.id] ?? 0;
-                          // Key gerekli ReorderableListView için
-                          return Container(
-                            key: ValueKey(list.id),
-                            child: _buildListCard(list, wordCount, index, isDark),
-                          );
+                          return _buildListCard(list, wordCount, index, isDark);
                         },
                       ),
                     ),
@@ -353,10 +328,11 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
   }
 
   Widget _buildListCard(CustomWordList list, int wordCount, int index, bool isDark) {
-    final isDefaultList = list.name == 'Kaydedilenler';
+    // Tek liste kaldıysa silinemez (her zaman en az 1 liste olmalı)
+    final canDelete = _lists.length > 1;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -442,7 +418,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                           ],
                         ),
                       ),
-                      if (!isDefaultList) // Varsayılan liste silinemez
+                      if (canDelete) // Tek liste kaldıysa silinemez
                         PopupMenuItem(
                           value: 'delete',
                           child: Row(
@@ -590,22 +566,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   Future<void> _removeWord(CustomWord word) async {
     await _service.deleteWord(word.id);
     _loadWords();
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${word.arabic} listeden çıkarıldı'),
-          action: SnackBarAction(
-            label: 'Geri Al',
-            onPressed: () async {
-                // Geri alma işlemi için kelimeyi tekrar ekle (WordModel ile)
-                final wordModel = word.toWordModel();
-                await _service.addWordFromModel(wordModel, widget.list.id);
-                _loadWords();
-            },
-          ),
-        ),
-      );
-    }
+    // Snackbar bildirimi kaldırıldı
   }
 
   @override
@@ -745,7 +706,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   Widget _buildListView(bool isDarkMode) {
     // ReorderableListView ile sıralama özelliği
     return ReorderableListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       itemCount: _words.length,
       onReorder: (oldIndex, newIndex) async {
         setState(() {
@@ -783,7 +744,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
 
         return Container(
           key: ValueKey('result_${word.arabic}_$index'), // Key unique olmalı
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: 1), // Daha az boşluk
           child: SearchResultCard(
             word: wordModel,
             onTap: () {

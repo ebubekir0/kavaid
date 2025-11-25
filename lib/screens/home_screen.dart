@@ -117,11 +117,14 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     // İpucu flag'ini yükle
     _loadTapHintFlag();
 
-    // Focus listener ekle - her focus olduğunda klavye açılsın
+    // Focus listener - Arapça klavye durumunu takip et
     _searchFocusNode.addListener(() {
-      if (_searchFocusNode.hasFocus && mounted) {
-        // Focus olduğunda klavyeyi kesinlikle aç
-        _forceOpenKeyboard();
+      if (_searchFocusNode.hasFocus && mounted && _showArabicKeyboard) {
+        // Normal klavye focus aldıysa Arapça klavyeyi kapat
+        setState(() {
+          _showArabicKeyboard = false;
+        });
+        widget.onArabicKeyboardStateChanged?.call(false);
       }
     });
 
@@ -159,53 +162,19 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     });
   }
   
-  // Klavyeyi kesinlikle açmak için yardımcı metod  
+  // Klavyeyi doğal şekilde açmak için yardımcı metod  
   void _forceOpenKeyboard() {
     if (!mounted) return;
-    
-    // Klavye zaten açık mı kontrol et
-    final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-    if (keyboardVisible) return;
-    
-    // Hemen klavyeyi açmayı dene
-    SystemChannels.textInput.invokeMethod('TextInput.show');
-    
-    // Küçük aralıklarla tekrar dene
-    Future.delayed(const Duration(milliseconds: 10), () {
-      if (mounted && _searchFocusNode.hasFocus) {
-        SystemChannels.textInput.invokeMethod('TextInput.show');
-      }
-    });
-    
-    Future.delayed(const Duration(milliseconds: 30), () {
-      if (mounted && _searchFocusNode.hasFocus) {
-        final stillNotVisible = MediaQuery.of(context).viewInsets.bottom == 0;
-        if (stillNotVisible) {
-          SystemChannels.textInput.invokeMethod('TextInput.show');
-        }
-      }
-    });
-    
-    Future.delayed(const Duration(milliseconds: 60), () {
-      if (mounted && _searchFocusNode.hasFocus) {
-        final stillNotVisible = MediaQuery.of(context).viewInsets.bottom == 0;
-        if (stillNotVisible) {
-          SystemChannels.textInput.invokeMethod('TextInput.show');
-        }
-      }
-    });
+    // Sadece focus ver, sistem klavyeyi kendisi açar
+    // SystemChannels kullanımı kaldırıldı - klavye dilini sıfırlıyordu
   }
   
-  // Focus ile klavye açma - En agresif yöntem
+  // Focus ile klavye açma - Doğal yöntem
   void _openKeyboardWithFocus() {
     if (!mounted) return;
     
-    // Direkt focus ver (unfocus yapmadan)
-    FocusScope.of(context).requestFocus(_searchFocusNode);
+    // Sadece focus ver, sistem klavyeyi doğal şekilde açar
     _searchFocusNode.requestFocus();
-    
-    // Klavyeyi hemen aç
-    _forceOpenKeyboard();
   }
 
   // Credits değiştiğinde çağrılacak metod
@@ -988,10 +957,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                               cursorColor: const Color(0xFF007AFF),
                                               showCursor: true,
                                               enableInteractiveSelection: true,
-                                              autocorrect: false,
-                                              enableSuggestions: false,
-                                              smartDashesType: SmartDashesType.disabled,
-                                              smartQuotesType: SmartQuotesType.disabled,
+                                              autocorrect: true,
+                                              enableSuggestions: true,
                                               style: TextStyle(
                                                 fontSize: _containsArabic(_searchController.text) ? 19 : 15,
                                                 height: 1.15,
@@ -1017,9 +984,6 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                                 contentPadding: EdgeInsets.zero,
                                               ),
                                               textInputAction: TextInputAction.search,
-                                              onTap: () {
-                                                _openKeyboardWithFocus();
-                                              },
                                               onSubmitted: (_) => _searchWithAI(),
                                               readOnly: _showArabicKeyboard,
                                             ),

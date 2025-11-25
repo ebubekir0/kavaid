@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kReleaseMode;
 import '../services/auth_service.dart';
+import '../services/custom_word_service.dart';
 import '../services/database_service.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
@@ -51,6 +52,22 @@ class _LearningScreenState extends State<LearningScreen> {
     _bookPurchase.initialize();
     _bookPurchase.addListener(_updateState);
     _bookPurchase.loadProductFor('kitab_kiraah_1');
+    
+    // Kullanıcı giriş yapmışsa eski saved_words'leri yeni sisteme migrate et
+    _migrateOldSavedWords();
+  }
+
+  /// Eski Firestore saved_words'leri yeni kelime listeleri sistemine migrate et
+  Future<void> _migrateOldSavedWords() async {
+    final auth = AuthService();
+    if (!auth.isSignedIn) return;
+    
+    try {
+      final customWordService = CustomWordService();
+      await customWordService.migrateToFirestore();
+    } catch (e) {
+      debugPrint('⚠️ [LearningScreen] Migration hatası: $e');
+    }
   }
 
   @override
@@ -369,6 +386,21 @@ class _LearningScreenState extends State<LearningScreen> {
     );
   }
 
+  void _showLoginRequiredSnackBar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Lütfen önce kayıt olup giriş yapın.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black87,
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.fixed,
+      ),
+    );
+  }
+
   Widget _buildCustomWordsCard(bool isDarkMode) {
     final cardColor = isDarkMode ? const Color(0xFF1C1C1E) : Colors.white;
     final borderColor = isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
@@ -380,6 +412,12 @@ class _LearningScreenState extends State<LearningScreen> {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: () {
+          // Giriş kontrolü
+          final auth = AuthService();
+          if (!auth.isSignedIn) {
+            _showLoginRequiredSnackBar();
+            return;
+          }
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => CustomWordsScreen(isDarkMode: isDarkMode),
@@ -416,7 +454,7 @@ class _LearningScreenState extends State<LearningScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Kelimelerim',
+                      'Kelime Listelerim',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -425,7 +463,7 @@ class _LearningScreenState extends State<LearningScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Kaydettiğin ve eklediğin kelimeler',
+                      'Kendi kelime listelerini/kartlarını oluştur',
                       style: TextStyle(fontSize: 12, color: subColor),
                     ),
                   ],

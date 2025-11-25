@@ -11,11 +11,11 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../services/custom_word_service.dart'; // Import for custom lists
-
 
 // PERFORMANCE: Font'ları cache'le
 class _FontCache {
@@ -100,6 +100,8 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
   Animation<double>? _expandAnimation;
   bool _animationInitialized = false;
 
+  StreamSubscription<void>? _wordChangeSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -107,6 +109,10 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
     // Sadece sözlük görünümündeyse (showRemoveButton false ise) kayıt durumunu kontrol et
     if (!widget.showRemoveButton) {
       _checkSavedStatus();
+      // Değişiklikleri dinle
+      _wordChangeSubscription = _customWordService.onWordsChanged.listen((_) {
+        if (mounted) _checkSavedStatus();
+      });
     }
   }
 
@@ -122,6 +128,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
 
   @override
   void dispose() {
+    _wordChangeSubscription?.cancel();
     _animationController?.dispose();
     super.dispose();
   }
@@ -501,8 +508,8 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (widget.showExpandButton) _buildExpandButton(isDarkMode),
-                if (widget.showAddButton || widget.showRemoveButton) _buildActionButton(isDarkMode), // Genel action butonu
                 _buildSpeakButton(isDarkMode),
+                if (widget.showAddButton || widget.showRemoveButton) _buildActionButton(isDarkMode), // En sağda
               ],
             ),
           ],
@@ -1171,57 +1178,119 @@ Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
   Widget _buildActionButton(bool isDarkMode) {
     final isRemove = widget.showRemoveButton;
     
-    // İkon ve Renkler
-    IconData iconData;
-    Color iconColor;
-    
-    if (isRemove) {
-      // Listelerim ekranı - Çıkarma butonu (Sade kırmızı çöp kutusu veya eksi)
-      iconData = Icons.remove_circle_outline;
-      iconColor = const Color(0xFFFF3B30); // Kırmızı
-    } else {
-      // Sözlük ekranı - Kaydetme butonu (Bookmark)
-      if (_isSaved) {
-        // Kayıtlı ise dolu bookmark
-        iconData = Icons.bookmark;
-        iconColor = const Color(0xFF007AFF); // Mavi
-      } else {
-        // Kayıtlı değilse boş bookmark
-        iconData = Icons.bookmark_border;
-        iconColor = isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70); // Gri
-      }
-    }
+    // Her iki durumda da aynı bookmark butonu
+    // Listelerim ekranında (isRemove=true) kelime zaten kayıtlı olduğu için dolu görünecek
+    final isSavedState = isRemove ? true : _isSaved;
     
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: isRemove ? widget.onRemove : _showAddToListDialog,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0), // Dokunma alanını genişlet
+        onTap: isRemove ? widget.onRemove : _handleBookmarkTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
           child: Icon(
-            iconData,
-            color: iconColor,
-            size: 28, // Belirgin boyut
+            isSavedState ? Icons.bookmark : Icons.bookmark_border,
+            color: isSavedState
+                ? const Color(0xFF007AFF)
+                : (isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70)),
+            size: 20,
           ),
         ),
       ),
     );
   }
 
+  void _showLoginRequiredSnackBar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Lütfen önce kayıt olup giriş yapın.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black87,
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.fixed,
+      ),
+    );
+  }
+
+  /// Bookmark butonuna tıklandığında: tek liste varsa toggle, birden fazla varsa dialog aç
+  Future<void> _handleBookmarkTap() async {
+    if (!mounted) return;
+
+    // Giriş kontrolü
+    final auth = AuthService();
+    if (!auth.isSignedIn) {
+      _showLoginRequiredSnackBar();
+      return;
+    }
+    
+    // Varsayılan liste her zaman var olsun
+    await _customWordService.getOrCreateDefaultList();
+    var lists = await _customWordService.getLists();
+    
+    if (lists.length == 1) {
+      // Tek liste varsa: direkt toggle
+      await _toggleSingleList(lists.first.id);
+    } else {
+      // Birden fazla liste varsa: dialog aç
+      await _showAddToListDialog();
+    }
+  }
+
+  /// Tek listede toggle işlemi
+  Future<void> _toggleSingleList(String listId) async {
+    if (!mounted) return;
+    
+    if (_isSaved) {
+      // Listeden çıkar
+      await _customWordService.removeWordFromList(widget.word.kelime, listId);
+    } else {
+      // Listeye ekle
+      await _customWordService.addWordFromModel(widget.word, listId);
+    }
+    
+    // Durumu güncelle
+    if (mounted) {
+      await _checkSavedStatus();
+    }
+  }
+
   Future<void> _showAddToListDialog() async {
     if (!mounted) return;
     
-    final lists = await _customWordService.getLists();
+    var lists = await _customWordService.getLists();
     // Mevcut kelimenin hangi listelerde olduğunu tekrar kontrol et
     final currentSavedLists = await _customWordService.getListsWithWord(widget.word.kelime);
     
     if (!mounted) return;
 
     if (lists.isEmpty) {
-        final defaultList = await _customWordService.createList('Kaydedilenler');
+        final defaultList = await _customWordService.getOrCreateDefaultList();
         lists.add(defaultList);
     }
+
+    // Her liste için kelime sayısını al ve sırala (çoktan aza)
+    final wordCounts = <String, int>{};
+    for (final list in lists) {
+      final words = await _customWordService.getWordsByList(list.id);
+      wordCounts[list.id] = words.length;
+    }
+    
+    lists.sort((a, b) {
+      final countA = wordCounts[a.id] ?? 0;
+      final countB = wordCounts[b.id] ?? 0;
+      if (countA != countB) {
+        return countB.compareTo(countA); // Çok olan üstte
+      }
+      return a.createdAt.compareTo(b.createdAt); // Aynıysa eski üstte
+    });
+
+    if (!mounted) return;
 
     // Geçici seçim durumu (UI anlık güncellensin diye)
     // Dialog içinde setState kullanabilmek için StatefulBuilder gerekiyor
@@ -1294,7 +1363,7 @@ Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
                             
                             // Ana ekran durumu güncelle
                             if (mounted) {
-                                _checkSavedStatus();
+                                await _checkSavedStatus();
                             }
                           },
                         );
@@ -1310,7 +1379,7 @@ Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
     );
     // Dialog kapandığında son durumu kontrol et
     if (mounted) {
-      _checkSavedStatus();
+      await _checkSavedStatus();
     }
   }
 }

@@ -1,0 +1,1087 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show SystemUiOverlayStyle;
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:ui' as ui;
+
+import '../models/custom_word.dart';
+import '../models/custom_word_list.dart';
+import '../services/custom_word_service.dart';
+import '../widgets/search_result_card.dart';
+import '../models/word_model.dart';
+import '../services/tts_service.dart';
+
+/// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
+/// BookTextsScreen ile aynı UI yapısına sahip
+class CustomWordsScreen extends StatefulWidget {
+  final bool isDarkMode;
+
+  const CustomWordsScreen({
+    super.key,
+    required this.isDarkMode,
+  });
+
+  @override
+  State<CustomWordsScreen> createState() => _CustomWordsScreenState();
+}
+
+class _CustomWordsScreenState extends State<CustomWordsScreen> {
+  final CustomWordService _service = CustomWordService();
+  List<CustomWordList> _lists = [];
+  Map<String, int> _wordCounts = {};
+  bool _isLoading = true;
+  String? _loadingListId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    await _service.migrateSavedWords();
+
+    var lists = await _service.getLists();
+    
+    // "Kaydedilenler" listesi yoksa oluştur (her zaman olmalı)
+    final hasDefaultList = lists.any((l) => l.name == 'Kaydedilenler');
+    if (!hasDefaultList) {
+      await _service.createList('Kaydedilenler');
+      lists = await _service.getLists();
+    }
+    
+    // "Kaydedilenler" listesi her zaman en üstte olsun
+    lists.sort((a, b) {
+      if (a.name == 'Kaydedilenler') return -1;
+      if (b.name == 'Kaydedilenler') return 1;
+      return b.createdAt.compareTo(a.createdAt);
+    });
+
+    // Her liste için kelime sayısını al
+    final counts = <String, int>{};
+    for (final list in lists) {
+      final words = await _service.getWordsByList(list.id);
+      counts[list.id] = words.length;
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _lists = lists;
+      _wordCounts = counts;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _showAddListDialog() async {
+    final controller = TextEditingController();
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor:
+              widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+          title: Text(
+            'Yeni Liste',
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Liste adı',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: widget.isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
+              ),
+              filled: true,
+              fillColor: widget.isDarkMode ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7),
+              hintStyle: TextStyle(
+                color: widget.isDarkMode ? Colors.white38 : Colors.black38,
+              ),
+            ),
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white : Colors.black,
+              fontSize: 16,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = controller.text.trim();
+                if (name.isEmpty) return;
+                await _service.createList(name);
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                _loadData();
+              },
+              child: const Text('Oluştur'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showRenameListDialog(CustomWordList list) async {
+    final controller = TextEditingController(text: list.name);
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor:
+              widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+          title: Text(
+            'Listeyi Yeniden Adlandır',
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Liste adı',
+              border: const OutlineInputBorder(),
+              hintStyle: TextStyle(
+                color: widget.isDarkMode ? Colors.white38 : Colors.black38,
+              ),
+            ),
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('İptal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = controller.text.trim();
+                if (name.isEmpty) return;
+                await _service.renameList(list.id, name);
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                _loadData();
+              },
+              child: const Text('Kaydet'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _navigateToList(CustomWordList list) async {
+    if (_loadingListId != null) return;
+
+    setState(() {
+      _loadingListId = list.id;
+    });
+
+    try {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => WordListDetailScreen(
+            list: list,
+            isDarkMode: widget.isDarkMode,
+          ),
+        ),
+      );
+      _loadData();
+    } finally {
+      if (mounted) {
+        setState(() {
+          _loadingListId = null;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDarkMode;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF000000) : const Color(0xFFF2F2F7),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF007AFF),
+        elevation: 0,
+        title: const Text(
+          'Kelimelerim',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _lists.isEmpty
+              ? _buildEmptyState(isDark)
+              : Column(
+                  children: [
+                    Expanded(
+                      // Listeleri sıralanabilir yap
+                      child: ReorderableListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        itemCount: _lists.length,
+                        onReorder: (oldIndex, newIndex) async {
+                          setState(() {
+                            if (oldIndex < newIndex) {
+                              newIndex -= 1;
+                            }
+                            final item = _lists.removeAt(oldIndex);
+                            _lists.insert(newIndex, item);
+                          });
+                          await _service.saveListsOrder(_lists);
+                        },
+                        proxyDecorator: (child, index, animation) {
+                          return AnimatedBuilder(
+                            animation: animation,
+                            builder: (BuildContext context, Widget? child) {
+                              return Material(
+                                elevation: 8,
+                                color: Colors.transparent,
+                                shadowColor: Colors.black.withOpacity(0.2),
+                                child: child,
+                              );
+                            },
+                            child: child,
+                          );
+                        },
+                        itemBuilder: (context, index) {
+                          final list = _lists[index];
+                          final wordCount = _wordCounts[list.id] ?? 0;
+                          // Key gerekli ReorderableListView için
+                          return Container(
+                            key: ValueKey(list.id),
+                            child: _buildListCard(list, wordCount, index, isDark),
+                          );
+                        },
+                      ),
+                    ),
+                    // Alt kısımda liste ekleme butonu
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton.icon(
+                          onPressed: _showAddListDialog,
+                          icon: const Icon(Icons.add, size: 20),
+                          label: const Text(
+                            'Yeni Liste Oluştur',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF007AFF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildEmptyState(bool isDark) {
+    return Column(
+      children: [
+        Expanded(
+          child: Center(
+            child: Text(
+              'Henüz liste yok',
+              style: TextStyle(
+                fontSize: 16,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+            ),
+          ),
+        ),
+        // Alt kısımda liste ekleme butonu
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton.icon(
+              onPressed: _showAddListDialog,
+              icon: const Icon(Icons.add, size: 20),
+              label: const Text(
+                'Yeni Liste Oluştur',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF007AFF),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 0,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListCard(CustomWordList list, int wordCount, int index, bool isDark) {
+    final isDefaultList = list.name == 'Kaydedilenler';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _navigateToList(list),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                // Liste adı ve kelime sayısı
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        list.name,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '$wordCount kelime',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Sağ taraf - İşlemler menüsü
+                if (_loadingListId == list.id)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_horiz,
+                      color: isDark ? Colors.white38 : Colors.black38,
+                    ),
+                    color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    onSelected: (value) {
+                      if (value == 'rename') {
+                        _showRenameListDialog(list);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(list, isDark);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'rename',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit, size: 18, color: isDark ? Colors.white : Colors.black87),
+                            const SizedBox(width: 12),
+                            Text('Yeniden Adlandır', style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
+                          ],
+                        ),
+                      ),
+                      if (!isDefaultList) // Varsayılan liste silinemez
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                              const SizedBox(width: 12),
+                              const Text('Sil', style: TextStyle(fontSize: 14, color: Colors.red)),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showDeleteDialog(CustomWordList list, bool isDark) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+          title: Text(
+            'Listeyi Sil',
+            style: TextStyle(
+              color: isDark ? Colors.white : Colors.black,
+            ),
+          ),
+          content: Text(
+            '"${list.name}" silinsin mi?\nİçindeki tüm kelimeler de silinecek.',
+            style: TextStyle(
+              color: isDark ? Colors.white70 : Colors.black87,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('İptal'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text(
+                'Sil',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _service.deleteList(list.id);
+      _loadData();
+    }
+  }
+}
+
+/// Kelime Listesi Detay Ekranı - TextWordsScreen ile aynı UI
+class WordListDetailScreen extends StatefulWidget {
+  final CustomWordList list;
+  final bool isDarkMode;
+
+  const WordListDetailScreen({
+    super.key,
+    required this.list,
+    required this.isDarkMode,
+  });
+
+  @override
+  State<WordListDetailScreen> createState() => _WordListDetailScreenState();
+}
+
+class _WordListDetailScreenState extends State<WordListDetailScreen> {
+  final CustomWordService _service = CustomWordService();
+  final TTSService _ttsService = TTSService();
+  List<CustomWord> _words = [];
+  bool _isLoading = true;
+  bool _isCardMode = false; // Varsayılan: Liste görünümü
+  int _currentCardIndex = 0;
+  late PageController _pageController;
+  bool _showMeaning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _loadWords();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _ttsService.stop();
+    super.dispose();
+  }
+
+  Future<void> _loadWords() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    final words = await _service.getWordsByList(widget.list.id);
+    if (!mounted) return;
+    setState(() {
+      _words = words;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _showAddInfo() async {
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor:
+              widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+          title: Text(
+            'Bilgi',
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          content: Text(
+            'Bu listeye kelime eklemek için "Sözlük" bölümünü kullanabilirsiniz.\n\nSözlükte aradığınız kelimenin kartındaki + butonuna basarak bu listeye ekleyebilirsiniz.',
+            style: TextStyle(
+              color: widget.isDarkMode ? Colors.white70 : Colors.black87,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Tamam'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _removeWord(CustomWord word) async {
+    await _service.deleteWord(word.id);
+    _loadWords();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${word.arabic} listeden çıkarıldı'),
+          action: SnackBarAction(
+            label: 'Geri Al',
+            onPressed: () async {
+                // Geri alma işlemi için kelimeyi tekrar ekle (WordModel ile)
+                final wordModel = word.toWordModel();
+                await _service.addWordFromModel(wordModel, widget.list.id);
+                _loadWords();
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = widget.isDarkMode;
+
+    return Scaffold(
+      backgroundColor: isDark ? const Color(0xFF000000) : const Color(0xFFF2F2F7),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF007AFF),
+        elevation: 0,
+        title: Text(
+          widget.list.name,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _words.isEmpty
+              ? Center(
+                  child: Text(
+                    'Bu listede henüz kelime yok',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                )
+              : Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildViewToggle(isDark),
+                    const SizedBox(height: 8),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: _isCardMode
+                            ? _buildCardView(isDark)
+                            : _buildListView(isDark),
+                      ),
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildViewToggle(bool isDarkMode) {
+    // ... (Mevcut kod aynı)
+    final Color activeColor = const Color(0xFF007AFF);
+    final Color bgColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
+    final Color borderColor = isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
+    final Color inactiveText = isDarkMode ? const Color(0xFFEBEBF5) : const Color(0xFF1C1C1E);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  // Soldaki: Liste
+                  if (_isCardMode) {
+                    setState(() {
+                      _isCardMode = false;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    color: !_isCardMode ? activeColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Liste',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: !_isCardMode ? Colors.white : inactiveText,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  // Sağdaki: Kart
+                  if (!_isCardMode) {
+                    _pageController.dispose();
+                    _pageController = PageController(initialPage: _currentCardIndex);
+                    setState(() {
+                      _isCardMode = true;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _isCardMode ? activeColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Kart',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _isCardMode ? Colors.white : inactiveText,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListView(bool isDarkMode) {
+    // ReorderableListView ile sıralama özelliği
+    return ReorderableListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+      itemCount: _words.length,
+      onReorder: (oldIndex, newIndex) async {
+        setState(() {
+          if (oldIndex < newIndex) {
+            newIndex -= 1;
+          }
+          final item = _words.removeAt(oldIndex);
+          _words.insert(newIndex, item);
+        });
+        // Yeni sırayı kaydet
+        await _service.saveReorderedWords(_words);
+      },
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (BuildContext context, Widget? child) {
+            return Material(
+              elevation: 8,
+              color: Colors.transparent,
+              shadowColor: Colors.black.withOpacity(0.2),
+              child: child,
+            );
+          },
+          child: child,
+        );
+      },
+      itemBuilder: (context, index) {
+        final word = _words[index];
+        // CustomWord'den tam WordModel oluştur (tüm bilgilerle)
+        final wordModel = word.toWordModel();
+        // Harekeli kelime varsa onu kullan
+        final displayWord = wordModel.harekeliKelime?.isNotEmpty == true 
+            ? wordModel.harekeliKelime! 
+            : wordModel.kelime;
+
+        return Container(
+          key: ValueKey('result_${word.arabic}_$index'), // Key unique olmalı
+          margin: const EdgeInsets.only(bottom: 8),
+          child: SearchResultCard(
+            word: wordModel,
+            onTap: () {
+              _ttsService.speak(displayWord);
+            },
+            onExpand: () {
+              FocusScope.of(context).unfocus();
+            },
+            showAddButton: false, // Listede zaten var
+            showRemoveButton: true, // Listeden çıkarma butonu aktif
+            onRemove: () => _removeWord(word), // Çıkarma işlemi
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showDeleteWordDialog(CustomWord word, bool isDarkMode) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+        title: Text('Kelimeyi Sil', style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+        content: Text('"${word.arabic}" silinsin mi?', style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('İptal')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Sil', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _service.deleteWord(word.id);
+      _loadWords();
+    }
+  }
+
+  Widget _buildCardView(bool isDarkMode) {
+    final Color cardColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
+    final Color subTextColor = isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70);
+
+    if (_words.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final int safeIndex = _currentCardIndex.clamp(0, _words.length - 1);
+    if (safeIndex != _currentCardIndex) {
+      _currentCardIndex = safeIndex;
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification && _showMeaning) {
+                  setState(() {
+                    _showMeaning = false;
+                  });
+                }
+                return false;
+              },
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: _words.length,
+                physics: const BouncingScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentCardIndex = index;
+                    _showMeaning = false;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final word = _words[index];
+                  // CustomWord'den tam WordModel oluştur
+                  final wordModel = word.toWordModel();
+                  // Harekeli kelime varsa onu kullan
+                  final displayWord = wordModel.harekeliKelime?.isNotEmpty == true 
+                      ? wordModel.harekeliKelime! 
+                      : wordModel.kelime;
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    curve: Curves.easeOut,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode
+                              ? Colors.black.withOpacity(0.35)
+                              : Colors.black.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        setState(() {
+                          _showMeaning = !_showMeaning;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 80),
+                                child: _showMeaning
+                                    ? Column(
+                                        key: const ValueKey('meaning'),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            word.turkish,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 21,
+                                              fontWeight: FontWeight.w600,
+                                              color: textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        key: const ValueKey('word'),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            displayWord,
+                                            textAlign: TextAlign.center,
+                                            textDirection: TextDirection.rtl,
+                                            style: GoogleFonts.scheherazadeNew(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.w700,
+                                              color: textColor,
+                                              height: 1.2,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          if (index == 0)
+                                            Text(
+                                              'Anlam için karta dokun',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: subTextColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        // Slider navigasyon - TextWordsScreen ile aynı
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFF2F2F7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${safeIndex + 1} / ${_words.length}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: _currentCardIndex > 0
+                            ? () {
+                                _pageController.animateToPage(
+                                  _currentCardIndex - 1,
+                                  duration: const Duration(milliseconds: 140),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.chevron_left_rounded,
+                            size: 28,
+                            color: _currentCardIndex > 0
+                                ? (isDarkMode ? Colors.white : const Color(0xFF1C1C1E))
+                                : subTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 4,
+                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 2, pressedElevation: 4),
+                          overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                          activeTrackColor: const Color(0xFF007AFF),
+                          inactiveTrackColor: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+                          thumbColor: const Color(0xFF007AFF),
+                          overlayColor: const Color(0xFF007AFF).withOpacity(0.2),
+                          trackShape: const RoundedRectSliderTrackShape(),
+                        ),
+                        child: Slider(
+                          value: _currentCardIndex.toDouble(),
+                          min: 0,
+                          max: (_words.length - 1).toDouble(),
+                          divisions: _words.length > 1 ? _words.length - 1 : null,
+                          onChanged: (value) {
+                            final pageIndex = value.round();
+                            setState(() {
+                              _currentCardIndex = pageIndex;
+                              _showMeaning = false;
+                            });
+                            _pageController.jumpToPage(pageIndex);
+                          },
+                        ),
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: safeIndex < _words.length - 1
+                            ? () {
+                                _pageController.animateToPage(
+                                  _currentCardIndex + 1,
+                                  duration: const Duration(milliseconds: 140),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            size: 28,
+                            color: safeIndex < _words.length - 1
+                                ? (isDarkMode ? Colors.white : const Color(0xFF1C1C1E))
+                                : subTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+

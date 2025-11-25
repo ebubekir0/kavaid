@@ -10,6 +10,7 @@ import '../services/book_lessons_service.dart';
 import '../services/book_store_service.dart';
 import '../services/book_purchase_service.dart';
 import 'book_texts_screen.dart';
+import 'custom_words_screen.dart';
 import 'profile_screen.dart';
 
 class LearningScreen extends StatefulWidget {
@@ -178,7 +179,10 @@ class _LearningScreenState extends State<LearningScreen> {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemBuilder: (ctx, index) {
-        final book = books[index];
+        if (index == 0) {
+          return _buildCustomWordsCard(isDarkMode);
+        }
+        final book = books[index - 1];
         final displayTitle = book.title.replaceAll(RegExp(r'[.…]+'), '');
         final purchased = _bookStore.isPurchased(book.id);
         final cardColor = isDarkMode ? const Color(0xFF1C1C1E) : Colors.white;
@@ -361,7 +365,77 @@ class _LearningScreenState extends State<LearningScreen> {
         );
       },
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemCount: books.length,
+      itemCount: books.length + 1,
+    );
+  }
+
+  Widget _buildCustomWordsCard(bool isDarkMode) {
+    final cardColor = isDarkMode ? const Color(0xFF1C1C1E) : Colors.white;
+    final borderColor = isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
+    final titleColor = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
+    final subColor = isDarkMode ? Colors.white70 : Colors.black54;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CustomWordsScreen(isDarkMode: isDarkMode),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: cardColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: borderColor),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 64,
+                height: 84,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF007AFF).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.bookmarks_rounded,
+                    size: 32,
+                    color: Color(0xFF007AFF),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Kelimelerim',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: titleColor,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Kaydettiğin ve eklediğin kelimeler',
+                      style: TextStyle(fontSize: 12, color: subColor),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.grey),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

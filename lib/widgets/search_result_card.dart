@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../models/word_model.dart';
-import '../services/saved_words_service.dart';
 import '../services/credits_service.dart';
 import '../services/admob_service.dart';
 import '../utils/performance_utils.dart';
@@ -15,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
+import '../services/custom_word_service.dart'; // Import for custom lists
+
 
 // PERFORMANCE: Font'ları cache'le
 class _FontCache {
@@ -58,9 +59,11 @@ class SearchResultCard extends StatefulWidget {
   final VoidCallback? onExpand;
   // Optional controls for consumers
   final bool showExpandButton;
-  final bool showBookmarkButton;
   final bool enableExpand; // controls tap-to-expand behavior
   final String? searchQuery; // Arama kelimesi vurgulamak için
+  final bool showAddButton;
+  final bool showRemoveButton;
+  final VoidCallback? onRemove;
 
   const SearchResultCard({
     super.key,
@@ -68,9 +71,11 @@ class SearchResultCard extends StatefulWidget {
     required this.onTap,
     this.onExpand,
     this.showExpandButton = true,
-    this.showBookmarkButton = true,
     this.enableExpand = true,
     this.searchQuery, // Arama kelimesi parametresi
+    this.showAddButton = true,
+    this.showRemoveButton = false,
+    this.onRemove,
   });
 
   @override
@@ -78,7 +83,7 @@ class SearchResultCard extends StatefulWidget {
 }
 
 class _SearchResultCardState extends State<SearchResultCard> with SingleTickerProviderStateMixin { // PERFORMANCE: Single ticker
-  final SavedWordsService _savedWordsService = SavedWordsService();
+  final CustomWordService _customWordService = CustomWordService(); // Service instance
   final CreditsService _creditsService = CreditsService();
   final TTSService _ttsService = TTSService();
   final AdMobService _adMobService = AdMobService();
@@ -86,6 +91,10 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
   bool _isExpanded = false;
   bool _hasEverExpanded = false; // İlk defa açılma durumu için
   
+  // Kayıt durumu
+  bool _isSaved = false;
+  List<String> _savedListIds = []; // Hangi listelerde kayıtlı
+
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
   Animation<double>? _expandAnimation;
@@ -95,6 +104,20 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
   void initState() {
     super.initState();
     // Animasyonu hemen başlatma - sadece gerektiğinde init et
+    // Sadece sözlük görünümündeyse (showRemoveButton false ise) kayıt durumunu kontrol et
+    if (!widget.showRemoveButton) {
+      _checkSavedStatus();
+    }
+  }
+
+  Future<void> _checkSavedStatus() async {
+    if (!mounted) return;
+    final listIds = await _customWordService.getListsWithWord(widget.word.kelime);
+    if (!mounted) return;
+    setState(() {
+      _savedListIds = listIds;
+      _isSaved = listIds.isNotEmpty;
+    });
   }
 
   @override
@@ -205,37 +228,6 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
     }
   }
 
-  Future<void> _toggleSaved(bool isSaved) async {
-    if (!mounted) return;
-
-    try {
-      // Google hesabı ile giriş zorunluluğu
-      if (AuthService().currentUser == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text(
-                'Kelime kaydetmek için önce giriş yapın',
-                style: TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.black87,
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.fixed,
-            ),
-          );
-        }
-        return;
-      }
-      if (isSaved) {
-        await _savedWordsService.removeWord(widget.word);
-      } else {
-        await _savedWordsService.saveWord(widget.word);
-      }
-    } catch (e) {
-      print('Toggle saved error: $e');
-    }
-  }
-  
   Future<void> _speakArabic() async {
     // Analytics event gönder
     await TurkceAnalyticsService.kelimeTelaffuzEdildi(widget.word.kelime);
@@ -509,8 +501,8 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (widget.showExpandButton) _buildExpandButton(isDarkMode),
+                if (widget.showAddButton || widget.showRemoveButton) _buildActionButton(isDarkMode), // Genel action butonu
                 _buildSpeakButton(isDarkMode),
-                if (widget.showBookmarkButton) _buildBookmarkButton(isDarkMode),
               ],
             ),
           ],
@@ -518,36 +510,31 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
       ),
     );
   }
-  
-  // PERFORMANCE: Bookmark button'ı optimize et
-  Widget _buildBookmarkButton(bool isDarkMode) {
-    return ValueListenableBuilder<bool>(
-      valueListenable: _savedWordsService.isWordSavedNotifier(widget.word),
-      builder: (context, isSaved, child) {
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () => _toggleSaved(isSaved),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
-              width: 28, // Sıkılaştırma için genişlik ayarlandı.
-              height: 28, // Sıkılaştırma için yükseklik ayarlandı.
-              alignment: Alignment.center,
-              child: Icon(
-                isSaved ? Icons.bookmark : Icons.bookmark_border,
-                color: isSaved
-                    ? const Color(0xFF007AFF)
-                    : (isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70)),
-                size: 20,
-              ),
+
+  Widget _buildExpandButton(bool isDarkMode) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _toggleExpanded,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          child: AnimatedRotation(
+            turns: _isExpanded ? 0.5 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+              size: 22,
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
-  
-  // Telaffuz butonu
+
   Widget _buildSpeakButton(bool isDarkMode) {
     return Material(
       color: Colors.transparent,
@@ -555,8 +542,8 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
         onTap: _speakArabic,
         borderRadius: BorderRadius.circular(14),
         child: Container(
-          width: 28, // Eski boyut
-          height: 28, // Eski boyut
+          width: 28,
+          height: 28,
           alignment: Alignment.center,
           child: Icon(
             Icons.volume_up,
@@ -567,34 +554,7 @@ class _SearchResultCardState extends State<SearchResultCard> with SingleTickerPr
       ),
     );
   }
-  
-  Widget _buildExpandButton(bool isDarkMode) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: _toggleExpanded,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          width: 28, // Sıkılaştırma için genişlik ayarlandı.
-          height: 28, // Sıkılaştırma için yükseklik ayarlandı.
-          alignment: Alignment.center,
-          child: AnimatedRotation(
-            turns: _isExpanded ? 0.5 : 0,
-            duration: const Duration(milliseconds: 200),
-            child: Icon(
-              Icons.keyboard_arrow_down,
-              color: isDarkMode
-                  ? const Color(0xFF8E8E93)
-                  : const Color(0xFF6D6D70),
-              size: 22,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  
   // PERFORMANCE: Genişletilmiş içeriği optimize et
   Widget _buildExpandedContent(bool isDarkMode) {
     return Container(
@@ -1199,9 +1159,158 @@ Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
             ),
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
           ),
         ],
       ),
     );
   }
-} 
+
+  Widget _buildActionButton(bool isDarkMode) {
+    final isRemove = widget.showRemoveButton;
+    
+    // İkon ve Renkler
+    IconData iconData;
+    Color iconColor;
+    
+    if (isRemove) {
+      // Listelerim ekranı - Çıkarma butonu (Sade kırmızı çöp kutusu veya eksi)
+      iconData = Icons.remove_circle_outline;
+      iconColor = const Color(0xFFFF3B30); // Kırmızı
+    } else {
+      // Sözlük ekranı - Kaydetme butonu (Bookmark)
+      if (_isSaved) {
+        // Kayıtlı ise dolu bookmark
+        iconData = Icons.bookmark;
+        iconColor = const Color(0xFF007AFF); // Mavi
+      } else {
+        // Kayıtlı değilse boş bookmark
+        iconData = Icons.bookmark_border;
+        iconColor = isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70); // Gri
+      }
+    }
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isRemove ? widget.onRemove : _showAddToListDialog,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0), // Dokunma alanını genişlet
+          child: Icon(
+            iconData,
+            color: iconColor,
+            size: 28, // Belirgin boyut
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showAddToListDialog() async {
+    if (!mounted) return;
+    
+    final lists = await _customWordService.getLists();
+    // Mevcut kelimenin hangi listelerde olduğunu tekrar kontrol et
+    final currentSavedLists = await _customWordService.getListsWithWord(widget.word.kelime);
+    
+    if (!mounted) return;
+
+    if (lists.isEmpty) {
+        final defaultList = await _customWordService.createList('Kaydedilenler');
+        lists.add(defaultList);
+    }
+
+    // Geçici seçim durumu (UI anlık güncellensin diye)
+    // Dialog içinde setState kullanabilmek için StatefulBuilder gerekiyor
+    
+    await showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        final isDarkMode = Theme.of(ctx).brightness == Brightness.dark;
+        
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(ctx).scaffoldBackgroundColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Listeye Ekle',
+                        style: TextStyle(
+                          fontSize: 18, 
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: lists.length,
+                      itemBuilder: (context, index) {
+                        final list = lists[index];
+                        final isSelected = currentSavedLists.contains(list.id);
+                        
+                        return ListTile(
+                          title: Text(list.name, style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
+                          leading: Icon(
+                            isSelected ? Icons.check_circle : Icons.circle_outlined,
+                            color: isSelected ? const Color(0xFF007AFF) : (isDarkMode ? Colors.grey : Colors.black54)
+                          ),
+                          onTap: () async {
+                            if (isSelected) {
+                              // Listeden çıkar
+                              await _customWordService.removeWordFromList(widget.word.kelime, list.id);
+                              currentSavedLists.remove(list.id);
+                            } else {
+                              // Listeye ekle
+                              await _customWordService.addWordFromModel(widget.word, list.id);
+                              currentSavedLists.add(list.id);
+                            }
+                            
+                            // Sheet UI güncelle
+                            setSheetState(() {});
+                            
+                            // Ana ekran durumu güncelle
+                            if (mounted) {
+                                _checkSavedStatus();
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        );
+      },
+    );
+    // Dialog kapandığında son durumu kontrol et
+    if (mounted) {
+      _checkSavedStatus();
+    }
+  }
+}

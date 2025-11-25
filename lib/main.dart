@@ -10,7 +10,6 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'dart:io' show Platform;
 import 'services/connectivity_service.dart';
 import 'screens/home_screen.dart';
-import 'screens/saved_words_screen.dart';
 import 'screens/learning_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/community_chat_screen.dart';
@@ -164,7 +163,7 @@ void _initializeCriticalServicesBackground() {
     debugPrint('✅ CreditsService kritik aşamada başlatıldı: Premium: ${creditsService.isPremium}');
     
     // Kullanıcı adı migration'ı arka planda çalıştır
-    _runUsernameMigration();
+    // _runUsernameMigration();
 
     // Kritik servisleri paralel başlat - hiçbiri ana thread'i bloke etmesin
     final criticalFutures = [
@@ -866,7 +865,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  VoidCallback? _refreshSavedWords;
   bool _showArabicKeyboard = false;
   bool _isFirstOpen = true;
   final ConnectivityService _connectivityService = ConnectivityService();
@@ -1008,8 +1006,8 @@ class _MainScreenState extends State<MainScreen> {
         _communityEnabled = enabled;
         
         // Sadece zorunlu durum: Topluluk sekmesindeyken kapatlırsa profil'e git
-        if (!enabled && _currentIndex == 3) {
-          _currentIndex = 4; // Profil sekmesi (IndexedStack'te)
+        if (!enabled && _currentIndex == 2) {
+          _currentIndex = 3; // Profil sekmesi (IndexedStack'te)
         }
         // Diğer durumlarda _currentIndex'i değiştirme!
         // Kullanıcı hangi sekmede ise orada kalsın
@@ -1023,9 +1021,9 @@ class _MainScreenState extends State<MainScreen> {
       // Topluluk açık: direk mapping
       return navIndex;
     } else {
-      // Topluluk kapalı: index 3+ için +1 ekle
-      if (navIndex >= 3) {
-        return navIndex + 1; // Profil 3->4, Console 4->5
+      // Topluluk kapalı: index 2+ için +1 ekle (Topluluk index 2 olduğu için)
+      if (navIndex >= 2) {
+        return navIndex + 1; // Profil 2->3, Console 3->4
       }
       return navIndex;
     }
@@ -1037,9 +1035,9 @@ class _MainScreenState extends State<MainScreen> {
       // Topluluk açık: direk mapping
       return stackIndex;
     } else {
-      // Topluluk kapalı: index 4+ için -1 çıkar
-      if (stackIndex >= 4) {
-        return stackIndex - 1; // Profil 4->3, Console 5->4
+      // Topluluk kapalı: index 3+ için -1 çıkar
+      if (stackIndex >= 3) {
+        return stackIndex - 1; // Profil 3->2, Console 4->3
       }
       return stackIndex;
     }
@@ -1052,7 +1050,7 @@ class _MainScreenState extends State<MainScreen> {
     // Aynı sekmeye tıklanırsa: özel davranış
     if (realIndex == _currentIndex) {
       // Öğren sekmesi zaten açıkken tekrar tıklanırsa köke dön
-      if (realIndex == 2) {
+      if (realIndex == 1) {
         final nav = _learningTabNavKey.currentState;
         nav?.popUntil((route) => route.isFirst);
       }
@@ -1067,11 +1065,6 @@ class _MainScreenState extends State<MainScreen> {
     try {
       AdMobService().onWordCardOpenedAdRequest();
     } catch (_) {}
-
-    // Kaydedilenler sekmesine geçildiğinde listeyi yenile
-    if (realIndex == 1 && _refreshSavedWords != null) {
-      _refreshSavedWords!();
-    }
 
     // İlk açılış durumunu sıfırla (sekme değişiminde)
     if (_isFirstOpen && index != 0) {
@@ -1090,13 +1083,13 @@ class _MainScreenState extends State<MainScreen> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final hasSystemKeyboard = keyboardHeight > 0;
     const navBarHeight = 56.0;
-    // 🔧 ANDROID 15 FIX: System navigation bar yüksekliğini hesapla
+    // ANDROID 15 FIX: System navigation bar yüksekliğini hesapla
     final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
     
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        // 📱 STATUS BAR: Tema uyumlu renk ayarları
+        // STATUS BAR: Tema uyumlu renk ayarları
         statusBarColor: widget.isDarkMode 
             ? const Color(0xFF1C1C1E)  // Dark tema için siyah
             : const Color(0xFF007AFF), // Light tema için ana mavi
@@ -1120,7 +1113,7 @@ class _MainScreenState extends State<MainScreen> {
             return false;
           }
           // Öğren sekmesindeki iç Navigator geri gidebiliyorsa önce onu pop et
-          if (_currentIndex == 2) {
+          if (_currentIndex == 1) {
             if (_learningTabNavKey.currentState?.canPop() == true) {
               _learningTabNavKey.currentState!.pop();
               return false; // Uygulamadan çıkma
@@ -1171,17 +1164,8 @@ class _MainScreenState extends State<MainScreen> {
                         },
                       ),
 
-                      // 1: Kaydedilenler - sadece aktifken oluştur
+                      // 1: Öğren (iç Navigator) - sadece aktifken oluştur
                       _currentIndex == 1
-                          ? SavedWordsScreen(
-                              key: const ValueKey('saved_words_screen'),
-                              bottomPadding: totalBottomPadding,
-                              onRefreshCallback: (callback) => _refreshSavedWords = callback,
-                            )
-                          : const SizedBox.shrink(),
-
-                      // 2: Öğren (iç Navigator) - sadece aktifken oluştur
-                      _currentIndex == 2
                           ? Padding(
                               key: const ValueKey('learning_screen'),
                               padding: EdgeInsets.only(bottom: totalBottomPadding),
@@ -1201,8 +1185,8 @@ class _MainScreenState extends State<MainScreen> {
                             )
                           : const SizedBox.shrink(),
 
-                      // 3: Topluluk - sadece aktifken oluştur
-                      _currentIndex == 3
+                      // 2: Topluluk - sadece aktifken oluştur
+                      _currentIndex == 2
                           ? (_communityEnabled
                               ? CommunityChatScreen(
                                   key: const ValueKey('community_screen'),
@@ -1212,8 +1196,8 @@ class _MainScreenState extends State<MainScreen> {
                               : _buildErrorScreen('Topluluk sekmesi devre dışı'))
                           : const SizedBox.shrink(),
 
-                      // 4: Profil - sadece aktifken oluştur
-                      _currentIndex == 4
+                      // 3: Profil - sadece aktifken oluştur
+                      _currentIndex == 3
                           ? ProfileScreen(
                               key: const ValueKey('profile_screen'),
                               bottomPadding: totalBottomPadding,
@@ -1223,8 +1207,8 @@ class _MainScreenState extends State<MainScreen> {
                             )
                           : const SizedBox.shrink(),
 
-                      // 5: Admin Console - sadece aktifken oluştur
-                      _currentIndex == 5
+                      // 4: Admin Console - sadece aktifken oluştur
+                      _currentIndex == 4
                           ? (_adminService.isAdmin()
                               ? AdminConsoleScreen(
                                   key: const ValueKey('admin_screen'),
@@ -1245,10 +1229,10 @@ class _MainScreenState extends State<MainScreen> {
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
             // Topluluk ekranında veya Admin Console'da banner üstte, diğerlerinde altta
-            top: (_communityEnabled && _currentIndex == 3) || (_adminService.isAdmin() && _currentIndex == 5)
+            top: (_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)
                 ? MediaQuery.of(context).viewPadding.top 
                 : null,
-            bottom: ((_communityEnabled && _currentIndex == 3) || (_adminService.isAdmin() && _currentIndex == 5)) 
+            bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)) 
                 ? null 
                 : (hasSystemKeyboard
                     ? keyboardHeight  // Klavye açıkken direkt klavyenin üstünde - nav bar hesaplama
@@ -1277,10 +1261,10 @@ class _MainScreenState extends State<MainScreen> {
               duration: const Duration(milliseconds: 100),
               curve: Curves.easeOut,
               // Topluluk veya Admin Console ekranında üstte, diğerlerinde altta
-              top: ((_communityEnabled && _currentIndex == 3) || (_adminService.isAdmin() && _currentIndex == 5))
+              top: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
                   ? MediaQuery.of(context).viewPadding.top + _bannerHeight - 10
                   : null,
-              bottom: ((_communityEnabled && _currentIndex == 3) || (_adminService.isAdmin() && _currentIndex == 5))
+              bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
                   ? null 
                   : (hasSystemKeyboard
                       ? keyboardHeight + _bannerHeight - 10  // Klavye açıkken banner'ın 10px üstünde
@@ -1313,7 +1297,7 @@ class _MainScreenState extends State<MainScreen> {
             height: navBarHeight + MediaQuery.of(context).viewPadding.bottom,
             child: RepaintBoundary(
               child: Container(
-                // 🔧 ANDROID 15 FIX: System navigation bar padding eklendi
+                // ANDROID 15 FIX: System navigation bar padding eklendi
                 padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewPadding.bottom),
                 decoration: BoxDecoration(
                   color: widget.isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
@@ -1354,11 +1338,6 @@ class _MainScreenState extends State<MainScreen> {
                       label: 'Sözlük',
                     ),
                     BottomNavigationBarItem(
-                      icon: const Icon(Icons.bookmark_border),
-                      activeIcon: const Icon(Icons.bookmark),
-                      label: 'Kaydedilenler',
-                    ),
-                    BottomNavigationBarItem(
                       icon: const Icon(Icons.school_outlined),
                       activeIcon: const Icon(Icons.school),
                       label: 'Öğren',
@@ -1389,90 +1368,9 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      ),
     ),
-  );
-  }
-
-  /// 🚀 PERFORMANCE: Sadece aktif sekmeyi göster (IndexedStack yerine)
-  Widget _buildActiveScreen() {
-    const navBarHeight = 56.0;
-    final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
-    final totalBottomPadding = _bannerHeight + navBarHeight + systemNavBarHeight;
-
-    switch (_currentIndex) {
-      case 0: // Ana Sekme - Sözlük
-        return HomeScreen(
-          key: const ValueKey('home_screen'),
-          isActive: true,
-          bottomPadding: totalBottomPadding,
-          isDarkMode: widget.isDarkMode,
-          onThemeToggle: widget.onThemeToggle,
-          onArabicKeyboardStateChanged: _setArabicKeyboardState,
-          isFirstOpen: _isFirstOpen,
-          onKeyboardOpened: () {
-            if (_isFirstOpen) setState(() => _isFirstOpen = false);
-          },
-        );
-
-      case 1: // Kaydedilenler
-        return SavedWordsScreen(
-          key: const ValueKey('saved_words_screen'),
-          bottomPadding: totalBottomPadding,
-          onRefreshCallback: (callback) => _refreshSavedWords = callback,
-        );
-
-      case 2: // Öğren - Navigator ile
-        return Padding(
-          key: const ValueKey('learning_screen'),
-          padding: EdgeInsets.only(bottom: totalBottomPadding),
-          child: Navigator(
-            key: _learningTabNavKey,
-            onGenerateRoute: (settings) {
-              return MaterialPageRoute(
-                builder: (_) => LearningScreen(
-                  bottomPadding: 0,
-                  isDarkMode: widget.isDarkMode,
-                  onThemeToggle: widget.onThemeToggle,
-                ),
-                settings: settings,
-              );
-            },
-          ),
-        );
-
-      case 3: // Topluluk (sadece enabled ise)
-        if (_communityEnabled) {
-          return CommunityChatScreen(
-            key: const ValueKey('community_screen'),
-            topPadding: _bannerHeight,
-            bottomPadding: navBarHeight + systemNavBarHeight,
-          );
-        }
-        return _buildErrorScreen('Topluluk sekmesi devre dışı');
-
-      case 4: // Profil
-        return ProfileScreen(
-          key: const ValueKey('profile_screen'),
-          bottomPadding: totalBottomPadding,
-          isDarkMode: widget.isDarkMode,
-          onThemeToggle: widget.onThemeToggle,
-          onCommunityToggle: _onCommunityToggleChanged,
-        );
-
-      case 5: // Admin Console
-        if (_adminService.isAdmin()) {
-          return AdminConsoleScreen(
-            key: const ValueKey('admin_screen'),
-            topPadding: _bannerHeight,
-            bottomPadding: navBarHeight + systemNavBarHeight,
-          );
-        }
-        return _buildErrorScreen('Admin yetkisi gerekli');
-
-      default:
-        return _buildErrorScreen('Geçersiz sekme: $_currentIndex');
-    }
+  ),
+);
   }
 
   Widget _buildErrorScreen(String message) {

@@ -624,7 +624,12 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
   final BookLessonsService _lessons = BookLessonsService();
   final TTSService _ttsService = TTSService();
   Future<String>? _titleFuture;
-  Future<List<BookWord>>? _wordsFuture;
+  List<WordModel> _words = [];
+  bool _isLoadingWords = true;
+  bool _isCardMode = false; // Varsayılan: Liste görünümü
+  int _currentCardIndex = 0;
+  late PageController _pageController;
+  bool _showMeaning = false;
 
   String _extractArabic(String title) {
     final start = title.indexOf('(');
@@ -667,17 +672,40 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.preloadedWords != null) {
-      _wordsFuture = Future.value(widget.preloadedWords);
-    } else {
-      _wordsFuture = _lessons.loadTextWords(bookId: widget.bookId, textId: widget.textId);
-    }
+    _pageController = PageController();
     _titleFuture = _loadDisplayTitle();
+    _loadWords();
+  }
+
+  Future<void> _loadWords() async {
+    try {
+      List<BookWord> items;
+      if (widget.preloadedWords != null) {
+        items = widget.preloadedWords!;
+      } else {
+        items = await _lessons.loadTextWords(bookId: widget.bookId, textId: widget.textId);
+      }
+      if (mounted) {
+        setState(() {
+          _words = items
+              .map((bw) => WordModel(kelime: bw.arabic, anlam: bw.turkish, tip: bw.type))
+              .toList();
+          _isLoadingWords = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingWords = false;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
     _ttsService.stop();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -753,53 +781,412 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
         backgroundColor: const Color(0xFF007AFF),
       ),
       backgroundColor: isDarkMode ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7),
-      body: FutureBuilder<List<BookWord>>(
-        future: _wordsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Kelimeler yüklenemedi.',
-                style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
+      body: _isLoadingWords
+          ? const Center(child: CircularProgressIndicator())
+          : _words.isEmpty
+              ? Center(
+                  child: Text(
+                    'Bu metin için kelime henüz eklenmedi.',
+                    style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
+                  ),
+                )
+              : Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildViewToggle(isDarkMode),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: _isCardMode
+                            ? _buildFlashcardView(_words, isDarkMode)
+                            : _buildListView(_words),
+                      ),
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildViewToggle(bool isDarkMode) {
+    final Color activeColor = const Color(0xFF007AFF);
+    final Color bgColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
+    final Color borderColor = isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
+    final Color inactiveText = isDarkMode ? const Color(0xFFEBEBF5) : const Color(0xFF1C1C1E);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: borderColor),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  // Soldaki buton: Liste
+                  if (_isCardMode) {
+                    setState(() {
+                      _isCardMode = false;
+                      _showMeaning = false;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    color: !_isCardMode ? activeColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Liste',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: !_isCardMode ? Colors.white : inactiveText,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            );
-          }
-          final items = snapshot.data ?? <BookWord>[];
-          if (items.isEmpty) {
-            return Center(
-              child: Text(
-                'Bu metin için kelime henüz eklenmedi.',
-                style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
-              ),
-            );
-          }
-          // Sözlükteki arama kartı UI'si ile birebir: SearchResultCard kullan
-          final words = items
-              .map((bw) => WordModel(kelime: bw.arabic, anlam: bw.turkish, tip: bw.type))
-              .toList();
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: words.length,
-              itemBuilder: (c, i) {
-                return SearchResultCard(
-                  word: words[i],
-                  onTap: () {
-                    _ttsService.speak(words[i].kelime);
-                  },
-                  showExpandButton: false,
-                  showBookmarkButton: false,
-                  enableExpand: false,
-                );
-              },
             ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () {
+                  // Sağdaki buton: Kart
+                  if (!_isCardMode) {
+                    _pageController.dispose();
+                    _pageController = PageController(initialPage: _currentCardIndex);
+                    setState(() {
+                      _isCardMode = true;
+                      _showMeaning = false;
+                    });
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _isCardMode ? activeColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Kart',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _isCardMode ? Colors.white : inactiveText,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildListView(List<WordModel> words) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      child: ListView.builder(
+        padding: EdgeInsets.zero,
+        itemCount: words.length,
+        itemBuilder: (c, i) {
+          return SearchResultCard(
+            word: words[i],
+            onTap: () {
+              _ttsService.speak(words[i].kelime);
+            },
+            showExpandButton: false,
+            enableExpand: false,
           );
         },
       ),
+    );
+  }
+
+  Widget _buildFlashcardView(List<WordModel> words, bool isDarkMode) {
+    final Color cardColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
+    final Color subTextColor = isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70);
+
+    if (words.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final int safeIndex = _currentCardIndex.clamp(0, words.length - 1);
+    if (safeIndex != _currentCardIndex) {
+      _currentCardIndex = safeIndex;
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                if (notification is ScrollStartNotification && _showMeaning) {
+                  setState(() {
+                    _showMeaning = false;
+                  });
+                }
+                return false;
+              },
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: words.length,
+                physics: const BouncingScrollPhysics(),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentCardIndex = index;
+                    _showMeaning = false;
+                  });
+                },
+                itemBuilder: (context, index) {
+                  final word = words[index];
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 120),
+                    curve: Curves.easeOut,
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode
+                              ? Colors.black.withOpacity(0.35)
+                              : Colors.black.withOpacity(0.08),
+                          blurRadius: 18,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () {
+                        setState(() {
+                          _showMeaning = !_showMeaning;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 8),
+                            Expanded(
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 80),
+                                child: _showMeaning
+                                    ? Column(
+                                        key: const ValueKey('meaning'),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            word.anlam ?? '',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 21,
+                                              fontWeight: FontWeight.w600,
+                                              color: textColor,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        key: const ValueKey('word'),
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            word.kelime,
+                                            textAlign: TextAlign.center,
+                                            style: GoogleFonts.scheherazadeNew(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.w700,
+                                              color: textColor,
+                                              height: 1.2,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          if (index == 0)
+                                            Text(
+                                              'Anlam için karta dokun',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: subTextColor,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+        // Unified navigation component with page number and slider
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Page number chip
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFF2F2F7),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${safeIndex + 1} / ${words.length}',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // Slider with arrow buttons on sides
+                Row(
+                  children: [
+                    // Left arrow button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: _currentCardIndex > 0
+                            ? () {
+                                final target = _currentCardIndex - 1;
+                                _pageController.animateToPage(
+                                  target,
+                                  duration: const Duration(milliseconds: 140),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.chevron_left_rounded,
+                            size: 28,
+                            color: _currentCardIndex > 0
+                                ? (isDarkMode ? Colors.white : const Color(0xFF1C1C1E))
+                                : subTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Slider
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 4,
+                          thumbShape: RoundSliderThumbShape(
+                            enabledThumbRadius: 10,
+                            elevation: 2,
+                            pressedElevation: 4,
+                          ),
+                          overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+                          activeTrackColor: const Color(0xFF007AFF),
+                          inactiveTrackColor: isDarkMode
+                              ? const Color(0xFF3A3A3C)
+                              : const Color(0xFFE5E5EA),
+                          thumbColor: const Color(0xFF007AFF),
+                          overlayColor: const Color(0xFF007AFF).withOpacity(0.2),
+                          trackShape: const RoundedRectSliderTrackShape(),
+                          tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 2),
+                          showValueIndicator: ShowValueIndicator.never,
+                        ),
+                        child: Slider(
+                          value: _currentCardIndex.toDouble(),
+                          min: 0,
+                          max: (words.length - 1).toDouble(),
+                          divisions: words.length > 1 ? words.length - 1 : null,
+                          onChanged: (value) {
+                            final pageIndex = value.round();
+                            setState(() {
+                              _currentCardIndex = pageIndex;
+                              _showMeaning = false;
+                            });
+                            _pageController.jumpToPage(pageIndex);
+                          },
+                          onChangeEnd: (value) {
+                            final pageIndex = value.round();
+                            _pageController.animateToPage(
+                              pageIndex,
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOut,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    // Right arrow button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: safeIndex < words.length - 1
+                            ? () {
+                                final target = _currentCardIndex + 1;
+                                _pageController.animateToPage(
+                                  target,
+                                  duration: const Duration(milliseconds: 140),
+                                  curve: Curves.easeOut,
+                                );
+                              }
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.chevron_right_rounded,
+                            size: 28,
+                            color: safeIndex < words.length - 1
+                                ? (isDarkMode ? Colors.white : const Color(0xFF1C1C1E))
+                                : subTextColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

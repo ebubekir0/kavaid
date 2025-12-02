@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     
+    <!-- Bildirimler için (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
     <!-- Image Picker için permission gerekli değil - Android Photo Picker kullanıyoruz -->
     <!-- Eski Android sürümleri için sadece sınırlı depolama erişimi -->
     <!-- NOT: Google Play Politikası gereği READ_MEDIA_IMAGES kaldırıldı -->

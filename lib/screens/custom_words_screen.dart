@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui' as ui;
+import 'dart:convert'; // Base64 ve JSON için eklendi
 
 import '../models/custom_word.dart';
 import '../models/custom_word_list.dart';
@@ -9,6 +10,8 @@ import '../services/custom_word_service.dart';
 import '../widgets/search_result_card.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
+import '../services/test_community_chat_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 /// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
 /// BookTextsScreen ile aynı UI yapısına sahip
@@ -239,15 +242,19 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(
+                color: const Color(0xFF007AFF),
+                strokeWidth: 2.5,
+              ),
+            )
           : _lists.isEmpty
               ? _buildEmptyState(isDark)
               : Column(
                   children: [
                     Expanded(
-                      // Listeler otomatik kelime sayısına göre sıralanır
                       child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                         itemCount: _lists.length,
                         itemBuilder: (context, index) {
                           final list = _lists[index];
@@ -264,7 +271,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                         height: 50,
                         child: ElevatedButton.icon(
                           onPressed: _showAddListDialog,
-                          icon: const Icon(Icons.add, size: 20),
+                          icon: const Icon(Icons.add_rounded, size: 20),
                           label: const Text(
                             'Yeni Liste Oluştur',
                             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -273,7 +280,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                             backgroundColor: const Color(0xFF007AFF),
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(14),
                             ),
                             elevation: 0,
                           ),
@@ -286,44 +293,72 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
   }
 
   Widget _buildEmptyState(bool isDark) {
-    return Column(
-      children: [
-        Expanded(
-          child: Center(
-            child: Text(
-              'Henüz liste yok',
-              style: TextStyle(
-                fontSize: 16,
-                color: isDark ? Colors.white70 : Colors.black54,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // İkon
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2E) : const Color(0xFFE5E5EA),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Icon(
+              Icons.folder_open_rounded,
+              size: 40,
+              color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Henüz liste yok',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.white : const Color(0xFF1C1C1E),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Kelimelerinizi düzenlemek için\nbir liste oluşturun',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 28),
+          // Liste ekleme butonu
+          GestureDetector(
+            onTap: _showAddListDialog,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF007AFF),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: const [
+                  Icon(Icons.add_rounded, size: 20, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Yeni Liste Oluştur',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ),
-        // Alt kısımda liste ekleme butonu
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton.icon(
-              onPressed: _showAddListDialog,
-              icon: const Icon(Icons.add, size: 20),
-              label: const Text(
-                'Yeni Liste Oluştur',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007AFF),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -332,18 +367,16 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
     final canDelete = _lists.length > 1;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 6),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
+        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
-          width: 1,
-        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 4,
+            color: isDark
+                ? Colors.black.withOpacity(0.2)
+                : Colors.black.withOpacity(0.06),
+            blurRadius: 12,
             offset: const Offset(0, 2),
           ),
         ],
@@ -354,10 +387,30 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           borderRadius: BorderRadius.circular(12),
           onTap: () => _navigateToList(list),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                // Liste adı ve kelime sayısı
+                // Sol - Mavi numara kutusu
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF007AFF),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${index + 1}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                // Orta - Liste adı ve kelime sayısı
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,7 +418,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                       Text(
                         list.name,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 15,
                           fontWeight: FontWeight.w600,
                           color: isDark ? Colors.white : const Color(0xFF1C1C1E),
                         ),
@@ -376,14 +429,14 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                       Text(
                         '$wordCount kelime',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 12,
                           color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
                         ),
                       ),
                     ],
                   ),
                 ),
-                // Sağ taraf - İşlemler menüsü
+                // Sağ - Loading veya 3 nokta menüsü
                 if (_loadingListId == list.id)
                   const SizedBox(
                     width: 20,
@@ -393,39 +446,58 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                 else
                   PopupMenuButton<String>(
                     icon: Icon(
-                      Icons.more_horiz,
-                      color: isDark ? Colors.white38 : Colors.black38,
+                      Icons.more_vert_rounded,
+                      color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93),
+                      size: 22,
                     ),
+                    padding: EdgeInsets.zero,
                     color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
+                    elevation: 8,
                     onSelected: (value) {
-                      if (value == 'rename') {
+                      if (value == 'share') {
+                        _shareListToCommunity(list, wordCount);
+                      } else if (value == 'rename') {
                         _showRenameListDialog(list);
                       } else if (value == 'delete') {
                         _showDeleteDialog(list, isDark);
                       }
                     },
                     itemBuilder: (context) => [
+                      // Toplulukta paylaş
+                      if (!list.isShared)
+                        PopupMenuItem(
+                          value: 'share',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.share_rounded, size: 18, color: Color(0xFF007AFF)),
+                              const SizedBox(width: 12),
+                              Text('Toplulukta Paylaş', style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
+                            ],
+                          ),
+                        ),
+                      // Yeniden adlandır
                       PopupMenuItem(
                         value: 'rename',
                         child: Row(
                           children: [
-                            Icon(Icons.edit, size: 18, color: isDark ? Colors.white : Colors.black87),
+                            Icon(Icons.edit_rounded, size: 18, color: isDark ? Colors.white : Colors.black87),
                             const SizedBox(width: 12),
                             Text('Yeniden Adlandır', style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
                           ],
                         ),
                       ),
-                      if (canDelete) // Tek liste kaldıysa silinemez
-                        PopupMenuItem(
+                      // Sil
+                      if (canDelete)
+                        const PopupMenuItem(
                           value: 'delete',
                           child: Row(
                             children: [
-                              const Icon(Icons.delete_outline, size: 18, color: Colors.red),
-                              const SizedBox(width: 12),
-                              const Text('Sil', style: TextStyle(fontSize: 14, color: Colors.red)),
+                              Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                              SizedBox(width: 12),
+                              Text('Sil', style: TextStyle(fontSize: 14, color: Colors.red)),
                             ],
                           ),
                         ),
@@ -437,6 +509,83 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         ),
       ),
     );
+  }
+
+  /// Kelime listesini toplulukta paylaş
+  Future<void> _shareListToCommunity(CustomWordList list, int wordCount) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Paylaşmak için giriş yapmalısınız'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Liste boşsa paylaşma
+    if (wordCount == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Boş liste paylaşılamaz'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Kelimeleri al
+    final words = await _service.getWordsByList(list.id);
+    
+    // Kelime verilerini hazırla (tüm datayı al)
+    final wordMaps = words.map((w) => {
+      'arabic': w.arabic,
+      'turkish': w.turkish,
+      'harekeliKelime': w.harekeliKelime,
+      'wordData': w.wordData,
+    }).toList();
+
+    // Test toplulukta paylaş
+    final chatService = TestCommunityChatService();
+    
+    // Erişim kontrolü
+    if (!chatService.canAccessTestCommunity()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Test topluluğuna erişim izniniz yok'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+    
+    // JSON'a çevir ve Base64 ile encode et
+    final jsonString = jsonEncode(wordMaps);
+    final base64Data = base64Encode(utf8.encode(jsonString));
+    
+    // Paylaşım mesajı (V2 formatı: BASE64_JSON|...)
+    final shareMessage = '📚 KELIME_LISTESI_PAYLASIMI_V2|${list.name}|${words.length}|$base64Data';
+    
+    final success = await chatService.sendMessage(shareMessage);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? '✅ "${list.name}" toplulukta paylaşıldı!'
+              : 'Paylaşım başarısız'),
+          backgroundColor: success ? Colors.green : Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Kelimeleri encode et
+  String _encodeWords(List<Map<String, dynamic>> words) {
+    return words.map((w) => '${w['arabic']}::${w['turkish']}').join('|||');
   }
 
   Future<void> _showDeleteDialog(CustomWordList list, bool isDark) async {
@@ -605,7 +754,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   children: [
                     const SizedBox(height: 8),
                     _buildViewToggle(isDark),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Expanded(
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
@@ -620,7 +769,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   }
 
   Widget _buildViewToggle(bool isDarkMode) {
-    // ... (Mevcut kod aynı)
     final Color activeColor = const Color(0xFF007AFF);
     final Color bgColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
     final Color borderColor = isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA);
@@ -640,7 +788,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // Soldaki: Liste
                   if (_isCardMode) {
                     setState(() {
                       _isCardMode = false;
@@ -648,7 +795,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: !_isCardMode ? activeColor : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
@@ -657,7 +804,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                     child: Text(
                       'Liste',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: !_isCardMode ? Colors.white : inactiveText,
                       ),
@@ -669,7 +816,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
             Expanded(
               child: GestureDetector(
                 onTap: () {
-                  // Sağdaki: Kart
                   if (!_isCardMode) {
                     _pageController.dispose();
                     _pageController = PageController(initialPage: _currentCardIndex);
@@ -679,7 +825,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   }
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
                     color: _isCardMode ? activeColor : Colors.transparent,
                     borderRadius: BorderRadius.circular(14),
@@ -688,7 +834,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                     child: Text(
                       'Kart',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: _isCardMode ? Colors.white : inactiveText,
                       ),
@@ -706,7 +852,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   Widget _buildListView(bool isDarkMode) {
     // ReorderableListView ile sıralama özelliği
     return ReorderableListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       itemCount: _words.length,
       onReorder: (oldIndex, newIndex) async {
         setState(() {
@@ -744,7 +890,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
 
         return Container(
           key: ValueKey('result_${word.arabic}_$index'), // Key unique olmalı
-          margin: const EdgeInsets.only(bottom: 1), // Daha az boşluk
           child: SearchResultCard(
             word: wordModel,
             onTap: () {

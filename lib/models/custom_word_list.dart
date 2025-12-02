@@ -5,12 +5,14 @@ class CustomWordList {
   final String name;
   final DateTime createdAt;
   final bool isDefault; // Varsayılan liste mi?
+  final bool isShared; // Başkasından alınan liste mi?
 
   CustomWordList({
     required this.id,
     required this.name,
     required this.createdAt,
     this.isDefault = false,
+    this.isShared = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -19,6 +21,7 @@ class CustomWordList {
       'name': name,
       'createdAt': createdAt.toIso8601String(),
       'isDefault': isDefault,
+      'isShared': isShared,
     };
   }
 
@@ -28,6 +31,7 @@ class CustomWordList {
       name: map['name'] ?? '',
       createdAt: DateTime.parse(map['createdAt']),
       isDefault: map['isDefault'] ?? false,
+      isShared: map['isShared'] ?? false,
     );
   }
 

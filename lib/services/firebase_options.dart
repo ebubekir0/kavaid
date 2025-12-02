@@ -41,13 +41,14 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'your-web-api-key',
-    appId: '1:123456789:web:abcdef123456',
-    messagingSenderId: '123456789',
+    apiKey: 'AIzaSyDM6pMbEifvfZXq1DBeq2agMWxNTm7EY0o',
+    appId: '1:732976641832:web:0314c87135db1dd3ad821d',
+    messagingSenderId: '732976641832',
     projectId: 'kavaid-2f778',
     authDomain: 'kavaid-2f778.firebaseapp.com',
     databaseURL: 'https://kavaid-2f778-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'kavaid-2f778.appspot.com',
+    storageBucket: 'kavaid-2f778.firebasestorage.app',
+    measurementId: 'G-BHVPW5JLBN',
   );
 
   static const FirebaseOptions android = FirebaseOptions(

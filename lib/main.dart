@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
@@ -13,8 +14,10 @@ import 'screens/home_screen.dart';
 import 'screens/learning_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/community_chat_screen.dart';
+import 'screens/test_community_chat_screen.dart';
 import 'screens/admin_console_screen.dart';
 import 'services/admin_service.dart';
+import 'services/test_community_chat_service.dart';
 import 'services/saved_words_service.dart';
 import 'services/admob_service.dart';
 import 'widgets/banner_ad_widget.dart';
@@ -143,6 +146,7 @@ class _StartupScreenState extends State<StartupScreen> {
       );
     }
     return MainScreen(
+      key: MainScreen.globalKey,
       isDarkMode: false,
       onThemeToggle: null,
     );
@@ -307,10 +311,12 @@ Future<void> main() async {
               message.contains('SMPTE 2094-40') || message.contains('lockHardwareCanvas') || message.contains('updateAcquireFence')) {
             return; // Gürültülü logları yut
           }
-          // Crashlytics'e bildir, ardından varsayılan sunumu yap
-          try {
-            FirebaseCrashlytics.instance.recordFlutterError(details);
-          } catch (_) {}
+          // Crashlytics'e bildir, ardından varsayılan sunumu yap (web'de desteklenmiyor)
+          if (!kIsWeb) {
+            try {
+              FirebaseCrashlytics.instance.recordFlutterError(details);
+            } catch (_) {}
+          }
           FlutterError.presentError(details);
         };
       }
@@ -346,26 +352,28 @@ Future<void> main() async {
       debugPrint('❌ Firebase başlatma hatası: $e');
     }
 
-    // 🔒 Crashlytics toplamasını aç ve global hata yakalayıcıları kur (Firebase init sonrasında)
-    try {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-      // Flutter framework hataları
-      final previousOnError = FlutterError.onError;
-      FlutterError.onError = (details) {
-        try {
-          FirebaseCrashlytics.instance.recordFlutterError(details);
-        } catch (_) {}
-        previousOnError?.call(details);
-      };
-      // Framework dışı (async) hatalar
-      WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
-        try {
-          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        } catch (_) {}
-        return true; // Hata ele alındı
-      };
-    } catch (e) {
-      debugPrint('⚠️ Crashlytics başlatma/handler kurulum hatası: $e');
+    // 🔒 Crashlytics toplamasını aç ve global hata yakalayıcıları kur (web'de desteklenmiyor)
+    if (!kIsWeb) {
+      try {
+        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+        // Flutter framework hataları
+        final previousOnError = FlutterError.onError;
+        FlutterError.onError = (details) {
+          try {
+            FirebaseCrashlytics.instance.recordFlutterError(details);
+          } catch (_) {}
+          previousOnError?.call(details);
+        };
+        // Framework dışı (async) hatalar
+        WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+          try {
+            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          } catch (_) {}
+          return true; // Hata ele alındı
+        };
+      } catch (e) {
+        debugPrint('⚠️ Crashlytics başlatma/handler kurulum hatası: $e');
+      }
     }
 
     // 🚀 ÖNCELİK 3: Uygulamayı hemen çalıştır! (UI gösterilir)
@@ -385,10 +393,12 @@ Future<void> main() async {
       });
     }
   }, (error, stack) {
-    // En yakalanmayan hataları Crashlytics'e gönder
-    try {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    } catch (_) {}
+    // En yakalanmayan hataları Crashlytics'e gönder (web'de desteklenmiyor)
+    if (!kIsWeb) {
+      try {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      } catch (_) {}
+    }
   });
 }
 
@@ -858,6 +868,14 @@ class MainScreen extends StatefulWidget {
     required this.isDarkMode,
     this.onThemeToggle,
   });
+  
+  /// Global key for accessing MainScreen state from anywhere
+  static final GlobalKey<_MainScreenState> globalKey = GlobalKey<_MainScreenState>();
+  
+  /// Navigate to Learning tab (index 1)
+  static void navigateToLearning() {
+    globalKey.currentState?._navigateToTab(1);
+  }
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -876,8 +894,15 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey<BannerAdWidgetState> _bannerKey = GlobalKey<BannerAdWidgetState>();
   // Admin servis
   final AdminService _adminService = AdminService();
+  // Test topluluk servisi (ebubekir@gmail.com ve trabzon@gmail.com için)
+  final TestCommunityChatService _testCommunityService = TestCommunityChatService();
   // Topluluk görünürlüğü kontrolü
   bool _communityEnabled = true;
+  // Test topluluk bildirim sayısı
+  int _testCommunityNotificationCount = 0;
+  // Subscriptionlar
+  StreamSubscription<int>? _notificationSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   @override
   void initState() {
@@ -885,6 +910,14 @@ class _MainScreenState extends State<MainScreen> {
     
     // Topluluk tercihini yükle
     _loadCommunityPreference();
+    
+    // Test topluluk bildirimleri dinle
+    _listenToTestCommunityNotifications();
+    
+    // Kullanıcı giriş durumunu dinle (bildirimleri güncellemek için)
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+      _listenToTestCommunityNotifications();
+    });
     
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -926,6 +959,23 @@ class _MainScreenState extends State<MainScreen> {
         }
       });
     });
+  }
+  
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    _authSubscription?.cancel();
+    _connectivityService.stopListening();
+    super.dispose();
+  }
+  
+  /// Navigate to a specific tab by index
+  void _navigateToTab(int index) {
+    if (mounted) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
   }
   
   // Yerel veritabanı hazır mı? Hazırsa internetsiz kullanım mümkün => engelleyici dialog gerekmez
@@ -978,12 +1028,6 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint('✅ İnternet bağlantısı mevcut');
     }
   }
-
-  @override
-  void dispose() {
-    _connectivityService.stopListening();
-    super.dispose();
-  }
   
   // Topluluk tercihini yükle
   Future<void> _loadCommunityPreference() async {
@@ -997,6 +1041,35 @@ class _MainScreenState extends State<MainScreen> {
     } catch (e) {
       debugPrint('❌ Topluluk tercihi yüklenirken hata: $e');
     }
+  }
+  
+  // Test topluluk bildirimlerini dinle
+  void _listenToTestCommunityNotifications() {
+    // Önceki dinleyiciyi iptal et
+    _notificationSubscription?.cancel();
+    _notificationSubscription = null;
+    
+    // Yetki kontrolü
+    if (!_testCommunityService.canAccessTestCommunity()) {
+      if (mounted) {
+        setState(() {
+          _testCommunityNotificationCount = 0;
+        });
+      }
+      return;
+    }
+    
+    debugPrint('🔔 [MAIN] Bildirimler dinleniyor...');
+    
+    // Yeni dinleyici başlat
+    _notificationSubscription = _testCommunityService.getUnreadNotificationCount().listen((count) {
+      debugPrint('🔔 [MAIN] Okunmamış bildirim sayısı: $count');
+      if (mounted) {
+        setState(() {
+          _testCommunityNotificationCount = count;
+        });
+      }
+    });
   }
   
   // Topluluk toggle değişikliğini işle - Sadece gerektiğinde index değiştir
@@ -1015,32 +1088,32 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
   
+  // Görünür sekmelerin IndexedStack index'lerini döndür
+  List<int> _getVisibleStackIndices() {
+    return [
+      0, // Sözlük
+      1, // Öğren
+      if (_communityEnabled) 2, // Topluluk
+      3, // Profil
+      if (_testCommunityService.canAccessTestCommunity()) 4, // Test Topluluk
+      if (_adminService.isAdmin()) 5, // Admin Console
+    ];
+  }
+
   // Navigation bar index'ini IndexedStack index'ine çevir
   int _mapNavigationToStackIndex(int navIndex) {
-    if (_communityEnabled) {
-      // Topluluk açık: direk mapping
-      return navIndex;
-    } else {
-      // Topluluk kapalı: index 2+ için +1 ekle (Topluluk index 2 olduğu için)
-      if (navIndex >= 2) {
-        return navIndex + 1; // Profil 2->3, Console 3->4
-      }
-      return navIndex;
+    final indices = _getVisibleStackIndices();
+    if (navIndex < indices.length) {
+      return indices[navIndex];
     }
+    return 0;
   }
   
   // IndexedStack index'ini Navigation bar index'ine çevir
   int _mapStackToNavigationIndex(int stackIndex) {
-    if (_communityEnabled) {
-      // Topluluk açık: direk mapping
-      return stackIndex;
-    } else {
-      // Topluluk kapalı: index 3+ için -1 çıkar
-      if (stackIndex >= 3) {
-        return stackIndex - 1; // Profil 3->2, Console 4->3
-      }
-      return stackIndex;
-    }
+    final indices = _getVisibleStackIndices();
+    final navIndex = indices.indexOf(stackIndex);
+    return navIndex >= 0 ? navIndex : 0;
   }
 
   void _onTabTapped(int index) {
@@ -1205,8 +1278,19 @@ class _MainScreenState extends State<MainScreen> {
                             )
                           : const SizedBox.shrink(),
 
-                      // 4: Admin Console - sadece aktifken oluştur
+                      // 4: Test Topluluk - sadece ebubekir@gmail.com ve trabzon@gmail.com için
                       _currentIndex == 4
+                          ? (_testCommunityService.canAccessTestCommunity()
+                              ? TestCommunityChatScreen(
+                                  key: const ValueKey('test_community_screen'),
+                                  topPadding: _bannerHeight,
+                                  bottomPadding: navBarHeight + systemNavBarHeight,
+                                )
+                              : _buildErrorScreen('Bu alana erişim izniniz yok'))
+                          : const SizedBox.shrink(),
+
+                      // 5: Admin Console - sadece aktifken oluştur
+                      _currentIndex == 5
                           ? (_adminService.isAdmin()
                               ? AdminConsoleScreen(
                                   key: const ValueKey('admin_screen'),
@@ -1226,11 +1310,11 @@ class _MainScreenState extends State<MainScreen> {
           AnimatedPositioned(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            // Topluluk ekranında veya Admin Console'da banner üstte, diğerlerinde altta
-            top: (_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)
+            // Topluluk, Test Topluluk veya Admin Console ekranında banner üstte, diğerlerinde altta
+            top: (_communityEnabled && _currentIndex == 2) || (_testCommunityService.canAccessTestCommunity() && _currentIndex == 4) || (_adminService.isAdmin() && _currentIndex == 5)
                 ? MediaQuery.of(context).viewPadding.top 
                 : null,
-            bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)) 
+            bottom: ((_communityEnabled && _currentIndex == 2) || (_testCommunityService.canAccessTestCommunity() && _currentIndex == 4) || (_adminService.isAdmin() && _currentIndex == 5)) 
                 ? null 
                 : (hasSystemKeyboard
                     ? keyboardHeight  // Klavye açıkken direkt klavyenin üstünde - nav bar hesaplama
@@ -1258,11 +1342,11 @@ class _MainScreenState extends State<MainScreen> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 100),
               curve: Curves.easeOut,
-              // Topluluk veya Admin Console ekranında üstte, diğerlerinde altta
-              top: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
+              // Topluluk, Test Topluluk veya Admin Console ekranında üstte, diğerlerinde altta
+              top: ((_communityEnabled && _currentIndex == 2) || (_testCommunityService.canAccessTestCommunity() && _currentIndex == 4) || (_adminService.isAdmin() && _currentIndex == 5))
                   ? MediaQuery.of(context).viewPadding.top + _bannerHeight - 10
                   : null,
-              bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
+              bottom: ((_communityEnabled && _currentIndex == 2) || (_testCommunityService.canAccessTestCommunity() && _currentIndex == 4) || (_adminService.isAdmin() && _currentIndex == 5))
                   ? null 
                   : (hasSystemKeyboard
                       ? keyboardHeight + _bannerHeight - 10  // Klavye açıkken banner'ın 10px üstünde
@@ -1337,7 +1421,6 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     BottomNavigationBarItem(
                       icon: const Icon(Icons.school_outlined),
-                      activeIcon: const Icon(Icons.school),
                       label: 'Öğren',
                     ),
                     // Topluluk sekmesi - tercihe göre göster
@@ -1352,8 +1435,33 @@ class _MainScreenState extends State<MainScreen> {
                       activeIcon: const Icon(Icons.person),
                       label: 'Profil',
                     ),
+                    // Test Topluluk (sadece ebubekir@gmail.com ve trabzon@gmail.com için)
+                    if (_testCommunityService.canAccessTestCommunity())
+                      BottomNavigationBarItem(
+                        icon: Badge(
+                          isLabelVisible: _testCommunityNotificationCount > 0,
+                          label: Text(
+                            _testCommunityNotificationCount > 9 
+                                ? '9+' 
+                                : _testCommunityNotificationCount.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          child: const Icon(Icons.science_outlined),
+                        ),
+                        activeIcon: Badge(
+                          isLabelVisible: _testCommunityNotificationCount > 0,
+                          label: Text(
+                            _testCommunityNotificationCount > 9 
+                                ? '9+' 
+                                : _testCommunityNotificationCount.toString(),
+                            style: const TextStyle(fontSize: 10),
+                          ),
+                          child: const Icon(Icons.science),
+                        ),
+                        label: 'Topluluk 2',
+                      ),
                     // Admin Console (sadece kurucu için)
-                    if (_adminService.isFounder())
+                    if (_adminService.isAdmin())
                       const BottomNavigationBarItem(
                         icon: Icon(Icons.admin_panel_settings_outlined),
                         activeIcon: Icon(Icons.admin_panel_settings),

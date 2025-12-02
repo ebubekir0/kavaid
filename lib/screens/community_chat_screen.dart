@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'dart:io';
+import 'dart:convert'; // JSON ve Base64 için
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import '../utils/user_color_helper.dart';
@@ -19,6 +20,10 @@ import '../services/user_profile_service.dart';
 import '../models/chat_message.dart';
 import 'dart:async' as async;
 import '../services/saved_words_service.dart';
+import '../services/custom_word_service.dart';
+import '../models/custom_word_list.dart';
+import 'custom_words_screen.dart';
+import '../main.dart';
 
 class CommunityChatScreen extends StatefulWidget {
   final double bottomPadding;
@@ -1513,18 +1518,33 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                   children: [
                     // Kullanıcı adı ve yönetici badge - sadece diğer mesajlarda
                     if (!isMyMessage) ...[
-                      Row(
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            message.userName,
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: _getUsernameColor(message.userId),
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                message.userName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: _getUsernameColor(message.userId),
+                                ),
+                              ),
+                              // Yeni rol badge sistemi
+                              _buildUserRoleWidget(message),
+                            ],
                           ),
-                          // Yeni rol badge sistemi
-                          _buildUserRoleWidget(message),
+                          // Kelime listesi paylaşımı için özel yazı
+                          if (message.message.startsWith('📚 KELIME_LISTESI_PAYLASIMI') && !message.isDeleted)
+                            Text(
+                              'sizinle bir kelime listesi paylaştı',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                              ),
+                            ),
                         ],
                       ),
                       const SizedBox(height: 4),
@@ -1795,6 +1815,11 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Modern mesaj içeriği
   Widget _buildMessageContent(ChatMessage message, bool isMyMessage, bool isDarkMode) {
+    // Kelime listesi paylaşımı kontrolü (V1 ve V2)
+    if (message.message.startsWith('📚 KELIME_LISTESI_PAYLASIMI')) {
+      return _buildSharedWordListCard(message, isMyMessage, isDarkMode);
+    }
+
     Color textColor;
     if (isMyMessage) {
       // Kendi mesajlarda (WhatsApp yeşilinde siyah metin)
@@ -1812,6 +1837,260 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
         height: 1.3,
       ),
     );
+  }
+
+  // Paylaşılan kelime listesi kartı - Sade tasarım
+  Widget _buildSharedWordListCard(ChatMessage message, bool isMyMessage, bool isDarkMode) {
+    // Mesajı parse et: 📚 KELIME_LISTESI_PAYLASIMI|{listName}|{wordCount}|{encodedWords}
+    final parts = message.message.split('|');
+    if (parts.length < 4) {
+      return Text(message.message); // Parse edilemezse normal göster
+    }
+
+    final listName = parts[1];
+    final wordCount = parts[2];
+    
+    return GestureDetector(
+      onTap: () => _showAddSharedListDialog(message, listName, parts[3]),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isDarkMode 
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isDarkMode 
+                ? Colors.white.withOpacity(0.1)
+                : Colors.black.withOpacity(0.08),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Liste bilgileri
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    listName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isMyMessage 
+                          ? (isDarkMode ? Colors.white : Colors.black87)
+                          : (isDarkMode ? Colors.white : Colors.black87),
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$wordCount kelime',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Ekle butonu
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF34C759),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: const Text(
+                'Ekle',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Paylaşılan listeyi ekleme dialogu
+  Future<void> _showAddSharedListDialog(ChatMessage message, String listName, String encodedWords) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Eklemek için giriş yapmalısınız'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Kendi mesajıysa ekleme
+    if (message.userId == user.uid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kendi listenizi zaten ekleyemezsiniz'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // V2 format kontrolü
+    final isV2 = message.message.startsWith('📚 KELIME_LISTESI_PAYLASIMI_V2');
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.folder_rounded, color: Color(0xFF007AFF)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                listName,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Bu kelime listesini kendi listelerinize eklemek ister misiniz?',
+          style: TextStyle(
+            color: isDark ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF007AFF),
+            ),
+            child: const Text('Ekle', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _addSharedListToMyLists(listName, encodedWords, isV2: isV2);
+    }
+  }
+
+  // Paylaşılan listeyi kullanıcının listelerine ekle
+  Future<void> _addSharedListToMyLists(String listName, String encodedWords, {bool isV2 = false}) async {
+    try {
+      final wordService = CustomWordService();
+      
+      // Aynı isimli liste var mı kontrol et
+      final existingLists = await wordService.getLists();
+      final alreadyExists = existingLists.any((list) => list.name.toLowerCase() == listName.toLowerCase());
+      
+      if (alreadyExists) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('"$listName" listenizde zaten mevcut'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+      
+      // Yeni liste oluştur (isShared: true)
+      final newList = await wordService.createList(listName, isShared: true);
+      int addedCount = 0;
+
+      if (isV2) {
+        // V2: Base64 -> JSON -> Detaylı Veri
+        try {
+          final jsonString = utf8.decode(base64.decode(encodedWords));
+          final listData = jsonDecode(jsonString) as List;
+          
+          for (final item in listData) {
+            final mapItem = item as Map<String, dynamic>;
+            final arabic = mapItem['arabic'] ?? '';
+            final turkish = mapItem['turkish'] ?? '';
+            
+            if (arabic.isNotEmpty && turkish.isNotEmpty) {
+              await wordService.addWord(
+                arabic, 
+                turkish, 
+                newList.id,
+                harekeliKelime: mapItem['harekeliKelime'],
+                wordData: mapItem['wordData'] != null ? Map<String, dynamic>.from(mapItem['wordData']) : null,
+              );
+              addedCount++;
+            }
+          }
+        } catch (e) {
+          debugPrint('V2 Decode Hatası: $e');
+          throw Exception('Liste verisi bozuk');
+        }
+      } else {
+        // V1: ||| ve :: ile ayrılmış string (Eski yöntem)
+        final wordPairs = encodedWords.split('|||');
+        for (final pair in wordPairs) {
+          if (pair.isEmpty) continue;
+          final parts = pair.split('::');
+          if (parts.length >= 2) {
+            final arabic = parts[0].trim();
+            final turkish = parts[1].trim();
+            if (arabic.isNotEmpty && turkish.isNotEmpty) {
+              await wordService.addWord(arabic, turkish, newList.id);
+              addedCount++;
+            }
+          }
+        }
+      }
+
+      if (mounted) {
+        // Öğren sekmesine geç
+        MainScreen.navigateToLearning();
+        
+        // Kısa bir gecikme sonra direkt o listeye git
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        if (mounted) {
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => WordListDetailScreen(
+                list: newList,
+                isDarkMode: isDark,
+              ),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   // Mesaj footer

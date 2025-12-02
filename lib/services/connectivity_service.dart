@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
@@ -14,6 +15,9 @@ class ConnectivityService {
   
   // İnternet bağlantısını kontrol et
   Future<bool> hasInternetConnection() async {
+    // Web'de her zaman true döndür (browser zaten internet kontrolü yapar)
+    if (kIsWeb) return true;
+    
     try {
       final connectivityResult = await _connectivity.checkConnectivity();
       

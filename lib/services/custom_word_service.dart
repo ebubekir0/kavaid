@@ -509,7 +509,7 @@ class CustomWordService {
   }
 
   /// Yeni liste oluştur
-  Future<CustomWordList> createList(String name) async {
+  Future<CustomWordList> createList(String name, {bool isShared = false}) async {
     if (!_isUserLoggedIn) {
       throw Exception('Giriş yapılmamış');
     }
@@ -519,6 +519,7 @@ class CustomWordService {
       name: name,
       createdAt: DateTime.now(),
       isDefault: false,
+      isShared: isShared,
     );
     
     // Yerele kaydet
@@ -696,7 +697,7 @@ class CustomWordService {
   }
 
   /// Basit kelime ekle (geriye uyumluluk)
-  Future<bool> addWord(String arabic, String turkish, String listId, {String? harekeliKelime}) async {
+  Future<bool> addWord(String arabic, String turkish, String listId, {String? harekeliKelime, Map<String, dynamic>? wordData}) async {
     if (!_isUserLoggedIn) return false;
     
     // Yerelden duplicate check
@@ -709,6 +710,7 @@ class CustomWordService {
       arabic: arabic,
       turkish: turkish,
       harekeliKelime: harekeliKelime,
+      wordData: wordData,
       createdAt: DateTime.now(),
       listId: listId,
     );

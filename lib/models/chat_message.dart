@@ -10,6 +10,11 @@ class ChatMessage {
   final DateTime timestamp;
   final bool isDeleted;
   final DateTime? deletedAt;
+  
+  // Reply (yanıt) bilgileri
+  final String? replyToId;
+  final String? replyToUserName;
+  final String? replyToMessage;
 
   ChatMessage({
     required this.id,
@@ -21,7 +26,13 @@ class ChatMessage {
     required this.timestamp,
     this.isDeleted = false,
     this.deletedAt,
+    this.replyToId,
+    this.replyToUserName,
+    this.replyToMessage,
   });
+
+  // Reply var mı kontrolü
+  bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
 
   // Firestore'dan ChatMessage oluştur
   factory ChatMessage.fromMap(Map<String, dynamic> data, String id) {
@@ -40,6 +51,10 @@ class ChatMessage {
       deletedAt: data['deletedAt'] != null 
           ? (data['deletedAt'] as Timestamp).toDate() 
           : null,
+      // Reply bilgileri
+      replyToId: data['replyToId'],
+      replyToUserName: data['replyToUserName'],
+      replyToMessage: data['replyToMessage'],
     );
   }
 

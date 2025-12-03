@@ -2062,24 +2062,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
       }
 
       if (mounted) {
-        // Öğren sekmesine geç
-        MainScreen.navigateToLearning();
-        
-        // Kısa bir gecikme sonra direkt o listeye git
-        await Future.delayed(const Duration(milliseconds: 100));
-        
-        if (mounted) {
-          final isDark = Theme.of(context).brightness == Brightness.dark;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => WordListDetailScreen(
-                list: newList,
-                isDarkMode: isDark,
-              ),
-            ),
-          );
-        }
+        // Öğren sekmesine geç ve listeyi aç (robust metod)
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        MainScreen.openListDetailInLearningTab(newList, isDark);
       }
     } catch (e) {
       if (mounted) {

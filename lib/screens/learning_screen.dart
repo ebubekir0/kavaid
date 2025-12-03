@@ -461,9 +461,9 @@ class _LearningScreenState extends State<LearningScreen> {
                         color: titleColor,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
-                      'Kendi kelime listelerini/kartlarını oluştur',
+                      'Kendi kelime listelerini/kartlarını oluştur ve paylaş',
                       style: TextStyle(fontSize: 12, color: subColor),
                     ),
                   ],

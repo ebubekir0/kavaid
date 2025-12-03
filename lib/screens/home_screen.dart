@@ -99,9 +99,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
   void initState() {
     super.initState();
     
-    _searchController.addListener(() {
-      _performSearch(_searchController.text);
-    });
+    _searchController.addListener(_onSearchChanged);
     
     _creditsService.addListener(_onCreditsChanged);
     
@@ -361,8 +359,13 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     final cleanText = text.trim();
     final lastCleanText = _lastSearchText.trim();
     
-    // Eğer temizlenmiş metin değişmediyse (sadece focus değişikliği vs.) işlem yapma
+    // Eğer temizlenmiş metin değişmediyse (sadece focus değişikliği, boşluk ekleme vs.) işlem yapma
     if (cleanText == lastCleanText) {
+      return;
+    }
+    
+    // Sadece boşluk karakteri varsa arama yapma
+    if (cleanText.isEmpty && text.isNotEmpty) {
       return;
     }
     
@@ -957,8 +960,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                               cursorColor: const Color(0xFF007AFF),
                                               showCursor: true,
                                               enableInteractiveSelection: true,
-                                              autocorrect: true,
-                                              enableSuggestions: true,
+                                              autocorrect: false,
+                                              enableSuggestions: false,
                                               style: TextStyle(
                                                 fontSize: _containsArabic(_searchController.text) ? 19 : 15,
                                                 height: 1.15,
@@ -967,6 +970,7 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                                     ? Colors.white
                                                     : const Color(0xFF1C1C1E),
                                                 fontWeight: FontWeight.w500,
+                                                decoration: TextDecoration.none,
                                               ),
                                               decoration: InputDecoration(
                                                 hintText: 'Kelime ara',
@@ -986,6 +990,15 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                               textInputAction: TextInputAction.search,
                                               onSubmitted: (_) => _searchWithAI(),
                                               readOnly: _showArabicKeyboard,
+                                              onTap: () {
+                                                // Arapça klavye açıksa kapat ve sistem klavyesini aç
+                                                if (_showArabicKeyboard) {
+                                                  setState(() {
+                                                    _showArabicKeyboard = false;
+                                                  });
+                                                  widget.onArabicKeyboardStateChanged?.call(false);
+                                                }
+                                              },
                                             ),
                                           ),
                                         ),

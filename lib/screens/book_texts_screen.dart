@@ -906,6 +906,7 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
             },
             showExpandButton: false,
             enableExpand: false,
+            showAddButton: false, // Kaydetme ikonu olmasın
           );
         },
       ),
@@ -1001,7 +1002,7 @@ class _TextWordsScreenState extends State<TextWordsScreen> {
                           // Kelime/Anlam Bölümü - Tam Merkezde Sabit
                           Center(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16).copyWith(bottom: 70),
+                              padding: const EdgeInsets.all(24), // Tam ortala
                               child: AnimatedSwitcher(
                                 duration: const Duration(milliseconds: 100),
                                 transitionBuilder: (child, animation) {

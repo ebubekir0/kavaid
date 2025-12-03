@@ -490,84 +490,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           continue;
         }
       }
-
-      final anlam = (map['anlam'] as String? ?? '').toLowerCase();
-      final koku = (map['koku'] as String? ?? '').trim();
       
-      // LATİN HARF KONTROLÜ - Latin harf içeren kelimeleri çıkar
-      if (kelime.isNotEmpty && !_hasOnlyArabicCharacters(kelime)) {
-        continue; // Bu kelimeyi atla
-      }
-      if (harekeliKelime.isNotEmpty && !_hasOnlyArabicCharacters(harekeliKelime)) {
-        continue; // Bu kelimeyi atla
-      }
-      
-      // ARAPÇA ARAMA KONTROLÜ
-      if (hasArabicChars) {
-        if (queryHasDiacritics) {
-          // Kullanıcı harekeli yazdı → KİSMİ hareke eşleşmesi
-          // Örnek: 'كِتا' yazarsa 'كِتَابٌ' eşleşir ama 'كَتَابٌ' eşleşmez
-          if (_matchesPartialDiacritics(query, kelime) || 
-              _matchesPartialDiacritics(query, harekeliKelime)) {
-            filteredWords.add(_dbMapToWord(map));
-            continue;
-          }
-        } else {
-          // ✅ Kullanıcı harekesiz yazdı → sadece başlangıç + KÖK eşleşmesi
-          final normalizedKelime = _removeArabicDiacritics(kelime);
-          final normalizedHarekeli = _removeArabicDiacritics(harekeliKelime);
-          final normalizedKoku = _removeArabicDiacritics(koku);
-
-          // Başlangıç eşleşmesi (prefix)
-          final bool prefixMatch = normalizedKelime.startsWith(normalizedQuery) ||
-              normalizedHarekeli.startsWith(normalizedQuery);
-
-          // Kök eşleşmesi: Önce 'koku' alanına göre, yoksa harf-sıralama fallback
-          bool rootMatch = false;
-          if (normalizedQuery.length >= 2) {
-            if (normalizedKoku.isNotEmpty) {
-              rootMatch = normalizedKoku == normalizedQuery;
-            } else {
-              rootMatch = _hasSequentialLetters(normalizedKelime, normalizedQuery) ||
-                         _hasSequentialLetters(normalizedHarekeli, normalizedQuery);
-            }
-          }
-
-          if (prefixMatch || rootMatch) {
-            filteredWords.add(_dbMapToWord(map));
-            continue;
-          }
-        }
-      }
-      
-      // LATİN/TÜRKÇE SORGU: anlamın TÜM parçalarında arama yap
-      // _getMeaningPosition, virgüllerle ayrılmış tüm anlamlarda tam, başlangıç
-      // ve içinde geçme eşleşmelerini kontrol eder. 999 değilse bu kelimeyi kabul et.
-      if (!hasArabicChars) {
-        final meaningPos = _getMeaningPosition(anlam, lowerTurkishQuery);
-        if (meaningPos == 999) {
-          // Anlamda hiç eşleşme yoksa, latin tahminiyle gelenler dahil çıkar
-          continue;
-        }
-
-        filteredWords.add(_dbMapToWord(map));
-        continue;
-      }
-
-      if (isLatinGuessActive) {
-        final normKel = _removeArabicDiacritics(kelime);
-        final normHar = _removeArabicDiacritics(harekeliKelime);
-        if (kelime.startsWith(arabicGuess) ||
-            (harekeliKelime).startsWith(arabicGuess) ||
-            normKel.startsWith(arabicGuess) ||
-            normHar.startsWith(arabicGuess)) {
-          filteredWords.add(_dbMapToWord(map));
-          continue;
-        }
-      }
-
-      // Buraya yalnızca ARAPÇA sorgularda düşeriz; Türkçe/LATİN sorgular yukarıda
-      // anlam eşleşmesi ile zaten filteredWords'e eklenmiştir.
+      // ✅ SQL sorgusu zaten doğru sonuçları getiriyor - direkt ekle
+      filteredWords.add(_dbMapToWord(map));
     }
 
     // Filtreleme sonucu
@@ -649,16 +574,12 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       });
     }
 
-    // DEDUPE: Aynı harekeliKelime'ye sahip olanları tekille (ilk görüleni koru)
+    // DEDUPE: Aynı harekeliKelime'den birden fazla varsa sadece birini göster
     final seenHarekeli = <String>{};
     final deduped = <WordModel>[];
     for (final w in filteredWords) {
       final hk = (w.harekeliKelime ?? '').trim();
-      if (hk.isEmpty) {
-        deduped.add(w);
-        continue;
-      }
-      if (seenHarekeli.add(hk)) {
+      if (hk.isEmpty || seenHarekeli.add(hk)) {
         deduped.add(w);
       }
     }
@@ -1170,26 +1091,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 
         // ============= 1. TÜRKÇE ANLAM KONTROLÜ ============= (Türkçe veya Latin sorgular için)
         
-        // 1a. TAM ANLAM EŞLEŞMESI - "katıldı" aradığında "katıldı" anlamı olan kelimeler en önce
-        final aExactMeaningMatch = _hasExactMeaningMatch(aAnlam, lowerTurkishQuery);
-        final bExactMeaningMatch = _hasExactMeaningMatch(bAnlam, lowerTurkishQuery);
-        
-        if (aExactMeaningMatch && !bExactMeaningMatch) return -1;
-        if (bExactMeaningMatch && !aExactMeaningMatch) return 1;
-        
-        // 1b. ANLAM BAŞLANGICI - "kat" aradığında "katıldı, katılmak" olan kelimeler
-        final aMeaningStartsWith = _hasMeaningStartsWith(aAnlam, lowerTurkishQuery);
-        final bMeaningStartsWith = _hasMeaningStartsWith(bAnlam, lowerTurkishQuery);
-        
-        if (aMeaningStartsWith && !bMeaningStartsWith) return -1;
-        if (bMeaningStartsWith && !aMeaningStartsWith) return 1;
-
-        // 1c. ANLAM POZISYONU ÖNCELİĞİ - ilk anlamda geçenler daha önde
+        // ANLAM POZISYONU ÖNCELİĞİ - ilk anlamda tam eşleşme en önce, 2. anlam sonra...
+        // _getMeaningPosition değerleri:
+        // - Tam eşleşme ilk anlam: 0, ikinci anlam: 1, üçüncü anlam: 2...
+        // - Başlangıç eşleşmesi: 100
+        // - Kelime başı eşleşmesi: 200+
+        // - Eşleşme yok: 999
         final aMeaningPos = _getMeaningPosition(aAnlam, lowerTurkishQuery);
         final bMeaningPos = _getMeaningPosition(bAnlam, lowerTurkishQuery);
         if (aMeaningPos != bMeaningPos) return aMeaningPos.compareTo(bMeaningPos);
 
-        // 1c. TÜRKÇE İÇİN İÇİNDE GEÇME KALDIRILDI - Sadece başlangıç eşleşmeleri!
+        // TÜRKÇE İÇİN İÇİNDE GEÇME KALDIRILDI - Sadece başlangıç eşleşmeleri!
 
         // ============= 2. LATİN SORGU İÇİN ARAPÇA TAHMİN ÖNCELİĞİ =============
         // Latin sorgularda, Türkçe anlam önceliğinden SONRA Arapça tahminle (guess) kelime eşleşmelerini ele al

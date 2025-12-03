@@ -44,6 +44,8 @@ import 'screens/database_loading_screen.dart';
 import 'services/database_service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'utils/migrate_usernames.dart';
+import 'models/custom_word_list.dart';
+import 'screens/custom_words_screen.dart';
 
 // Fontları arka planda yükle (UI'ı engellemez)
 void _preloadFonts() {
@@ -877,6 +879,45 @@ class MainScreen extends StatefulWidget {
     globalKey.currentState?._navigateToTab(1);
   }
 
+  /// Push a route to the Learning tab's navigator
+  static void pushToLearningTab(Route route) {
+    // Önce tab'a geç
+    navigateToLearning();
+    
+    // Sonra route'u pushla (biraz gecikmeli ki tab değişsin)
+    Future.delayed(const Duration(milliseconds: 100), () {
+      globalKey.currentState?._learningTabNavKey.currentState?.push(route);
+    });
+  }
+  
+  /// Open specific list detail in Learning tab (clears stack first)
+  static void openListDetailInLearningTab(CustomWordList list, bool isDark) {
+    // 1. Öğren sekmesine geç
+    navigateToLearning();
+    
+    Future.delayed(const Duration(milliseconds: 100), () {
+      final nav = globalKey.currentState?._learningTabNavKey.currentState;
+      if (nav != null) {
+        // Önce stack'i temizle (LearningScreen'e dön)
+        nav.popUntil((route) => route.isFirst);
+        
+        // Sonra CustomWordsScreen (Listelerim) aç
+        nav.push(
+          MaterialPageRoute(builder: (_) => CustomWordsScreen(isDarkMode: isDark))
+        );
+        
+        // Sonra WordListDetailScreen (Kelimeler) aç
+        Future.delayed(const Duration(milliseconds: 150), () {
+          nav.push(
+            MaterialPageRoute(
+              builder: (_) => WordListDetailScreen(list: list, isDarkMode: isDark)
+            )
+          );
+        });
+      }
+    });
+  }
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -890,6 +931,10 @@ class _MainScreenState extends State<MainScreen> {
   double _bannerHeight = 0; // Dinamik banner yüksekliği için state
   // Öğren sekmesi için iç içe Navigator anahtarı (bottom bar'ı korumak için)
   final GlobalKey<NavigatorState> _learningTabNavKey = GlobalKey<NavigatorState>();
+  
+  // Public getter for navigation key
+  GlobalKey<NavigatorState> get learningTabNavKey => _learningTabNavKey;
+  
   // Banner reklam widget anahtarı (çarpı ikonu için)
   final GlobalKey<BannerAdWidgetState> _bannerKey = GlobalKey<BannerAdWidgetState>();
   // Admin servis

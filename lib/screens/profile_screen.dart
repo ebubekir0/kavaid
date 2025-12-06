@@ -2234,7 +2234,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   FocusManager.instance.primaryFocus?.unfocus();
                                   SystemChannels.textInput.invokeMethod('TextInput.hide');
                                   Navigator.pop(context);
+                                  // Pop sonrası setSheetState çağrılmasını önlemek için return
                                   await _cloudSavedWords.mergeSync();
+                                  return;
                                 }
                               } else {
                                 final user = await _authService.signUpWithEmail(
@@ -2284,10 +2286,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               } else {
                                 message = e.toString();
                               }
-                              setSheetState(() { errorText = message; });
-                            }
-                            finally {
-                              setSheetState(() { isLoading = false; });
+                              setSheetState(() { 
+                                errorText = message; 
+                                isLoading = false;
+                              });
                             }
                           },
                           style: ElevatedButton.styleFrom(

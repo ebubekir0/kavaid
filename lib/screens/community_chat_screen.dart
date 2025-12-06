@@ -25,6 +25,8 @@ import '../models/custom_word_list.dart';
 import 'custom_words_screen.dart';
 import '../main.dart';
 
+/// Topluluk Sohbet Ekranı
+/// Reply, mention, kelime listesi paylaşımı destekli
 class CommunityChatScreen extends StatefulWidget {
   final double bottomPadding;
   final double topPadding;
@@ -104,6 +106,12 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Online durum güncelleme timer
   Timer? _onlineTimer;
+  
+  // Yanıtlama sistemi (swipe-to-reply)
+  ChatMessage? _replyingToMessage;
+  
+  // Swipe offset (her mesaj için)
+  final Map<String, double> _swipeOffsets = {};
 
   @override
   void initState() {
@@ -146,6 +154,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     
     // Internet bağlantısını sürekli dinle
     _startConnectivityListener();
+    
+    // Hemen internet durumunu kontrol et (sekme değişikliğinde de çalışır)
+    _checkInitialConnectivity();
 
     _hasText.addListener(() {
       if (mounted) {
@@ -175,6 +186,14 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
     // Kullanıcının online durumunu güncelle
     _trackingService.updateUserLastSeen();
+    
+    // Kurucu ise duplicate kayıtları temizle (bir kerelik)
+    if (_chatService.isFounder()) {
+      _chatService.cleanupDuplicateReads();
+    }
+    
+    // Bildirimleri okundu olarak işaretle
+    _chatService.markAllNotificationsAsRead();
 
     // Periyodik olarak online durumu güncelle (her 2 dakikada bir)
     _startOnlineStatusUpdates();
@@ -197,6 +216,16 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     for (final message in messages) {
       if (message.userId != _currentUserId) {
         _trackingService.markMessageAsRead(message.id);
+      }
+    }
+  }
+
+  // Test topluluk için mesaj okunma işaretleme
+  void _markMessagesAsReadForTest(List<ChatMessage> messages) {
+    // Kendi mesajlarını işaretleme (kurucu mesajlarını diğer kullanıcılar okuyacak)
+    for (final message in messages) {
+      if (message.userId != _currentUserId && !message.isDeleted) {
+        _chatService.markMessageAsRead(message.id, messageOwnerId: message.userId);
       }
     }
   }
@@ -646,7 +675,17 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     // Mesajı hemen temizle (optimistic UI)
     _messageController.clear();
     
-    final success = await _chatService.sendMessage(message);
+    // Reply bilgisini al ve temizle
+    final replyTo = _replyingToMessage;
+    _cancelReply();
+    
+    final success = await _chatService.sendMessage(
+      message,
+      replyToId: replyTo?.id,
+      replyToUserName: replyTo?.userName,
+      replyToMessage: replyTo?.isDeleted == true ? 'Bu mesaj silindi' : replyTo?.message,
+      replyToUserId: replyTo?.userId, // Yanıtlanan kullanıcının ID'si (bildirim için)
+    );
     
     // Mesaj başarıyla gönderildiyse son mesaj zamanını güncelle
     if (success) {
@@ -1141,6 +1180,10 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
           
           // Hata durumu
           if (snapshot.hasError) {
+            // İnternet yoksa özel uyarı göster
+            if (!_hasInternet) {
+              return _buildEmptyState(isDarkMode);
+            }
             return _buildErrorState(isDarkMode);
           }
 
@@ -1157,6 +1200,9 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
             // UI'yi bloklamadan, mikro görev olarak çalıştır
             Future.microtask(() => _profileService.preloadProfiles(uniqueUids));
 
+            // Mesajları okundu olarak işaretle (kurucu hariç herkes için)
+            Future.microtask(() => _markMessagesAsReadForTest(messages));
+
             return ListView.builder(
               controller: _scrollController,
               reverse: true,
@@ -1171,8 +1217,12 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
             );
           }
           
-          // İlk yüklemede loading göster
+          // İlk yüklemede - internet yoksa uyarı, varsa loading göster
           if (snapshot.connectionState == ConnectionState.waiting) {
+            // İnternet yoksa loading yerine internet uyarısı göster
+            if (!_hasInternet) {
+              return _buildEmptyState(isDarkMode);
+            }
             return _buildLoadingState(isDarkMode);
           }
 
@@ -1408,6 +1458,62 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     
     // Kullanıcı adı artık otomatik atanacağı için bu kontrol gerekmiyor
     
+    // İnternet yoksa özel uyarı göster
+    if (!_hasInternet) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.wifi_off_rounded,
+              size: 80,
+              color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFFC7C7CC),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'İnternet Bağlantısı Yok',
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: isDarkMode ? Colors.white : const Color(0xFF000000),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Topluluk mesajlarını görmek için\ninternet bağlantısı gerekli',
+              style: TextStyle(
+                fontSize: 15,
+                color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final hasConnection = await _checkInternetConnection();
+                if (hasConnection && mounted) {
+                  // İnternet varsa stream'i yenile
+                  setState(() {
+                    _messagesStream = _chatService.getMessages(limit: 100);
+                  });
+                }
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text('Tekrar Dene'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF007AFF),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    
     // Normal boş durum (mesaj yok)
     return Center(
       child: Column(
@@ -1443,16 +1549,72 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Modern Telegram mesaj bubble
   Widget _buildMessageBubble(ChatMessage message, bool isMyMessage, bool isDarkMode) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 8,
-        right: 8,
-        bottom: 8,
-      ),
-      child: Row(
-        mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    // Silinmiş mesajlara swipe yapılamaz
+    final canSwipe = !message.isDeleted;
+    final swipeOffset = _swipeOffsets[message.id] ?? 0.0;
+    final maxSwipe = 60.0; // Maksimum swipe mesafesi
+    final triggerThreshold = 50.0; // Reply tetiklenme eşiği
+    
+    return GestureDetector(
+      onHorizontalDragUpdate: canSwipe ? (details) {
+        setState(() {
+          final newOffset = (_swipeOffsets[message.id] ?? 0.0) + details.delta.dx;
+          _swipeOffsets[message.id] = newOffset.clamp(0.0, maxSwipe);
+        });
+      } : null,
+      onHorizontalDragEnd: canSwipe ? (details) {
+        if ((_swipeOffsets[message.id] ?? 0.0) >= triggerThreshold) {
+          _setReplyingTo(message);
+          // Hafif titreşim geri bildirimi
+          HapticFeedback.lightImpact();
+        }
+        // Animasyonlu geri dön
+        setState(() {
+          _swipeOffsets[message.id] = 0.0;
+        });
+      } : null,
+      child: Stack(
         children: [
+          // Reply ikonu (swipe sırasında görünür)
+          if (swipeOffset > 0)
+            Positioned(
+              left: 8,
+              top: 0,
+              bottom: 8,
+              child: Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: swipeOffset >= triggerThreshold
+                        ? const Color(0xFF007AFF)
+                        : (isDarkMode ? Colors.grey[700] : Colors.grey[300]),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.reply_rounded,
+                    color: swipeOffset >= triggerThreshold
+                        ? Colors.white
+                        : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+                    size: 18,
+                  ),
+                ),
+              ),
+            ),
+          // Mesaj içeriği (swipe ile kayar)
+          Transform.translate(
+            offset: Offset(swipeOffset, 0),
+            child: Padding(
+        padding: const EdgeInsets.only(
+          left: 8,
+          right: 8,
+          bottom: 8,
+        ),
+        child: Row(
+          mainAxisAlignment: isMyMessage ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           // Avatar diğer mesajlarda (sol tarafta)
           if (!isMyMessage) ...[
             Container(
@@ -1550,41 +1712,36 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                       const SizedBox(height: 4),
                     ],
                     
-                    // Reply (varsa) - Sinan ve Ayşe mesajları için
+                    // Reply (varsa) - sade tasarım
                     if (_hasReply(message)) ...[
                       Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.only(bottom: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        margin: const EdgeInsets.only(bottom: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF5F5F5),
-                          borderRadius: BorderRadius.circular(8),
-                          border: const Border(
+                          color: isDarkMode 
+                              ? Colors.white.withOpacity(0.08)
+                              : Colors.black.withOpacity(0.04),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border(
                             left: BorderSide(
-                              color: Color(0xFF4CAF50),
-                              width: 3,
+                              color: const Color(0xFF007AFF),
+                              width: 2,
                             ),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              _getReplyUserName(message),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF4CAF50),
+                            Flexible(
+                              child: Text(
+                                '${_getReplyUserName(message)}: ${_getReplyMessage(message)}',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _getReplyMessage(message),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Color(0xFF666666),
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -1606,14 +1763,18 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                     ),
                   ],
                 ),
-                ),
               ),
             ),
+          ),
           ),
           
           // Kendi mesajlarda avatar yok
         ],
       ),
+    ),
+    ),
+    ],
+    ),
     );
   }
 
@@ -1815,7 +1976,12 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Modern mesaj içeriği
   Widget _buildMessageContent(ChatMessage message, bool isMyMessage, bool isDarkMode) {
-    // Kelime listesi paylaşımı kontrolü (V1 ve V2)
+    // Kelime listesi paylaşımı kontrolü - YENİ FORMAT (sharedWordList alanı)
+    if (message.hasSharedWordList) {
+      return _buildSharedWordListCardNew(message, isMyMessage, isDarkMode);
+    }
+    
+    // Kelime listesi paylaşımı kontrolü - ESKİ FORMAT (mesaj içinde veri)
     if (message.message.startsWith('📚 KELIME_LISTESI_PAYLASIMI')) {
       return _buildSharedWordListCard(message, isMyMessage, isDarkMode);
     }
@@ -1918,6 +2084,217 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     );
   }
 
+  // YENİ FORMAT: Paylaşılan kelime listesi kartı (sharedWordList alanından)
+  Widget _buildSharedWordListCardNew(ChatMessage message, bool isMyMessage, bool isDarkMode) {
+    final data = message.sharedWordList!;
+    final listName = data['name'] ?? 'Kelime Listesi';
+    final wordCount = data['wordCount'] ?? (data['words'] as List?)?.length ?? 0;
+    
+    return GestureDetector(
+      onTap: () => _showAddSharedListDialogNew(message),
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isDarkMode 
+              ? Colors.white.withOpacity(0.08)
+              : Colors.black.withOpacity(0.04),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: isDarkMode 
+                ? Colors.white.withOpacity(0.1)
+                : Colors.black.withOpacity(0.08),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Liste bilgileri
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    listName,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? Colors.white : Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$wordCount kelime',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Ekle butonu
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF007AFF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Text(
+                'Ekle',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // YENİ FORMAT: Paylaşılan listeyi ekleme dialogu
+  Future<void> _showAddSharedListDialogNew(ChatMessage message) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Eklemek için giriş yapmalısınız'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Kendi mesajıysa ekleme
+    if (message.userId == user.uid) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kendi listenizi zaten ekleyemezsiniz'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    final data = message.sharedWordList!;
+    final listName = data['name'] ?? 'Kelime Listesi';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        title: Row(
+          children: [
+            const Icon(Icons.folder_rounded, color: Color(0xFF007AFF)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                listName,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'Bu kelime listesini kendi listelerinize eklemek ister misiniz?',
+          style: TextStyle(
+            color: isDark ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF007AFF),
+            ),
+            child: const Text('Ekle', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _addSharedListToMyListsNew(data);
+    }
+  }
+
+  // YENİ FORMAT: Paylaşılan listeyi kullanıcının listelerine ekle
+  Future<void> _addSharedListToMyListsNew(Map<String, dynamic> data) async {
+    try {
+      final wordService = CustomWordService();
+      final originalListName = data['name'] ?? 'Kelime Listesi';
+      final words = data['words'] as List? ?? [];
+      
+      // Topluluktan alınan listelere "(Topluluk)" etiketi ekle
+      String finalListName = '$originalListName (Topluluk)';
+      
+      // Aynı isimli topluluk listesi var mı kontrol et
+      final existingLists = await wordService.getLists();
+      final alreadyExists = existingLists.any((list) => list.name.toLowerCase() == finalListName.toLowerCase());
+      
+      if (alreadyExists) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('"$finalListName" listenizde zaten mevcut'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+      
+      // Yeni liste oluştur (isShared: true) - "(Topluluk)" etiketli
+      final newList = await wordService.createList(finalListName, isShared: true);
+      int addedCount = 0;
+
+      for (final item in words) {
+        final mapItem = item as Map<String, dynamic>;
+        final arabic = mapItem['arabic'] ?? '';
+        final turkish = mapItem['turkish'] ?? '';
+        
+        if (arabic.isNotEmpty && turkish.isNotEmpty) {
+          await wordService.addWord(
+            arabic, 
+            turkish, 
+            newList.id,
+            harekeliKelime: mapItem['harekeliKelime'],
+            wordData: mapItem['wordData'] != null ? Map<String, dynamic>.from(mapItem['wordData']) : null,
+          );
+          addedCount++;
+        }
+      }
+
+      if (mounted) {
+        // Öğren sekmesine geç ve listeyi aç
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        MainScreen.openListDetailInLearningTab(newList, isDark);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hata: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   // Paylaşılan listeyi ekleme dialogu
   Future<void> _showAddSharedListDialog(ChatMessage message, String listName, String encodedWords) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -1998,15 +2375,18 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     try {
       final wordService = CustomWordService();
       
-      // Aynı isimli liste var mı kontrol et
+      // Topluluktan alınan listelere "(Topluluk)" etiketi ekle
+      final finalListName = '$listName (Topluluk)';
+      
+      // Aynı isimli topluluk listesi var mı kontrol et
       final existingLists = await wordService.getLists();
-      final alreadyExists = existingLists.any((list) => list.name.toLowerCase() == listName.toLowerCase());
+      final alreadyExists = existingLists.any((list) => list.name.toLowerCase() == finalListName.toLowerCase());
       
       if (alreadyExists) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('"$listName" listenizde zaten mevcut'),
+              content: Text('"$finalListName" listenizde zaten mevcut'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -2014,8 +2394,8 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
         return;
       }
       
-      // Yeni liste oluştur (isShared: true)
-      final newList = await wordService.createList(listName, isShared: true);
+      // Yeni liste oluştur (isShared: true) - "(Topluluk)" etiketli
+      final newList = await wordService.createList(finalListName, isShared: true);
       int addedCount = 0;
 
       if (isV2) {
@@ -2101,39 +2481,53 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
           ),
         ),
         
-        // Kurucu mesajları için okuma sayısı
-        if (_adminService.isFounder() && message.userId == _currentUserId)
+        // Kurucu için TÜM mesajlarda okuma sayısı (tıklanabilir)
+        if (_chatService.isFounder())
           StreamBuilder<QuerySnapshot>(
             stream: _firestore
                 .collection('message_reads')
                 .where('messageId', isEqualTo: message.id)
                 .snapshots(),
             builder: (context, readSnapshot) {
-              final readCount = readSnapshot.hasData 
-                  ? readSnapshot.data!.docs.length 
-                  : 0;
+              // Mesaj sahibini hariç tut (kendini sayma)
+              int readCount = 0;
+              if (readSnapshot.hasData) {
+                readCount = readSnapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  final userId = data['userId'] as String?;
+                  return userId != message.userId; // Mesaj sahibini sayma
+                }).length;
+              }
               
               if (readCount > 0) {
-                return Container(
-                  margin: const EdgeInsets.only(left: 6, right: 4),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.visibility,
-                        size: 12,
-                        color: timeColor.withOpacity(0.8),
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        '$readCount',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: timeColor.withOpacity(0.8),
-                          fontWeight: FontWeight.w500,
+                return GestureDetector(
+                  onTap: () => _showReadersDialog(message.id, readCount),
+                  child: Container(
+                    margin: const EdgeInsets.only(left: 6, right: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF007AFF).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.visibility,
+                          size: 12,
+                          color: Color(0xFF007AFF),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 3),
+                        Text(
+                          '$readCount',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF007AFF),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }
@@ -2167,6 +2561,165 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
         // İkinci 3 nokta menü kaldırıldı - çift menü sorununu çözüyor
       ],
     );
+  }
+
+  // Okuyanları gösteren dialog (sadece kurucu için)
+  Future<void> _showReadersDialog(String messageId, int totalCount) async {
+    if (!_chatService.isFounder()) return;
+
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+        title: Row(
+          children: [
+            Icon(
+              Icons.visibility_rounded,
+              color: const Color(0xFF007AFF),
+              size: 24,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'Okuyanlar ($totalCount)',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: _chatService.getMessageReaders(messageId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Color(0xFF007AFF)),
+                );
+              }
+
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Henüz kimse okumamış',
+                    style: TextStyle(
+                      color: isDark ? Colors.grey[400] : Colors.grey[600],
+                    ),
+                  ),
+                );
+              }
+
+              final readers = snapshot.data!;
+              return ListView.builder(
+                itemCount: readers.length,
+                itemBuilder: (context, index) {
+                  final reader = readers[index];
+                  final username = reader['username'] ?? 'Bilinmiyor';
+                  final userEmail = reader['userEmail'] ?? '';
+                  final readAt = reader['readAt'] as Timestamp?;
+                  final readTime = readAt != null 
+                      ? _formatReadTime(readAt.toDate())
+                      : '';
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark 
+                          ? Colors.white.withOpacity(0.05)
+                          : Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: const Color(0xFF007AFF).withOpacity(0.2),
+                          child: Text(
+                            username.isNotEmpty ? username[0].toUpperCase() : '?',
+                            style: const TextStyle(
+                              color: Color(0xFF007AFF),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                username,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: isDark ? Colors.white : Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                userEmail,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                                ),
+                              ),
+                              if (readTime.isNotEmpty)
+                                Text(
+                                  readTime,
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isDark ? Colors.grey[500] : Colors.grey[500],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.check_circle,
+                          color: const Color(0xFF34C759),
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Kapat'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Okunma zamanını formatla
+  String _formatReadTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return 'Az önce';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes} dk önce';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours} saat önce';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} gün önce';
+    } else {
+      return DateFormat('dd MMM, HH:mm', 'tr').format(dateTime);
+    }
   }
 
   // Çeşitli ve güzel kullanıcı renkleri
@@ -2239,29 +2792,22 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
 
   // Reply var mı kontrolü  
   bool _hasReply(ChatMessage message) {
-    // Sinan ve Ayşe'nin mesajlarında reply var
-    return message.userName.toLowerCase() == 'sinan' || 
-           message.userName.toLowerCase() == 'ayşe';
+    return message.hasReply;
   }
 
   // Reply kullanıcı adı
   String _getReplyUserName(ChatMessage message) {
-    if (message.userName.toLowerCase() == 'sinan') {
-      return 'Fatma';
-    } else if (message.userName.toLowerCase() == 'ayşe') {
-      return 'Kader';
-    }
-    return '';
+    return message.replyToUserName ?? '';
   }
 
   // Reply mesaj içeriği
   String _getReplyMessage(ChatMessage message) {
-    if (message.userName.toLowerCase() == 'sinan') {
-      return 'Selamünaleykûm İzzet eker soru ba...';
-    } else if (message.userName.toLowerCase() == 'ayşe') {
-      return 'İlahiyatçı olmuşsunuz arapça konu...';
+    final msg = message.replyToMessage ?? '';
+    // Mesaj çok uzunsa kısalt
+    if (msg.length > 50) {
+      return '${msg.substring(0, 50)}...';
     }
-    return '';
+    return msg;
   }
 
   // Mesaj menüsü gösterilmeli mi kontrolü (sadece başkalarının mesajları için)
@@ -2617,27 +3163,34 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
           ),
         ],
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Mesaj input alanı
-          Expanded(
-            child: Container(
-              constraints: const BoxConstraints(
-                minHeight: 48,
-                maxHeight: 200, // Klavye için daha yüksek limit
-              ),
-              decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF232D3F) : const Color(0xFFF8F9FA),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+          // Reply preview (yanıtlama modu aktifse)
+          if (_replyingToMessage != null)
+            _buildReplyPreview(isDarkMode),
+          
+          Row(
+            children: [
+              // Mesaj input alanı
+              Expanded(
+                child: Container(
+                  constraints: const BoxConstraints(
+                    minHeight: 48,
+                    maxHeight: 200, // Klavye için daha yüksek limit
                   ),
-                ],
-              ),
-              child: TextField(
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF232D3F) : const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
                 controller: _messageController,
                 focusNode: _focusNode,
                 enabled: _hasInternet && (_isChatEnabled || _isFounder()), // İnternet ve chat kontrolü
@@ -2748,9 +3301,86 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
               );
             },
           ),
+          ],
+        ),
         ],
       ),
     );
+  }
+
+  // Reply preview widget
+  Widget _buildReplyPreview(bool isDarkMode) {
+    if (_replyingToMessage == null) return const SizedBox.shrink();
+    
+    final message = _replyingToMessage!;
+    final displayText = message.isDeleted 
+        ? 'Bu mesaj silindi'
+        : (message.message.length > 40 
+            ? '${message.message.substring(0, 40)}...' 
+            : message.message);
+    
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isDarkMode 
+            ? Colors.white.withOpacity(0.08)
+            : Colors.black.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(8),
+        border: Border(
+          left: BorderSide(
+            color: const Color(0xFF007AFF),
+            width: 2,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.reply_rounded,
+            size: 14,
+            color: const Color(0xFF007AFF),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              '${message.userName}: $displayText',
+              style: TextStyle(
+                color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                fontSize: 12,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // Kapat butonu
+          GestureDetector(
+            onTap: _cancelReply,
+            child: Icon(
+              Icons.close_rounded,
+              size: 16,
+              color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Reply modunu ayarla
+  void _setReplyingTo(ChatMessage message) {
+    setState(() {
+      _replyingToMessage = message;
+    });
+    // Input'a focus ver
+    _focusNode.requestFocus();
+  }
+
+  // Reply'ı iptal et
+  void _cancelReply() {
+    setState(() {
+      _replyingToMessage = null;
+    });
   }
 
   // Login prompt - giriş yapılmamışsa hiçbir şey gösterme
@@ -4415,8 +5045,43 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     );
   }
 
+  // Başlangıçta internet durumunu hemen kontrol et
+  Future<void> _checkInitialConnectivity() async {
+    if (kIsWeb) {
+      _hasInternet = true;
+      return;
+    }
+    
+    try {
+      final connectivityResults = await Connectivity().checkConnectivity();
+      final hasConnection = connectivityResults.isNotEmpty && 
+                           !connectivityResults.every((result) => result == ConnectivityResult.none);
+      
+      if (mounted) {
+        setState(() {
+          _hasInternet = hasConnection;
+        });
+        
+        debugPrint('🌐 [CONNECTIVITY] İlk kontrol: ${hasConnection ? "Bağlı" : "Bağlı değil"}');
+      }
+    } catch (e) {
+      debugPrint('⚠️ [CONNECTIVITY] İlk kontrol hatası: $e');
+      if (mounted) {
+        setState(() {
+          _hasInternet = false;
+        });
+      }
+    }
+  }
+
   // Internet bağlantısını sürekli dinle
   void _startConnectivityListener() {
+    // Web'de connectivity listener'a gerek yok
+    if (kIsWeb) {
+      _hasInternet = true;
+      return;
+    }
+    
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((resultList) {
       debugPrint('🌐 [CONNECTIVITY] Durum değişti: $resultList');
       
@@ -4431,13 +5096,22 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
           _hasInternet = hasConnection;
         });
         
-        // Alttan çıkan uyarılar kaldırıldı - sadece banner gösterilecek
+        // Internet geri geldiyse stream'i yenile
+        if (!previousState && hasConnection) {
+          debugPrint('🌐 [CONNECTIVITY] İnternet geri geldi, mesajlar yenileniyor...');
+          setState(() {
+            _messagesStream = _chatService.getMessages(limit: 100);
+          });
+        }
       }
     });
   }
 
   // Internet bağlantısı kontrol et
   Future<bool> _checkInternetConnection() async {
+    // Web'de her zaman true döndür (browser zaten kontrol eder)
+    if (kIsWeb) return true;
+    
     try {
       final connectivityResults = await Connectivity().checkConnectivity();
       final hasConnection = connectivityResults.isNotEmpty && 
@@ -4599,7 +5273,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                   isDarkMode: isDarkMode,
                   onTap: () {
                     Navigator.pop(context);
-                    // Yanıtlama işlemi
+                    _setReplyingTo(message);
                   },
                 ),
                 

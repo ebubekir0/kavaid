@@ -15,6 +15,9 @@ class ChatMessage {
   final String? replyToId;
   final String? replyToUserName;
   final String? replyToMessage;
+  
+  // Paylaşılan kelime listesi
+  final Map<String, dynamic>? sharedWordList;
 
   ChatMessage({
     required this.id,
@@ -29,10 +32,14 @@ class ChatMessage {
     this.replyToId,
     this.replyToUserName,
     this.replyToMessage,
+    this.sharedWordList,
   });
 
   // Reply var mı kontrolü
   bool get hasReply => replyToId != null && replyToId!.isNotEmpty;
+  
+  // Kelime listesi paylaşımı var mı kontrolü
+  bool get hasSharedWordList => sharedWordList != null && sharedWordList!.isNotEmpty;
 
   // Firestore'dan ChatMessage oluştur
   factory ChatMessage.fromMap(Map<String, dynamic> data, String id) {
@@ -55,6 +62,10 @@ class ChatMessage {
       replyToId: data['replyToId'],
       replyToUserName: data['replyToUserName'],
       replyToMessage: data['replyToMessage'],
+      // Paylaşılan kelime listesi
+      sharedWordList: data['sharedWordList'] != null 
+          ? Map<String, dynamic>.from(data['sharedWordList']) 
+          : null,
     );
   }
 

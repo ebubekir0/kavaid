@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:ui' as ui;
-import 'dart:convert'; // Base64 ve JSON için eklendi
+import 'dart:convert';
+import 'dart:async';
 
 import '../models/custom_word.dart';
 import '../models/custom_word_list.dart';
@@ -10,8 +12,7 @@ import '../services/custom_word_service.dart';
 import '../widgets/search_result_card.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
-import '../services/test_community_chat_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/community_chat_service.dart';
 
 /// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
 /// BookTextsScreen ile aynı UI yapısına sahip
@@ -33,21 +34,38 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
   Map<String, int> _wordCounts = {};
   bool _isLoading = true;
   String? _loadingListId;
+  
+  // Kelime listesi değişikliklerini dinlemek için
+  StreamSubscription<void>? _wordsChangedSubscription;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    
+    // Sadece kelime listesi değişikliklerini dinle (hesap değişikliğinde CustomWordService tetikler)
+    _wordsChangedSubscription = _service.onWordsChanged.listen((_) {
+      if (mounted) {
+        debugPrint('📋 [CustomWordsScreen] Listeler değişti, yenileniyor...');
+        _loadData();
+      }
+    });
+  }
+  
+  @override
+  void dispose() {
+    _wordsChangedSubscription?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
     });
 
-    await _service.migrateSavedWords();
-
-    // En az bir liste olduğundan emin ol
+    // Yerel listelerden yükle (Firestore sync hesap değişikliğinde otomatik yapılıyor)
     await _service.getOrCreateDefaultList();
     var lists = await _service.getLists();
     
@@ -594,30 +612,21 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
       'wordData': w.wordData,
     }).toList();
 
-    // Test toplulukta paylaş
-    final chatService = TestCommunityChatService();
+    // Toplulukta paylaş
+    final chatService = CommunityChatService();
     
-    // Erişim kontrolü
-    if (!chatService.canAccessTestCommunity()) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Test topluluğuna erişim izniniz yok'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
+    // Kelime listesi verisini hazırla (Firestore'da ayrı alanda saklanacak)
+    final sharedData = {
+      'name': list.name,
+      'words': wordMaps,
+      'wordCount': words.length,
+      'version': 'V2',
+    };
     
-    // JSON'a çevir ve Base64 ile encode et
-    final jsonString = jsonEncode(wordMaps);
-    final base64Data = base64Encode(utf8.encode(jsonString));
+    // Kısa mesaj metni (eski sürümler sadece bunu görecek - italik görünecek)
+    final shareMessage = 'Sizinle bir kelime listesi paylaştı. Görmek için uygulamayı güncelleyin.';
     
-    // Paylaşım mesajı (V2 formatı: BASE64_JSON|...)
-    final shareMessage = '📚 KELIME_LISTESI_PAYLASIMI_V2|${list.name}|${words.length}|$base64Data';
-    
-    final success = await chatService.sendMessage(shareMessage);
+    final success = await chatService.sendMessage(shareMessage, sharedWordList: sharedData);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(

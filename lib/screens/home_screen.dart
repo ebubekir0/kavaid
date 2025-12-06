@@ -942,64 +942,63 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                                       Expanded(
                                         child: Container(
                                           alignment: Alignment.center,
-                                          child: Directionality(
+                                          child: TextField(
+                                            controller: _searchController,
+                                            focusNode: _searchFocusNode,
+                                            autofocus: false,
+                                            textAlignVertical: TextAlignVertical.center,
                                             textDirection: _containsArabic(_searchController.text)
                                                 ? TextDirection.rtl
                                                 : TextDirection.ltr,
-                                            child: TextField(
-                                              controller: _searchController,
-                                              focusNode: _searchFocusNode,
-                                              autofocus: false,
-                                              textAlignVertical: TextAlignVertical.center,
-                                              textAlign: _containsArabic(_searchController.text)
-                                                  ? TextAlign.right
-                                                  : TextAlign.left,
-                                              keyboardAppearance: widget.isDarkMode
-                                                  ? Brightness.dark
-                                                  : Brightness.light,
-                                              cursorColor: const Color(0xFF007AFF),
-                                              showCursor: true,
-                                              enableInteractiveSelection: true,
-                                              autocorrect: false,
-                                              enableSuggestions: false,
-                                              style: TextStyle(
-                                                fontSize: _containsArabic(_searchController.text) ? 19 : 15,
-                                                height: 1.15,
-                                                letterSpacing: 0.0,
-                                                color: widget.isDarkMode
-                                                    ? Colors.white
-                                                    : const Color(0xFF1C1C1E),
-                                                fontWeight: FontWeight.w500,
-                                                decoration: TextDecoration.none,
-                                              ),
-                                              decoration: InputDecoration(
-                                                hintText: 'Kelime ara',
-                                                hintStyle: TextStyle(
-                                                  color: widget.isDarkMode
-                                                      ? const Color(0xFF8E8E93).withOpacity(0.8)
-                                                      : const Color(0xFF8E8E93),
-                                                  fontSize: 13,
-                                                  fontWeight: FontWeight.w400,
-                                                ),
-                                                border: InputBorder.none,
-                                                enabledBorder: InputBorder.none,
-                                                focusedBorder: InputBorder.none,
-                                                isDense: true,
-                                                contentPadding: EdgeInsets.zero,
-                                              ),
-                                              textInputAction: TextInputAction.search,
-                                              onSubmitted: (_) => _searchWithAI(),
-                                              readOnly: _showArabicKeyboard,
-                                              onTap: () {
-                                                // Arapça klavye açıksa kapat ve sistem klavyesini aç
-                                                if (_showArabicKeyboard) {
-                                                  setState(() {
-                                                    _showArabicKeyboard = false;
-                                                  });
-                                                  widget.onArabicKeyboardStateChanged?.call(false);
-                                                }
-                                              },
+                                            textAlign: _containsArabic(_searchController.text)
+                                                ? TextAlign.right
+                                                : TextAlign.left,
+                                            keyboardType: TextInputType.text,
+                                            keyboardAppearance: widget.isDarkMode
+                                                ? Brightness.dark
+                                                : Brightness.light,
+                                            cursorColor: const Color(0xFF007AFF),
+                                            showCursor: true,
+                                            enableInteractiveSelection: true,
+                                            enableIMEPersonalizedLearning: true,
+                                            autofillHints: null,
+                                            style: TextStyle(
+                                              fontSize: _containsArabic(_searchController.text) ? 19 : 15,
+                                              height: 1.15,
+                                              letterSpacing: 0.0,
+                                              color: widget.isDarkMode
+                                                  ? Colors.white
+                                                  : const Color(0xFF1C1C1E),
+                                              fontWeight: FontWeight.w500,
+                                              decoration: TextDecoration.none,
                                             ),
+                                            decoration: InputDecoration(
+                                              hintText: 'Kelime ara',
+                                              hintStyle: TextStyle(
+                                                color: widget.isDarkMode
+                                                    ? const Color(0xFF8E8E93).withOpacity(0.8)
+                                                    : const Color(0xFF8E8E93),
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              border: InputBorder.none,
+                                              enabledBorder: InputBorder.none,
+                                              focusedBorder: InputBorder.none,
+                                              isDense: true,
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                            textInputAction: TextInputAction.search,
+                                            onSubmitted: (_) => _searchWithAI(),
+                                            readOnly: _showArabicKeyboard,
+                                            onTap: () {
+                                              // Arapça klavye açıksa kapat ve sistem klavyesini aç
+                                              if (_showArabicKeyboard) {
+                                                setState(() {
+                                                  _showArabicKeyboard = false;
+                                                });
+                                                widget.onArabicKeyboardStateChanged?.call(false);
+                                              }
+                                            },
                                           ),
                                         ),
                                       ),

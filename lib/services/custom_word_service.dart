@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/custom_word.dart';
 import '../models/custom_word_list.dart';
 import '../models/word_model.dart';
@@ -19,41 +20,54 @@ class CustomWordService {
     return _instance;
   }
 
+  // Önceki kullanıcı ID'si (hesap değişikliğini takip etmek için)
+  String? _previousUserId;
+  StreamSubscription<User?>? _authSubscription;
+
   CustomWordService._internal() {
-    // Bağlantı değişikliklerini dinle
+    // Bağlantı değişikliklerini dinle - sadece bekleyen sync için
     _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
       final hasConnection = results.any((r) => r != ConnectivityResult.none);
       if (hasConnection && _isUserLoggedIn) {
-        // İnternet açıldığında bekleyen işlemleri senkronize et
         _syncPendingChangesToFirestore();
       }
     });
     
-    // Uygulama başladığında bekleyen işlemleri kontrol et
-    _checkAndSyncOnStartup();
+    // Auth state değişikliklerini dinle (hesap değişikliği için)
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_onAuthStateChanged);
   }
   
-  /// Uygulama başladığında bekleyen işlemleri kontrol et
-  Future<void> _checkAndSyncOnStartup() async {
-    // Biraz bekle, auth durumu yüklensin
-    await Future.delayed(const Duration(seconds: 2));
+  /// Auth state değişikliğinde çağrılır - BASİT VE SAĞLAM
+  Future<void> _onAuthStateChanged(User? user) async {
+    final currentUserId = user?.uid;
     
-    if (_isUserLoggedIn) {
-      final hasConnection = await _hasInternetConnection();
-      if (hasConnection) {
-        debugPrint('🔄 [CustomWordService] Uygulama başladı, bekleyen işlemler kontrol ediliyor...');
-        await _syncPendingChangesToFirestore();
-      }
+    // Aynı kullanıcı ise bir şey yapma
+    if (currentUserId == _previousUserId) return;
+    
+    debugPrint('🔄 [CustomWordService] Hesap değişti: ${_previousUserId ?? "yok"} -> ${currentUserId ?? "yok"}');
+    
+    // Her hesap değişikliğinde yerel verileri temizle
+    await _clearLocalData();
+    
+    // Yeni kullanıcı varsa Firestore'dan yükle
+    if (currentUserId != null) {
+      await syncFromFirestore();
     }
+    
+    _previousUserId = currentUserId;
+    _notifyListeners();
   }
   
-  /// Kullanıcı giriş yaptığında çağrılır - bekleyen işlemleri senkronize et
-  Future<void> onUserLogin() async {
-    final hasConnection = await _hasInternetConnection();
-    if (hasConnection) {
-      debugPrint('🔄 [CustomWordService] Kullanıcı giriş yaptı, senkronizasyon başlıyor...');
-      await _syncPendingChangesToFirestore();
-      await syncFromFirestore();
+  /// Yerel verileri temizle
+  Future<void> _clearLocalData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_localListsKey);
+      await prefs.remove(_localWordsKey);
+      await prefs.remove(_pendingSyncKey);
+      debugPrint('🗑️ [CustomWordService] Yerel veriler temizlendi');
+    } catch (e) {
+      debugPrint('❌ [CustomWordService] Temizleme hatası: $e');
     }
   }
 
@@ -485,7 +499,7 @@ class CustomWordService {
   }
 
   /// En az bir liste olduğundan emin ol, yoksa "Kaydedilenler" oluştur
-  Future<CustomWordList> getOrCreateDefaultList() async {
+  Future<CustomWordList> getOrCreateDefaultList({bool skipMigration = false}) async {
     if (!_isUserLoggedIn) {
       return CustomWordList(
         id: 'temp_default',
@@ -494,9 +508,6 @@ class CustomWordService {
         isDefault: true,
       );
     }
-    
-    // Migration'ı çalıştır
-    await migrateToFirestore();
     
     final lists = await getLists();
     

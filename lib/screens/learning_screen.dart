@@ -192,6 +192,16 @@ class _LearningScreenState extends State<LearningScreen> {
   }
 
   Widget _buildBooksList(bool isDarkMode) {
+    // Kitaplar kaldırıldı - sadece kelime listeleri kartı gösterilecek
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildCustomWordsCard(isDarkMode),
+      ],
+    );
+  }
+
+  Widget _buildBooksList_OLD(bool isDarkMode) {
     final books = BookStoreService.books;
     return ListView.separated(
       padding: const EdgeInsets.all(16),

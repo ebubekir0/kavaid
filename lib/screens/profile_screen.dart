@@ -663,36 +663,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ],
                                   ),
                                 ),
-                                OutlinedButton.icon(
-                                  onPressed: () async {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (dCtx) => AlertDialog(
-                                        title: const Text('Çıkış yapılsın mı?'),
-                                        content: const Text('Oturumunuz kapatılacak.'),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => Navigator.of(dCtx).pop(false),
-                                            child: const Text('İptal'),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    OutlinedButton.icon(
+                                      onPressed: () async {
+                                        final confirm = await showDialog<bool>(
+                                          context: context,
+                                          builder: (dCtx) => AlertDialog(
+                                            title: const Text('Çıkış yapılsın mı?'),
+                                            content: const Text('Oturumunuz kapatılacak.'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () => Navigator.of(dCtx).pop(false),
+                                                child: const Text('İptal'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () => Navigator.of(dCtx).pop(true),
+                                                child: const Text('Çıkış'),
+                                              ),
+                                            ],
                                           ),
-                                          TextButton(
-                                            onPressed: () => Navigator.of(dCtx).pop(true),
-                                            child: const Text('Çıkış'),
-                                          ),
-                                        ],
+                                        );
+                                        if (confirm == true) {
+                                          await _authService.signOut();
+                                          if (mounted) setState(() {});
+                                        }
+                                      },
+                                      icon: const Icon(Icons.logout, size: 16),
+                                      label: const Text('Çıkış'),
+                                      style: OutlinedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        minimumSize: const Size(0, 32),
                                       ),
-                                    );
-                                    if (confirm == true) {
-                                      await _authService.signOut();
-                                      if (mounted) setState(() {});
-                                    }
-                                  },
-                                  icon: const Icon(Icons.logout, size: 16),
-                                  label: const Text('Çıkış'),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    minimumSize: const Size(0, 32),
-                                  ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             );
@@ -752,132 +757,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Reklam kaldırma önerisi veya durumu - Profil kısmının hemen altında
-                if (!_creditsService.isLifetimeAdsFree) ...[
-                  // Reklam kaldırma önerisi
-                    GestureDetector(
-                    onTap: () {
-                      FocusScope.of(context).unfocus();
-                      if (!_authService.isSignedIn) {
-                        // Giriş zorunlu - alttan SnackBar uyarısı göster
-                        _showLoginRequiredSnackBar();
-                        return;
-                      }
-                      _showPurchaseDialog();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Color(0xFF007AFF).withOpacity(0.3),
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Icon(
-                              Icons.block,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Reklamları Kaldır',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              _purchaseService.removeAdsPrice,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF007AFF),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ] else ...[
-                  // Reklamsız durumu - daha küçük
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF007AFF),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Color(0xFF007AFF).withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                Icons.all_inclusive,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Reklamsız Kullanım',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                
-                const SizedBox(height: 12),
-                
-                
                 // TEST: Debug butonları (sadece debug modda)
                 if (!kReleaseMode) ...[
                   Container(
@@ -1446,6 +1325,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
+                
+                // Hesabı Sil Kartı (sadece giriş yapılmışsa)
+                if (_authService.isSignedIn) ...[
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => _showDeleteAccountDialog(isDarkMode),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.red.withOpacity(0.3),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode
+                                ? Colors.black.withOpacity(0.2)
+                                : Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.delete_forever,
+                              color: Colors.red,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Hesabı Sil',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.red.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 
                 // 🧪 DEBUG: Satın alma test araçları (sadece debug modda)
                 if (kDebugMode) ...[
@@ -2149,6 +2089,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  void _showDeleteAccountDialog(bool isDarkMode) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
+            const SizedBox(width: 8),
+            Text(
+              'Hesabı Sil',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        content: Text(
+          'Hesabınız ve tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.',
+          style: TextStyle(
+            color: isDarkMode ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('İptal', style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _deleteAccount(isDarkMode);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Hesabı Sil'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteAccount(bool isDarkMode) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Firestore'dan kullanıcı verilerini sil
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+      
+      // Firebase Auth hesabını sil
+      await user.delete();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Hesabınız başarıyla silindi'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {});
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        // Yeniden giriş gerekiyor
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Güvenlik nedeniyle önce çıkış yapıp tekrar giriş yapın'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Hesap silme hatası: ${e.message}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Hesap silme hatası: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _showEmailAuthSheet(bool isDarkMode, {bool initialIsLogin = true}) {

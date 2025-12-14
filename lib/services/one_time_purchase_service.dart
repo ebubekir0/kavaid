@@ -11,6 +11,7 @@ import 'device_data_service.dart';
 import 'credits_service.dart';
 import 'turkce_analytics_service.dart';
 import 'admob_service.dart';
+import '../utils/purchase_helper.dart';
 
 class OneTimePurchaseService extends ChangeNotifier {
   static const String _removeAdsProductId = 'kavaid_remove_ads_lifetime';
@@ -24,7 +25,6 @@ class OneTimePurchaseService extends ChangeNotifier {
   bool _purchasePending = false;
   String _lastError = '';
   bool _isLifetimeAdsFree = false;
-  bool _isLoadingProducts = false; // Ürün yükleme kontrolü
   bool _isInitialized = false; // Initialize kontrolü
   DateTime? _lastFirestoreCheck; // Son Firestore kontrol zamanı
   static const Duration _firestoreCacheDuration = Duration(minutes: 5); // Cache süresi
@@ -349,54 +349,38 @@ class OneTimePurchaseService extends ChangeNotifier {
   
   // Ürünleri yükle
   Future<void> loadProducts() async {
-    // Zaten yükleme yapılıyorsa bekle
-    if (_isLoadingProducts) {
-
-      return;
-    }
-    
-
-    _isLoadingProducts = true;
-    
-    try {
-      Set<String> kIds = <String>{_removeAdsProductId};
-      final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(kIds);
-      
-      if (productDetailResponse.error != null) {
-        _lastError = 'Ürün yükleme hatası: ${productDetailResponse.error!.message}';
-
-        _products = [];
-        notifyListeners();
-        return;
-      }
-      
-      if (productDetailResponse.productDetails.isEmpty) {
-        _lastError = 'Reklam kaldırma ürünü store\'da bulunamadı';
-
-        _products = [];
-        notifyListeners();
-        return;
-      }
-      
-      _products = productDetailResponse.productDetails;
-      _lastError = '';
-
-      
-      for (var product in _products) {
-
-
-
-      }
-      
-      notifyListeners();
-      
-    } catch (e) {
-
-      _lastError = 'Ürünler yüklenirken hata oluştu: $e';
-      notifyListeners();
-    } finally {
-      _isLoadingProducts = false;
-    }
+    // PurchaseHelper ile güvenli yükleme - "Reply already submitted" hatasını önler
+    await PurchaseHelper.safeLoadProduct(
+      productId: _removeAdsProductId,
+      loadFunction: () async {
+        try {
+          Set<String> kIds = <String>{_removeAdsProductId};
+          final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(kIds);
+          
+          if (productDetailResponse.error != null) {
+            _lastError = 'Ürün yükleme hatası: ${productDetailResponse.error!.message}';
+            _products = [];
+            notifyListeners();
+            return;
+          }
+          
+          if (productDetailResponse.productDetails.isEmpty) {
+            _lastError = 'Reklam kaldırma ürünü store\'da bulunamadı';
+            _products = [];
+            notifyListeners();
+            return;
+          }
+          
+          _products = productDetailResponse.productDetails;
+          _lastError = '';
+          notifyListeners();
+          
+        } catch (e) {
+          _lastError = 'Ürünler yüklenirken hata oluştu: $e';
+          notifyListeners();
+        }
+      },
+    );
   }
   
   // Satın alma işlemi

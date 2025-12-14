@@ -454,7 +454,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                     ],
                   ),
                 ),
-                // Sağ - Paylaş butonu + 3 nokta menüsü
+                // Sağ - 3 nokta menüsü
                 if (_loadingListId == list.id)
                   const SizedBox(
                     width: 20,
@@ -462,68 +462,49 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 else
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Paylaş butonu (ayrı)
-                      if (!list.isShared)
-                        GestureDetector(
-                          onTap: () => _showShareConfirmDialog(list, wordCount, isDark),
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            child: const Icon(
-                              Icons.share_rounded,
-                              size: 20,
-                              color: Color(0xFF007AFF),
-                            ),
-                          ),
+                  PopupMenuButton<String>(
+                    icon: Icon(
+                      Icons.more_vert_rounded,
+                      color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93),
+                      size: 22,
+                    ),
+                    padding: EdgeInsets.zero,
+                    color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 8,
+                    onSelected: (value) {
+                      if (value == 'rename') {
+                        _showRenameListDialog(list);
+                      } else if (value == 'delete') {
+                        _showDeleteDialog(list, isDark);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      // Yeniden adlandır
+                      PopupMenuItem(
+                        value: 'rename',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_rounded, size: 18, color: isDark ? Colors.white : Colors.black87),
+                            const SizedBox(width: 12),
+                            Text('Yeniden Adlandır', style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
+                          ],
                         ),
-                      // 3 nokta menüsü
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert_rounded,
-                          color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93),
-                          size: 22,
-                        ),
-                        padding: EdgeInsets.zero,
-                        color: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 8,
-                        onSelected: (value) {
-                          if (value == 'rename') {
-                            _showRenameListDialog(list);
-                          } else if (value == 'delete') {
-                            _showDeleteDialog(list, isDark);
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          // Yeniden adlandır
-                          PopupMenuItem(
-                            value: 'rename',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit_rounded, size: 18, color: isDark ? Colors.white : Colors.black87),
-                                const SizedBox(width: 12),
-                                Text('Yeniden Adlandır', style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87)),
-                              ],
-                            ),
-                          ),
-                          // Sil
-                          if (canDelete)
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
-                                  SizedBox(width: 12),
-                                  Text('Sil', style: TextStyle(fontSize: 14, color: Colors.red)),
-                                ],
-                              ),
-                            ),
-                        ],
                       ),
+                      // Sil
+                      if (canDelete)
+                        const PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                              SizedBox(width: 12),
+                              Text('Sil', style: TextStyle(fontSize: 14, color: Colors.red)),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
               ],

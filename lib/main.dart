@@ -13,10 +13,8 @@ import 'services/connectivity_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/learning_screen.dart';
 import 'screens/profile_screen.dart';
-import 'screens/community_chat_screen.dart';
 import 'screens/admin_console_screen.dart';
 import 'services/admin_service.dart';
-import 'services/community_chat_service.dart';
 import 'services/saved_words_service.dart';
 import 'services/admob_service.dart';
 import 'widgets/banner_ad_widget.dart';
@@ -938,30 +936,12 @@ class _MainScreenState extends State<MainScreen> {
   final GlobalKey<BannerAdWidgetState> _bannerKey = GlobalKey<BannerAdWidgetState>();
   // Admin servis
   final AdminService _adminService = AdminService();
-  // Topluluk servisi
-  final CommunityChatService _communityService = CommunityChatService();
-  // Topluluk görünürlüğü kontrolü
-  bool _communityEnabled = true;
-  // Topluluk bildirim sayısı
-  int _communityNotificationCount = 0;
   // Subscriptionlar
-  StreamSubscription<int>? _notificationSubscription;
   StreamSubscription<User?>? _authSubscription;
 
   @override
   void initState() {
     super.initState();
-    
-    // Topluluk tercihini yükle
-    _loadCommunityPreference();
-    
-    // Topluluk bildirimleri dinle
-    _listenToCommunityNotifications();
-    
-    // Kullanıcı giriş durumunu dinle (bildirimleri güncellemek için)
-    _authSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
-      _listenToCommunityNotifications();
-    });
     
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -1007,7 +987,6 @@ class _MainScreenState extends State<MainScreen> {
   
   @override
   void dispose() {
-    _notificationSubscription?.cancel();
     _authSubscription?.cancel();
     _connectivityService.stopListening();
     super.dispose();
@@ -1073,63 +1052,14 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
   
-  // Topluluk tercihini yükle
-  Future<void> _loadCommunityPreference() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (mounted) {
-        setState(() {
-          _communityEnabled = prefs.getBool('community_enabled') ?? true;
-        });
-      }
-    } catch (e) {
-      debugPrint('❌ Topluluk tercihi yüklenirken hata: $e');
-    }
-  }
-  
-  // Topluluk bildirimlerini dinle
-  void _listenToCommunityNotifications() {
-    // Önceki dinleyiciyi iptal et
-    _notificationSubscription?.cancel();
-    _notificationSubscription = null;
-    
-    debugPrint('🔔 [MAIN] Bildirimler dinleniyor...');
-    
-    // Yeni dinleyici başlat
-    _notificationSubscription = _communityService.getUnreadNotificationCount().listen((count) {
-      debugPrint('🔔 [MAIN] Okunmamış bildirim sayısı: $count');
-      if (mounted) {
-        setState(() {
-          _communityNotificationCount = count;
-        });
-      }
-    });
-  }
-  
-  // Topluluk toggle değişikliğini işle - Sadece gerektiğinde index değiştir
-  void _onCommunityToggleChanged(bool enabled) {
-    if (mounted) {
-      setState(() {
-        _communityEnabled = enabled;
-        
-        // Sadece zorunlu durum: Topluluk sekmesindeyken kapatlırsa profil'e git
-        if (!enabled && _currentIndex == 2) {
-          _currentIndex = 3; // Profil sekmesi (IndexedStack'te)
-        }
-        // Diğer durumlarda _currentIndex'i değiştirme!
-        // Kullanıcı hangi sekmede ise orada kalsın
-      });
-    }
-  }
   
   // Görünür sekmelerin IndexedStack index'lerini döndür
   List<int> _getVisibleStackIndices() {
     return [
       0, // Sözlük
       1, // Öğren
-      if (_communityEnabled) 2, // Topluluk
-      3, // Profil
-      if (_adminService.isAdmin()) 4, // Admin Console
+      2, // Profil
+      if (_adminService.isAdmin()) 3, // Admin Console
     ];
   }
 
@@ -1289,30 +1219,18 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                       ),
 
-                      // 2: Topluluk - sadece aktifken oluştur
+                      // 2: Profil - sadece aktifken oluştur
                       _currentIndex == 2
-                          ? (_communityEnabled
-                              ? CommunityChatScreen(
-                                  key: const ValueKey('community_screen'),
-                                  topPadding: _bannerHeight,
-                                  bottomPadding: navBarHeight + systemNavBarHeight,
-                                )
-                              : _buildErrorScreen('Topluluk sekmesi devre dışı'))
-                          : const SizedBox.shrink(),
-
-                      // 3: Profil - sadece aktifken oluştur
-                      _currentIndex == 3
                           ? ProfileScreen(
                               key: const ValueKey('profile_screen'),
                               bottomPadding: totalBottomPadding,
                               isDarkMode: widget.isDarkMode,
                               onThemeToggle: widget.onThemeToggle,
-                              onCommunityToggle: _onCommunityToggleChanged,
                             )
                           : const SizedBox.shrink(),
 
-                      // 4: Admin Console - sadece aktifken oluştur
-                      _currentIndex == 4
+                      // 3: Admin Console - sadece aktifken oluştur
+                      _currentIndex == 3
                           ? (_adminService.isAdmin()
                               ? AdminConsoleScreen(
                                   key: const ValueKey('admin_screen'),
@@ -1332,11 +1250,11 @@ class _MainScreenState extends State<MainScreen> {
           AnimatedPositioned(
             duration: const Duration(milliseconds: 100),
             curve: Curves.easeOut,
-            // Topluluk veya Admin Console ekranında banner üstte, diğerlerinde altta
-            top: (_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)
+            // Admin Console ekranında banner üstte, diğerlerinde altta
+            top: (_adminService.isAdmin() && _currentIndex == 3)
                 ? MediaQuery.of(context).viewPadding.top 
                 : null,
-            bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4)) 
+            bottom: (_adminService.isAdmin() && _currentIndex == 3) 
                 ? null 
                 : (hasSystemKeyboard
                     ? keyboardHeight  // Klavye açıkken direkt klavyenin üstünde - nav bar hesaplama
@@ -1364,11 +1282,11 @@ class _MainScreenState extends State<MainScreen> {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 100),
               curve: Curves.easeOut,
-              // Topluluk veya Admin Console ekranında üstte, diğerlerinde altta
-              top: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
+              // Admin Console ekranında üstte, diğerlerinde altta
+              top: (_adminService.isAdmin() && _currentIndex == 3)
                   ? MediaQuery.of(context).viewPadding.top + _bannerHeight - 10
                   : null,
-              bottom: ((_communityEnabled && _currentIndex == 2) || (_adminService.isAdmin() && _currentIndex == 4))
+              bottom: (_adminService.isAdmin() && _currentIndex == 3)
                   ? null 
                   : (hasSystemKeyboard
                       ? keyboardHeight + _bannerHeight - 10  // Klavye açıkken banner'ın 10px üstünde
@@ -1445,31 +1363,6 @@ class _MainScreenState extends State<MainScreen> {
                       icon: const Icon(Icons.school_outlined),
                       label: 'Öğren',
                     ),
-                    // Topluluk sekmesi - tercihe göre göster
-                    if (_communityEnabled)
-                      BottomNavigationBarItem(
-                        icon: Badge(
-                          isLabelVisible: _communityNotificationCount > 0,
-                          label: Text(
-                            _communityNotificationCount > 9 
-                                ? '9+' 
-                                : _communityNotificationCount.toString(),
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          child: const Icon(Icons.forum_outlined),
-                        ),
-                        activeIcon: Badge(
-                          isLabelVisible: _communityNotificationCount > 0,
-                          label: Text(
-                            _communityNotificationCount > 9 
-                                ? '9+' 
-                                : _communityNotificationCount.toString(),
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          child: const Icon(Icons.forum),
-                        ),
-                        label: 'Topluluk',
-                      ),
                     BottomNavigationBarItem(
                       icon: const Icon(Icons.person_outline),
                       activeIcon: const Icon(Icons.person),

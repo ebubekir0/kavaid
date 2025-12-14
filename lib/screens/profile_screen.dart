@@ -34,7 +34,6 @@ class ProfileScreen extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback? onThemeToggle;
   final bool autoOpenLoginSheet;
-  final Function(bool)? onCommunityToggle;
 
   const ProfileScreen({
     super.key,
@@ -42,7 +41,6 @@ class ProfileScreen extends StatefulWidget {
     required this.isDarkMode,
     this.onThemeToggle,
     this.autoOpenLoginSheet = false,
-    this.onCommunityToggle,
   });
 
   @override
@@ -64,7 +62,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   
   String? _userRole; // 'founder', 'moderator', veya null
   StreamSubscription<DocumentSnapshot>? _roleSubscription;
-  bool _communityEnabled = true; // Topluluk açık/kapalı durumu
 
   @override
   void initState() {
@@ -79,7 +76,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _bookPurchase.initialize();
     _checkUserRole(); // Yetki kontrolü
     _listenToRoleChanges(); // Role değişikliklerini dinle
-    _loadCommunityPreference(); // Topluluk tercihi yükle
     
     // Play Console'dan fiyat bilgilerini yükle
     _loadPurchaseData();
@@ -134,30 +130,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _updateState() {
     if (mounted) {
       setState(() {});
-    }
-  }
-  
-  // Topluluk tercihini yükle
-  Future<void> _loadCommunityPreference() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _communityEnabled = prefs.getBool('community_enabled') ?? true; // Varsayılan açık
-    });
-  }
-  
-  // Topluluk tercihini kaydet - Sessiz İşlem
-  Future<void> _saveCommunityPreference(bool enabled) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('community_enabled', enabled);
-      setState(() {
-        _communityEnabled = enabled;
-      });
-      
-      // Ana ekrana sadece navigation bar güncellemesi için bildir
-      widget.onCommunityToggle?.call(enabled);
-    } catch (e) {
-      // Sessizce hataı yakala - Hiçbir uyarı gösterme
     }
   }
   
@@ -1330,38 +1302,148 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 const SizedBox(height: 12),
                 
-                // Topluluk Kartı - En Alt
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
-                      width: 1,
+                // İletişim Kartı
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      builder: (ctx) => Container(
+                        decoration: BoxDecoration(
+                          color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                        ),
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: isDarkMode ? Colors.grey[600] : Colors.grey[300],
+                                borderRadius: BorderRadius.circular(2),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Icon(
+                              Icons.email_outlined,
+                              size: 48,
+                              color: const Color(0xFF007AFF),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'İletişim',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: isDarkMode ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            GestureDetector(
+                              onTap: () async {
+                                final Uri emailUri = Uri(
+                                  scheme: 'mailto',
+                                  path: 'ebubekirkul6153@gmail.com',
+                                  queryParameters: {
+                                    'subject': 'Kavaid Uygulaması Hakkında',
+                                  },
+                                );
+                                if (await canLaunchUrl(emailUri)) {
+                                  await launchUrl(emailUri);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF007AFF).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.mail_outline,
+                                      color: const Color(0xFF007AFF),
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'ebubekirkul6153@gmail.com',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: const Color(0xFF007AFF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode
+                              ? Colors.black.withOpacity(0.2)
+                              : Colors.black.withOpacity(0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Topluluk',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: isDarkMode ? Colors.white : Colors.black,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF007AFF).withOpacity(0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.email_outlined,
+                            color: const Color(0xFF007AFF),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      Transform.scale(
-                        scale: 0.8,
-                        child: Switch(
-                          value: _communityEnabled,
-                          onChanged: _saveCommunityPreference,
-                          activeColor: const Color(0xFF007AFF),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'İletişim',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: isDarkMode 
+                              ? const Color(0xFF8E8E93)
+                              : const Color(0xFF6D6D70),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 

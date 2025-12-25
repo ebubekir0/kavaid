@@ -8,6 +8,7 @@ class EmailAuthSheet {
   static void show(BuildContext context, {
     bool initialIsLogin = true,
     String? message,
+    VoidCallback? onSuccess,
   }) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final formKey = GlobalKey<FormState>();
@@ -177,18 +178,20 @@ class EmailAuthSheet {
                                   email: emailController.text.trim(),
                                   password: passController.text,
                                 );
-                                if (user != null) {
-                                  Navigator.pop(ctx);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Başarıyla giriş yapıldı!')),
-                                  );
-                                }
+                                  if (user != null) {
+                                    Navigator.pop(ctx);
+                                    if (onSuccess != null) onSuccess();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Başarıyla giriş yapıldı!')),
+                                    );
+                                  }
                               } else {
                                 final user = await authService.signUpWithEmail(
                                   email: emailController.text.trim(),
                                   password: passController.text,
                                 );
                                 if (user != null) {
+                                  if (onSuccess != null) onSuccess();
                                   setSheetState(() {
                                     successText = 'Kayıt tamamlandı. Lütfen giriş yapın.';
                                     isLogin = true;

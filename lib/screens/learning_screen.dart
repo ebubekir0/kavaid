@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kavaid/widgets/email_auth_sheet.dart'; // Import eklendi
-import 'package:kavaid/screens/legacy_book_texts_screen.dart';
+import 'package:kavaid/screens/book_texts_screen.dart';
 import 'package:kavaid/screens/interactive_book_screen.dart';
 import 'package:kavaid/services/book_store_service.dart';
 import 'package:kavaid/services/purchase_manager.dart';
@@ -1347,7 +1347,7 @@ class _PurchasedBooksScreenState extends State<PurchasedBooksScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => LegacyBookTextsScreen(
+                        builder: (context) => BookTextsScreen(
                           bookId: book.bookId,
                           bookTitle: book.title,
                           isDarkMode: isDarkMode,

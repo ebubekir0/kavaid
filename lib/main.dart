@@ -1208,11 +1208,7 @@ class _MainScreenState extends State<MainScreen> {
                           key: _learningTabNavKey,
                           onGenerateRoute: (settings) {
                             return MaterialPageRoute(
-                              builder: (_) => LearningScreen(
-                                bottomPadding: 0,
-                                isDarkMode: widget.isDarkMode,
-                                onThemeToggle: widget.onThemeToggle,
-                              ),
+                              builder: (_) => const LearningScreen(),
                               settings: settings,
                             );
                           },

@@ -699,7 +699,7 @@ class _LearningScreenState extends State<LearningScreen> {
             Container(
               height: thumbnailHeight,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10), // Daha yuvarlak
+                borderRadius: BorderRadius.circular(10),
                 color: Colors.grey.withOpacity(0.15), 
                 boxShadow: [
                   BoxShadow(
@@ -708,64 +708,79 @@ class _LearningScreenState extends State<LearningScreen> {
                     offset: const Offset(0, 3),
                   ),
                 ],
-                image: content.thumbnail.isNotEmpty && !content.thumbnail.contains("placeholder")
-                    ? DecorationImage(
-                        image: AssetImage(content.thumbnail),
-                        fit: BoxFit.cover,
-                        onError: (obj, stack) {}
-                      )
-                    : null,
               ),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (content.thumbnail.isEmpty || content.thumbnail.contains("placeholder"))
-                    Center(
-                      child: Text(
-                        content.title.substring(0, 1),
-                        style: GoogleFonts.gemunuLibre(
-                          fontSize: 40,
-                          color: Colors.grey,
-                          fontWeight: FontWeight.bold,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    // Thumbnail görseli - hata durumunda placeholder
+                    if (content.thumbnail.isNotEmpty && !content.thumbnail.contains("placeholder"))
+                      Image.asset(
+                        content.thumbnail,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Görsel yüklenemezse initial harfini göster
+                          return Center(
+                            child: Text(
+                              content.title.isNotEmpty ? content.title.substring(0, 1) : "?",
+                              style: GoogleFonts.gemunuLibre(
+                                fontSize: 40,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    else
+                      Center(
+                        child: Text(
+                          content.title.isNotEmpty ? content.title.substring(0, 1) : "?",
+                          style: GoogleFonts.gemunuLibre(
+                            fontSize: 40,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                  
+                    
                     if (isLocked)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.lock_rounded, color: Colors.white, size: 16),
+                        ),
+                      ),
+                    
+                    // Seviye Badge'i (Sağ Üst)
                     Positioned(
                       top: 8,
-                      left: 8,
+                      right: 8,
                       child: Container(
-                        padding: const EdgeInsets.all(6),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.6),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(6),
                         ),
-                        child: const Icon(Icons.lock_rounded, color: Colors.white, size: 16),
-                      ),
-                    ),
-                  
-                  // Seviye Badge'i (Sağ Üst)
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        content.level,
-                        style: GoogleFonts.outfit(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                        child: Text(
+                          content.level,
+                          style: GoogleFonts.outfit(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             
@@ -903,19 +918,44 @@ class _ContentDetailSheet extends StatelessWidget {
           Stack(
             children: [
               // Arka Plan Resmi (Blur efektli olabilir veya direkt resim)
-              Container(
-                height: 200,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  image: content.thumbnail.isNotEmpty && !content.thumbnail.contains("placeholder")
-                      ? DecorationImage(
-                          image: AssetImage(content.thumbnail),
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                child: Container(
+                  height: 200,
+                  width: double.infinity,
+                  color: Colors.grey[800],
+                  child: content.thumbnail.isNotEmpty && !content.thumbnail.contains("placeholder")
+                      ? Image.asset(
+                          content.thumbnail,
                           fit: BoxFit.cover,
-                          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+                          color: Colors.black.withOpacity(0.3),
+                          colorBlendMode: BlendMode.darken,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[800],
+                              child: Center(
+                                child: Text(
+                                  content.title.isNotEmpty ? content.title.substring(0, 1) : "?",
+                                  style: GoogleFonts.gemunuLibre(
+                                    fontSize: 60,
+                                    color: Colors.white54,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         )
-                      : null,
-                  color: content.thumbnail.isEmpty ? Colors.grey[800] : null,
+                      : Center(
+                          child: Text(
+                            content.title.isNotEmpty ? content.title.substring(0, 1) : "?",
+                            style: GoogleFonts.gemunuLibre(
+                              fontSize: 60,
+                              color: Colors.white54,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                 ),
               ),
 

@@ -23,6 +23,7 @@ import '../services/saved_words_service.dart';
 import '../services/custom_word_service.dart';
 import '../models/custom_word_list.dart';
 import 'custom_words_screen.dart';
+import '../widgets/email_auth_sheet.dart';
 import '../main.dart';
 
 /// Topluluk Sohbet Ekranı

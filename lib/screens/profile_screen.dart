@@ -26,6 +26,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:provider/provider.dart';
+import '../services/purchase_manager.dart';
+import 'subscription_screen.dart';
+import 'package:kavaid/widgets/email_auth_sheet.dart';
 import 'dart:io';
 import 'dart:async';
 
@@ -48,6 +52,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // ... (Other services remain, removed _purchaseService dependency for UI mostly)
   final CreditsService _creditsService = CreditsService();
   final OneTimePurchaseService _purchaseService = OneTimePurchaseService();
   final AppUsageService _appUsageService = AppUsageService();
@@ -70,12 +75,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _purchaseService.addListener(_updateState);
     _appUsageService.addListener(_updateState);
     _globalConfigService.addListener(_updateState);
-    _authService.addListener(_updateState); // Auth değişikliklerini dinle
+    _authService.addListener(_updateState); 
     _bookStore.initialize();
     _bookPurchase.addListener(_updateState);
     _bookPurchase.initialize();
-    _checkUserRole(); // Yetki kontrolü
-    _listenToRoleChanges(); // Role değişikliklerini dinle
+    _checkUserRole(); 
+    _listenToRoleChanges(); 
     
     // Play Console'dan fiyat bilgilerini yükle
     _loadPurchaseData();
@@ -84,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && widget.autoOpenLoginSheet && !_authService.isSignedIn) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        _showEmailAuthSheet(isDark, initialIsLogin: true);
+        EmailAuthSheet.show(context, initialIsLogin: true);
       }
     });
   }
@@ -663,52 +668,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ],
                                   ),
                                 ),
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    OutlinedButton.icon(
-                                      onPressed: () async {
-                                        final confirm = await showDialog<bool>(
-                                          context: context,
-                                          builder: (dCtx) => AlertDialog(
-                                            title: const Text('Çıkış yapılsın mı?'),
-                                            content: const Text('Oturumunuz kapatılacak.'),
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () => Navigator.of(dCtx).pop(false),
-                                                child: const Text('İptal'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () => Navigator.of(dCtx).pop(true),
-                                                child: const Text('Çıkış'),
-                                              ),
-                                            ],
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (dCtx) => AlertDialog(
+                                        title: const Text('Çıkış yapılsın mı?'),
+                                        content: const Text('Oturumunuz kapatılacak.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(dCtx).pop(false),
+                                            child: const Text('İptal'),
                                           ),
-                                        );
-                                        if (confirm == true) {
-                                          await _authService.signOut();
-                                          if (mounted) setState(() {});
-                                        }
-                                      },
-                                      icon: const Icon(Icons.logout, size: 16),
-                                      label: const Text('Çıkış'),
-                                      style: OutlinedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        minimumSize: const Size(0, 32),
+                                          TextButton(
+                                            onPressed: () => Navigator.of(dCtx).pop(true),
+                                            child: const Text('Çıkış'),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
+                                    );
+                                    if (confirm == true) {
+                                      await _authService.signOut();
+                                      if (mounted) setState(() {});
+                                    }
+                                  },
+                                  icon: const Icon(Icons.logout, size: 16),
+                                  label: const Text('Çıkış'),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    minimumSize: const Size(0, 32),
+                                  ),
                                 ),
                               ],
                             );
                           },
                         ),
-                      if (!_authService.isSignedIn)
+                        if (_authService.isSignedIn && Provider.of<PurchaseManager>(context).isPremium)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: InkWell(
+                              onTap: () async {
+                                final url = Uri.parse("https://play.google.com/store/account/subscriptions");
+                                if (await canLaunchUrl(url)) {
+                                  await launchUrl(url);
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "Aboneliği Yönet",
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      if (!_authService.isSignedIn) ...[
                         Row(
                           children: [
                             Expanded(
                               child: Text(
-                                'Giriş yapın',
+                                'Giriş yapın veya kayıt olun',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -718,7 +748,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ],
                         ),
-                      if (!_authService.isSignedIn) ...[
                         const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,
@@ -731,7 +760,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () => _showEmailAuthSheet(isDarkMode, initialIsLogin: true),
+                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: true),
                             child: const Text('Giriş Yap'),
                           ),
                         ),
@@ -747,7 +776,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () => _showEmailAuthSheet(isDarkMode, initialIsLogin: false),
+                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: false),
                             child: const Text('Kayıt Ol'),
                           ),
                         ),
@@ -757,6 +786,197 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 12),
 
+                // Reklam kaldırma önerisi veya durumu - Profil kısmının hemen altında
+                // Premium / Abonelik Durumu Kartı
+                Consumer<PurchaseManager>(
+                  builder: (context, purchaseManager, _) {
+                    if (purchaseManager.isPremium) {
+                      // 1. Premium Üye - MAVİ KART
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF007AFF).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    "Premium Üyesiniz",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  Text(
+                                    "Sınırsız içerik, reklamsız kullanım.",
+                                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (purchaseManager.isLifetimeNoAds) {
+                      // 2. Sadece Reklamsız (Eski) - YİNE MAVİ KART (Premium'a teşvik)
+                      // Kullanıcıya reklamsız olduğunu söyle ama premium gibi görünsün
+                      return GestureDetector(
+                        onTap: () {
+                          // Zaten reklamsız ama premium özellikler için yönlendir
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SubscriptionScreen())
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF007AFF).withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      "Premium'a Geç",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Reklamsız Kullanım (Mevcut)",
+                                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      // 3. Hiçbir şeyi yok - Premium'a Geç
+                      return GestureDetector(
+                        onTap: () {
+                          if (!_authService.isSignedIn) {
+                            _showLoginRequiredSnackBar();
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SubscriptionScreen())
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF007AFF).withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      "Premium'a Geç",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Sınırsız içerik, reklamsız kullanım.",
+                                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                
+                const SizedBox(height: 12),
+                
+                
                 // TEST: Debug butonları (sadece debug modda)
                 if (!kReleaseMode) ...[
                   Container(
@@ -894,7 +1114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () async {
                                   final bookId = 'kitab_kiraah_1';
                                   if (!_authService.isSignedIn) {
-                                    _showEmailAuthSheet(Theme.of(context).brightness == Brightness.dark, initialIsLogin: true);
+                                    EmailAuthSheet.show(context, initialIsLogin: true);
                                     return;
                                   }
                                   try {
@@ -1326,67 +1546,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 
-                // Hesabı Sil Kartı (sadece giriş yapılmışsa)
-                if (_authService.isSignedIn) ...[
-                  const SizedBox(height: 12),
-                  GestureDetector(
-                    onTap: () => _showDeleteAccountDialog(isDarkMode),
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Colors.red.withOpacity(0.3),
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: isDarkMode
-                                ? Colors.black.withOpacity(0.2)
-                                : Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.delete_forever,
-                              color: Colors.red,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Hesabı Sil',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                            color: Colors.red.withOpacity(0.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                
                 // 🧪 DEBUG: Satın alma test araçları (sadece debug modda)
                 if (kDebugMode) ...[
                   const SizedBox(height: 24),
@@ -1541,6 +1700,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               SizedBox(height: 10),
                               
+                              SizedBox(height: 10),
+                              
+                              // Premium Test
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  print('🧪 [TEST] Premium (Abone) olma simüle ediliyor...');
+                                  try {
+                                    final user = FirebaseAuth.instance.currentUser;
+                                    if (user == null) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Önce giriş yapın!')),
+                                      );
+                                      return;
+                                    }
+                                    
+                                    // Firestore'u güncelle
+                                    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                                      'is_premium': true,
+                                      'premium_expiry': DateTime.now().add(const Duration(days: 30)).millisecondsSinceEpoch,
+                                    }, SetOptions(merge: true));
+                                    
+                                    // Manager'ı yenile
+                                    await Provider.of<PurchaseManager>(context, listen: false).loadUserPurchases();
+                                    
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('✅ Debug: Premium verildi!')),
+                                    );
+                                  } catch (e) {
+                                    print('Test hatası: $e');
+                                  }
+                                },
+                                icon: const Icon(Icons.diamond_outlined),
+                                label: const Text('DEBUG: Premium Yap'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.purple,
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(double.infinity, 36),
+                                ),
+                              ),
+                              
+                              SizedBox(height: 10),
+                              
                               // Reklamları Kaldır Test
                               ElevatedButton.icon(
                                 onPressed: () async {
@@ -1548,9 +1749,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
-                                      print('❌ [TEST] Kullanıcı giriş yapmamış!');
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Önce giriş yapın!')),
+                                        const SnackBar(content: Text('Önce giriş yapın!')),
                                       );
                                       return;
                                     }
@@ -1916,16 +2116,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showLoginRequiredSnackBar() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'lütfen önce kayıt olup giriş yapın',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black87,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.fixed,
-      ),
+    
+    // Auth sheet'i aç - kullanıcı öyle istedi
+    EmailAuthSheet.show(
+      context, 
+      initialIsLogin: false, // Kayıt ol sekmesi açılsın
+      message: "Önce kayıt olup giriş yapmalısınız."
     );
   }
 
@@ -2091,361 +2287,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showDeleteAccountDialog(bool isDarkMode) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.red, size: 28),
-            const SizedBox(width: 8),
-            Text(
-              'Hesabı Sil',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        content: Text(
-          'Hesabınız ve tüm verileriniz kalıcı olarak silinecektir. Bu işlem geri alınamaz.',
-          style: TextStyle(
-            color: isDarkMode ? Colors.white70 : Colors.black87,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('İptal', style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await _deleteAccount(isDarkMode);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Hesabı Sil'),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Future<void> _deleteAccount(bool isDarkMode) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
 
-      // Firestore'dan kullanıcı verilerini sil
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-      
-      // Firebase Auth hesabını sil
-      await user.delete();
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Hesabınız başarıyla silindi'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        setState(() {});
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'requires-recent-login') {
-        // Yeniden giriş gerekiyor
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Güvenlik nedeniyle önce çıkış yapıp tekrar giriş yapın'),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Hesap silme hatası: ${e.message}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hesap silme hatası: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  void _showEmailAuthSheet(bool isDarkMode, {bool initialIsLogin = true}) {
-    final formKey = GlobalKey<FormState>();
-    final emailController = TextEditingController();
-    final passController = TextEditingController();
-    final confirmPassController = TextEditingController();
-    final nameController = TextEditingController();
-    final emailFocus = FocusNode();
-    final passFocus = FocusNode();
-    final confirmFocus = FocusNode();
-    bool isLogin = initialIsLogin;
-    bool isLoading = false;
-    String? errorText;
-    String? successText;
-
-        showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        final viewInsets = MediaQuery.of(ctx).viewInsets;
-        final keyboardHeight = viewInsets.bottom;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: keyboardHeight + 16,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setSheetState) {
-              return SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isLogin ? 'Giriş Yap' : 'Kayıt Ol',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          const Spacer(),
-                            TextButton(
-                            onPressed: () => setSheetState(() => isLogin = !isLogin),
-                            child: Text(isLogin ? 'Kayıt Ol' : 'Giriş Yap'),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      if (isLogin) ...[
-                        Text(
-                          'Hesabınız yoksa önce kayıt olun',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (!isLogin) const SizedBox(height: 8),
-                      // Başarı/Bilgi mesajı alanı
-                      if (errorText == null && !isLogin)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            'Kayıt tamamlandıktan sonra giriş yapmanız gerekir.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDarkMode ? Colors.white70 : Colors.black54,
-                            ),
-                          ),
-                        ),
-                      if (successText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            successText!,
-                            style: const TextStyle(color: Colors.green, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (errorText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            errorText!,
-                            style: const TextStyle(color: Colors.red, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-
-                       TextFormField(
-                        controller: emailController,
-                         focusNode: emailFocus,
-                        decoration: const InputDecoration(labelText: 'E-posta'),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) => (v == null || !v.contains('@')) ? 'Geçersiz e-posta adresi' : null,
-                      ),
-                      const SizedBox(height: 8),
-                                             TextFormField(
-                         controller: passController,
-                          focusNode: passFocus,
-                         decoration: const InputDecoration(labelText: 'Şifre'),
-                         obscureText: true,
-                         validator: (v) => (v == null || v.isEmpty) ? 'Şifre gerekli' : null,
-                       ),
-                      const SizedBox(height: 8),
-                      if (!isLogin)
-                        TextFormField(
-                          controller: confirmPassController,
-                          focusNode: confirmFocus,
-                          decoration: const InputDecoration(labelText: 'Şifre Tekrar'),
-                          obscureText: true,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Şifre tekrarı gerekli';
-                            if (v != passController.text) return 'Şifreler eşleşmiyor';
-                            return null;
-                          },
-                        ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : () async {
-                            if (!(formKey.currentState?.validate() ?? false)) return;
-                            try {
-                              setSheetState(() {
-                                errorText = null;
-                                successText = null;
-                                isLoading = true;
-                              });
-                              if (isLogin) {
-                                final user = await _authService.signInWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  if (mounted) setState(() {});
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                                  Navigator.pop(context);
-                                  // Pop sonrası setSheetState çağrılmasını önlemek için return
-                                  await _cloudSavedWords.mergeSync();
-                                  return;
-                                }
-                              } else {
-                                final user = await _authService.signUpWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  // Otomatik giriş moduna geç ve alanları temizle
-                                  setSheetState(() {
-                                    successText = 'Kayıt tamamlandı. Lütfen giriş yapın.';
-                                    isLogin = true;
-                                    emailController.clear();
-                                    passController.clear();
-                                    confirmPassController.clear();
-                                  });
-                                  // Klavye açık kalsın ve e-posta alanına odaklanılsın
-                                  Future.delayed(const Duration(milliseconds: 50), () {
-                                    emailFocus.requestFocus();
-                                  });
-                                }
-                              }
-                            } catch (e) {
-                              String message = 'İşlem başarısız. Lütfen tekrar deneyin.';
-                              if (e is FirebaseAuthException) {
-                                switch (e.code) {
-                                  case 'invalid-email':
-                                    message = 'Geçerli bir e‑posta adresi giriniz.'; break;
-                                  case 'invalid-credential':
-                                    message = 'E‑posta veya şifre hatalı. Lütfen kontrol ediniz.'; break;
-                                  case 'user-not-found':
-                                    message = 'Bu e‑posta ile kayıt bulunamadı.'; break;
-                                  case 'wrong-password':
-                                    message = 'Şifre hatalı.'; break;
-                                  case 'email-already-in-use':
-                                    message = 'Bu e‑posta zaten kayıtlı.'; break;
-                                  case 'weak-password':
-                                    message = 'Şifre çok zayıf. Daha güçlü bir şifre seçin.'; break;
-                                  case 'operation-not-allowed':
-                                    message = 'Bu giriş yöntemi proje için etkin değil.'; break;
-                                  case 'network-request-failed':
-                                    message = 'Ağ hatası. İnternet bağlantınızı kontrol edin.'; break;
-                                  case 'too-many-requests':
-                                    message = 'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.'; break;
-                                  default:
-                                    message = 'Hata: ${e.message ?? e.code}';
-                                }
-                              } else {
-                                message = e.toString();
-                              }
-                              setSheetState(() { 
-                                errorText = message; 
-                                isLoading = false;
-                              });
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF007AFF),
-                            foregroundColor: Colors.white,
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : Text(isLogin ? 'Giriş Yap' : 'Kayıt Ol'),
-                        ),
-                      ),
-                      // Klavyeyi ve sheet'i düzgün kapat
-                      Align(
-                        alignment: Alignment.center,
-                        child: TextButton(
-                          onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            SystemChannels.textInput.invokeMethod('TextInput.hide');
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Kapat'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
 
   Widget _buildFeatureRow(IconData icon, String text) {
     return Padding(

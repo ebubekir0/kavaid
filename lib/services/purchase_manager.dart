@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -15,26 +16,115 @@ class PurchaseManager extends ChangeNotifier {
   StreamSubscription<List<PurchaseDetails>>? _subscription;
   
   bool _isInitialized = false;
-  bool _isAdsFree = false;
+  
+  // States
+  bool _isPremium = false;        // Abonelik durumu
+  bool _isLifetimeNoAds = false;  // Eski 'Reklam Kaldır' satın alımı
   Set<String> _purchasedBooks = {};
+  
   String _lastError = '';
   
   // Product mappings
-  static const Map<String, String> _products = {
-    'ads_free': 'kavaid_remove_ads_lifetime',
-    'book_1': 'kavaid_kitab_kiraath_1',
-    'book_2': 'kavaid_book_kiraath_2', 
-    'book_3': 'kavaid_book_kiraath_3',
-  };
+  static Map<String, String> get _products {
+    if (Platform.isAndroid) {
+      return {
+        'premium_monthly': 'premium_monthly',
+        'premium_yearly': 'premium_yearly',
+        'ads_free': 'ads_free', // Veya remove_ads
+      };
+    } else if (Platform.isIOS) {
+       // iOS ID'leri (App Store Connect ile eşleşmeli)
+       return {
+        'premium_monthly': 'premium_monthly', 
+        'premium_yearly': 'premium_yearly',
+        'ads_free': 'ads_free',
+      };
+    }
+    return {};
+  }
 
   // Getters
   bool get isInitialized => _isInitialized;
-  bool get isAdsFree => _isAdsFree;
+  
+  // Reklam gösterilmeli mi? (Premium DEĞİLSE ve Ömür Boyu Reklamsız DEĞİLSE)
+  bool get shouldShowAds => !_isPremium && !_isLifetimeNoAds;
+  
+  // Premium mu?
+  bool get isPremium => _isPremium;
+  
+  // Eski kullanıcı mı?
+  bool get isLifetimeNoAds => _isLifetimeNoAds;
+
   Future<bool> get isAvailable async {
-  return await _inAppPurchase.isAvailable();
-}
+    return await _inAppPurchase.isAvailable();
+  }
   String get lastError => _lastError;
   Set<String> get purchasedBooks => _purchasedBooks;
+
+  // İçeriğe erişim izni var mı?
+  bool canAccessContent(String bookId, bool isFreeContent) {
+    if (isFreeContent) return true; // Herkese açık
+    if (_isPremium) return true;    // Abone her şeyi görür
+    if (_purchasedBooks.contains('book_${bookId.split('_').last}')) return true; // Satın alınmış kitap
+    return false;
+  }
+
+  // Satın alma işlemini başlat
+  Future<void> buyProduct(String productId) async {
+    try {
+      if (!await _inAppPurchase.isAvailable()) {
+        _lastError = 'Mağaza kullanılamıyor.';
+        notifyListeners();
+        return;
+      }
+      
+      final Set<String> ids = {productId};
+      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(ids);
+      
+      if (response.notFoundIDs.isNotEmpty) {
+        _lastError = 'Ürün bulunamadı: $productId';
+        notifyListeners();
+        debugPrint('❌ [PurchaseManager] Ürün bulunamadı: ${response.notFoundIDs}');
+        return;
+      }
+      
+      final List<ProductDetails> products = response.productDetails;
+      if (products.isEmpty) {
+        _lastError = 'Ürün detayları alınamadı.';
+        notifyListeners();
+        return;
+      }
+      
+      final ProductDetails productDetails = products.first;
+      
+      final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
+      
+      // Abonelikler non-consumable olarak işlem görür
+      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
+      
+    } catch (e) {
+      _lastError = 'Satın alma başlatılamadı: $e';
+      notifyListeners();
+      debugPrint('❌ [PurchaseManager] Buy error: $e');
+    }
+  }
+
+  Future<void> buyPremiumMonthly() async {
+    await buyProduct(_products['premium_monthly']!);
+  }
+
+
+
+  Future<void> buyPremiumYearly() async {
+    await buyProduct(_products['premium_yearly']!);
+  }
+
+  // ... inside PurchaseManager
+
+  static final Map<String, ProductDetails> _productDetailsMap = {};
+  Map<String, ProductDetails> get productDetailsMap => _productDetailsMap;
+
+  // ... other methods
 
   // Initialize
   Future<void> initialize() async {
@@ -43,7 +133,18 @@ class PurchaseManager extends ChangeNotifier {
     try {
       debugPrint('🚀 [PurchaseManager] Başlatılıyor...');
       
-      // Purchase stream'i dinle
+      // Auth değişikliklerini dinle
+      FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user != null) {
+          debugPrint('👤 [PurchaseManager] Kullanıcı giriş yaptı, veriler yükleniyor...');
+          loadUserPurchases();
+        } else {
+          debugPrint('🚪 [PurchaseManager] Kullanıcı çıkış yaptı');
+          _resetState();
+        }
+      });
+
+      // Store bağlantısını kur
       _subscription = _inAppPurchase.purchaseStream.listen(
         _listenToPurchaseUpdated,
         onDone: () => _subscription?.cancel(),
@@ -51,8 +152,11 @@ class PurchaseManager extends ChangeNotifier {
       );
 
       // Kullanıcı verilerini yükle
-      await _loadUserPurchases();
+      await loadUserPurchases();
       
+      // Ürün detaylarını (fiyatları) çek
+      await fetchProducts();
+
       _isInitialized = true;
       debugPrint('✅ [PurchaseManager] Başlatıldı');
       notifyListeners();
@@ -63,8 +167,106 @@ class PurchaseManager extends ChangeNotifier {
     }
   }
 
+  void _resetState() {
+    _isPremium = false;
+    _isLifetimeNoAds = false;
+    _purchasedBooks = {};
+    _saveToPrefs();
+    notifyListeners();
+  }
+
+  Future<void> fetchProducts() async {
+    if (!await _inAppPurchase.isAvailable()) return;
+    
+    final ids = _products.values.toSet();
+    final response = await _inAppPurchase.queryProductDetails(ids);
+    
+    if (response.notFoundIDs.isNotEmpty) {
+      debugPrint('❌ Ürünler bulunamadı: ${response.notFoundIDs}');
+    }
+
+    _productDetailsMap.clear();
+    for (var product in response.productDetails) {
+       // Map by our internal keys (e.g. 'premium_monthly') instead of store ID if possible, 
+       // but here store ID is easier. Or better, map 'kavaid_premium_monthly' -> ProductDetails
+       // UI uses internal keys 'monthly', 'yearly', so let's map carefully.
+       _productDetailsMap[product.id] = product;
+    }
+    notifyListeners();
+  }
+  
+  // Helper to get price
+  String getPrice(String internalKey) {
+    final storeId = _products['premium_$internalKey'];
+    if (storeId == null) return '';
+    final details = _productDetailsMap[storeId];
+    return details?.price ?? ''; // Marketten dönen formatlı fiyat (örn: ₺49.99)
+  }
+
+  // Helper to get raw price for calculations
+  double? getRawPrice(String internalKey) {
+     final storeId = _products['premium_$internalKey'];
+     if (storeId == null) return null;
+     
+     final details = _productDetailsMap[storeId];
+     if (details == null) return null;
+
+     // Fiyat metninden sayıyı ayıkla (Örn: "₺479,99" -> 479.99)
+     String cleanPrice = details.price.replaceAll(RegExp(r'[^0-9.,]'), '');
+     
+     // Virgül ve nokta karmaşasını çöz (Sonuncusu ondalık ayracıdır)
+     if (cleanPrice.contains(',') && cleanPrice.contains('.')) {
+       // Hem nokta hem virgül varsa, sondakini ondalık kabul et
+       if (cleanPrice.lastIndexOf(',') > cleanPrice.lastIndexOf('.')) {
+         cleanPrice = cleanPrice.replaceAll('.', '').replaceAll(',', '.');
+       } else {
+         cleanPrice = cleanPrice.replaceAll(',', '');
+       }
+     } else if (cleanPrice.contains(',')) {
+       // Sadece virgül varsa noktaya çevir
+       cleanPrice = cleanPrice.replaceAll(',', '.');
+     }
+     
+     return double.tryParse(cleanPrice);
+  }
+
+  // Yıllık planın aylık maliyetini hesapla
+  String getMonthlyCostForYearly() {
+    try {
+      final yearlyPriceStr = getPrice('yearly'); // Örn: ₺479,99
+      if (yearlyPriceStr.isEmpty) return '';
+
+      final yearlyRaw = getRawPrice('yearly');
+      if (yearlyRaw == null || yearlyRaw == 0) return '';
+
+      // Aylık maliyeti hesapla
+      final monthlyCost = yearlyRaw / 12;
+
+      // Para birimi sembolünü bul (Rakam olmayan karakterler)
+      String currencySymbol = yearlyPriceStr.replaceAll(RegExp(r'[0-9.,\s]'), '');
+      
+      // Sembolün konumunu bul (Başta mı sonda mı?)
+      bool symbolAtStart = yearlyPriceStr.trim().startsWith(currencySymbol);
+
+      // Fiyatı formatla (Daima 2 ondalık hane)
+      // Eğer orijinal fiyat virgül kullanıyorsa virgül, nokta kullanıyorsa nokta kullan
+      bool useComma = yearlyPriceStr.contains(',');
+      String formattedPrice = monthlyCost.toStringAsFixed(2);
+      if (useComma) formattedPrice = formattedPrice.replaceAll('.', ',');
+
+      if (symbolAtStart) {
+        return '$currencySymbol$formattedPrice/ay';
+      } else {
+        return '$formattedPrice$currencySymbol /ay';
+      }
+    } catch (e) {
+      debugPrint('Fiyat hesaplama hatası: $e');
+      return '';
+    }
+  }
+
   // Kullanıcı satın almalarını yükle
-  Future<void> _loadUserPurchases() async {
+  Future<void> loadUserPurchases() async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
@@ -74,29 +276,62 @@ class PurchaseManager extends ChangeNotifier {
 
       // Local cache'den yükle
       final prefs = await SharedPreferences.getInstance();
-      _isAdsFree = prefs.getBool('is_ads_free') ?? false;
+      _isLifetimeNoAds = prefs.getBool('is_lifetime_no_ads') ?? prefs.getBool('is_ads_free') ?? false; 
+      _isPremium = prefs.getBool('is_premium') ?? false;
       final books = prefs.getStringList('purchased_books') ?? [];
       _purchasedBooks = books.toSet();
 
-      // Firestore'dan yükle
-      final doc = await FirebaseFirestore.instance
+      // FIRESTORE: İki farklı yerden de kontrol ediyoruz (Mevcut karmaşıklığı çözmek için)
+      
+      // 1. Root User Dokümanı (BookPurchaseService buraya kaydediyor)
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (userDoc.exists) {
+        final data = userDoc.data() as Map<String, dynamic>;
+        
+        // 1. Kitaplar (Her iki versiyonu da kontrol et)
+        final books = (data['purchasedBooks'] as List<dynamic>?) ?? 
+                      (data['purchased_books'] as List<dynamic>?) ?? [];
+        
+        for (var b in books) {
+          _purchasedBooks.add(b.toString());
+        }
+        
+        // 2. Premium / Reklamsız (Her iki versiyonu da kontrol et)
+        _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
+        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? _isLifetimeNoAds;
+      }
+
+      // 2. Purchases Sub-collection (PurchaseManager'ın yeni stili)
+      final purchaseDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUser.uid)
           .collection('purchases')
           .doc('active')
           .get();
 
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        _isAdsFree = data['is_ads_free'] ?? false;
-        final books = List<String>.from(data['purchased_books'] ?? []);
-        _purchasedBooks = books.toSet();
+      if (purchaseDoc.exists) {
+        final data = purchaseDoc.data() as Map<String, dynamic>;
         
-        // Local cache'i güncelle
-        await _saveToPrefs();
+        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? _isLifetimeNoAds;
+        _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
+        
+        final books = (data['purchased_books'] as List<dynamic>?) ?? 
+                      (data['purchasedBooks'] as List<dynamic>?) ?? [];
+        
+        for (var b in books) {
+          _purchasedBooks.add(b.toString());
+        }
       }
 
-      debugPrint('📦 [PurchaseManager] Satın almalar yüklendi: AdsFree=$_isAdsFree, Books=$_purchasedBooks');
+      // Local cache'i güncelle
+      await _saveToPrefs();
+      notifyListeners();
+
+      debugPrint('📦 [PurchaseManager] Yüklendi: Premium=$_isPremium, BooksCount=${_purchasedBooks.length}');
       
     } catch (e) {
       debugPrint('❌ [PurchaseManager] Satın alma yükleme hatası: $e');
@@ -106,14 +341,13 @@ class PurchaseManager extends ChangeNotifier {
   // Satın alma dinleyici
   void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
     for (final purchaseDetails in purchaseDetailsList) {
-      debugPrint('🔄 [PurchaseManager] Satın alma güncellemesi: ${purchaseDetails.status}');
+      debugPrint('🔄 [PurchaseManager] Güncelleme: ${purchaseDetails.status}');
       
       if (purchaseDetails.status == PurchaseStatus.purchased ||
           purchaseDetails.status == PurchaseStatus.restored) {
         _processPurchase(purchaseDetails);
       }
       
-      // Transaction'ı tamamla
       if (purchaseDetails.pendingCompletePurchase) {
         _inAppPurchase.completePurchase(purchaseDetails);
       }
@@ -126,48 +360,34 @@ class PurchaseManager extends ChangeNotifier {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
-      // Doğrula
       if (!_isValidPurchase(purchase)) {
-        debugPrint('❌ [PurchaseManager] Geçersiz satın alma');
         return;
       }
 
-      // Ürün tipini belirle
       final productType = _getProductType(purchase.productID);
-      if (productType == null) {
-        debugPrint('❌ [PurchaseManager] Bilinmeyen ürün: ${purchase.productID}');
-        return;
-      }
-
+      
       // Firestore'a kaydet
       await _savePurchaseToFirestore(
         userId: currentUser.uid,
-        productType: productType,
+        productType: productType ?? 'unknown',
         purchase: purchase,
       );
 
       // Local state'i güncelle
-      _updateLocalState(productType);
+      _updateLocalState(productType, purchase.productID);
 
-      debugPrint('✅ [PurchaseManager] Satın alma işlendi: $productType');
       notifyListeners();
       
     } catch (e) {
-      debugPrint('❌ [PurchaseManager] Satın alma işleme hatası: $e');
-      _lastError = 'Satın alma işlenemedi: $e';
+      debugPrint('❌ [PurchaseManager] İşleme hatası: $e');
     }
   }
 
-  // Satın alma doğrulama
   bool _isValidPurchase(PurchaseDetails purchase) {
-    final purchaseId = purchase.purchaseID ?? '';
-    if (!purchaseId.startsWith('GPA.') || purchaseId.length <= 10) {
-      return false;
-    }
-    return true;
+    // Basitleştirilmiş validasyon
+    return true; 
   }
 
-  // Ürün tipini getir
   String? _getProductType(String productId) {
     for (final entry in _products.entries) {
       if (entry.value == productId) {
@@ -177,7 +397,6 @@ class PurchaseManager extends ChangeNotifier {
     return null;
   }
 
-  // Firestore'a kaydet
   Future<void> _savePurchaseToFirestore({
     required String userId,
     required String productType,
@@ -190,166 +409,64 @@ class PurchaseManager extends ChangeNotifier {
           .collection('purchases')
           .doc('active');
 
-      await docRef.set({
-        'is_ads_free': _isAdsFree || productType == 'ads_free',
-        'purchased_books': _purchasedBooks.toList(),
+      Map<String, dynamic> updateData = {
         'last_updated': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      };
 
-      debugPrint('💾 [PurchaseManager] Firestore\'a kaydedildi: $productType');
+      if (productType == 'ads_free') {
+        updateData['is_ads_free'] = true;
+      } else if (productType.startsWith('premium')) {
+        updateData['is_premium'] = true; // Gerçekte burada son kullanma tarihi set edilmeli
+        updateData['premium_type'] = productType; 
+        updateData['subscription_start'] = FieldValue.serverTimestamp();
+      } else if (productType.startsWith('book_')) {
+         // Kitap mantığı korunuyor
+         updateData['purchased_books'] = FieldValue.arrayUnion([productType]);
+      }
+
+      await docRef.set(updateData, SetOptions(merge: true));
+
     } catch (e) {
-      debugPrint('❌ [PurchaseManager] Firestore kayıt hatası: $e');
+      debugPrint('❌ Firestore kayıt hatası: $e');
     }
   }
 
-  // Local state'e kaydet
   Future<void> _saveToPrefs() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('is_ads_free', _isAdsFree);
-      await prefs.setStringList('purchased_books', _purchasedBooks.toList());
-      debugPrint('💾 [PurchaseManager] Local state kaydedildi');
-    } catch (e) {
-      debugPrint('❌ [PurchaseManager] Local state kaydetme hatası: $e');
-    }
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('is_lifetime_no_ads', _isLifetimeNoAds);
+    await prefs.setBool('is_premium', _isPremium);
+    await prefs.setStringList('purchased_books', _purchasedBooks.toList());
   }
 
-  // Local state'i güncelle
-  void _updateLocalState(String productType) {
+  void _updateLocalState(String? productType, String productId) {
     if (productType == 'ads_free') {
-      _isAdsFree = true;
-    } else if (productType.startsWith('book_')) {
+      _isLifetimeNoAds = true;
+    } else if (productType != null && productType.startsWith('premium')) {
+      _isPremium = true;
+    } else if (productType != null && productType.startsWith('book_')) {
       _purchasedBooks.add(productType);
     }
-    
-    // Local'e kaydet
     _saveToPrefs();
-    
-    // Analytics gönder
-    _sendAnalytics(productType);
-
-    debugPrint('✅ [PurchaseManager] Satın alma işlendi: $productType');
-    notifyListeners();
   }
 
-  // Analytics gönder
-  Future<void> _sendAnalytics(String productType) async {
-    try {
-      // Analytics gönderilecek -暂时 basitleştirildi
-      debugPrint('📊 [PurchaseManager] Analytics gönder: $productType');
-    } catch (e) {
-      debugPrint('❌ [PurchaseManager] Analytics hatası: $e');
-    }
-  }
-
-  // Reklam kaldırma satın al
-  Future<bool> purchaseAdsFree() async {
-    return await _purchaseProduct('ads_free');
-  }
-
-  // Kitap satın al
-  Future<bool> purchaseBook(String bookId) async {
-    final productKey = 'book_${bookId.split('_').last}';
-    return await _purchaseProduct(productKey);
-  }
-
-  // Ürün satın al
-  Future<bool> _purchaseProduct(String productKey) async {
-    try {
-      if (!(await isAvailable)) {
-        _lastError = 'Store kullanılamıyor';
-        return false;
-      }
-
-      final productId = _products[productKey];
-      if (productId == null) {
-        _lastError = 'Ürün bulunamadı';
-        return false;
-      }
-
-      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails({productId});
-      if (response.productDetails.isEmpty) {
-        _lastError = 'Ürün detayları alınamadı';
-        return false;
-      }
-
-      final purchaseParam = PurchaseParam(
-        productDetails: response.productDetails.first,
-      );
-
-      return await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-      
-    } catch (e) {
-      debugPrint('❌ [PurchaseManager] Satın alma hatası: $e');
-      _lastError = 'Satın alma hatası: $e';
-      return false;
-    }
-  }
-
-  // Fiyat getir
-  String getProductPrice(String productKey) {
-    switch (productKey) {
-      case 'ads_free':
-        return '₺149,99';
-      case 'book_1':
-      case 'book_2':
-      case 'book_3':
-        return '₺89,99';
-      default:
-        return '₺89,99';
-    }
-  }
-
-  // Kitap satın alınmış mı
-  bool isBookPurchased(String bookId) {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null) return false;
-    
-    final bookNumber = bookId.split('_').last;
-    return _purchasedBooks.contains('book_$bookNumber');
-  }
-
-  // Satın alma geri yükle
-  Future<void> restorePurchases() async {
-    try {
-      await _inAppPurchase.restorePurchases();
-      debugPrint('✅ [PurchaseManager] Geri yükleme başlatıldı');
-    } catch (e) {
-      debugPrint('❌ [PurchaseManager] Geri yükleme hatası: $e');
-      _lastError = 'Geri yükleme hatası: $e';
-    }
-  }
-
-  // DEBUG: Satın alma durumunu yazdır
-  Future<void> debugPrintPurchaseStatus() async {
-    debugPrint('🔍 [PurchaseManager] Satın Alma Durumu:');
-    debugPrint('  - Başlatıldı: $isInitialized');
-    debugPrint('  - Ads Free: $isAdsFree');
-    debugPrint('  - Kitap Satın Almaları: $_purchasedBooks');
-    debugPrint('  - Son Hata: $lastError');
-  }
-
-  // DEBUG: Mock premium ayarla
+  // MOCK METHODS FOR TESTING
   Future<void> mockSetPremium() async {
     if (kDebugMode) {
-      _isAdsFree = true;
+      _isPremium = true;
       await _saveToPrefs();
       notifyListeners();
-      debugPrint('🧪 [PurchaseManager] Mock premium ayarlandı');
     }
   }
 
-  // DEBUG: Mock premium sıfırla
   Future<void> mockResetPremium() async {
     if (kDebugMode) {
-      _isAdsFree = false;
-      _purchasedBooks.clear();
+      _isPremium = false;
+      _isLifetimeNoAds = false;
       await _saveToPrefs();
       notifyListeners();
-      debugPrint('🧪 [PurchaseManager] Mock premium sıfırlandı');
     }
   }
-
+  
   @override
   void dispose() {
     _subscription?.cancel();

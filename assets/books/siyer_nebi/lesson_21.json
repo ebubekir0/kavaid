@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 21,
+        "ders_adi": "Ebu Leheb'in Karısı ve Mesed Suresi",
+        "kelimeler": [
+            {
+                "arapca": "تَضَعُ الشَّوْكَ فِي طَرِيقِ النَّبِيِّ",
+                "turkce": "Peygamberin yoluna diken koyuyordu",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "نَزَلَتْ سُورَةُ الْمَسَدِ",
+                "turkce": "Mesed suresi indi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "سَيَصْلَى نَارًا ذَاتَ لَهَبٍ",
+                "turkce": "Alevli bir ateşe girecektir",
+                "tip": "ayet"
+            },
+            {
+                "arapca": "وَامْرَأَتُهُ حَمَّالَةَ الْحَطَبِ",
+                "turkce": "Karısı da odun taşıyıcısı olarak",
+                "tip": "ayet"
+            }
+        ]
+    }
+}

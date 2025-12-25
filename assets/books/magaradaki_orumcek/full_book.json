@@ -1,0 +1,501 @@
+{
+    "book_id": "magaradaki_orumcek",
+    "title": "Mağaradaki Örümcek",
+    "kelimeler": [
+        {
+            "type": "word",
+            "arapca": "هَاجَرَ",
+            "turkce": "hicret etti"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّبِيُّ",
+            "turkce": "Peygamber"
+        },
+        {
+            "type": "word",
+            "arapca": "مُحَمَّدٌ",
+            "turkce": "Muhammed"
+        },
+        {
+            "type": "word",
+            "arapca": "صَلَّى",
+            "turkce": "salat etti"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهُ",
+            "turkce": "Allah"
+        },
+        {
+            "type": "word",
+            "arapca": "عَلَيْهِ",
+            "turkce": "üzerine"
+        },
+        {
+            "type": "word",
+            "arapca": "وَسَلَّمَ",
+            "turkce": "ve selam etti"
+        },
+        {
+            "type": "word",
+            "arapca": "مَعَ",
+            "turkce": "ile"
+        },
+        {
+            "type": "word",
+            "arapca": "صَدِيقِهِ",
+            "turkce": "arkadaşı"
+        },
+        {
+            "type": "word",
+            "arapca": "أَبِي",
+            "turkce": "Ebu"
+        },
+        {
+            "type": "word",
+            "arapca": "بَكْرٍ",
+            "turkce": "Bekir"
+        },
+        {
+            "type": "word",
+            "arapca": "الصِّدِّيقِ",
+            "turkce": "Sıddık"
+        },
+        {
+            "type": "word",
+            "arapca": "مِنْ",
+            "turkce": "-den"
+        },
+        {
+            "type": "word",
+            "arapca": "مَكَّةَ",
+            "turkce": "Mekke"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e/a"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَدِينَةِ.",
+            "turkce": "Medine."
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "الطَّرِيقِ،",
+            "turkce": "yol,"
+        },
+        {
+            "type": "word",
+            "arapca": "اخْتَبَأَ",
+            "turkce": "gizlendi/saklandı"
+        },
+        {
+            "type": "word",
+            "arapca": "الاِثْنَانِ",
+            "turkce": "ikisi"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "غَارٍ",
+            "turkce": "bir mağara"
+        },
+        {
+            "type": "word",
+            "arapca": "صَغِيرٍ",
+            "turkce": "küçük"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "الْجَبَلِ",
+            "turkce": "dağ"
+        },
+        {
+            "type": "word",
+            "arapca": "اسْمُهُ",
+            "turkce": "ismi"
+        },
+        {
+            "type": "word",
+            "arapca": "\"غَارُ",
+            "turkce": "\"Mağarası"
+        },
+        {
+            "type": "word",
+            "arapca": "ثَوْرٍ\".",
+            "turkce": "Sevr\"."
+        },
+        {
+            "type": "word",
+            "arapca": "وَصَلَ",
+            "turkce": "ulaştı/geldi"
+        },
+        {
+            "type": "word",
+            "arapca": "الْكُفَّارُ",
+            "turkce": "kafirler"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e/a"
+        },
+        {
+            "type": "word",
+            "arapca": "بَابِ",
+            "turkce": "kapı/ağız"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَارِ",
+            "turkce": "mağara"
+        },
+        {
+            "type": "word",
+            "arapca": "لِيَبْحَثُوا",
+            "turkce": "aramak için"
+        },
+        {
+            "type": "word",
+            "arapca": "عَنْهُمَا.",
+            "turkce": "o ikisini."
+        },
+        {
+            "type": "word",
+            "arapca": "خَافَ",
+            "turkce": "korktu"
+        },
+        {
+            "type": "word",
+            "arapca": "أَبُو",
+            "turkce": "Ebu"
+        },
+        {
+            "type": "word",
+            "arapca": "بَكْرٍ",
+            "turkce": "Bekir"
+        },
+        {
+            "type": "word",
+            "arapca": "وَقَالَ",
+            "turkce": "ve dedi"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلنَّبِيِّ:",
+            "turkce": "Peygambere:"
+        },
+        {
+            "type": "word",
+            "arapca": "\"لَوْ",
+            "turkce": "\"Eğer"
+        },
+        {
+            "type": "word",
+            "arapca": "نَظَرَ",
+            "turkce": "baksaydı"
+        },
+        {
+            "type": "word",
+            "arapca": "أَحَدُهُمْ",
+            "turkce": "onlardan biri"
+        },
+        {
+            "type": "word",
+            "arapca": "تَحْتَ",
+            "turkce": "altına"
+        },
+        {
+            "type": "word",
+            "arapca": "قَدَمَيْهِ",
+            "turkce": "ayaklarının"
+        },
+        {
+            "type": "word",
+            "arapca": "لَرَآنَا\".",
+            "turkce": "muhakkak bizi görürdü\"."
+        },
+        {
+            "type": "word",
+            "arapca": "لَكِنَّ",
+            "turkce": "lakin/fakat"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّبِيَّ",
+            "turkce": "Peygamber"
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "هَادِئًا",
+            "turkce": "sakin"
+        },
+        {
+            "type": "word",
+            "arapca": "وَقَالَ",
+            "turkce": "ve dedi"
+        },
+        {
+            "type": "word",
+            "arapca": "لَهُ:",
+            "turkce": "ona:"
+        },
+        {
+            "type": "word",
+            "arapca": "\"يَا",
+            "turkce": "\"Ey"
+        },
+        {
+            "type": "word",
+            "arapca": "أَبَا",
+            "turkce": "Eba"
+        },
+        {
+            "type": "word",
+            "arapca": "بَكْرٍ،",
+            "turkce": "Bekir,"
+        },
+        {
+            "type": "word",
+            "arapca": "مَا",
+            "turkce": "nedir"
+        },
+        {
+            "type": "word",
+            "arapca": "ظَنُّكَ",
+            "turkce": "zannın/düşüncen"
+        },
+        {
+            "type": "word",
+            "arapca": "بِاثْنَيْنِ",
+            "turkce": "iki kişi hakkında"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهُ",
+            "turkce": "Allah"
+        },
+        {
+            "type": "word",
+            "arapca": "ثَالِثُهُمَا؟",
+            "turkce": "üçüncüleri?"
+        },
+        {
+            "type": "word",
+            "arapca": "لَا",
+            "turkce": "hayır/yapma"
+        },
+        {
+            "type": "word",
+            "arapca": "تَحْزَنْ",
+            "turkce": "üzülme"
+        },
+        {
+            "type": "word",
+            "arapca": "إِنَّ",
+            "turkce": "şüphesiz"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهَ",
+            "turkce": "Allah"
+        },
+        {
+            "type": "word",
+            "arapca": "مَعَنَا\".",
+            "turkce": "bizimle\"."
+        },
+        {
+            "type": "word",
+            "arapca": "حَدَثَتْ",
+            "turkce": "meydana geldi/oldu"
+        },
+        {
+            "type": "word",
+            "arapca": "مُعْجِزَةٌ",
+            "turkce": "bir mucize"
+        },
+        {
+            "type": "word",
+            "arapca": "صَغِيرَةٌ.",
+            "turkce": "küçük."
+        },
+        {
+            "type": "word",
+            "arapca": "نَسَجَ",
+            "turkce": "dokudu/ördü"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعَنْكَبُوتُ",
+            "turkce": "örümcek"
+        },
+        {
+            "type": "word",
+            "arapca": "بَيْتًا",
+            "turkce": "bir ev/ağ"
+        },
+        {
+            "type": "word",
+            "arapca": "عَلَى",
+            "turkce": "üzerine"
+        },
+        {
+            "type": "word",
+            "arapca": "بَابِ",
+            "turkce": "kapı/ağız"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَارِ،",
+            "turkce": "mağara,"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَاضَتْ",
+            "turkce": "ve yumurtladı"
+        },
+        {
+            "type": "word",
+            "arapca": "حَمَامَةٌ",
+            "turkce": "bir güvercin"
+        },
+        {
+            "type": "word",
+            "arapca": "هُنَاكَ.",
+            "turkce": "orada."
+        },
+        {
+            "type": "word",
+            "arapca": "عِنْدَمَا",
+            "turkce": "-dığı zaman"
+        },
+        {
+            "type": "word",
+            "arapca": "رَأَى",
+            "turkce": "gördü"
+        },
+        {
+            "type": "word",
+            "arapca": "الْكُفَّارُ",
+            "turkce": "kafirler"
+        },
+        {
+            "type": "word",
+            "arapca": "بَيْتَ",
+            "turkce": "ev/ağ"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعَنْكَبُوتِ،",
+            "turkce": "örümcek,"
+        },
+        {
+            "type": "word",
+            "arapca": "قَالُوا:",
+            "turkce": "dediler:"
+        },
+        {
+            "type": "word",
+            "arapca": "\"لَا",
+            "turkce": "\"Hayır"
+        },
+        {
+            "type": "word",
+            "arapca": "يُوجَدُ",
+            "turkce": "bulunmaz/yok"
+        },
+        {
+            "type": "word",
+            "arapca": "أَحَدٌ",
+            "turkce": "kimse"
+        },
+        {
+            "type": "word",
+            "arapca": "هُنَا،",
+            "turkce": "burada,"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذَا",
+            "turkce": "bu"
+        },
+        {
+            "type": "word",
+            "arapca": "الْبَيْتُ",
+            "turkce": "ev/ağ"
+        },
+        {
+            "type": "word",
+            "arapca": "قَدِيمٌ",
+            "turkce": "eski"
+        },
+        {
+            "type": "word",
+            "arapca": "جِدًّا\".",
+            "turkce": "çok\"."
+        },
+        {
+            "type": "word",
+            "arapca": "وَهَكَذَا",
+            "turkce": "ve böylece"
+        },
+        {
+            "type": "word",
+            "arapca": "نَجَا",
+            "turkce": "kurtuldu"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّبِيُّ",
+            "turkce": "Peygamber"
+        },
+        {
+            "type": "word",
+            "arapca": "وَصَاحِبُهُ",
+            "turkce": "ve arkadaşı"
+        },
+        {
+            "type": "word",
+            "arapca": "وَوَصَلَا",
+            "turkce": "ve (ikisi) ulaştılar"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e/a"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَدِينَةِ",
+            "turkce": "Medine"
+        },
+        {
+            "type": "word",
+            "arapca": "بِسَلَامٍ.",
+            "turkce": "selametle."
+        }
+    ]
+}

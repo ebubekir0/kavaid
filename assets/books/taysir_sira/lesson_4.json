@@ -1,0 +1,57 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 4,
+        "ders_adi": "Dedemin Vefatı ve Ebu Talib'in Himayesi",
+        "icerik": "أَصْبَحَ عُمْرُ مُحَمَّدٌ ثَمَانِي سَنَوَات، فَتُوُفِيَّ جَدُّهُ. وَأَخَذَهُ عَمُّهُ أَبُو طَالِب، لِيَعِيشَ مَعَهُ فِي بَيْتِه مَعَ العَائِلَة.",
+        "kelimeler": [
+            {
+                "arapca": "أَصْبَحَ",
+                "turkce": "oldu / hale geldi"
+            },
+            {
+                "arapca": "عُمْرُ",
+                "turkce": "yaşı"
+            },
+            {
+                "arapca": "ثَمَانِي",
+                "turkce": "sekiz"
+            },
+            {
+                "arapca": "فَتُوُفِيَّ",
+                "turkce": "ve vefat etti"
+            },
+            {
+                "arapca": "جَدُّهُ",
+                "turkce": "onun dedesi"
+            },
+            {
+                "arapca": "وَأَخَذَهُ",
+                "turkce": "ve onu aldı"
+            },
+            {
+                "arapca": "عَمُّهُ",
+                "turkce": "onun amcası"
+            },
+            {
+                "arapca": "أَبُو",
+                "turkce": "Ebu"
+            },
+            {
+                "arapca": "طَالِب",
+                "turkce": "Talib"
+            },
+            {
+                "arapca": "لِيَعِيشَ",
+                "turkce": "yaşamak için"
+            },
+            {
+                "arapca": "بَيْتِه",
+                "turkce": "onun evi"
+            },
+            {
+                "arapca": "العَائِلَة",
+                "turkce": "aile"
+            }
+        ]
+    }
+}

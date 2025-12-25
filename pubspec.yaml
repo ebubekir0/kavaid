@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.0.18+3018
+version: 3.0.17+3017
 
 environment:
   sdk: ^3.8.1
@@ -152,9 +152,70 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/siyer_header.jpg
     - assets/fonts/
     - assets/books/kitab_kiraah_1/
     - assets/books/kitab_kiraah_2/
+    - assets/books/hz_yusuf/
+    - assets/audio/hz_yusuf/
+    - assets/books/mimar_sinan/
+    - assets/audio/mimar_sinan/
+    - assets/books/bilal_habesi/
+    - assets/audio/bilal_habesi/
+    - assets/books/susuz_kopek/
+    - assets/audio/susuz_kopek/
+    - assets/books/ibni_sina/
+    - assets/audio/ibni_sina/
+    - assets/books/magaradaki_orumcek/
+    - assets/audio/magaradaki_orumcek/
+    - assets/books/durust_tuccarlar/
+    - assets/audio/durust_tuccarlar/
+    - assets/books/mevlana_sevgi/
+    - assets/audio/mevlana_sevgi/
+    - assets/books/sadaka_tasi/
+    - assets/audio/sadaka_tasi/
+    - assets/books/aglayan_kutuk/
+    - assets/audio/aglayan_kutuk/
+    - assets/books/alice_harikalar_diyarinda/
+    - assets/books/don_kisot/
+    - assets/books/oliver_twist/
+    - assets/books/yasli_adam_ve_deniz/
+    - assets/books/monte_kristo_kontu/
+    - assets/books/seksen_gunde_devrialem/
+    - assets/books/hz_musa_ve_hizirin_yolculugu/
+    - assets/books/kucuk_prens/
+    - assets/books/robinson_crusoe/
+    - assets/books/sherlock_holmesun_zekasi/
+    - assets/audio/alice_harikalar_diyarinda/
+    - assets/audio/don_kisot/
+    - assets/audio/oliver_twist/
+    - assets/audio/yasli_adam_ve_deniz/
+    - assets/audio/monte_kristo_kontu/
+    - assets/audio/seksen_gunde_devrialem/
+    - assets/audio/hz_musa_ve_hizirin_yolculugu/
+    - assets/audio/kucuk_prens/
+    - assets/audio/robinson_crusoe/
+    - assets/audio/sherlock_holmesun_zekasi/
+    - assets/books/ashabi_kehf/
+    - assets/audio/ashabi_kehf/
+    - assets/books/ibni_battuta/
+    - assets/audio/ibni_battuta/
+    - assets/books/romeo_ve_juliet/
+    - assets/audio/romeo_ve_juliet/
+    - assets/books/titanik/
+    - assets/audio/titanik/
+    - assets/books/donusum_kafka/
+    - assets/audio/donusum_kafka/
+    - assets/books/barbaros_hayrettin/
+    - assets/audio/barbaros_hayrettin/
+    - assets/books/savas_ve_baris/
+    - assets/audio/savas_ve_baris/
+    - assets/books/babil_asma_bahceleri/
+    - assets/audio/babil_asma_bahceleri/
+    - assets/books/imam_gazali/
+    - assets/audio/imam_gazali/
+    - assets/books/frankenstein/
+    - assets/audio/frankenstein/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

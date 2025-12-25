@@ -1,0 +1,431 @@
+{
+    "book_id": "mevlana_sevgi",
+    "title": "Mevlana ve Sevgi",
+    "kelimeler": [
+        {
+            "type": "word",
+            "arapca": "عَاشَ",
+            "turkce": "yaşadı"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "مَدِينَةِ",
+            "turkce": "şehir"
+        },
+        {
+            "type": "word",
+            "arapca": "قُونِيَةَ",
+            "turkce": "Konya"
+        },
+        {
+            "type": "word",
+            "arapca": "عَالِمٌ",
+            "turkce": "bir alim"
+        },
+        {
+            "type": "word",
+            "arapca": "كَبِيرٌ",
+            "turkce": "büyük"
+        },
+        {
+            "type": "word",
+            "arapca": "وَشَاعِرٌ",
+            "turkce": "ve bir şair"
+        },
+        {
+            "type": "word",
+            "arapca": "صُوفِيٌّ",
+            "turkce": "sufi/mutasavvıf"
+        },
+        {
+            "type": "word",
+            "arapca": "اسْمُهُ",
+            "turkce": "ismi"
+        },
+        {
+            "type": "word",
+            "arapca": "\"مَوْلَانَا",
+            "turkce": "\"Mevlana"
+        },
+        {
+            "type": "word",
+            "arapca": "جَلَالُ",
+            "turkce": "Celaleddin"
+        },
+        {
+            "type": "word",
+            "arapca": "الدِّينِ",
+            "turkce": "Rumi"
+        },
+        {
+            "type": "word",
+            "arapca": "الرُّومِيُّ\".",
+            "turkce": "Rumi\"."
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "مَوْلَانَا",
+            "turkce": "Mevlana"
+        },
+        {
+            "type": "word",
+            "arapca": "يُحِبُّ",
+            "turkce": "seviyor(du)"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّاسَ",
+            "turkce": "insanları"
+        },
+        {
+            "type": "word",
+            "arapca": "جَمِيعًا،",
+            "turkce": "hepsini/tümüyle,"
+        },
+        {
+            "type": "word",
+            "arapca": "لَا",
+            "turkce": "hayır (yapmaz)"
+        },
+        {
+            "type": "word",
+            "arapca": "يُفَرِّقُ",
+            "turkce": "ayırmaz"
+        },
+        {
+            "type": "word",
+            "arapca": "بَيْنَ",
+            "turkce": "arasını"
+        },
+        {
+            "type": "word",
+            "arapca": "غَنِيٍّ",
+            "turkce": "zengin"
+        },
+        {
+            "type": "word",
+            "arapca": "وَفَقِيرٍ.",
+            "turkce": "ve fakir."
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "بَابُهُ",
+            "turkce": "kapısı"
+        },
+        {
+            "type": "word",
+            "arapca": "مَفْتُوحًا",
+            "turkce": "açık"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلْكُلِّ.",
+            "turkce": "herkes için."
+        },
+        {
+            "type": "word",
+            "arapca": "قَوْلُهُ",
+            "turkce": "sözü"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَشْهُورُ",
+            "turkce": "meşhur"
+        },
+        {
+            "type": "word",
+            "arapca": "هُوَ:",
+            "turkce": "o/şudur:"
+        },
+        {
+            "type": "word",
+            "arapca": "\"تَعَالَ،",
+            "turkce": "\"Gel,"
+        },
+        {
+            "type": "word",
+            "arapca": "تَعَالَ،",
+            "turkce": "gel,"
+        },
+        {
+            "type": "word",
+            "arapca": "مَهْمَا",
+            "turkce": "ne olursa olsun/her ne"
+        },
+        {
+            "type": "word",
+            "arapca": "كُنْتَ",
+            "turkce": "olsan(da)/i(sen) de"
+        },
+        {
+            "type": "word",
+            "arapca": "تَعَالَ\".",
+            "turkce": "gel\"."
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "يَوْمٍ",
+            "turkce": "bir gün"
+        },
+        {
+            "type": "word",
+            "arapca": "مِنَ",
+            "turkce": "-den"
+        },
+        {
+            "type": "word",
+            "arapca": "الْأَيَّامِ،",
+            "turkce": "günler,"
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "مَوْلَانَا",
+            "turkce": "Mevlana"
+        },
+        {
+            "type": "word",
+            "arapca": "يَمْشِي",
+            "turkce": "yürüyor"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "السُّوقِ.",
+            "turkce": "çarşı."
+        },
+        {
+            "type": "word",
+            "arapca": "رَأَى",
+            "turkce": "gördü"
+        },
+        {
+            "type": "word",
+            "arapca": "رَجُلًا",
+            "turkce": "bir adam"
+        },
+        {
+            "type": "word",
+            "arapca": "يَصْنَعُ",
+            "turkce": "yapıyor/işliyor"
+        },
+        {
+            "type": "word",
+            "arapca": "الذَّهَبَ",
+            "turkce": "altını"
+        },
+        {
+            "type": "word",
+            "arapca": "وَيَطْرُقُ",
+            "turkce": "ve vuruyor/dövüyor"
+        },
+        {
+            "type": "word",
+            "arapca": "بِالْمِطْرَقَةِ:",
+            "turkce": "çekiçle:"
+        },
+        {
+            "type": "word",
+            "arapca": "\"طَقْ،",
+            "turkce": "\"Tak,"
+        },
+        {
+            "type": "word",
+            "arapca": "طَقْ،",
+            "turkce": "tak,"
+        },
+        {
+            "type": "word",
+            "arapca": "طَقْ\".",
+            "turkce": "tak\"."
+        },
+        {
+            "type": "word",
+            "arapca": "سَمِعَ",
+            "turkce": "işitti"
+        },
+        {
+            "type": "word",
+            "arapca": "مَوْلَانَا",
+            "turkce": "Mevlana"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذَا",
+            "turkce": "bu"
+        },
+        {
+            "type": "word",
+            "arapca": "الصَّوْتِ",
+            "turkce": "ses"
+        },
+        {
+            "type": "word",
+            "arapca": "ذِكْرَ",
+            "turkce": "zikrini"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهِ،",
+            "turkce": "Allah'ın,"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَدَأَ",
+            "turkce": "ve başladı"
+        },
+        {
+            "type": "word",
+            "arapca": "يَدُورُ",
+            "turkce": "dönmeye"
+        },
+        {
+            "type": "word",
+            "arapca": "حَوْلَ",
+            "turkce": "etrafında"
+        },
+        {
+            "type": "word",
+            "arapca": "نَفْسِهِ",
+            "turkce": "kendi"
+        },
+        {
+            "type": "word",
+            "arapca": "مِنَ",
+            "turkce": "-den"
+        },
+        {
+            "type": "word",
+            "arapca": "السَّعَادَةِ",
+            "turkce": "mutluluk"
+        },
+        {
+            "type": "word",
+            "arapca": "وَحُبِّ",
+            "turkce": "ve sevgisi"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهِ.",
+            "turkce": "Allah."
+        },
+        {
+            "type": "word",
+            "arapca": "أَصْبَحَ",
+            "turkce": "oldu"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذَا",
+            "turkce": "bu"
+        },
+        {
+            "type": "word",
+            "arapca": "الدَّوَرَانُ",
+            "turkce": "dönüş"
+        },
+        {
+            "type": "word",
+            "arapca": "رَمْزًا",
+            "turkce": "bir sembol"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلدَّرَاوِيشِ",
+            "turkce": "dervişler için"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَوْلَوِيَّةِ.",
+            "turkce": "Mevlevi."
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "مَوْلَانَا",
+            "turkce": "Mevlana"
+        },
+        {
+            "type": "word",
+            "arapca": "يُعَلِّمُ",
+            "turkce": "öğretiyor(du)"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّاسَ",
+            "turkce": "insanlara"
+        },
+        {
+            "type": "word",
+            "arapca": "أَنَّ",
+            "turkce": "ki"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَحَبَّةَ",
+            "turkce": "sevgi"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالتَّسَامُحَ",
+            "turkce": "ve hoşgörü"
+        },
+        {
+            "type": "word",
+            "arapca": "هُمَا",
+            "turkce": "o ikisi"
+        },
+        {
+            "type": "word",
+            "arapca": "أَسَاسُ",
+            "turkce": "temelidir"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَيَاةِ",
+            "turkce": "hayatın"
+        },
+        {
+            "type": "word",
+            "arapca": "الْجَمِيلَةِ.",
+            "turkce": "güzel."
+        }
+    ]
+}

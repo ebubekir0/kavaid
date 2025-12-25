@@ -1,0 +1,23 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 8,
+        "ders_adi": "Peygamberimizin Güzel Ahlakı",
+        "kelimeler": [
+            {
+                "arapca": "نَشَأَ مُحَمَّدٌ أَخْالقُهُ جَمِيلَةٍ",
+                "turkce": "Muhammed güzel ahlaklı olarak yetişti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لَمْ يَسْجُدْ لِصَنَمٍ قَطُّ",
+                "turkce": "Asla bir puta secde etmedi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لَمْ يَأْكُلْ مِنْ ذَبَائِحِ الْجَاهِلِيَّةِ",
+                "turkce": "Cahiliye (usulü) kurbanlarından yemedi",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 9,
+        "ders_adi": "Hilfül Fudul: Erdemliler İttifakı",
+        "kelimeler": [
+            {
+                "arapca": "جَاءَ تَاجِرٌ إِلَى مَكَّهَ مَعَهُ بِضَاعَةً",
+                "turkce": "Mekke'ye yanında bir malla bir tüccar geldi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "اشْتَرَى زَبُونٌ مِنَ التَّاجِرِ بِضَاعَةً",
+                "turkce": "Bir müşteri tüccardan bir mal satın aldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لَمْ يَدْفَعْ ثَمَنَهَا",
+                "turkce": "Onun bedelini ödemedi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "فَلَمْ يَنْصُرْهُ أَحَدٌ",
+                "turkce": "Ona kimse yardım etmedi",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

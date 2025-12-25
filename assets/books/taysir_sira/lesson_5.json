@@ -1,0 +1,53 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 5,
+        "ders_adi": "Peygamberimizin Güzel Ahlakı",
+        "icerik": "نَشَأَ مُحَمَّدٌ لَهُ أَخْلَاقٌ جَمِيلَة، لَكِنَّهُ لَمْ يَسْجُدْ لِصَنَمٍ قَطُّ فِي الجَاهِلِيَّة، وَلَمْ يَأْكُلْ مِنْ ذَبَائِحِ الجَاهِلِيَّة.",
+        "kelimeler": [
+            {
+                "arapca": "نَشَأَ",
+                "turkce": "yetişti / büyüdü"
+            },
+            {
+                "arapca": "أَخْلَاقٌ",
+                "turkce": "ahlak"
+            },
+            {
+                "arapca": "جَمِيلَة",
+                "turkce": "güzel"
+            },
+            {
+                "arapca": "لَكِنَّهُ",
+                "turkce": "fakat o"
+            },
+            {
+                "arapca": "لَمْ",
+                "turkce": "-madı / -medi (olumsuzluk)"
+            },
+            {
+                "arapca": "يَسْجُدْ",
+                "turkce": "secde eder"
+            },
+            {
+                "arapca": "لِصَنَمٍ",
+                "turkce": "bir puta"
+            },
+            {
+                "arapca": "قَطُّ",
+                "turkce": "asla"
+            },
+            {
+                "arapca": "الجَاهِلِيَّة",
+                "turkce": "Cahiliye"
+            },
+            {
+                "arapca": "يَأْكُلْ",
+                "turkce": "yer"
+            },
+            {
+                "arapca": "ذَبَائِحِ",
+                "turkce": "kurbanlar / kesilen hayvanlar"
+            }
+        ]
+    }
+}

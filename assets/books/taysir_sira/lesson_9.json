@@ -1,0 +1,113 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 9,
+        "ders_adi": "Kabe'nin Onarımı ve Hacerül Esved",
+        "icerik": "جَاءَ سَيْلٌ قَوِيٌّ بِاتِّجَاهِ الكَعْبَة، فَهَدَمَهَا. أَرَادَ أَهْلُ مَكَّةَ أَنْ يُعِيدُوا بِنَاءَهَا، فَجَاؤوا بِأَدَوَاتِ البِنَاءِ، وَجَاؤوا بَدَأُوا البِنَاءَ. أَثْنَاءَ البِنَاءِ اخْتَلَفَ النَّاسُ فِي مَنْ يَحْمِلُ الحَجَرَ الأَسْوَدَ لِيَضَعَهُ فِي مَكَانِهِ، فَكُلُّ قَبِيلَةٍ تُرِيدُ أَنْ تَحْمِلَهُ. أَثْنَاءَ ذٰلِكَ دَخَلَ مُحَمَّدٌ صَلَّى اّٰللَّهُ عَلَيْهِ وَسَلَّمَ الحَرَمَ، فَرَآهُ النَّاسُ، فَطَلَبُوا مِنْهُ أَنْ يَحْكُمَ بَيْنَهُمْ. قَبِلَ مُحَمَّدٌ ذٰلِكَ وَطَلَبَ مِنْهُمْ بِسَاطًا، وَوَضَعَ الحَجَرَ الأَسْوَدَ فَوْقَهُ، ثُمَّ رَفَعُوهُ جَمِيعًا إِلَى مَكَانِهِ. رَضِيَتِ القَبَائِلُ بِهٰذَا الحَلِّ، وَانْتَهَتِ المُشْكِلَةُ وَوُضِعَ الحَجَرُ الأَسْوَدُ فِي مَكَانِهِ.",
+        "kelimeler": [
+            {
+                "arapca": "سَيْلٌ",
+                "turkce": "sel"
+            },
+            {
+                "arapca": "فَهَدَمَهَا",
+                "turkce": "ve onu yıktı"
+            },
+            {
+                "arapca": "يُعِيدُوا",
+                "turkce": "tekrar etsinler / yapsınlar"
+            },
+            {
+                "arapca": "بِنَاءَهَا",
+                "turkce": "onun binasını (yapımı)"
+            },
+            {
+                "arapca": "بِأَدَوَاتِ",
+                "turkce": "aletler / araçlar ile"
+            },
+            {
+                "arapca": "بَدَأُوا",
+                "turkce": "başladılar"
+            },
+            {
+                "arapca": "أَثْنَاءَ",
+                "turkce": "esnasında / sırasında"
+            },
+            {
+                "arapca": "اخْتَلَفَ",
+                "turkce": "ihtilaf etti / anlasmazlığa düstü"
+            },
+            {
+                "arapca": "يَحْمِلُ",
+                "turkce": "taşıyor"
+            },
+            {
+                "arapca": "الحَجَرَ",
+                "turkce": "taş"
+            },
+            {
+                "arapca": "الأَسْوَدَ",
+                "turkce": "siyah (esved)"
+            },
+            {
+                "arapca": "لِيَضَعَهُ",
+                "turkce": "onu koymak için"
+            },
+            {
+                "arapca": "مَكَانِهِ",
+                "turkce": "onun yeri"
+            },
+            {
+                "arapca": "قَبِيلَةٍ",
+                "turkce": "kabile"
+            },
+            {
+                "arapca": "دَخَلَ",
+                "turkce": "girdi"
+            },
+            {
+                "arapca": "الحَرَمَ",
+                "turkce": "Harem"
+            },
+            {
+                "arapca": "فَرَآهُ",
+                "turkce": "ve onu gördü"
+            },
+            {
+                "arapca": "يَحْكُمَ",
+                "turkce": "hakemlik yapsın / hükmetsin"
+            },
+            {
+                "arapca": "بَيْنَهُمْ",
+                "turkce": "onların arası"
+            },
+            {
+                "arapca": "قَبِلَ",
+                "turkce": "kabul etti"
+            },
+            {
+                "arapca": "بِسَاطًا",
+                "turkce": "bir örtü / yaygı"
+            },
+            {
+                "arapca": "وَوَضَعَ",
+                "turkce": "ve koydu"
+            },
+            {
+                "arapca": "رَفَعُوهُ",
+                "turkce": "onu kaldırdılar"
+            },
+            {
+                "arapca": "رَضِيَتِ",
+                "turkce": "razı oldu"
+            },
+            {
+                "arapca": "الحَلِّ",
+                "turkce": "çözüm"
+            },
+            {
+                "arapca": "المُشْكِلَةُ",
+                "turkce": "sorun"
+            }
+        ]
+    }
+}

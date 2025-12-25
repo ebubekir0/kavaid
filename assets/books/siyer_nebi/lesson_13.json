@@ -1,0 +1,23 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 13,
+        "ders_adi": "Hacerül Esved ve Kabe'nin Onarımı",
+        "kelimeler": [
+            {
+                "arapca": "أَرَادَ أَهْلُ مَكَّةَ أَنْ يُعِيدُوا بِنَاءَهَا",
+                "turkce": "Mekke ehli onun (Kabe'nin) inşasını yenilemek istedi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "اخْتَلَفَ النَّاسُ فِي تَعْمِيرِ الْحَجَرِ األَسْوَدِ",
+                "turkce": "İnsanlar Hacerül Esved'in yerleştirilmesi konusunda ihtilafa düştüler",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "كُلُّ قَبِيلَةٍ تُرِيدُ أَنْ تَحْمِلَهُ",
+                "turkce": "Her kabile onu taşımak istiyordu",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

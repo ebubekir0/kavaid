@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 18,
+        "ders_adi": "Gizli Davet Dönemi",
+        "kelimeler": [
+            {
+                "arapca": "دَعَا أَقْرِبَاءَهُ إِلَى اإلِسْلَامِ",
+                "turkce": "Akrabalarını İslam'a davet etti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "اسْتَمَرَّتِ الدَّعْوَةُ اَلسِّرِّيَّةُ ثَلَاثَ سَنَوَاتٍ",
+                "turkce": "Gizli davet üç yıl sürdü",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "دَارِ األَرْقَمِ",
+                "turkce": "Erkam'ın evi",
+                "tip": "isim"
+            },
+            {
+                "arapca": "أَسْلَمَتْ خَدِيجَةُ وَأَبُو بَكْرٍ وَعَلِيٌّ",
+                "turkce": "Hatice, Ebu Bekir ve Ali müslüman oldular",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

@@ -1,0 +1,161 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 2,
+        "ders_adi": "Sütannesi Halime ve Bereket",
+        "icerik": "كَانَتْ مُرْضِعَتُهُ حَلِيمَة، جَاءَتْ إِلَى مَكَّةَ لِتَعْمَلَ مُرْضِعَةً. أَخَذَتْ حَلِيمَة اليَتِيمَ المَوْلُود (مُحَمَّدًا صَلَّى اّٰللَّهُ عَلَيْهِ وَسَلَّمَ) مَعَ مَجْمُوعَةٍ مِنَ المُرْضِعَاتِ، ثمَّ رَجَعَتْ إِلَى دِيَارِهَا بِهِ. فِي الطَّرِيقِ لَاحَظَتْ حَلِيمَة، كَانَتْ نَاقَتُهَا لَا حَلِيبَ فِيهَا، فَأَصْبَحَتْ فِيهَا بَرَكَةٌ، وَكَانَ مَرْكُوبُهَا ضَعِيفًا، فَأَصْبَحَ قَوِيًّا. وَأَمَّا فِي دِيَارِهَا (بَادِيَة سَعْد بْن بَكْر) فَكَانَ المَطَرُ يَنْزِلُ قَلِيلًا، فَأَصْبَحَ يَنْزِلُ كَثِيرًا، وَكَانَتْ أَغْنٰامُهَا تَرْجِعُ مِنَ الْمَرْعَى شَبْعَانَة.",
+        "kelimeler": [
+            {
+                "arapca": "كَانَتْ",
+                "turkce": "idi / idi olan"
+            },
+            {
+                "arapca": "مُرْضِعَتُهُ",
+                "turkce": "onun sütannesi"
+            },
+            {
+                "arapca": "حَلِيمَة",
+                "turkce": "Halime"
+            },
+            {
+                "arapca": "جَاءَتْ",
+                "turkce": "geldi"
+            },
+            {
+                "arapca": "مَكَّةَ",
+                "turkce": "Mekke"
+            },
+            {
+                "arapca": "لِتَعْمَلَ",
+                "turkce": "çalışmak için"
+            },
+            {
+                "arapca": "مُرْضِعَةً",
+                "turkce": "sütannesi olarak"
+            },
+            {
+                "arapca": "أَخَذَتْ",
+                "turkce": "aldı"
+            },
+            {
+                "arapca": "اليَتِيمَ",
+                "turkce": "yetim"
+            },
+            {
+                "arapca": "المَوْلُود",
+                "turkce": "yeni doğan"
+            },
+            {
+                "arapca": "مَعَ",
+                "turkce": "ile birlikte"
+            },
+            {
+                "arapca": "مَجْمُوعَةٍ",
+                "turkce": "bir grup"
+            },
+            {
+                "arapca": "المُرْضِعَاتِ",
+                "turkce": "sütanneler"
+            },
+            {
+                "arapca": "ثمَّ",
+                "turkce": "sonra"
+            },
+            {
+                "arapca": "رَجَعَتْ",
+                "turkce": "döndü"
+            },
+            {
+                "arapca": "دِيَارِهَا",
+                "turkce": "onun diyarı / evi"
+            },
+            {
+                "arapca": "لَاحَظَتْ",
+                "turkce": "fark etti / gözlemledi"
+            },
+            {
+                "arapca": "نَاقَتُهَا",
+                "turkce": "onun devesi"
+            },
+            {
+                "arapca": "لَا",
+                "turkce": "hayır / yok"
+            },
+            {
+                "arapca": "حَلِيبَ",
+                "turkce": "süt"
+            },
+            {
+                "arapca": "فِيهَا",
+                "turkce": "onda / onun içinde"
+            },
+            {
+                "arapca": "فَأَصْبَحَتْ",
+                "turkce": "ve oldu / hale geldi"
+            },
+            {
+                "arapca": "بَرَكَةٌ",
+                "turkce": "bereket"
+            },
+            {
+                "arapca": "مَرْكُوبُهَا",
+                "turkce": "onun binek hayvanı"
+            },
+            {
+                "arapca": "ضَعِيفًا",
+                "turkce": "zayıf"
+            },
+            {
+                "arapca": "قَوِيًّا",
+                "turkce": "güçlü"
+            },
+            {
+                "arapca": "وَأَمَّا",
+                "turkce": "ise / gelince"
+            },
+            {
+                "arapca": "بَادِيَة",
+                "turkce": "çöl / kırsal"
+            },
+            {
+                "arapca": "سَعْد",
+                "turkce": "Sa'd"
+            },
+            {
+                "arapca": "بَكْر",
+                "turkce": "Bekr"
+            },
+            {
+                "arapca": "المَطَرُ",
+                "turkce": "yağmur"
+            },
+            {
+                "arapca": "يَنْزِلُ",
+                "turkce": "iniyor / yağıyor"
+            },
+            {
+                "arapca": "قَلِيلًا",
+                "turkce": "az"
+            },
+            {
+                "arapca": "كَثِيرًا",
+                "turkce": "çok"
+            },
+            {
+                "arapca": "أَغْنٰامُهَا",
+                "turkce": "onun koyunları / keçileri"
+            },
+            {
+                "arapca": "تَرْجِعُ",
+                "turkce": "dönüyor"
+            },
+            {
+                "arapca": "الْمَرْعَى",
+                "turkce": "otlatma yeri / mera"
+            },
+            {
+                "arapca": "شَبْعَانَة",
+                "turkce": "tok (karnı doymuş)"
+            }
+        ]
+    }
+}

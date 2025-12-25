@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 6,
+        "ders_adi": "Annesinin Vefatı",
+        "kelimeler": [
+            {
+                "arapca": "أَرَادَتْ آِمنَةُ أَنْ تَزُورَ إِخْوَتَهَا",
+                "turkce": "Amine kardeşlerini ziyaret etmek istedi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "أَخَذَتْ مَعَهَا ابْنَهَا مُحَمَّدًا",
+                "turkce": "Oğlu Muhammed'i yanına aldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "خَرَجَتْ مِنْ يَثْرِبَ بِاتِّجَاهِ مَكَّةَ",
+                "turkce": "Yesrib'den (Medine) Mekke yönüne doğru çıktı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "تُوُفِيَّتْ، وَكَانَ عُمُرُ مُحَمَّدٍ سِتَّ سَنَوَاتٍ",
+                "turkce": "Vefat ettiğinde Muhammed altı yaşındaydı",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

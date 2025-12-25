@@ -1,0 +1,18 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 5,
+        "ders_adi": "Çölde Yetişmesi",
+        "kelimeler": [
+            {
+                "arapca": "نَشَأَ عَلَى الْفَصَاحَةِ وَالْبَسَاطَةِ",
+                "turkce": "Fasahat (güzel konuşma) ve sadelik üzerine yetişti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "بَعْدَ سَنَتَيْنِ رَجَعَتْهُ حَلِيمَةُ إِلَى أُمِّهِ",
+                "turkce": "İki yıl sonra Halime onu annesine geri verdi",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

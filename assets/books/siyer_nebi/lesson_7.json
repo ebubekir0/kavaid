@@ -1,0 +1,23 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 7,
+        "ders_adi": "Dedemsin Vefatı ve Ebu Talib'in Himayesi",
+        "kelimeler": [
+            {
+                "arapca": "تُوُفِيَّ جَدُّهُ",
+                "turkce": "Dedesi vefat etti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "كَفَلَهُ عَمُّهُ أَبُو طَالِبٍ",
+                "turkce": "Onu amcası Ebu Talib himayesine aldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لِيَعِيشَ هُنَاكَ مَعَ الْعَائِلَةِ",
+                "turkce": "Ailesiyle birlikte orada yaşaması için",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

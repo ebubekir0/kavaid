@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 19,
+        "ders_adi": "Açık Davet ve Müşriklerin Tepkisi",
+        "kelimeler": [
+            {
+                "arapca": "أَمَرَهُ اّٰللَّهُ بِالْجَهْرِ بِالدَّعْوَةِ",
+                "turkce": "Allah ona daveti açığa vurmasını emretti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "تَرْكِ األَصْنَامِ",
+                "turkce": "Putları terk etmek",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "سَبَّ آلِهَتَنَا، وَعَابَ دِينَنَا",
+                "turkce": "İlahlarımıza sövdü ve dinimizi ayıpladı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "مَا تَرَكْتُ هَذِهِ الدَّعْوَةَ",
+                "turkce": "Bu daveti bırakmam",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

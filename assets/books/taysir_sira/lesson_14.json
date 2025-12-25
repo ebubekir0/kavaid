@@ -1,0 +1,97 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 14,
+        "ders_adi": "Açık Davet ve Müşriklerin Tepkisi",
+        "icerik": "أَمَرَ اّٰللَّهُ رَسُولَهُ بِالجَهْرِ بِالدَّعْوَة، فَقَامَ الرَّسُولُ، وَدَعَا النَّاسَ إِلَى عِبَادَةِ اّٰللَّهِ وَتَرْكِ الأَصْنَامِ. غَضِبَ المُشْرِكُونَ، وَذَهَبُوا إِلَى عَمِّهِ (أَبِي طَالِب)، وَقَالُوا لَهُ: يَا أَبَا طَالِب، إِنَّ ابْنَ أَخِيكَ سَبَّ آلِهَتَنَا، وَعَابَ دِينَنَا. إِمَّا أَنْ تَمْنَعَهُ عَنَّا، وَإِمَّا أَنْ تَتْرُكَهُ لَنَا. ذَهَبَ أَبُو طَالِب إِلَى رَسُولِ اّٰللَّهِ، فَقَالَ النَّبِيُّ: يَا عَمِّي، لَوْ وُضِعَتِ الشَّمْسُ فِي يَمِينِي وَالقَمَرُ فِي يَسَارِي عَلَى أَنْ أَتْرُكَ هٰذِهِ الدَّعْوَةَ مَا تَرَكْتُهَا.",
+        "kelimeler": [
+            {
+                "arapca": "أَمَرَ",
+                "turkce": "emretti"
+            },
+            {
+                "arapca": "رَسُولَهُ",
+                "turkce": "onun elçisi"
+            },
+            {
+                "arapca": "بِالجَهْرِ",
+                "turkce": "açıktan / sesli olarak"
+            },
+            {
+                "arapca": "فَقَامَ",
+                "turkce": "ve kalktı"
+            },
+            {
+                "arapca": "عِبَادَةِ",
+                "turkce": "ibadet"
+            },
+            {
+                "arapca": "وَتَرْكِ",
+                "turkce": "ve terk etmek"
+            },
+            {
+                "arapca": "الأَصْنَامِ",
+                "turkce": "putlar"
+            },
+            {
+                "arapca": "المُشْرِكُونَ",
+                "turkce": "müşrikler / ortak koşanlar"
+            },
+            {
+                "arapca": "ذَهَبُوا",
+                "turkce": "gittiler"
+            },
+            {
+                "arapca": "ابْنَ",
+                "turkce": "oğlu"
+            },
+            {
+                "arapca": "أَخِيكَ",
+                "turkce": "senin erkek kardesin"
+            },
+            {
+                "arapca": "سَبَّ",
+                "turkce": "sövdü / hakaret etti"
+            },
+            {
+                "arapca": "آلِهَتَنَا",
+                "turkce": "bizim ilahlarımız"
+            },
+            {
+                "arapca": "وَعَابَ",
+                "turkce": "ve ayıpladı / kusur buldu"
+            },
+            {
+                "arapca": "دِينَنَا",
+                "turkce": "bizim dinimiz"
+            },
+            {
+                "arapca": "تَمْنَعَهُ",
+                "turkce": "onu engelle"
+            },
+            {
+                "arapca": "تَتْرُكَهُ",
+                "turkce": "onu bırakırsın / terk edersin"
+            },
+            {
+                "arapca": "الشَّمْسُ",
+                "turkce": "güneş"
+            },
+            {
+                "arapca": "يَمِينِي",
+                "turkce": "benim sağım"
+            },
+            {
+                "arapca": "وَالقَمَرُ",
+                "turkce": "ve ay"
+            },
+            {
+                "arapca": "يَسَارِي",
+                "turkce": "benim solum"
+            },
+            {
+                "arapca": "تَرَكْتُهَا",
+                "turkce": "onu terk ettim"
+            }
+        ]
+    }
+}

@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 15,
+        "ders_adi": "Hira Mağarası ve İlk Vahiy",
+        "kelimeler": [
+            {
+                "arapca": "يَتَعَبَّدُ فِي شَهْرِ رَمَضَانَ",
+                "turkce": "Ramazan ayında ibadet ediyordu",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "يَتَفَكَّرُ فِي خَلْقِ اّٰللَّهِ",
+                "turkce": "Allah'ın yarattıkları hakkında tefekkür ediyordu",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "ضَمَّهُ بِقُوَّةٍ",
+                "turkce": "Onu kuvvetlice sıktı / sarıldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
+                "turkce": "Yaratan Rabbinin adıyla oku",
+                "tip": "ayet"
+            }
+        ]
+    }
+}

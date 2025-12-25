@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 20,
+        "ders_adi": "Müşriklerin Eziyetleri",
+        "kelimeler": [
+            {
+                "arapca": "سَبُّوا رَسُولَ اّٰللَّهِ بِشِدَّةٍ",
+                "turkce": "Resulullah'a şiddetli şekilde sövdüler",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "الصَّحْرَاءِ الْحَارَّةِ",
+                "turkce": "Sıcak çöl",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "يُعَذِّبُونَهُمْ لِيَكْفُرُوا",
+                "turkce": "İnkar etmeleri için onlara azap ediyorlardı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "ثَابِتُونَ عَلَى الْحَقِّ",
+                "turkce": "Hak üzere sabittiler (vazgeçmediler)",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

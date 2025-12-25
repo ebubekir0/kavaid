@@ -1,0 +1,1048 @@
+{
+  "ders_bilgisi": {
+    "ders_no": 1,
+    "ders_adi": "Halid'in Mutlu Günü",
+    "kelimeler": [
+      {
+        "arapca": "هَذَا",
+        "turkce": "Bu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ.",
+        "turkce": "Halid'dir.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَلَدٌ",
+        "turkce": "çocuk",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَغِيرٌ",
+        "turkce": "küçük",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَمُهَذَّبٌ.",
+        "turkce": "ve terbiyeli.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عُمْرُ",
+        "turkce": "yaşı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٍ",
+        "turkce": "Halid'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَشْرُ",
+        "turkce": "on",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سَنَوَاتٍ.",
+        "turkce": "yaşındadır.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَسْكُنُ",
+        "turkce": "yaşıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَيْتٍ",
+        "turkce": "evde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَمِيلٍ",
+        "turkce": "güzel",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَنَظِيفٍ",
+        "turkce": "ve temiz",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَدِينَةِ",
+        "turkce": "şehrinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِسْطَنْبُول.",
+        "turkce": "İstanbul.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَيْتُ",
+        "turkce": "evi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٍ",
+        "turkce": "Halid'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَبِيرٌ",
+        "turkce": "büyük",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَأَبْيَضُ",
+        "turkce": "ve beyaz",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللَّوْنِ.",
+        "turkce": "renkli.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حَوْلَ",
+        "turkce": "etrafında",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْبَيْتِ",
+        "turkce": "evin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حَدِيقَةٌ",
+        "turkce": "bahçe",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَغِيرَةٌ",
+        "turkce": "küçük",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِيهَا",
+        "turkce": "içinde (bulunan)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَزْهَارٌ",
+        "turkce": "çiçekler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حَمْرَاءُ",
+        "turkce": "kırmızı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَصَفْرَاءُ.",
+        "turkce": "ve sarı.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالِدُ",
+        "turkce": "babası",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٍ",
+        "turkce": "Halid'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اسْمُهُ",
+        "turkce": "isimi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُوسُف.",
+        "turkce": "Yusuf'tur.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هُوَ",
+        "turkce": "o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَجُلٌ",
+        "turkce": "adam",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَوِيلٌ.",
+        "turkce": "uzun.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُوسُف",
+        "turkce": "Yusuf",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَبِيبٌ",
+        "turkce": "doktor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَاهِرٌ",
+        "turkce": "becerikli",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَعْمَلُ",
+        "turkce": "çalışıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمُسْتَشْفَى",
+        "turkce": "hastane",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَبِيرِ.",
+        "turkce": "büyük.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالِدَةُ",
+        "turkce": "annesi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٍ",
+        "turkce": "Halid'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اسْمُهَا",
+        "turkce": "ismi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَرْيَم.",
+        "turkce": "Meryem'dir.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هِيَ",
+        "turkce": "o (kadın)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "امْرَأَةٌ",
+        "turkce": "kadın",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَيِّبَةٌ.",
+        "turkce": "iyi/merhametli.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَرْيَم",
+        "turkce": "Meryem",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُعَلِّمَةٌ",
+        "turkce": "öğretmen",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "نَشِيطَةٌ",
+        "turkce": "çalışkan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَعْمَلُ",
+        "turkce": "çalışıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَدْرَسَةِ",
+        "turkce": "okulda",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَطْفَالِ.",
+        "turkce": "çocuklar.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَدَى",
+        "turkce": "sahip",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٍ",
+        "turkce": "Halid'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أُخْتٌ",
+        "turkce": "kız kardeşi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَغِيرَةٌ",
+        "turkce": "küçük",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اسْمُهَا",
+        "turkce": "ismi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَاطِمَة.",
+        "turkce": "Fatma.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَاطِمَة",
+        "turkce": "Fatma",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُحِبُّ",
+        "turkce": "seviyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللَّعِبَ",
+        "turkce": "oynamayı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالدُّمْيَةِ",
+        "turkce": "oyuncak bebekle",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَثِيرًا.",
+        "turkce": "çokça.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّبَاحِ",
+        "turkce": "sabah",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْبَاكِرِ،",
+        "turkce": "erken,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَشْرُقُ",
+        "turkce": "doğuyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الشَّمْسُ",
+        "turkce": "güneş",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السَّمَاءِ.",
+        "turkce": "gökyüzü.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَصَافِيرُ",
+        "turkce": "kuşlar",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُغَرِّدُ",
+        "turkce": "ötüyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَوْقَ",
+        "turkce": "üstünde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الشَّجَرَةِ.",
+        "turkce": "ağaç.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَسْتَيْقِظُ",
+        "turkce": "uyanıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنْ",
+        "turkce": "-den",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "نَوْمِهِ",
+        "turkce": "uykusu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "نَشِيطًا",
+        "turkce": "zinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَسَعِيدًا.",
+        "turkce": "ve mutlu.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَذْهَبُ",
+        "turkce": "gidiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَى",
+        "turkce": "e/a",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَمَّامِ",
+        "turkce": "banyo",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَيَغْسِلُ",
+        "turkce": "ve yıkıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَجْهَهُ",
+        "turkce": "yüzünü",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْمَاءِ",
+        "turkce": "su ile",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالصَّابُونِ.",
+        "turkce": "ve sabunla.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُنَظِّفُ",
+        "turkce": "temizliyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَسْنَانَهُ",
+        "turkce": "dişlerini",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْفُرْشَاةِ.",
+        "turkce": "fırça ile.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ثُمَّ",
+        "turkce": "sonra",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَلْبَسُ",
+        "turkce": "giyiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَلَابِسَ",
+        "turkce": "elbiselerini",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَدْرَسَةِ",
+        "turkce": "okul",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الزَّرْقَاءَ.",
+        "turkce": "mavi.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَجْلِسُ",
+        "turkce": "oturuyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَعَ",
+        "turkce": "ile",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أُسْرَتِهِ",
+        "turkce": "ailesi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حَوْلَ",
+        "turkce": "etrafında",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَائِدَةِ",
+        "turkce": "sofra",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِتَنَاوُلِ",
+        "turkce": "yemek için",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْفُطُورِ.",
+        "turkce": "kahvaltı.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأُمُّ",
+        "turkce": "anne",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُعِدُّ",
+        "turkce": "hazırlıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَعَامًا",
+        "turkce": "yemek",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَذِيذًا.",
+        "turkce": "lezzetli.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَى",
+        "turkce": "üzerinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَائِدَةِ",
+        "turkce": "sofra",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خُبْزٌ",
+        "turkce": "ekmek",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَجُبْنٌ",
+        "turkce": "ve peynir",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَزَيْتُونٌ",
+        "turkce": "ve zeytin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَبَيْضٌ.",
+        "turkce": "ve yumurta.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَأْكُلُ",
+        "turkce": "yiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْخُبْزَ",
+        "turkce": "ekmek",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالْجُبْنَ.",
+        "turkce": "ve peynir.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هُوَ",
+        "turkce": "o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُحِبُّ",
+        "turkce": "seviyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَسَلَ",
+        "turkce": "balı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَيْضًا.",
+        "turkce": "da/de.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَشْرَبُ",
+        "turkce": "içiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كُوبًا",
+        "turkce": "bir bardak",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنَ",
+        "turkce": "den",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَلِيبِ",
+        "turkce": "süt",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السَّاخِنِ.",
+        "turkce": "sıcak.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَقُولُ",
+        "turkce": "diyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ:",
+        "turkce": "Halid:",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"الْحَمْدُ",
+        "turkce": "Hamd",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِلَّهِ\".",
+        "turkce": "Allah'adır.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَعْدَ",
+        "turkce": "Sonra",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْفُطُورِ،",
+        "turkce": "Kahvaltıdan,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَحْمِلُ",
+        "turkce": "taşıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَقِيبَةَ",
+        "turkce": "çanta",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَى",
+        "turkce": "üzerinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ظَهْرِهِ.",
+        "turkce": "sırtı.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَقِيبَةُ",
+        "turkce": "çanta",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ثَقِيلةٌ",
+        "turkce": "ağır",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَلِيلًا.",
+        "turkce": "biraz.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَقِيبَةِ",
+        "turkce": "Çanta",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كُتُبٌ",
+        "turkce": "kitaplar",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَدَفَاتِرُ",
+        "turkce": "ve defterler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَأَقْلَامٌ",
+        "turkce": "ve kalemler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُلَوَّنَةٌ.",
+        "turkce": "renkli.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَخْرُجُ",
+        "turkce": "çıkıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنَ",
+        "turkce": "den",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْبَيْتِ",
+        "turkce": "evin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَيَنْتَظِرُ",
+        "turkce": "ve bekliyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَافِلَةَ",
+        "turkce": "otobüs",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّفْرَاءَ.",
+        "turkce": "sarı.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَصِلُ",
+        "turkce": "varıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَى",
+        "turkce": "e/a",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَدْرَسَةِ.",
+        "turkce": "okul",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَدْرَسَةُ",
+        "turkce": "Okul",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَاسِعَةٌ.",
+        "turkce": "geniş.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُقَابِلُ",
+        "turkce": "karşılaşıyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَصْدِقَاءَهُ",
+        "turkce": "arkadaşları",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السَّاحَةِ.",
+        "turkce": "bahçe/meydan.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَدِيقُهُ",
+        "turkce": "arkadaşı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمُفَضَّلُ",
+        "turkce": "en sevdiği",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اسْمُهُ",
+        "turkce": "isimi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَحْمَد.",
+        "turkce": "Ahmet.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَدْخُلُ",
+        "turkce": "giriyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "التَّلَامِيذُ",
+        "turkce": "öğrenciler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَى",
+        "turkce": "e/a",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّفِّ.",
+        "turkce": "sınıf.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَجْلِسُ",
+        "turkce": "oturuyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَى",
+        "turkce": "üzerinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكُرْسِيِّ",
+        "turkce": "sandalye",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْخَشَبِيِّ.",
+        "turkce": "ahşap.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَدْخُلُ",
+        "turkce": "giriyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمُعَلِّمُ",
+        "turkce": "öğretmen",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَيَقُولُ:",
+        "turkce": "ve diyor:",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"السَّلَامُ",
+        "turkce": "Selam",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَيْكُمْ\".",
+        "turkce": "üzerinize.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَقُولُ",
+        "turkce": "diyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "التَّلَامِيذُ:",
+        "turkce": "öğrenciler:",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"وَعَلَيْكُمُ",
+        "turkce": "Ve üzerinize",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السَّلَامُ\".",
+        "turkce": "selam.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دَرْسُ",
+        "turkce": "Dersi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْيَوْمِ",
+        "turkce": "bugün",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هُوَ",
+        "turkce": "o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللُّغَةُ",
+        "turkce": "dil",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَرَبِيَّةُ.",
+        "turkce": "Arapça.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدٌ",
+        "turkce": "Halid",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُحِبُّ",
+        "turkce": "seviyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْقِرَاءَةَ",
+        "turkce": "okumayı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالْكِتَابَةَ.",
+        "turkce": "ve yazmayı.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هُوَ",
+        "turkce": "o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَالِبٌ",
+        "turkce": "öğrenci",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُجْتَهِدٌ",
+        "turkce": "çalışkan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَذَكِيٌّ.",
+        "turkce": "ve zeki.",
+        "tip": "kelime"
+      }
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 12,
+        "ders_adi": "Vahyin Kesilmesi ve Tekrar Başlaması",
+        "icerik": "ذَهَبَ النَّبِيُّ إِلَى غَارِ حِرَاء لِيَلْتَقِيَ جِبْرِيل لَكِنَّهُ لَمْ يَجِدْهُ، ثُمَّ ذَهَبَ فِي اليَوْمِ التَّالِي، فَلَمْ يَجِدْهُ. حَزِنَ مُحَمَّدٌ بِسَبَبِ انْقِطَاعِ الوَحْي. بَعْدَ أَرْبَعِينَ يَوْمًا نَزَلَ جِبْرِيلُ عَلَى الرَّسُولِ وَهُوَ يَقْرَأُ عَلَيْهِ: ﴿يَا أَيُّهَا الْمُدَّثِّرُ * قُمْ فَأَنْذِرْ * وَرَبَّكَ فَكَبِّرْ * وَثِيَابَكَ فَطَهِّرْ * وَالرُّجْزَ فَاهْجُرْ﴾ [المدثر: ١-٥]",
+        "kelimeler": [
+            {
+                "arapca": "لِيَلْتَقِيَ",
+                "turkce": "bulusmak için"
+            },
+            {
+                "arapca": "يَجِدْهُ",
+                "turkce": "onu bulur"
+            },
+            {
+                "arapca": "التَّالِي",
+                "turkce": "ertesi / sonraki"
+            },
+            {
+                "arapca": "حَزِنَ",
+                "turkce": "üzüldü"
+            },
+            {
+                "arapca": "انْقِطَاعِ",
+                "turkce": "kesilmesi"
+            },
+            {
+                "arapca": "الْوَحْي",
+                "turkce": "vahiy"
+            },
+            {
+                "arapca": "أَرْبَعِينَ",
+                "turkce": "kırk"
+            },
+            {
+                "arapca": "يَوْمًا",
+                "turkce": "gün"
+            },
+            {
+                "arapca": "يَقْرَأُ",
+                "turkce": "okuyor"
+            },
+            {
+                "arapca": "الْمُدَّثِّرُ",
+                "turkce": "örtüsüne bürünen"
+            },
+            {
+                "arapca": "قُمْ",
+                "turkce": "kalk"
+            },
+            {
+                "arapca": "فَأَنْذِرْ",
+                "turkce": "ve uyar"
+            },
+            {
+                "arapca": "فَكَبِّرْ",
+                "turkce": "ve tekbir getir (yücelt)"
+            },
+            {
+                "arapca": "وَثِيَابَكَ",
+                "turkce": "ve senin elbiselerin"
+            },
+            {
+                "arapca": "فَطَهِّرْ",
+                "turkce": "ve temizle"
+            },
+            {
+                "arapca": "وَالرُّجْزَ",
+                "turkce": "ve pislik (putlar)"
+            },
+            {
+                "arapca": "فَاهْجُرْ",
+                "turkce": "ve terk et"
+            }
+        ]
+    }
+}

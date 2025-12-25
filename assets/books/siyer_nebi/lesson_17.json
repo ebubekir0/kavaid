@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 17,
+        "ders_adi": "Vahyin Kesilmesi ve Tekrar Başlaması",
+        "kelimeler": [
+            {
+                "arapca": "بِسَبَبِ انْقِطَاعِ الْوَحْيِ",
+                "turkce": "Vahyin kesilmesi sebebiyle",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "يَا أَيُّهَا الْمُدَّثِّرُ",
+                "turkce": "Ey bürünüp sarınan!",
+                "tip": "ayet"
+            },
+            {
+                "arapca": "قُمْ فَأَنْذِرْ",
+                "turkce": "Kalk ve uyar!",
+                "tip": "ayet"
+            },
+            {
+                "arapca": "وَرَبَّكَ فَكَبِّرْ",
+                "turkce": "Sadece Rabbini yücelt!",
+                "tip": "ayet"
+            }
+        ]
+    }
+}

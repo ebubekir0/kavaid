@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 3,
+        "ders_adi": "Sütannesi Halime",
+        "kelimeler": [
+            {
+                "arapca": "كَانَتْ مُرْضِعَتُهُ حَلِيمَةُ",
+                "turkce": "Onun sütannesi Halime idi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "جَاءَتْ إِلَى مَكَّةَ لِتَعْمَلَ مُرْضِعَةً",
+                "turkce": "Sütannesi olarak çalışmak için Mekke'ye geldi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "أَخَذَتْ حَلِيمَةُ الْيَتِيمَ الْمَوْلُودَ",
+                "turkce": "Halime yetim doğan [çocuğu] aldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "رَجَعَتْ بِهِ إِلَى دِيَارِهَا",
+                "turkce": "Onunla [kendi] yurduna döndü",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

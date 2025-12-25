@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 12,
+        "ders_adi": "Peygamberimizin Çocukları",
+        "kelimeler": [
+            {
+                "arapca": "وَلَدَتْ كُلَّ أَوْالَدِهِ إِالَّ إِبْرَاهِيمَ",
+                "turkce": "İbrahim hariç tüm çocuklarını o doğurdu",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "الْقَاسِمَ، وَالطَّاهِرَ، وَالطَّيِّبَ",
+                "turkce": "Kasım, Tahir ve Tayyib",
+                "tip": "isim"
+            },
+            {
+                "arapca": "زَيْنَبَ، وَرُقَيَّةَ، وَأُمَّ كُلْثُومٍ وَفَاطِمَةَ",
+                "turkce": "Zeynep, Rukiyye, Ümmü Gülsüm ve Fatıma",
+                "tip": "isim"
+            },
+            {
+                "arapca": "أَكْبَرُ أَبْنَاءِ النَّبِيِّ الْقَاسِمُ",
+                "turkce": "Peygamberin en büyük oğlu Kasım'dır",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

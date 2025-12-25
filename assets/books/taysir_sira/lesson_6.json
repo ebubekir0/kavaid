@@ -1,0 +1,133 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 6,
+        "ders_adi": "Hilfül Fudul: Erdemliler İttifakı",
+        "icerik": "جَاءَ تَاجِرٌ إِلَى سُوقِ مَكَّةَ مَعَهُ بِضَاعَة، وَجَاءَ زَبُونٌ يُرِيدُ أَنْ يَبِيعَهَا. أَشْتَرَى هٰذَا الزَّبُونُ بِضَاعَةً مِنَ التَّاجِرِ وَلَكِنَّهُ لَمْ يَدْفَعْ ثَمَنَهَا. غَضِبَ التَّاجِرُ، وَاشْتَكَى إِلَى النَّاسِ، فَلَمْ يَنْصُرْهُ أَحَدٌ. رَأَى بَعْضُ عُقَلَاءِ مَكَّةَ ذٰلِكَ، فَغَضِبُوا، وَدَعَوْا النَّاسَ إِلَى اجْتِمَاعٍ. اِجْتَمَعَ النَّاسُ، وَتَحَدَّثُوا فِي مَوْضُوعِ حُقُوقِ التُّجَّارِ وَالتِّجَارَةِ. فِي النِّهَايَةِ اتَّفَقُوا عَلَى مُسَاعَدَةِ المَظْلُومِ وَسُمِّيَ هٰذَا الاتِّفَاقُ بِحِلْفِ الفُضُول. اِشْتَرَكَ مُحَمَّدٌ صَلَّى اّٰللَّهُ عَلَيْهِ وَسَلَّمَ فِي هٰذَا الحِلْفِ، وَكَانَ عُمُرُهُ أَقَلَّ مِنْ عِشْرِينَ عَامًا. وَكَانَ الرَّسُولُ صَلَّى اّٰللَّهُ عَلَيْهِ وَسَلَّمَ يُحِبُّ هٰذَا الحِلْف.",
+        "kelimeler": [
+            {
+                "arapca": "تَاجِرٌ",
+                "turkce": "bir tüccar"
+            },
+            {
+                "arapca": "سُوقِ",
+                "turkce": "çarşı / pazar"
+            },
+            {
+                "arapca": "بِضَاعَة",
+                "turkce": "ticari mal"
+            },
+            {
+                "arapca": "زَبُونٌ",
+                "turkce": "müşteri"
+            },
+            {
+                "arapca": "يُرِيدُ",
+                "turkce": "istiyor"
+            },
+            {
+                "arapca": "يَبِيعَهَا",
+                "turkce": "onu satmak"
+            },
+            {
+                "arapca": "أَشْتَرَى",
+                "turkce": "satın aldı"
+            },
+            {
+                "arapca": "يَدْفَعْ",
+                "turkce": "ödüyor / öder"
+            },
+            {
+                "arapca": "ثَمَنَهَا",
+                "turkce": "onun bedeli / fiyatı"
+            },
+            {
+                "arapca": "غَضِبَ",
+                "turkce": "öfkelendi"
+            },
+            {
+                "arapca": "اشْتَكَى",
+                "turkce": "şikayet etti"
+            },
+            {
+                "arapca": "يَنْصُرْهُ",
+                "turkce": "ona yardım eder"
+            },
+            {
+                "arapca": "أَحَدٌ",
+                "turkce": "hiç kimse / bir kişi"
+            },
+            {
+                "arapca": "عُقَلَاءِ",
+                "turkce": "akıllılar / bilgeler"
+            },
+            {
+                "arapca": "دَعَوْا",
+                "turkce": "davet ettiler"
+            },
+            {
+                "arapca": "اجْتِمَاعٍ",
+                "turkce": "toplantı"
+            },
+            {
+                "arapca": "اِجْتَمَعَ",
+                "turkce": "toplandı"
+            },
+            {
+                "arapca": "تَحَدَّثُوا",
+                "turkce": "konuştular"
+            },
+            {
+                "arapca": "مَوْضُوعِ",
+                "turkce": "konu"
+            },
+            {
+                "arapca": "حُقُوقِ",
+                "turkce": "haklar"
+            },
+            {
+                "arapca": "النِّهَايَةِ",
+                "turkce": "son / nihayet"
+            },
+            {
+                "arapca": "اتَّفَقُوا",
+                "turkce": "anlaştılar"
+            },
+            {
+                "arapca": "مُسَاعَدَةِ",
+                "turkce": "yardım etmek"
+            },
+            {
+                "arapca": "المَظْلُومِ",
+                "turkce": "mazlum (zulme uğrayan)"
+            },
+            {
+                "arapca": "سُمِّيَ",
+                "turkce": "isimlendirildi"
+            },
+            {
+                "arapca": "بِحِلْفِ",
+                "turkce": "ittifak / yemin ile"
+            },
+            {
+                "arapca": "الفُضُول",
+                "turkce": "Erdemliler (Fudul)"
+            },
+            {
+                "arapca": "اِشْتَرَكَ",
+                "turkce": "katıldı"
+            },
+            {
+                "arapca": "أَقَلَّ",
+                "turkce": "daha az"
+            },
+            {
+                "arapca": "عِشْرِينَ",
+                "turkce": "yirmi"
+            },
+            {
+                "arapca": "يُحِبُّ",
+                "turkce": "seviyor"
+            }
+        ]
+    }
+}

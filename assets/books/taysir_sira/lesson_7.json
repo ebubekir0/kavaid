@@ -1,0 +1,85 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 7,
+        "ders_adi": "Hz. Hatice ile Evliliği",
+        "icerik": "عَمِلَ مُحَمَّدٌ فِي التِّجَارَةِ مَعَ عَمِّهِ، وَتَاجَرَ فِي مَالِ خَدِيجة بِنْت خُوَيْلِد بِإِخْلَاصٍ وَصِدْقٍ وَأَمَانَة. بَعْدَ مُدَّةٍ أَحَبَّتْ خَدِيجةُ مُحَمَّدًا بِسَبَبِ صِدْقِهِ وَإِخْلَاصِهِ وَأَمَانَتِهِ، وَطَلَبَتْ مِنْهُ الزَّوَاجَ وَكَانَ عُمُرُهَا أَرْبَعِينَ سَنَة. شَاوَرَ مُحَمَّدٌ أَعْمَامَهُ، فَذَهَبَ حَمْزَةُ وَخَطَبَهَا لَهُ، فَتَزَوَّجَهَا، وَكَانَ عُمُرُ مُحَمَّدٍ خَمْسًا وَعِشْرِينَ سَنَة.",
+        "kelimeler": [
+            {
+                "arapca": "عَمِلَ",
+                "turkce": "çalıştı"
+            },
+            {
+                "arapca": "التِّجَارَةِ",
+                "turkce": "ticaret"
+            },
+            {
+                "arapca": "وَتَاجَرَ",
+                "turkce": "ve ticaret yaptı"
+            },
+            {
+                "arapca": "مَالِ",
+                "turkce": "mal / sermaye"
+            },
+            {
+                "arapca": "خَدِيجة",
+                "turkce": "Hatice"
+            },
+            {
+                "arapca": "بِإِخْلَاصٍ",
+                "turkce": "ihlasla (samimiyetle)"
+            },
+            {
+                "arapca": "وِصِدْقٍ",
+                "turkce": "ve doğrulukla"
+            },
+            {
+                "arapca": "وَأَمَانَة",
+                "turkce": "ve güvenilirlikle"
+            },
+            {
+                "arapca": "مُدَّةٍ",
+                "turkce": "bir süre"
+            },
+            {
+                "arapca": "أَحَبَّتْ",
+                "turkce": "sevdi (kadın)"
+            },
+            {
+                "arapca": "بِسَبَبِ",
+                "turkce": "sebebiyle"
+            },
+            {
+                "arapca": "صِدْقِهِ",
+                "turkce": "onun doğruluğu"
+            },
+            {
+                "arapca": "وَطَلَبَتْ",
+                "turkce": "ve istedi (kadın)"
+            },
+            {
+                "arapca": "الزَّوَاجَ",
+                "turkce": "evlilik"
+            },
+            {
+                "arapca": "أَرْبَعِينَ",
+                "turkce": "kırk"
+            },
+            {
+                "arapca": "شَاوَرَ",
+                "turkce": "danıştı / istişare etti"
+            },
+            {
+                "arapca": "أَعْمَامَهُ",
+                "turkce": "onun amcaları"
+            },
+            {
+                "arapca": "خَطَبَهَا",
+                "turkce": "onu istedi / nişanladı"
+            },
+            {
+                "arapca": "خَمْسًا",
+                "turkce": "beş"
+            }
+        ]
+    }
+}

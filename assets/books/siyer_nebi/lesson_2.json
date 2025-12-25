@@ -1,0 +1,33 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 2,
+        "ders_adi": "Abdulmuttalib'in Sevinci ve İsim Verme",
+        "kelimeler": [
+            {
+                "arapca": "فَرِحَ عَبْدُ الْمُطَّلِبِ بِمِيَالِدِهِ",
+                "turkce": "Abdulmuttalib onun doğumuna sevindi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "دَخَلَ بِهِ الْكَعْبَةَ",
+                "turkce": "Onunla Kabe'ye girdi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "أَسْمَاهُ مُحَمَّدًا",
+                "turkce": "Ona Muhammed ismini verdi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "مُحَمَّدُ بْنُ عَبْدِ اّٰللَّهِ بْنِ عَبْدِ الْمُطَّلِبِ",
+                "turkce": "Abdullah oğlu Abdulmuttalib oğlu Muhammed",
+                "tip": "isim"
+            },
+            {
+                "arapca": "يَنْتَهِي نَسَبُهُ إِلَى إِسْمَاعِيلَ",
+                "turkce": "Soyu İsmail (a.s)'a kadar uzanır",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

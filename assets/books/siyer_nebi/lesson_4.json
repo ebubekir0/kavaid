@@ -1,0 +1,33 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 4,
+        "ders_adi": "Halime'nin Evindeki Bereket",
+        "kelimeler": [
+            {
+                "arapca": "كَانَتْ بَرَكَةُ فِي كُلِّ شَيْءٍ",
+                "turkce": "Her şeyde bir bereket vardı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "نَاقَةُ حَلِيمَةَ كَانَ لَبَنُهَا قَلِيلاً",
+                "turkce": "Halime'nin devesinin sütü azdı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "فَأَصْبَحَ كَثِيثًا",
+                "turkce": "Böylece [sütü] çoğaldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "بَادِيَةُ سَعْدٍ",
+                "turkce": "Sa'd yurdu / çölü",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "أَغْنَمُ حَلِيمَةَ تَرْجِعُ شَبْعَانَةً",
+                "turkce": "Halime'nin koyunları doymuş olarak dönüyordu",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

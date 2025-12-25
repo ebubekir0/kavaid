@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 10,
+        "ders_adi": "Mazluma Yardım ve Hilfül Fudul'un Önemi",
+        "kelimeler": [
+            {
+                "arapca": "اتَّفَقُوا عَلَى مُسَاعَدَةِ الْمَظْلُومِ",
+                "turkce": "Mazluma yardım etmek üzere anlaştılar",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "سُمِّيَ هَذَا االِتِّفَاقُ بِحِلْفِ الْفُضُولِ",
+                "turkce": "Bu anlaşmaya Hilfül Fudul adı verildi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "اشْتَرَكَ مُحَمَّدٌ صَلَّى اّٰللَّهُ عَلَيْهِ وَسَلَّمَ فِي هَذَا الْحِلْفِ",
+                "turkce": "Muhammed (s.a.v) bu ittifakta yer aldı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "كَانَ عُمُرُهُ أَقَلَّ مِنْ عِشْرِينَ عَامًا",
+                "turkce": "Yaşı yirmiden azdı",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

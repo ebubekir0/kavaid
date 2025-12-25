@@ -1,0 +1,109 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 3,
+        "ders_adi": "Çocukluğu ve Annesinin Vefatı",
+        "icerik": "وَفِي تِلْكَ البَادِيَةِ نَشَأَ رَسُولُ اّٰللَّهِ صلى الله عليه وسلم عَلَى الفَصَاحَةِ والبَسَاطَة، وَبَعْدَ سَنَتَيْنِ رَجَعَتْهُ حَلِيمَة إِلَى أُمِّهِ. كَانَتْ أُمُّهُ آمنة تَعِيشُ فِي مَكَّةَ، وَكَانَ أَخْوَالُهُ يَعِيشُونَ فِي يَثْرِب. أَرَادَتْ آمنة أَنْ تَزُورَ إِخْوَتَهَا، فَذَهَبَتْ إِلَيْهِمْ، وَأَخَذَتْ مَعَهَا ابْنَهَا مُحَمَّدًا. وَأَرَادَتْ أَنْ تَرْجِعَ إِلَى مَكَّةَ بَعْدَ انْتِهَاءِ الزِّيَارَة. خَرَجَتْ مِنْ يَثْرِب بِاتِّجَاهِ مَكَّةَ، وَفِي الطَّرِيقِ، تُوُفِيَّتْ أُمُّهُ، وَكَانَ عُمُرُ مُحَمَّدٌ سِتَّ سَنَوَات.",
+        "kelimeler": [
+            {
+                "arapca": "تِلْكَ",
+                "turkce": "şu / o"
+            },
+            {
+                "arapca": "نَشَأَ",
+                "turkce": "yetişti / büyüdü"
+            },
+            {
+                "arapca": "الفَصَاحَةِ",
+                "turkce": "fasihat (düzgün konuşma)"
+            },
+            {
+                "arapca": "والبَسَاطَة",
+                "turkce": "ve sadelik"
+            },
+            {
+                "arapca": "سَنَتَيْنِ",
+                "turkce": "iki yıl"
+            },
+            {
+                "arapca": "رَجَعَتْهُ",
+                "turkce": "onu geri götürdü / döndürdü"
+            },
+            {
+                "arapca": "تَعِيشُ",
+                "turkce": "yaşıyor (kadın için)"
+            },
+            {
+                "arapca": "أَخْوَالُهُ",
+                "turkce": "onun dayıları"
+            },
+            {
+                "arapca": "يَعِيشُونَ",
+                "turkce": "yaşıyorlar"
+            },
+            {
+                "arapca": "يَثْرِب",
+                "turkce": "Yesrib (Medine)"
+            },
+            {
+                "arapca": "أَرَادَتْ",
+                "turkce": "istedi (kadın)"
+            },
+            {
+                "arapca": "تَزُورَ",
+                "turkce": "ziyaret etmek"
+            },
+            {
+                "arapca": "إِخْوَتَهَا",
+                "turkce": "onun kardeşleri"
+            },
+            {
+                "arapca": "إِلَيْهِمْ",
+                "turkce": "onlara doğru"
+            },
+            {
+                "arapca": "ابْنَهَا",
+                "turkce": "onun oğlu"
+            },
+            {
+                "arapca": "تَمَّتْ",
+                "turkce": "tamamlandı"
+            },
+            {
+                "arapca": "انْتِهَاءِ",
+                "turkce": "bitiş / sona erme"
+            },
+            {
+                "arapca": "الزِّيَارَة",
+                "turkce": "ziyaret"
+            },
+            {
+                "arapca": "خَرَجَتْ",
+                "turkce": "çıktı (kadın)"
+            },
+            {
+                "arapca": "بِاتِّجَاهِ",
+                "turkce": "yönünde"
+            },
+            {
+                "arapca": "الطَّرِيقِ",
+                "turkce": "yol"
+            },
+            {
+                "arapca": "تُوُفِيَّتْ",
+                "turkce": "vefat etti (kadın)"
+            },
+            {
+                "arapca": "عُمُرُ",
+                "turkce": "yaşı"
+            },
+            {
+                "arapca": "سِتَّ",
+                "turkce": "altı"
+            },
+            {
+                "arapca": "سَنَوَات",
+                "turkce": "yıllar"
+            }
+        ]
+    }
+}

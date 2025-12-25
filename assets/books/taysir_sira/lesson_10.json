@@ -1,0 +1,109 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 10,
+        "ders_adi": "Hira Mağarası ve İlk Vahiy",
+        "icerik": "كَانَ مُحَمَّدٌ يَذْهَبُ إِلَى غَارِ حِرَاء، وَيَبْقَى هُنَاكَ يَتَعَبَّدُ فِي شَهْرِ رَمَضَانَ وَيَتَفَكَّرُ فِي خَلْقِ اّٰللَّه. أَثْنَاءَ ذٰلِكَ نَزَلَ جِبْرِيلُ عَلَيْهِ، وَضَمَّهُ بِقُوَّةٍ، وَقَالَ لَهُ: اِقْرَأْ. قَالَ مُحَمَّدٌ: مَا أَنَا بِقَارِئٍ. كَرَّرَ جِبْرِيلُ عَلَيْهِ: اِقْرَأْ. قَالَ: مَا أَنَا بِقَارِئٍ. كَرَّرَ عَلَيْهِ الثَّالِثَةَ، وَقَالَ: ﴿اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ * خَلَقَ الْإِنْسَانَ مِنْ عَلَقٍ * اقْرَأْ وَرَبُّكَ الْأَكْرَمُ * الَّذِي عَلَّمَ بِالْقَلَمِ * عَلَّمَ الْإِنْسَانَ مَا لَمْ يَعْلَمْ﴾ [العلق: ١-٥]",
+        "kelimeler": [
+            {
+                "arapca": "يَذْهَبُ",
+                "turkce": "gidiyor (erkek)"
+            },
+            {
+                "arapca": "غَارِ",
+                "turkce": "mağara"
+            },
+            {
+                "arapca": "حِرَاء",
+                "turkce": "Hira"
+            },
+            {
+                "arapca": "وَيَبْقَى",
+                "turkce": "ve kalıyor"
+            },
+            {
+                "arapca": "يَتَعَبَّدُ",
+                "turkce": "ibadet ediyor"
+            },
+            {
+                "arapca": "رَمَضَانَ",
+                "turkce": "Ramazan"
+            },
+            {
+                "arapca": "وَيَتَفَكَّرُ",
+                "turkce": "ve tefekkür ediyor (düşünüyor)"
+            },
+            {
+                "arapca": "خَلْقِ",
+                "turkce": "yaratılışı"
+            },
+            {
+                "arapca": "نَزَلَ",
+                "turkce": "indi"
+            },
+            {
+                "arapca": "جِبْرِيلُ",
+                "turkce": "Cebrail"
+            },
+            {
+                "arapca": "وَضَمَّهُ",
+                "turkce": "ve onu sıktı / kucakladı"
+            },
+            {
+                "arapca": "بِقُوَّةٍ",
+                "turkce": "kuvvetle"
+            },
+            {
+                "arapca": "اِقْرَأْ",
+                "turkce": "oku"
+            },
+            {
+                "arapca": "بِقَارِئٍ",
+                "turkce": "okuyan"
+            },
+            {
+                "arapca": "كَرَّرَ",
+                "turkce": "tekrar etti"
+            },
+            {
+                "arapca": "الثَّالِثَةَ",
+                "turkce": "üçüncü"
+            },
+            {
+                "arapca": "بِاسْمِ",
+                "turkce": "ismiyle"
+            },
+            {
+                "arapca": "رَبِّكَ",
+                "turkce": "senin Rabbin"
+            },
+            {
+                "arapca": "الَّذِي",
+                "turkce": "ki o / olan"
+            },
+            {
+                "arapca": "خَلَقَ",
+                "turkce": "yarattı"
+            },
+            {
+                "arapca": "الْإِنْسَانَ",
+                "turkce": "insan"
+            },
+            {
+                "arapca": "عَلَقٍ",
+                "turkce": "alaka (embriyo)"
+            },
+            {
+                "arapca": "الْأَكْرَمُ",
+                "turkce": "en cömert"
+            },
+            {
+                "arapca": "بِالْقَلَمِ",
+                "turkce": "kalemle"
+            },
+            {
+                "arapca": "يَعْلَمْ",
+                "turkce": "biliyor / bildi"
+            }
+        ]
+    }
+}

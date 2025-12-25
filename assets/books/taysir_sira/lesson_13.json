@@ -1,0 +1,93 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 13,
+        "ders_adi": "Gizli Davet Dönemi",
+        "icerik": "دَعَا الرَّسُولُ أَقْرِبَاءَهُ إِلَى الإِسْلَامِ خِلَالَ الدَّعْوَةِ السِّرِّيَّة، وَدَعَا أَصْدِقَاءَهُ أَيْضًا. أَسْلَمَتْ خَدِيجة، وَأَسْلَمَ أَبُو بَكْر وَعَلِيٌّ وَزَيْدُ بْنُ حَارِثَة. اِسْتَمَرَّتِ الدَّعْوَةُ السِّرِّيَّةُ ثَلَاثَ سَنَوَات، وَبَلَغَ عَدَدُ المُسْلِمِينَ فَوْقَ الثَّلَاثِينَ، وَكَانَ الرَّسُولُ يَلْتَقِي بِالمُسْلِمِينَ فِي دَارِ الأَرْقَم.",
+        "kelimeler": [
+            {
+                "arapca": "دَعَا",
+                "turkce": "davet etti"
+            },
+            {
+                "arapca": "أَقْرِبَاءَهُ",
+                "turkce": "onun akrabaları"
+            },
+            {
+                "arapca": "خِلَالَ",
+                "turkce": "esnasında / süresince"
+            },
+            {
+                "arapca": "الدَّعْوَةِ",
+                "turkce": "davet"
+            },
+            {
+                "arapca": "السِّرِّيَّة",
+                "turkce": "gizli"
+            },
+            {
+                "arapca": "أَصْدِقَاءَهُ",
+                "turkce": "onun arkadasları"
+            },
+            {
+                "arapca": "أَيْضًا",
+                "turkce": "ayrıca"
+            },
+            {
+                "arapca": "أَسْلَمَتْ",
+                "turkce": "Müslüman oldu (kadın)"
+            },
+            {
+                "arapca": "أَسْلَمَ",
+                "turkce": "Müslüman oldu (erkek)"
+            },
+            {
+                "arapca": "عَلِيٌّ",
+                "turkce": "Ali"
+            },
+            {
+                "arapca": "زَيْدُ",
+                "turkce": "Zeyd"
+            },
+            {
+                "arapca": "اِسْتَمَرَّتِ",
+                "turkce": "devam etti"
+            },
+            {
+                "arapca": "ثَلَاثَ",
+                "turkce": "üç"
+            },
+            {
+                "arapca": "بَلَغَ",
+                "turkce": "ulastı"
+            },
+            {
+                "arapca": "عَدَدُ",
+                "turkce": "sayı"
+            },
+            {
+                "arapca": "المُسْلِمِينَ",
+                "turkce": "Müslümanlar"
+            },
+            {
+                "arapca": "فَوْقَ",
+                "turkce": "üzerinde / -den fazla"
+            },
+            {
+                "arapca": "الثَّلَاثِينَ",
+                "turkce": "otuz"
+            },
+            {
+                "arapca": "يَلْتَقِي",
+                "turkce": "bulusuyordu"
+            },
+            {
+                "arapca": "دَارِ",
+                "turkce": "evi"
+            },
+            {
+                "arapca": "الأَرْقَم",
+                "turkce": "Erkam"
+            }
+        ]
+    }
+}

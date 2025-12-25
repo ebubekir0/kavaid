@@ -1,0 +1,97 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 11,
+        "ders_adi": "Hz. Hatice'nin Tesellisi",
+        "icerik": "رَجَعَ مُحَمَّدٌ إِلَى خَدِيجة خَائِفًا وَهُوَ يَقُولُ: زَمِّلُونِي (غَطُّونِي). غَطَّتْهُ السَّيِّدةُ خَدِيجة، ثُمَّ هَدَّأَتْ مِنْ خَوْفِهِ، وَسَأَلَتْ: مَا بِكَ يَا مُحَمَّد؟ مَاذَا حَدَثَ لَكَ؟ لِمَاذَا أَنْتَ خَائِفٌ؟ أَخْبَرَ مُحَمَّدٌ خَدِيجة عَنِ الَّذِي حَدَثَ لَهُ، ثُمَّ قَالَ: خِفْتُ عَلَى نَفْسِي. قَالَتْ خَدِيجة: كَلَّا، وَاّٰللَّهِ لَا يُخْزِيكَ اّٰللَّهُ أَبَدًا، إِنَّكَ تَصِلُ الرَّحِمَ، وَتُسَاعِدُ الضَّعِيفَ، وَتُكْرِمُ الضَّيْفَ.",
+        "kelimeler": [
+            {
+                "arapca": "رَجَعَ",
+                "turkce": "döndü"
+            },
+            {
+                "arapca": "خَائِفًا",
+                "turkce": "korkmus halde"
+            },
+            {
+                "arapca": "يَقُولُ",
+                "turkce": "söylüyor / diyor"
+            },
+            {
+                "arapca": "زَمِّلُونِي",
+                "turkce": "beni örtün"
+            },
+            {
+                "arapca": "غَطُّونِي",
+                "turkce": "beni örtün"
+            },
+            {
+                "arapca": "غَطَّتْهُ",
+                "turkce": "onu örttü"
+            },
+            {
+                "arapca": "هَدَّأَتْ",
+                "turkce": "sakinlestirdi"
+            },
+            {
+                "arapca": "خَوْفِهِ",
+                "turkce": "onun korkusu"
+            },
+            {
+                "arapca": "سَأَلَتْ",
+                "turkce": "sordu (kadın)"
+            },
+            {
+                "arapca": "بِكَ",
+                "turkce": "seninle / sende"
+            },
+            {
+                "arapca": "حَدَثَ",
+                "turkce": "oldu / vuku buldu"
+            },
+            {
+                "arapca": "أَخْبَرَ",
+                "turkce": "haber verdi"
+            },
+            {
+                "arapca": "نَفْسِي",
+                "turkce": "nefsim / kendim"
+            },
+            {
+                "arapca": "كَلَّا",
+                "turkce": "hayır / asla"
+            },
+            {
+                "arapca": "يُخْزِيكَ",
+                "turkce": "seni mahcup eder / rezil eder"
+            },
+            {
+                "arapca": "أَبَدًا",
+                "turkce": "asla / ebediyen"
+            },
+            {
+                "arapca": "تَصِلُ",
+                "turkce": "ulastırırsın / gözetirsin"
+            },
+            {
+                "arapca": "الرَّحِمَ",
+                "turkce": "akrabalık bağları"
+            },
+            {
+                "arapca": "تُسَاعِدُ",
+                "turkce": "yardım edersin"
+            },
+            {
+                "arapca": "الضَّعِيفَ",
+                "turkce": "zayıf"
+            },
+            {
+                "arapca": "تُكْرِمُ",
+                "turkce": "ikram edersin"
+            },
+            {
+                "arapca": "الضَّيْفَ",
+                "turkce": "misafir"
+            }
+        ]
+    }
+}

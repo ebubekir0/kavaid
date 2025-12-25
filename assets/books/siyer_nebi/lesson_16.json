@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 16,
+        "ders_adi": "Hz. Hatice'nin Desteği ve Tesellisi",
+        "kelimeler": [
+            {
+                "arapca": "زَمِّلُونِي زَمِّلُونِي (غَطُّونِي)",
+                "turkce": "Beni örtün, beni örtün!",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لَا يُخْزِيكَ اّٰللَّهُ أَبَدًا",
+                "turkce": "Allah seni asla utandırmaz",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "تَصِلُ الرَّحِمَ",
+                "turkce": "Akraba bağlarını gözetirsin",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "تُكْرِمُ الضَّيْفَ",
+                "turkce": "Misafire ikram edersin",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

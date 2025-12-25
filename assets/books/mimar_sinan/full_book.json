@@ -1,0 +1,471 @@
+{
+    "book_id": "mimar_sinan",
+    "title": "Mimar Sinan'ın Zekası",
+    "kelimeler": [
+        {
+            "type": "word",
+            "arapca": "عَاشَ",
+            "turkce": "yaşadı"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "الدَّوْلَةِ",
+            "turkce": "devlet"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعُثْمَانِيَّةِ",
+            "turkce": "Osmanlı"
+        },
+        {
+            "type": "word",
+            "arapca": "رَجُلٌ",
+            "turkce": "bir adam"
+        },
+        {
+            "type": "word",
+            "arapca": "عَبْقَرِيٌّ",
+            "turkce": "dahi"
+        },
+        {
+            "type": "word",
+            "arapca": "اسْمُهُ",
+            "turkce": "onun ismi"
+        },
+        {
+            "type": "word",
+            "arapca": "\"مِعْمَار",
+            "turkce": "\"Mimar"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَان\".",
+            "turkce": "Sinan\"."
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانُ",
+            "turkce": "Sinan"
+        },
+        {
+            "type": "word",
+            "arapca": "مُهَنْدِسًا",
+            "turkce": "bir mühendis"
+        },
+        {
+            "type": "word",
+            "arapca": "مَاهِرًا",
+            "turkce": "maharetli"
+        },
+        {
+            "type": "word",
+            "arapca": "جِدًّا.",
+            "turkce": "çok."
+        },
+        {
+            "type": "word",
+            "arapca": "بَنَى",
+            "turkce": "bina etti/yaptı"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانُ",
+            "turkce": "Sinan"
+        },
+        {
+            "type": "word",
+            "arapca": "مَسَاجِدَ",
+            "turkce": "mescitler/camiler"
+        },
+        {
+            "type": "word",
+            "arapca": "كَثِيرَةً",
+            "turkce": "çok"
+        },
+        {
+            "type": "word",
+            "arapca": "وَجُسُورًا",
+            "turkce": "ve köprüler"
+        },
+        {
+            "type": "word",
+            "arapca": "وَمَدَارِسَ",
+            "turkce": "ve medreseler/okullar"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "كُلِّ",
+            "turkce": "her"
+        },
+        {
+            "type": "word",
+            "arapca": "مَكَانٍ.",
+            "turkce": "mekan/yer."
+        },
+        {
+            "type": "word",
+            "arapca": "أَهَمُّ",
+            "turkce": "en önemli"
+        },
+        {
+            "type": "word",
+            "arapca": "أَثَرٍ",
+            "turkce": "eser"
+        },
+        {
+            "type": "word",
+            "arapca": "لَهُ",
+            "turkce": "ona ait"
+        },
+        {
+            "type": "word",
+            "arapca": "هُوَ",
+            "turkce": "o"
+        },
+        {
+            "type": "word",
+            "arapca": "\"مَسْجِدُ",
+            "turkce": "\"Camii"
+        },
+        {
+            "type": "word",
+            "arapca": "السُّلَيْمَانِيَّة\"",
+            "turkce": "Süleymaniye\""
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "إِسْطَنْبُولَ،",
+            "turkce": "İstanbul,"
+        },
+        {
+            "type": "word",
+            "arapca": "وَمَسْجِدُ",
+            "turkce": "ve Camii"
+        },
+        {
+            "type": "word",
+            "arapca": "\"السَّلِيمِيَّة\"",
+            "turkce": "\"Selimiye\""
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "أَدِرْنَة.",
+            "turkce": "Edirne."
+        },
+        {
+            "type": "word",
+            "arapca": "عِنْدَمَا",
+            "turkce": "-dığında/zaman"
+        },
+        {
+            "type": "word",
+            "arapca": "بَنَى",
+            "turkce": "yaptı"
+        },
+        {
+            "type": "word",
+            "arapca": "مَسْجِدَ",
+            "turkce": "camii"
+        },
+        {
+            "type": "word",
+            "arapca": "السُّلَيْمَانِيَّة،",
+            "turkce": "Süleymaniye,"
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "يُرِيدُ",
+            "turkce": "istiyor(du)"
+        },
+        {
+            "type": "word",
+            "arapca": "أَنْ",
+            "turkce": "...mek/mak"
+        },
+        {
+            "type": "word",
+            "arapca": "يَكُونَ",
+            "turkce": "olmasını"
+        },
+        {
+            "type": "word",
+            "arapca": "الصَّوْتُ",
+            "turkce": "ses"
+        },
+        {
+            "type": "word",
+            "arapca": "فِيهِ",
+            "turkce": "onun içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "وَاضِحًا",
+            "turkce": "net/açık"
+        },
+        {
+            "type": "word",
+            "arapca": "جِدًّا.",
+            "turkce": "çok."
+        },
+        {
+            "type": "word",
+            "arapca": "جَلَسَ",
+            "turkce": "oturdu"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانُ",
+            "turkce": "Sinan"
+        },
+        {
+            "type": "word",
+            "arapca": "وَسَطَ",
+            "turkce": "orta"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَسْجِدِ",
+            "turkce": "cami"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَدَأَ",
+            "turkce": "ve başladı"
+        },
+        {
+            "type": "word",
+            "arapca": "يُدَخِّنُ",
+            "turkce": "içiyor"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّارَجِيلَةَ",
+            "turkce": "nargile"
+        },
+        {
+            "type": "word",
+            "arapca": "(الشِّيشَةَ)،",
+            "turkce": "(şişe/nargile),"
+        },
+        {
+            "type": "word",
+            "arapca": "لَكِنْ",
+            "turkce": "lakin"
+        },
+        {
+            "type": "word",
+            "arapca": "بِدُونِ",
+            "turkce": "-sız/siz"
+        },
+        {
+            "type": "word",
+            "arapca": "تِبْغٍ،",
+            "turkce": "tütün,"
+        },
+        {
+            "type": "word",
+            "arapca": "فَقَطْ",
+            "turkce": "sadece"
+        },
+        {
+            "type": "word",
+            "arapca": "لِيَسْمَعَ",
+            "turkce": "duymak için"
+        },
+        {
+            "type": "word",
+            "arapca": "صَوْتَ",
+            "turkce": "sesi"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَاءِ.",
+            "turkce": "su."
+        },
+        {
+            "type": "word",
+            "arapca": "رَأَى",
+            "turkce": "gördü"
+        },
+        {
+            "type": "word",
+            "arapca": "السُّلْطَانُ",
+            "turkce": "Sultan"
+        },
+        {
+            "type": "word",
+            "arapca": "سُلَيْمَانُ",
+            "turkce": "Süleyman"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذَا",
+            "turkce": "bunu"
+        },
+        {
+            "type": "word",
+            "arapca": "وَغَضِبَ",
+            "turkce": "ve kızdı"
+        },
+        {
+            "type": "word",
+            "arapca": "قَلِيلًا،",
+            "turkce": "biraz,"
+        },
+        {
+            "type": "word",
+            "arapca": "لَكِنَّ",
+            "turkce": "lakin/ancak"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانَ",
+            "turkce": "Sinan"
+        },
+        {
+            "type": "word",
+            "arapca": "شَرَحَ",
+            "turkce": "açıkladı"
+        },
+        {
+            "type": "word",
+            "arapca": "لَهُ",
+            "turkce": "ona"
+        },
+        {
+            "type": "word",
+            "arapca": "أَنَّهُ",
+            "turkce": "onun ... olduğunu"
+        },
+        {
+            "type": "word",
+            "arapca": "يَخْتَبِرُ",
+            "turkce": "test ediyor"
+        },
+        {
+            "type": "word",
+            "arapca": "الصَّوْتَ",
+            "turkce": "sesi"
+        },
+        {
+            "type": "word",
+            "arapca": "دَاخِلَ",
+            "turkce": "içinde"
+        },
+        {
+            "type": "word",
+            "arapca": "الْقُبَّةِ",
+            "turkce": "kubbe"
+        },
+        {
+            "type": "word",
+            "arapca": "الْكَبِيرَةِ.",
+            "turkce": "büyük."
+        },
+        {
+            "type": "word",
+            "arapca": "فَهِمَ",
+            "turkce": "anladı"
+        },
+        {
+            "type": "word",
+            "arapca": "السُّلْطَانُ",
+            "turkce": "Sultan"
+        },
+        {
+            "type": "word",
+            "arapca": "ذَكَاءَ",
+            "turkce": "zeka"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانَ",
+            "turkce": "Sinan('ın)"
+        },
+        {
+            "type": "word",
+            "arapca": "وَفَرِحَ",
+            "turkce": "ve sevindi/memnun oldu"
+        },
+        {
+            "type": "word",
+            "arapca": "بِهِ.",
+            "turkce": "onunla."
+        },
+        {
+            "type": "word",
+            "arapca": "عَاشَ",
+            "turkce": "yaşadı"
+        },
+        {
+            "type": "word",
+            "arapca": "سِنَانُ",
+            "turkce": "Sinan"
+        },
+        {
+            "type": "word",
+            "arapca": "عُمْرًا",
+            "turkce": "bir ömür"
+        },
+        {
+            "type": "word",
+            "arapca": "طَوِيلًا",
+            "turkce": "uzun"
+        },
+        {
+            "type": "word",
+            "arapca": "وَتَرَكَ",
+            "turkce": "ve bıraktı"
+        },
+        {
+            "type": "word",
+            "arapca": "لَنَا",
+            "turkce": "bize"
+        },
+        {
+            "type": "word",
+            "arapca": "آثَارًا",
+            "turkce": "eserler"
+        },
+        {
+            "type": "word",
+            "arapca": "خَالِدَةً",
+            "turkce": "ölümsüz/kalıcı"
+        },
+        {
+            "type": "word",
+            "arapca": "وَجَمِيلَةً.",
+            "turkce": "ve güzel."
+        }
+    ]
+}

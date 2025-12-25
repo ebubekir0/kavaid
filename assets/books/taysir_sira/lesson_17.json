@@ -1,0 +1,57 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 17,
+        "ders_adi": "Habeşistan Hicreti",
+        "icerik": "طَلَبَ رَسُولُ اّٰللَّهِ مِنَ المُسْلِمِينَ أَنْ يُهَاجِرُوا إِلَى الحَبَشَة، فَهَاجَرُوا. عَرَفَ المُشْرِكُونَ بِذٰلِكَ، فَأَرْسَلُوا وَفْدًا إِلَى النَّجَاشِيِّ (مَلِك الحَبَشَة) لِيُخْرِجَ المُسْلِمِينَ مِنْ أَرْضِهِ، فَرَفَضَ، ثُمَّ طَلَبَهُمْ.",
+        "kelimeler": [
+            {
+                "arapca": "يُهَاجِرُوا",
+                "turkce": "hicret etsinler"
+            },
+            {
+                "arapca": "الحَبَشَة",
+                "turkce": "Habeşistan"
+            },
+            {
+                "arapca": "فَهَاجَرُوا",
+                "turkce": "ve hicret ettiler"
+            },
+            {
+                "arapca": "عَرَفَ",
+                "turkce": "bildi / fark etti"
+            },
+            {
+                "arapca": "فَأَرْسَلُوا",
+                "turkce": "ve gönderdiler"
+            },
+            {
+                "arapca": "وَفْدًا",
+                "turkce": "elçi heyeti"
+            },
+            {
+                "arapca": "النَّجَاشِيِّ",
+                "turkce": "Necaşi"
+            },
+            {
+                "arapca": "مَلِك",
+                "turkce": "kral"
+            },
+            {
+                "arapca": "لِيُخْرِجَ",
+                "turkce": "çıkarmak için"
+            },
+            {
+                "arapca": "أَرْضِهِ",
+                "turkce": "onun toprağı / ülkesi"
+            },
+            {
+                "arapca": "فَرَفَضَ",
+                "turkce": "ve reddetti"
+            },
+            {
+                "arapca": "طَلَبَهُمْ",
+                "turkce": "onları istedi / çağırdı"
+            }
+        ]
+    }
+}

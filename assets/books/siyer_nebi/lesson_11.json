@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 11,
+        "ders_adi": "Hz. Hatice ile Evliliği",
+        "kelimeler": [
+            {
+                "arapca": "تَاجَرَ فِي مَالِ خَدِيجَةَ",
+                "turkce": "Hatice'nin malıyla ticaret yaptı",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "لِصِدْقِهِ وَأَمَانَتِهِ وَإِخْلَاصِهِ",
+                "turkce": "Doğruluğu, güvenilirliği ve ihlası sebebiyle",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "طَلَبَتْ مِنْهُ الزَّوَاجَ",
+                "turkce": "Ondan evlilik talep etti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "كَانَ عُمُرُ مُحَمَّدٍ خَمْسًا وَعِشْرِينَ سَنَةً",
+                "turkce": "Muhammed yirmi beş yaşındaydı",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

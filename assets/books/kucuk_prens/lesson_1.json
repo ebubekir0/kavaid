@@ -1,0 +1,1058 @@
+{
+  "ders_bilgisi": {
+    "ders_no": 1,
+    "ders_adi": "Küçük Prens",
+    "kelimeler": [
+      {
+        "arapca": "تُعْتَبَرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قِصَّةُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"الْأَمِيرِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّغِيرِ\"",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِلْكَاتِبِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْفَرَنْسِيِّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَنْتُوَان",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سَانْت",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِكْسُوبِيرِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَشْهَرِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْقِصَصِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَالَمِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَبْدَأُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحِكَايَةُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عِنْدَمَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَتَعَطَّلُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُحَرِّكُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَائِرَةِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَيَّارٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَسَطِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّحْرَاءِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكُبْرَى.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَيْنَمَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الطَّيَّارُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُحَاوِلُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِصْلَاحَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَائِرَتِهِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَهُوَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَشْعُرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْقَلَقِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالْعَطَشِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ظَهَرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَجْأَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طِفْلٌ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَغِيرٌ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَشْقَرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الشَّعْرِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَبِرِيءُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَلَامِحِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَلَبَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الطِّفْلُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الطَّيَّارِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَلَبًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "غَرِيبًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَائِلًا:",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"مِنْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَضْلِكَ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ارْسُمْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَرُوفًا\".",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَعَجَّبَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الطَّيَّارُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَثِيرًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَكِنَّهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حَاوَلَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الرَّسْمَ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَفِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النِّهَايَةِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَسَمَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صُنْدُوقًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَقَالَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِلْأَمِيرِ:",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"الْخَرُوفُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الَّذِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُرِيدُهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَوْجُودٌ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دَاخِلَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هَذَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصُّنْدُوقِ\".",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ابْتَسَمَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّغِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَأَعْجَبَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الرَّسْمُ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَدَأَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَحْكِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِلطَّيَّارِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قِصَّتَهُ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَقَدْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَاءَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَوْكَبٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَغِيرٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جِدًّا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "(كَوَيْكِب)",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْفَضَاءِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هَذَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَوْكَبِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَمْتَلِكُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَرْدَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَمِيلَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جِدًّا،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَكِنَّهَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَتْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَغْرُورَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَتَطْلُبُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَثِيرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الِاهْتِمَامِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَرَكَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَرْدَتَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَسَافَرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَيْنَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَوَاكِبِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِيَكْتَشِفَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَالَمَ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رِحْلَتِهِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَابَلَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "شَخْصِيَّاتٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "غَرِيبَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِثْلَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَلِكِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الَّذِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُحِبُّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِصْدَارَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَوَامِرِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَرَجُلِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَعْمَالِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الَّذِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَعُدُّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النُّجُومَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِيَمْتَلِكَهَا،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَعَالِمِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْجُغْرَافْيَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الَّذِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُغَادِرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَكْتَبَهُ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كُلُّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هَؤُلَاءِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكِبَارِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانُوا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَهْتَمُّونَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْأَرْقَامِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالْمَظَاهِرِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَقَطْ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَهَمُّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِقَاءٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِلْأَمِيرِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَعَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ثَعْلَبٍ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّحْرَاءِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَّمَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الثَّعْلَبُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دَرْسًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَمِيقًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَنِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّدَاقَةِ.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَالَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الثَّعْلَبُ:",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"نَحْنُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "نَرَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَيِّدًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَّا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْقَلْبِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَمَّا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَشْيَاءُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمُهِمَّةُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَهِيَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُرَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِالْعَيْنِ\".",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَهِمَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَنَّ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَرْدَتَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَتْ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُمَيَّزَةً",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِأَنَّهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اعْتَنَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِهَا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَأَحَبَّهَا.",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النِّهَايَةِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَرَّرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَمِيرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعَوْدَةَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَوْكَبِهِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِيَعْتَنِيَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِوَرْدَتِهِ،",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تَارِكًا",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الطَّيَّارَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَنْظُرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِلَى",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النُّجُومِ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَيَتَذَكَّرُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَدِيقَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّغِيرَ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَضِحْكَتَهُ",
+        "turkce": "",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْجَمِيلَةَ.",
+        "turkce": "",
+        "tip": "kelime"
+      }
+    ]
+  }
+}

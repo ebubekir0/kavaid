@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 22,
+        "ders_adi": "Utbe b. Rebia ile Diyalog",
+        "kelimeler": [
+            {
+                "arapca": "هَلْ تُرِيدُ مَالاً؟ نُعْطِيكَ",
+                "turkce": "Mal mı istiyorsun? Verelim",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "هَلْ تُرِيدُ مُلْكًا؟ نُعْطِيكَ",
+                "turkce": "Mülk (krallık) mi istiyorsun? Verelim",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "سَمِعْتُ قَوْلاً جَمِيلاً",
+                "turkce": "Güzel bir söz işittim",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "وَاّٰللَّهِ، مَا سَمِعْتُ مِثْلَهُ قَطُّ",
+                "turkce": "Vallahi onun gibisini asla işitmedim",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

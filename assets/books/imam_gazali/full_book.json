@@ -1,0 +1,1426 @@
+{
+    "book_id": "imam_gazali",
+    "title": "İmam Gazali ve İlmi",
+    "kelimeler": [
+        {
+            "type": "word",
+            "arapca": "أَبُو",
+            "turkce": "Ebu"
+        },
+        {
+            "type": "word",
+            "arapca": "حَامِدٍ",
+            "turkce": "Hamid"
+        },
+        {
+            "type": "word",
+            "arapca": "مُحَمَّدُ",
+            "turkce": "Muhammed"
+        },
+        {
+            "type": "word",
+            "arapca": "بْنُ",
+            "turkce": "bin"
+        },
+        {
+            "type": "word",
+            "arapca": "مُحَمَّدٍ",
+            "turkce": "Muhammed"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "el-Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمُلَقَّبُ",
+            "turkce": "lakaplı"
+        },
+        {
+            "type": "word",
+            "arapca": "بِـ",
+            "turkce": "ile"
+        },
+        {
+            "type": "word",
+            "arapca": "حُجَّةِ",
+            "turkce": "delili/hücceti"
+        },
+        {
+            "type": "word",
+            "arapca": "الْإِسْلَامِ",
+            "turkce": "İslam'ın"
+        },
+        {
+            "type": "word",
+            "arapca": "هُوَ",
+            "turkce": "o biridir"
+        },
+        {
+            "type": "word",
+            "arapca": "أَحَدُ",
+            "turkce": "biridir"
+        },
+        {
+            "type": "word",
+            "arapca": "أَبْرَزِ",
+            "turkce": "en önde gelen"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعُلَمَاءِ",
+            "turkce": "alimlerden"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْمُفَكِّرِينَ",
+            "turkce": "ve düşünürlerden"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "التَّارِيخِ",
+            "turkce": "tarihte"
+        },
+        {
+            "type": "word",
+            "arapca": "الْإِسْلَامِيِّ",
+            "turkce": "İslam"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْعَالَمِيِّ",
+            "turkce": "ve dünya"
+        },
+        {
+            "type": "word",
+            "arapca": "وَشَخْصِيَّةٌ",
+            "turkce": "ve bir karakterdir"
+        },
+        {
+            "type": "word",
+            "arapca": "مَوْسُوعِيَّةٌ",
+            "turkce": "ansiklopedik (çok yönlü)"
+        },
+        {
+            "type": "word",
+            "arapca": "تَرَكَتْ",
+            "turkce": "bırakan"
+        },
+        {
+            "type": "word",
+            "arapca": "بَصْمَةً",
+            "turkce": "bir iz"
+        },
+        {
+            "type": "word",
+            "arapca": "لَا",
+            "turkce": "-mez"
+        },
+        {
+            "type": "word",
+            "arapca": "تُمْحَى",
+            "turkce": "silinmez"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "عُلُومِ",
+            "turkce": "ilimlerinde"
+        },
+        {
+            "type": "word",
+            "arapca": "الْفِقْهِ",
+            "turkce": "fıkıh"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْأُصُولِ",
+            "turkce": "ve usul"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْفَلْسَفَةِ",
+            "turkce": "ve felsefe"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالتَّصَوُّفِ",
+            "turkce": "ve tasavvuf"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "وُلِدَ",
+            "turkce": "doğdu"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "مَدِينَةِ",
+            "turkce": "şehrinde"
+        },
+        {
+            "type": "word",
+            "arapca": "طُوس",
+            "turkce": "Tus"
+        },
+        {
+            "type": "word",
+            "arapca": "بِخُرَاسَانَ",
+            "turkce": "Horasan'da"
+        },
+        {
+            "type": "word",
+            "arapca": "إِيرَان",
+            "turkce": "İran"
+        },
+        {
+            "type": "word",
+            "arapca": "حَالِيًّا",
+            "turkce": "şu an"
+        },
+        {
+            "type": "word",
+            "arapca": "سَنَةَ",
+            "turkce": "yılında"
+        },
+        {
+            "type": "word",
+            "arapca": "1058",
+            "turkce": "1058"
+        },
+        {
+            "type": "word",
+            "arapca": "مِيلَادِيَّةً",
+            "turkce": "Miladi"
+        },
+        {
+            "type": "word",
+            "arapca": "نَشَأَ",
+            "turkce": "büyüdü/yetişti"
+        },
+        {
+            "type": "word",
+            "arapca": "يَتِيمًا",
+            "turkce": "yetim"
+        },
+        {
+            "type": "word",
+            "arapca": "فَقِيرًا",
+            "turkce": "fakir"
+        },
+        {
+            "type": "word",
+            "arapca": "وَلَكِنَّ",
+            "turkce": "fakat"
+        },
+        {
+            "type": "word",
+            "arapca": "شَغَفَهُ",
+            "turkce": "onun tutkusu"
+        },
+        {
+            "type": "word",
+            "arapca": "بِالْعِلْمِ",
+            "turkce": "ilme"
+        },
+        {
+            "type": "word",
+            "arapca": "دَفَعَهُ",
+            "turkce": "itti onu"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلتَّرْحَالِ",
+            "turkce": "yolculuğa"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالدِّرَاسَةِ",
+            "turkce": "ve tahsile"
+        },
+        {
+            "type": "word",
+            "arapca": "عَلَى",
+            "turkce": "elinde"
+        },
+        {
+            "type": "word",
+            "arapca": "يَدِ",
+            "turkce": "(üzerinde)"
+        },
+        {
+            "type": "word",
+            "arapca": "كِبَارِ",
+            "turkce": "büyük"
+        },
+        {
+            "type": "word",
+            "arapca": "عُلَمَاءِ",
+            "turkce": "alimlerinin"
+        },
+        {
+            "type": "word",
+            "arapca": "عَصْرِهِ",
+            "turkce": "çağının"
+        },
+        {
+            "type": "word",
+            "arapca": "مِثْلِ",
+            "turkce": "gibi"
+        },
+        {
+            "type": "word",
+            "arapca": "إِمَامِ",
+            "turkce": "İmamı"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَرَمَيْنِ",
+            "turkce": "Haremeyn (Cüveyni)"
+        },
+        {
+            "type": "word",
+            "arapca": "الْجُوَيْنِيِّ",
+            "turkce": "el-Cuveyni"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "نَيْسَابُور",
+            "turkce": "Nişabur'da"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "سُرْعَانَ",
+            "turkce": "hızla"
+        },
+        {
+            "type": "word",
+            "arapca": "مَا",
+            "turkce": "(şey ki)"
+        },
+        {
+            "type": "word",
+            "arapca": "اشْتُهِرَ",
+            "turkce": "meşhur oldu"
+        },
+        {
+            "type": "word",
+            "arapca": "بِذَكَائِهِ",
+            "turkce": "zekasıyla"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَادِّ",
+            "turkce": "keskin"
+        },
+        {
+            "type": "word",
+            "arapca": "وَقُدْرَتِهِ",
+            "turkce": "ve yeteneğiyle"
+        },
+        {
+            "type": "word",
+            "arapca": "الْفَائِقَةِ",
+            "turkce": "üstün"
+        },
+        {
+            "type": "word",
+            "arapca": "عَلَى",
+            "turkce": "üzerine"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمُنَاظَرَةِ",
+            "turkce": "tartışma/münazara"
+        },
+        {
+            "type": "word",
+            "arapca": "مِمَّا",
+            "turkce": "bu da"
+        },
+        {
+            "type": "word",
+            "arapca": "جَعَلَ",
+            "turkce": "yaptı/sağladı"
+        },
+        {
+            "type": "word",
+            "arapca": "الْوَزِيرَ",
+            "turkce": "Veziri"
+        },
+        {
+            "type": "word",
+            "arapca": "السَّلْجُوقِيَّ",
+            "turkce": "Selçuklu"
+        },
+        {
+            "type": "word",
+            "arapca": "الشَّهِيرَ",
+            "turkce": "ünlü"
+        },
+        {
+            "type": "word",
+            "arapca": "نِظَامَ",
+            "turkce": "Nizam"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمُلْكِ",
+            "turkce": "el-Mülk"
+        },
+        {
+            "type": "word",
+            "arapca": "يُعْجَبُ",
+            "turkce": "hayran olması (sağladı)"
+        },
+        {
+            "type": "word",
+            "arapca": "بِهِ",
+            "turkce": "ona"
+        },
+        {
+            "type": "word",
+            "arapca": "وَيُعَيِّنُهُ",
+            "turkce": "ve tayin etmesi"
+        },
+        {
+            "type": "word",
+            "arapca": "رَئِيسًا",
+            "turkce": "başkanı/baş müderris"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلْمَدْرَسَةِ",
+            "turkce": "medresesine"
+        },
+        {
+            "type": "word",
+            "arapca": "النِّظَامِيَّةِ",
+            "turkce": "Nizamiye"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "بَغْدَادَ",
+            "turkce": "Bağdat'ta"
+        },
+        {
+            "type": "word",
+            "arapca": "وَهِيَ",
+            "turkce": "ve o"
+        },
+        {
+            "type": "word",
+            "arapca": "أَعْلَى",
+            "turkce": "en yüksek"
+        },
+        {
+            "type": "word",
+            "arapca": "مَنْصِبٍ",
+            "turkce": "makam"
+        },
+        {
+            "type": "word",
+            "arapca": "عِلْمِيٍّ",
+            "turkce": "ilmi"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعَالَمِ",
+            "turkce": "dünyasında"
+        },
+        {
+            "type": "word",
+            "arapca": "الْإِسْلَامِيِّ",
+            "turkce": "İslam"
+        },
+        {
+            "type": "word",
+            "arapca": "آنَذَاكَ",
+            "turkce": "o zamanlar"
+        },
+        {
+            "type": "word",
+            "arapca": "وَهُوَ",
+            "turkce": "ve o"
+        },
+        {
+            "type": "word",
+            "arapca": "لَمْ",
+            "turkce": "-medi"
+        },
+        {
+            "type": "word",
+            "arapca": "يَتَجَاوَزِ",
+            "turkce": "aşmamıştı"
+        },
+        {
+            "type": "word",
+            "arapca": "الرَّابِعَةَ",
+            "turkce": "dört"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالثَّلَاثِينَ",
+            "turkce": "ve otuz"
+        },
+        {
+            "type": "word",
+            "arapca": "مِنْ",
+            "turkce": "-den"
+        },
+        {
+            "type": "word",
+            "arapca": "عُمْرِهِ",
+            "turkce": "ömründen"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "قِمَّةِ",
+            "turkce": "zirvesinde"
+        },
+        {
+            "type": "word",
+            "arapca": "مَجْدِهِ",
+            "turkce": "şanının"
+        },
+        {
+            "type": "word",
+            "arapca": "وَشُهْرَتِهِ",
+            "turkce": "ve şöhretinin"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَيْنَمَا",
+            "turkce": "ve iken"
+        },
+        {
+            "type": "word",
+            "arapca": "كَانَ",
+            "turkce": "idi"
+        },
+        {
+            "type": "word",
+            "arapca": "الْآلَافُ",
+            "turkce": "binlerce kişi"
+        },
+        {
+            "type": "word",
+            "arapca": "يَحْضُرُونَ",
+            "turkce": "katılıyorlardı"
+        },
+        {
+            "type": "word",
+            "arapca": "مَجَالِسَهُ",
+            "turkce": "mecislerine/derslerine"
+        },
+        {
+            "type": "word",
+            "arapca": "لِيَسْمَعُوا",
+            "turkce": "duymak için"
+        },
+        {
+            "type": "word",
+            "arapca": "مِنْهُ",
+            "turkce": "ondan"
+        },
+        {
+            "type": "word",
+            "arapca": "مَرَّ",
+            "turkce": "geçti/yaşadı"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "بِأَزْمَةٍ",
+            "turkce": "bir kriz"
+        },
+        {
+            "type": "word",
+            "arapca": "رُوحِيَّةٍ",
+            "turkce": "manevi/ruhsal"
+        },
+        {
+            "type": "word",
+            "arapca": "وَفِكْرِيَّةٍ",
+            "turkce": "ve fikri"
+        },
+        {
+            "type": "word",
+            "arapca": "عَمِيقَةٍ",
+            "turkce": "derin"
+        },
+        {
+            "type": "word",
+            "arapca": "زَلْزَلَتْ",
+            "turkce": "sarsan"
+        },
+        {
+            "type": "word",
+            "arapca": "كِيَانَهُ",
+            "turkce": "varlığını"
+        },
+        {
+            "type": "word",
+            "arapca": "بَدَأَ",
+            "turkce": "başladı"
+        },
+        {
+            "type": "word",
+            "arapca": "يَشُكُّ",
+            "turkce": "şüphe etmeye"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "كُلِّ",
+            "turkce": "her"
+        },
+        {
+            "type": "word",
+            "arapca": "شَيْءٍ",
+            "turkce": "şeyde"
+        },
+        {
+            "type": "word",
+            "arapca": "حَتَّى",
+            "turkce": "hatta"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "حَوَاسِّهِ",
+            "turkce": "duyularında"
+        },
+        {
+            "type": "word",
+            "arapca": "وَعَقْلِهِ",
+            "turkce": "ve aklında"
+        },
+        {
+            "type": "word",
+            "arapca": "وَشَعَرَ",
+            "turkce": "ve hissetti"
+        },
+        {
+            "type": "word",
+            "arapca": "أَنَّ",
+            "turkce": "ki"
+        },
+        {
+            "type": "word",
+            "arapca": "كُلَّ",
+            "turkce": "tüm"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعُلُومِ",
+            "turkce": "ilimler"
+        },
+        {
+            "type": "word",
+            "arapca": "الَّتِي",
+            "turkce": "ki o"
+        },
+        {
+            "type": "word",
+            "arapca": "يَدْرُسُهَا",
+            "turkce": "okutuyor"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْجَاهِ",
+            "turkce": "ve makam"
+        },
+        {
+            "type": "word",
+            "arapca": "الَّذِي",
+            "turkce": "ki o"
+        },
+        {
+            "type": "word",
+            "arapca": "يَحْظَى",
+            "turkce": "sahip olduğu"
+        },
+        {
+            "type": "word",
+            "arapca": "بِهِ",
+            "turkce": "ona"
+        },
+        {
+            "type": "word",
+            "arapca": "قَدْ",
+            "turkce": "(kesinlik)"
+        },
+        {
+            "type": "word",
+            "arapca": "حَجَبَهُ",
+            "turkce": "perdeledi onu"
+        },
+        {
+            "type": "word",
+            "arapca": "عَنِ",
+            "turkce": "-den"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهِ",
+            "turkce": "Allah'tan"
+        },
+        {
+            "type": "word",
+            "arapca": "وَعَنِ",
+            "turkce": "ve -den"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَقِيقَةِ",
+            "turkce": "hakikatten"
+        },
+        {
+            "type": "word",
+            "arapca": "الْخَالِصَةِ",
+            "turkce": "saf/öz"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "أَدَّتْ",
+            "turkce": "yol açtı"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذِهِ",
+            "turkce": "bu"
+        },
+        {
+            "type": "word",
+            "arapca": "الْأَزْمَةُ",
+            "turkce": "kriz"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e"
+        },
+        {
+            "type": "word",
+            "arapca": "إِصَابَتِهِ",
+            "turkce": "yakalanmasına"
+        },
+        {
+            "type": "word",
+            "arapca": "بِمَرَضٍ",
+            "turkce": "bir hastalığa"
+        },
+        {
+            "type": "word",
+            "arapca": "عَجَزَ",
+            "turkce": "aciz kaldı"
+        },
+        {
+            "type": "word",
+            "arapca": "عَنْهُ",
+            "turkce": "onda"
+        },
+        {
+            "type": "word",
+            "arapca": "الْأَطِبَّاءُ",
+            "turkce": "doktorlar"
+        },
+        {
+            "type": "word",
+            "arapca": "حَيْثُ",
+            "turkce": "öyle ki"
+        },
+        {
+            "type": "word",
+            "arapca": "فَقَدَ",
+            "turkce": "kaybetti"
+        },
+        {
+            "type": "word",
+            "arapca": "الْقُدْرَةَ",
+            "turkce": "yeteneği"
+        },
+        {
+            "type": "word",
+            "arapca": "عَلَى",
+            "turkce": "üzerine"
+        },
+        {
+            "type": "word",
+            "arapca": "الْكَلَامِ",
+            "turkce": "konuşma"
+        },
+        {
+            "type": "word",
+            "arapca": "لِفَتْرَةٍ",
+            "turkce": "bir süre"
+        },
+        {
+            "type": "word",
+            "arapca": "قَرَّرَ",
+            "turkce": "karar verdi"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "تَرْكَ",
+            "turkce": "terk etmeye"
+        },
+        {
+            "type": "word",
+            "arapca": "كُلِّ",
+            "turkce": "her"
+        },
+        {
+            "type": "word",
+            "arapca": "شَيْءٍ",
+            "turkce": "şeyi"
+        },
+        {
+            "type": "word",
+            "arapca": "خَلْفَ",
+            "turkce": "arkasına"
+        },
+        {
+            "type": "word",
+            "arapca": "ظَهْرِهِ",
+            "turkce": "sırtının (dünyayı)"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَنْصِبَ",
+            "turkce": "makamı"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْمَالَ",
+            "turkce": "ve malı"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالشُّهْرَةَ",
+            "turkce": "ve şöhreti"
+        },
+        {
+            "type": "word",
+            "arapca": "وَغَادَرَ",
+            "turkce": "ve ayrıldı"
+        },
+        {
+            "type": "word",
+            "arapca": "بَغْدَادَ",
+            "turkce": "Bağdat'tan"
+        },
+        {
+            "type": "word",
+            "arapca": "سِرًّا",
+            "turkce": "gizlice"
+        },
+        {
+            "type": "word",
+            "arapca": "لِيَسْلُكَ",
+            "turkce": "girmek için"
+        },
+        {
+            "type": "word",
+            "arapca": "طَرِيقَ",
+            "turkce": "yoluna"
+        },
+        {
+            "type": "word",
+            "arapca": "الزُّهْدِ",
+            "turkce": "zühd"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالتَّصَوُّفِ",
+            "turkce": "ve tasavvuf"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "قَضَى",
+            "turkce": "geçirdi"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "عَشْرَ",
+            "turkce": "on"
+        },
+        {
+            "type": "word",
+            "arapca": "سَنَوَاتٍ",
+            "turkce": "sene"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "عُزْلَةٍ",
+            "turkce": "inziva"
+        },
+        {
+            "type": "word",
+            "arapca": "وَتَأَمُّلٍ",
+            "turkce": "ve tefekkür"
+        },
+        {
+            "type": "word",
+            "arapca": "مُتَنَقِّلًا",
+            "turkce": "dolaşarak"
+        },
+        {
+            "type": "word",
+            "arapca": "بَيْنَ",
+            "turkce": "arasında"
+        },
+        {
+            "type": "word",
+            "arapca": "الشَّامِ",
+            "turkce": "Şam"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْقُدْسِ",
+            "turkce": "ve Kudüs"
+        },
+        {
+            "type": "word",
+            "arapca": "وَمَكَّةَ",
+            "turkce": "ve Mekke"
+        },
+        {
+            "type": "word",
+            "arapca": "وَالْمَدِينَةِ",
+            "turkce": "ve Medine"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "هَذِهِ",
+            "turkce": "bu"
+        },
+        {
+            "type": "word",
+            "arapca": "الْخَلْوَةِ",
+            "turkce": "halvette"
+        },
+        {
+            "type": "word",
+            "arapca": "الطَّوِيلَةِ",
+            "turkce": "uzun"
+        },
+        {
+            "type": "word",
+            "arapca": "كَنَسَ",
+            "turkce": "süpürdü"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمَسَاجِدَ",
+            "turkce": "mescitleri"
+        },
+        {
+            "type": "word",
+            "arapca": "وَرَوَّضَ",
+            "turkce": "ve terbiye etti"
+        },
+        {
+            "type": "word",
+            "arapca": "نَفْسَهُ",
+            "turkce": "nefsini"
+        },
+        {
+            "type": "word",
+            "arapca": "وَأَلَّفَ",
+            "turkce": "ve yazdı"
+        },
+        {
+            "type": "word",
+            "arapca": "كِتَابَهُ",
+            "turkce": "kitabını"
+        },
+        {
+            "type": "word",
+            "arapca": "الْأَشْهَرَ",
+            "turkce": "en meşhur"
+        },
+        {
+            "type": "word",
+            "arapca": "إِحْيَاءُ",
+            "turkce": "İhya-u"
+        },
+        {
+            "type": "word",
+            "arapca": "عُلُومِ",
+            "turkce": "Ulum'id"
+        },
+        {
+            "type": "word",
+            "arapca": "الدِّينِ",
+            "turkce": "Din"
+        },
+        {
+            "type": "word",
+            "arapca": "الَّذِي",
+            "turkce": "ki o"
+        },
+        {
+            "type": "word",
+            "arapca": "يُعْتَبَرُ",
+            "turkce": "kabul edilir"
+        },
+        {
+            "type": "word",
+            "arapca": "تَحْفَةً",
+            "turkce": "bir şaheser"
+        },
+        {
+            "type": "word",
+            "arapca": "خَالِدَةً",
+            "turkce": "ölümsüz"
+        },
+        {
+            "type": "word",
+            "arapca": "تَجْمَعُ",
+            "turkce": "birleştiren"
+        },
+        {
+            "type": "word",
+            "arapca": "بَيْنَ",
+            "turkce": "arasında"
+        },
+        {
+            "type": "word",
+            "arapca": "ظَاهِرِ",
+            "turkce": "zahiri"
+        },
+        {
+            "type": "word",
+            "arapca": "الشَّرِيعَةِ",
+            "turkce": "şeriat"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَاطِنِ",
+            "turkce": "ve batıni"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَقِيقَةِ",
+            "turkce": "hakikat"
+        },
+        {
+            "type": "word",
+            "arapca": "وَتُعَالِجُ",
+            "turkce": "ve tedavi eder"
+        },
+        {
+            "type": "word",
+            "arapca": "أَمْرَاضَ",
+            "turkce": "hastalıklarını"
+        },
+        {
+            "type": "word",
+            "arapca": "الْقُلُوبِ",
+            "turkce": "kalplerin"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "كَمَا",
+            "turkce": "aynı şekilde"
+        },
+        {
+            "type": "word",
+            "arapca": "تَصَدَّى",
+            "turkce": "karşı durdu"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلْفَلَاسِفَةِ",
+            "turkce": "felsefecilere"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "كِتَابِهِ",
+            "turkce": "kitabında"
+        },
+        {
+            "type": "word",
+            "arapca": "تَهَافُتُ",
+            "turkce": "Tehafüt'ül (Tutarsızlık)"
+        },
+        {
+            "type": "word",
+            "arapca": "الْفَلَاسِفَةِ",
+            "turkce": "Felasife (Filozoflar)"
+        },
+        {
+            "type": "word",
+            "arapca": "حَيْثُ",
+            "turkce": "orada"
+        },
+        {
+            "type": "word",
+            "arapca": "نَقَدَ",
+            "turkce": "eleştirdi"
+        },
+        {
+            "type": "word",
+            "arapca": "آرَاءَهُمُ",
+            "turkce": "onların görüşlerini"
+        },
+        {
+            "type": "word",
+            "arapca": "الْمُخَالِفَةَ",
+            "turkce": "aykırı"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلدِّينِ",
+            "turkce": "dine"
+        },
+        {
+            "type": "word",
+            "arapca": "بِأُسْلُوبٍ",
+            "turkce": "bir üslupla"
+        },
+        {
+            "type": "word",
+            "arapca": "عِلْمِيٍّ",
+            "turkce": "bilimsel"
+        },
+        {
+            "type": "word",
+            "arapca": "دَقِيقٍ",
+            "turkce": "hassas/dakik"
+        },
+        {
+            "type": "word",
+            "arapca": "وَبَيَّنَ",
+            "turkce": "ve açıkladı"
+        },
+        {
+            "type": "word",
+            "arapca": "حُدُودَ",
+            "turkce": "sınırlarını"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعَقْلِ",
+            "turkce": "aklın"
+        },
+        {
+            "type": "word",
+            "arapca": "الْبَشَرِيِّ",
+            "turkce": "insan"
+        },
+        {
+            "type": "newline",
+            "arapca": "",
+            "turkce": ""
+        },
+        {
+            "type": "word",
+            "arapca": "عَادَ",
+            "turkce": "döndü"
+        },
+        {
+            "type": "word",
+            "arapca": "الْغَزَالِيُّ",
+            "turkce": "Gazali"
+        },
+        {
+            "type": "word",
+            "arapca": "بَعْدَ",
+            "turkce": "sonra"
+        },
+        {
+            "type": "word",
+            "arapca": "رِحْلَتِهِ",
+            "turkce": "yolculuğundan"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e"
+        },
+        {
+            "type": "word",
+            "arapca": "التَّدْرِيسِ",
+            "turkce": "öğretmenliğe"
+        },
+        {
+            "type": "word",
+            "arapca": "لِفَتْرَةٍ",
+            "turkce": "bir süre"
+        },
+        {
+            "type": "word",
+            "arapca": "قَصِيرَةٍ",
+            "turkce": "kısa"
+        },
+        {
+            "type": "word",
+            "arapca": "قَبْلَ",
+            "turkce": "önce"
+        },
+        {
+            "type": "word",
+            "arapca": "وَفَاتِهِ",
+            "turkce": "vefatından"
+        },
+        {
+            "type": "word",
+            "arapca": "لَكِنَّهُ",
+            "turkce": "fakat o"
+        },
+        {
+            "type": "word",
+            "arapca": "عَادَ",
+            "turkce": "döndü"
+        },
+        {
+            "type": "word",
+            "arapca": "بِرُوحٍ",
+            "turkce": "bir ruhla"
+        },
+        {
+            "type": "word",
+            "arapca": "جَدِيدَةٍ",
+            "turkce": "yeni"
+        },
+        {
+            "type": "word",
+            "arapca": "مُؤَكِّدًا",
+            "turkce": "vurgulayarak"
+        },
+        {
+            "type": "word",
+            "arapca": "أَنَّ",
+            "turkce": "ki"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعِلْمَ",
+            "turkce": "ilim"
+        },
+        {
+            "type": "word",
+            "arapca": "الْحَقِيقِيَّ",
+            "turkce": "gerçek"
+        },
+        {
+            "type": "word",
+            "arapca": "لَيْسَ",
+            "turkce": "değildir"
+        },
+        {
+            "type": "word",
+            "arapca": "مُجَرَّدَ",
+            "turkce": "sadece"
+        },
+        {
+            "type": "word",
+            "arapca": "مَعْلُومَاتٍ",
+            "turkce": "bilgiler"
+        },
+        {
+            "type": "word",
+            "arapca": "نَظَرِيَّةٍ",
+            "turkce": "teorik"
+        },
+        {
+            "type": "word",
+            "arapca": "بَلْ",
+            "turkce": "bilakis"
+        },
+        {
+            "type": "word",
+            "arapca": "هُوَ",
+            "turkce": "o bir"
+        },
+        {
+            "type": "word",
+            "arapca": "نُورٌ",
+            "turkce": "nurdur"
+        },
+        {
+            "type": "word",
+            "arapca": "يَقْذِفُهُ",
+            "turkce": "attığı/koyduğu"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهُ",
+            "turkce": "Allah'ın"
+        },
+        {
+            "type": "word",
+            "arapca": "فِي",
+            "turkce": "-de"
+        },
+        {
+            "type": "word",
+            "arapca": "الْقَلْبِ",
+            "turkce": "kalbe"
+        },
+        {
+            "type": "word",
+            "arapca": "وَأَنَّ",
+            "turkce": "ve ki"
+        },
+        {
+            "type": "word",
+            "arapca": "غَايَةَ",
+            "turkce": "amacı"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعِلْمِ",
+            "turkce": "ilmin"
+        },
+        {
+            "type": "word",
+            "arapca": "هِيَ",
+            "turkce": "odur"
+        },
+        {
+            "type": "word",
+            "arapca": "الْعَمَلُ",
+            "turkce": "amel/eylem"
+        },
+        {
+            "type": "word",
+            "arapca": "وَتَزْكِيَةُ",
+            "turkce": "ve arındırma"
+        },
+        {
+            "type": "word",
+            "arapca": "النَّفْسِ",
+            "turkce": "nefsi"
+        },
+        {
+            "type": "word",
+            "arapca": "لِلْوُصُولِ",
+            "turkce": "ulaşmak için"
+        },
+        {
+            "type": "word",
+            "arapca": "إِلَى",
+            "turkce": "-e"
+        },
+        {
+            "type": "word",
+            "arapca": "مَعْرِفَةِ",
+            "turkce": "bilgisine/marifetine"
+        },
+        {
+            "type": "word",
+            "arapca": "اللهِ",
+            "turkce": "Allah'ın"
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+  "bookId": "siyer_nebi",
+  "metinler": [
+    { "id": "lesson_1", "title": "Ders 1 — Peygamberimizin Doğumu ve Ailesi (ولادة النبي وأسرته)" },
+    { "id": "lesson_2", "title": "Ders 2 — Abdulmuttalib'in Sevinci ve İsim Verme (فرح عبد المطلب وتسميته)" },
+    { "id": "lesson_3", "title": "Ders 3 — Sütannesi Halime (مرضعته حليمة)" },
+    { "id": "lesson_4", "title": "Ders 4 — Halime'nin Evindeki Bereket (البركة في ديار حليمة)" },
+    { "id": "lesson_5", "title": "Ders 5 — Çölde Yetişmesi (نشأته في البادية)" },
+    { "id": "lesson_6", "title": "Ders 6 — Annesinin Vefatı (وفاة أمه آمنة)" },
+    { "id": "lesson_7", "title": "Ders 7 — Dedemsin Vefatı ve Ebu Talib'in Himayesi (وفاة جده وكفالة أبي طالب)" },
+    { "id": "lesson_8", "title": "Ders 8 — Peygamberimizin Güzel Ahlakı (أخلاقه الكريمة في صغره)" },
+    { "id": "lesson_9", "title": "Ders 9 — Hilfül Fudul: Erdemliler İttifakı (حلف الفضول)" },
+    { "id": "lesson_10", "title": "Ders 10 — Mazluma Yardım ve Hilfül Fudul'un Önemi (أهمية حلف الفضول)" },
+    { "id": "lesson_11", "title": "Ders 11 — Hz. Hatice ile Evliliği (زواجه من خديجة)" },
+    { "id": "lesson_12", "title": "Ders 12 — Peygamberimizin Çocukları (أولاد النبي من خديجة)" },
+    { "id": "lesson_13", "title": "Ders 13 — Hacerül Esved ve Kabe'nin Onarımı (الحجر الأسود وبناء الكعبة)" },
+    { "id": "lesson_14", "title": "Ders 14 — Hakemliği ve Anlaşmazlığın Çözümü (تحكيم النبي وحل الخلاف)" },
+    { "id": "lesson_15", "title": "Ders 15 — Hira Mağarası ve İlk Vahiy (غار حراء ونزول الوحي)" },
+    { "id": "lesson_16", "title": "Ders 16 — Hz. Hatice'nin Desteği ve Tesellisi (طمانت خديجة للنبي)" },
+    { "id": "lesson_17", "title": "Ders 17 — Vahyin Kesilmesi ve Tekrar Başlaması (انقطاع الوحي وعودته)" },
+    { "id": "lesson_18", "title": "Ders 18 — Gizli Davet Dönemi (دعوة الإسلام السرية)" },
+    { "id": "lesson_19", "title": "Ders 19 — Açık Davet ve Müşriklerin Tepkisi (الجهر بالدعوة ورد فعل المشركين)" },
+    { "id": "lesson_20", "title": "Ders 20 — Müşriklerin Eziyetleri (إيذاء المشركين للنبي وأصحابه)" },
+    { "id": "lesson_21", "title": "Ders 21 — Ebu Leheb'in Karısı ve Mesed Suresi (امرأة أبي لهب وسورة المسد)" },
+    { "id": "lesson_22", "title": "Ders 22 — Utbe b. Rebia ile Diyalog (حوار عتبة بن ربيعة)" },
+    { "id": "lesson_23", "title": "Ders 23 — Habeşistan Hicreti (الهجرة إلى الحبشة)" }
+  ]
+}

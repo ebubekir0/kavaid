@@ -1,0 +1,473 @@
+{
+  "ders_bilgisi": {
+    "ders_no": 1,
+    "ders_adi": "Mimar Sinan'ın Zekası",
+    "kelimeler": [
+      {
+        "arapca": "عَاشَ",
+        "turkce": "yaşadı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الدَّوْلَةِ",
+        "turkce": "devlet",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْعُثْمَانِيَّةِ",
+        "turkce": "Osmanlı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَجُلٌ",
+        "turkce": "bir adam",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَبْقَرِيٌّ",
+        "turkce": "dahi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اسْمُهُ",
+        "turkce": "onun ismi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"مِعْمَار",
+        "turkce": "\"Mimar",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَان\".",
+        "turkce": "Sinan\".",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانُ",
+        "turkce": "Sinan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُهَنْدِسًا",
+        "turkce": "bir mühendis",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَاهِرًا",
+        "turkce": "maharetli",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جِدًّا.",
+        "turkce": "çok.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَنَى",
+        "turkce": "bina etti/yaptı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانُ",
+        "turkce": "Sinan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَسَاجِدَ",
+        "turkce": "mescitler/camiler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَثِيرَةً",
+        "turkce": "çok",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَجُسُورًا",
+        "turkce": "ve köprüler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَمَدَارِسَ",
+        "turkce": "ve medreseler/okullar",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كُلِّ",
+        "turkce": "her",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَكَانٍ.",
+        "turkce": "mekan/yer.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَهَمُّ",
+        "turkce": "en önemli",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَثَرٍ",
+        "turkce": "eser",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَهُ",
+        "turkce": "ona ait",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هُوَ",
+        "turkce": "o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"مَسْجِدُ",
+        "turkce": "\"Camii",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السُّلَيْمَانِيَّة\"",
+        "turkce": "Süleymaniye\"",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "إِسْطَنْبُولَ،",
+        "turkce": "İstanbul,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَمَسْجِدُ",
+        "turkce": "ve Camii",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"السَّلِيمِيَّة\"",
+        "turkce": "\"Selimiye\"",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَدِرْنَة.",
+        "turkce": "Edirne.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عِنْدَمَا",
+        "turkce": "-dığında/zaman",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَنَى",
+        "turkce": "yaptı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَسْجِدَ",
+        "turkce": "camii",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السُّلَيْمَانِيَّة،",
+        "turkce": "Süleymaniye,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُرِيدُ",
+        "turkce": "istiyor(du)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَنْ",
+        "turkce": "...mek/mak",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَكُونَ",
+        "turkce": "olmasını",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّوْتُ",
+        "turkce": "ses",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِيهِ",
+        "turkce": "onun içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَاضِحًا",
+        "turkce": "net/açık",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جِدًّا.",
+        "turkce": "çok.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَلَسَ",
+        "turkce": "oturdu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانُ",
+        "turkce": "Sinan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَسَطَ",
+        "turkce": "orta",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَسْجِدِ",
+        "turkce": "cami",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَبَدَأَ",
+        "turkce": "ve başladı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُدَخِّنُ",
+        "turkce": "içiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النَّارَجِيلَةَ",
+        "turkce": "nargile",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "(الشِّيشَةَ)،",
+        "turkce": "(şişe/nargile),",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَكِنْ",
+        "turkce": "lakin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِدُونِ",
+        "turkce": "-sız/siz",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تِبْغٍ،",
+        "turkce": "tütün,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَقَطْ",
+        "turkce": "sadece",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِيَسْمَعَ",
+        "turkce": "duymak için",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَوْتَ",
+        "turkce": "sesi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْمَاءِ.",
+        "turkce": "su.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَأَى",
+        "turkce": "gördü",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السُّلْطَانُ",
+        "turkce": "Sultan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سُلَيْمَانُ",
+        "turkce": "Süleyman",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هَذَا",
+        "turkce": "bunu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَغَضِبَ",
+        "turkce": "ve kızdı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "قَلِيلًا،",
+        "turkce": "biraz,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَكِنَّ",
+        "turkce": "lakin/ancak",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانَ",
+        "turkce": "Sinan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "شَرَحَ",
+        "turkce": "açıkladı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَهُ",
+        "turkce": "ona",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَنَّهُ",
+        "turkce": "onun ... olduğunu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَخْتَبِرُ",
+        "turkce": "test ediyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصَّوْتَ",
+        "turkce": "sesi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دَاخِلَ",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْقُبَّةِ",
+        "turkce": "kubbe",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَبِيرَةِ.",
+        "turkce": "büyük.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَهِمَ",
+        "turkce": "anladı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السُّلْطَانُ",
+        "turkce": "Sultan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ذَكَاءَ",
+        "turkce": "zeka",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانَ",
+        "turkce": "Sinan('ın)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَفَرِحَ",
+        "turkce": "ve sevindi/memnun oldu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِهِ.",
+        "turkce": "onunla.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَاشَ",
+        "turkce": "yaşadı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سِنَانُ",
+        "turkce": "Sinan",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عُمْرًا",
+        "turkce": "bir ömür",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "طَوِيلًا",
+        "turkce": "uzun",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَتَرَكَ",
+        "turkce": "ve bıraktı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَنَا",
+        "turkce": "bize",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "آثَارًا",
+        "turkce": "eserler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "خَالِدَةً",
+        "turkce": "ölümsüz/kalıcı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَجَمِيلَةً.",
+        "turkce": "ve güzel.",
+        "tip": "kelime"
+      }
+    ]
+  }
+}

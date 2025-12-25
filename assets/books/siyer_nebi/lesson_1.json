@@ -1,0 +1,53 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 1,
+        "ders_adi": "Peygamberimizin Doğumu ve Ailesi",
+        "kelimeler": [
+            {
+                "arapca": "مُحَمَّدٌ عَبْدُ اّٰللَّهِ",
+                "turkce": "Muhammed Allah'ın kuludur",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "عَبْدُ اّٰللَّهِ وَالِدُهُ",
+                "turkce": "Abdullah onun babasıdır",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "عَبْدُ الْمُطَّلِبِ جَدُّهُ",
+                "turkce": "Abdulmuttalib onun dedesidir",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "آِمنَةُ بِنْتُ وَهْبٍ أُمُّهُ",
+                "turkce": "Vehb kızı Amine onun annesidir",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "تُوُفِيَّ أَبُوهُ وَأُمُّهُ حَامِلٌ بِهِ",
+                "turkce": "Annesi ona hamileyken babası vefat etti",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "دُفِنَ فِي الْمَدِينَةِ",
+                "turkce": "Medine'de defnedildi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "يَوْمَ اإلثْنَيْنِ الثَّانِي عَّشَرَ",
+                "turkce": "Pazartesi günü, on ikinci gün",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "شَهْرِ رَبِيعِ األَوَّلِ",
+                "turkce": "Rebiülevvel ayı",
+                "tip": "kelime"
+            },
+            {
+                "arapca": "عَامَ الْفِيلِ (٥٧٠ م)",
+                "turkce": "Fil Yılı (MS 570)",
+                "tip": "kelime"
+            }
+        ]
+    }
+}

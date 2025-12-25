@@ -44,6 +44,9 @@ import 'utils/migrate_usernames.dart';
 import 'models/custom_word_list.dart';
 import 'screens/custom_words_screen.dart';
 
+import 'package:provider/provider.dart';
+import 'services/purchase_manager.dart';
+
 // Fontları arka planda yükle (UI'ı engellemez)
 void _preloadFonts() {
   Future.microtask(() async {
@@ -652,7 +655,7 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-      // Tema yüklenene kadar hızlı loading göster
+    // Tema yüklenene kadar hızlı loading göster
     if (!_themeLoaded) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -663,55 +666,61 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       );
     }
 
-    return MaterialApp(
-      title: 'Kavaid - Arapça Sözlük',
-      debugShowCheckedModeBanner: false,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      themeMode: ThemeMode.light,
-      home: const StartupScreen(),
-      builder: (context, child) {
-        // 🚀 PERFORMANCE MOD: Yüksek FPS için optimize edilmiş MediaQuery
-        final mediaQuery = MediaQuery.of(context);
+    // Provider entegrasyonu: PurchaseManager'ı tüm ağaca enjekte et
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PurchaseManager()..initialize()), // Initialize here
+      ],
+      child: MaterialApp(
+        title: 'Kavaid - Arapça Sözlük',
+        debugShowCheckedModeBanner: false,
+        theme: _buildLightTheme(),
+        darkTheme: _buildDarkTheme(),
+        themeMode: ThemeMode.light, // Şimdilik hep light mod isteniyor olabilir, koda sadık kalıyorum
+        home: const StartupScreen(),
+        builder: (context, child) {
+          // 🚀 PERFORMANCE MOD: Yüksek FPS için optimize edilmiş MediaQuery
+          final mediaQuery = MediaQuery.of(context);
 
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            // Her dokunuşta klavyeyi kapat (sistem + Arapça)
-            FocusManager.instance.primaryFocus?.unfocus();
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
-          },
-          onPanDown: (_) {
-            // Scroll gerekmeksizin ilk temasla kapat
-            FocusManager.instance.primaryFocus?.unfocus();
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
-          },
-          child: MediaQuery(
-            data: mediaQuery.copyWith(
-              // Performans için optimize edilmiş değerler
-              devicePixelRatio: mediaQuery.devicePixelRatio,
-              // Text scaling'i stabil tut
-              textScaleFactor: mediaQuery.textScaleFactor.clamp(0.8, 1.2),
-            ),
-            child: ScrollConfiguration(
-              // Overscroll glow efektini kaldır - performans artışı sağlar
-              behavior: NoGlowScrollBehavior(),
-              child: RepaintBoundary(
-                // 🚀 PERFORMANCE MOD: Ana uygulama RepaintBoundary ile sarılı
-                child: FPSOverlay(
-                  showFPS: false, // Debug mesajlarını önlemek için tamamen kapalı
-                  detailedFPS: false,
-                  child: SafeArea(
-                    // 🔧 ANDROID 15 FIX: Global SafeArea - Navigation bar overlap fix
-                    bottom: true,
-                    child: child!,
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              // Her dokunuşta klavyeyi kapat (sistem + Arapça)
+              FocusManager.instance.primaryFocus?.unfocus();
+              SystemChannels.textInput.invokeMethod('TextInput.hide');
+            },
+            onPanDown: (_) {
+              // Scroll gerekmeksizin ilk temasla kapat
+              FocusManager.instance.primaryFocus?.unfocus();
+              SystemChannels.textInput.invokeMethod('TextInput.hide');
+            },
+            child: MediaQuery(
+              data: mediaQuery.copyWith(
+                // Performans için optimize edilmiş değerler
+                devicePixelRatio: mediaQuery.devicePixelRatio,
+                // Text scaling'i stabil tut
+                textScaleFactor: mediaQuery.textScaleFactor.clamp(0.8, 1.2),
+              ),
+              child: ScrollConfiguration(
+                // Overscroll glow efektini kaldır - performans artışı sağlar
+                behavior: NoGlowScrollBehavior(),
+                child: RepaintBoundary(
+                  // 🚀 PERFORMANCE MOD: Ana uygulama RepaintBoundary ile sarılı
+                  child: FPSOverlay(
+                    showFPS: false, // Debug mesajlarını önlemek için tamamen kapalı
+                    detailedFPS: false,
+                    child: SafeArea(
+                      // 🔧 ANDROID 15 FIX: Global SafeArea - Navigation bar overlap fix
+                      bottom: true,
+                      child: child!,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -938,10 +947,14 @@ class _MainScreenState extends State<MainScreen> {
   final AdminService _adminService = AdminService();
   // Subscriptionlar
   StreamSubscription<User?>? _authSubscription;
+  
+  // Öğren sekmesi bildirim badge'i
+  bool _showLearningBadge = false;
 
   @override
   void initState() {
     super.initState();
+    _checkLearningBadgeStatus();
     
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -1052,6 +1065,21 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
   
+  Future<void> _checkLearningBadgeStatus() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // true ise daha önce açılmış demektir, badge gösterme
+      final hasOpened = prefs.getBool('has_opened_learning_tab') ?? false;
+      if (mounted) {
+        setState(() {
+          _showLearningBadge = !hasOpened;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Badge durumu kontrol hatası: $e');
+    }
+  }
+  
   
   // Görünür sekmelerin IndexedStack index'lerini döndür
   List<int> _getVisibleStackIndices() {
@@ -1095,6 +1123,16 @@ class _MainScreenState extends State<MainScreen> {
 
     // Farklı bir sekmeye geçiliyorsa yalnızca index'i değiştir
     setState(() => _currentIndex = realIndex);
+
+    // Öğren sekmesine tıklandıysa badge'i kaldır ve kaydet (index 1 = Öğren)
+    if (index == 1 && _showLearningBadge) {
+      setState(() {
+        _showLearningBadge = false;
+      });
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setBool('has_opened_learning_tab', true);
+      });
+    }
 
     // Sekme değişiminde (navigasyon bar geçişi) interstitial reklam tetikle
     // Premium / reklamsız kullanıcılar ve cooldown kontrolleri AdMobService içinde yapılır
@@ -1208,7 +1246,9 @@ class _MainScreenState extends State<MainScreen> {
                           key: _learningTabNavKey,
                           onGenerateRoute: (settings) {
                             return MaterialPageRoute(
-                              builder: (_) => const LearningScreen(),
+                              builder: (_) => LearningScreen(
+                                // bottomPadding parametresini KALDIRDIM (LearningScreen constuctor'ında yok)
+                              ),
                               settings: settings,
                             );
                           },
@@ -1356,7 +1396,30 @@ class _MainScreenState extends State<MainScreen> {
                       label: 'Sözlük',
                     ),
                     BottomNavigationBarItem(
-                      icon: const Icon(Icons.school_outlined),
+                      icon: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          const Icon(Icons.school_outlined),
+                          if (_showLearningBadge)
+                            Positioned(
+                              right: -4,
+                              top: -4,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: widget.isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      activeIcon: const Icon(Icons.school),
                       label: 'Öğren',
                     ),
                     BottomNavigationBarItem(

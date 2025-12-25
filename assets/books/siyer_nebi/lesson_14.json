@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 14,
+        "ders_adi": "Hakemliği ve Anlaşmazlığın Çözümü",
+        "kelimeler": [
+            {
+                "arapca": "حَلَّ الْخِلَافَ",
+                "turkce": "Anlaşmazlığı çözdü",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "طَلَبَ مِنْهُمْ أَنْ يُحْضِرُوا بِسَاطًا",
+                "turkce": "Onlardan bir örtü / yaygı getirmelerini istedi",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "يَرْفَعُونَهُ جَمِيعًا إِلَى مَكَانِهِ",
+                "turkce": "Onu hep birlikte yerine kaldırıyorlar",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "رَضِيَتِ الْقَبَائِلُ بِهَذَا الْحَلِّ",
+                "turkce": "Kabileler bu çözüme razı oldular",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

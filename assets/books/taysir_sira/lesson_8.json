@@ -1,0 +1,69 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 8,
+        "ders_adi": "Peygamberimizin Çocukları",
+        "icerik": "وَلَدَتِ السَّيِّدةُ خَدِيجةُ أَوْلَادَهُ، وَكُلُّ مَنْ وُلِدَ لِرَسُولِ اّٰللَّهِ مِنْ خَدِيجة إِلَّا إِبْرَاهِيم. وَلَدَتِ السَّيِّدةُ خَدِيجةُ القَاسم، وَالطَّيِّب، وَالطَّاهِر، وَزَيْنَب، وَرُقَيَّة، وَأُمَّ كُلْثُوم، وَفَاطِمَة. أَكْبَرُ أَبْنَاءِ النَّبِيِّ القَاسم، ثُمَّ الطَّيِّب، ثُمَّ الطَّاهِر، وَأَكْبَرُ بَنَاتِهِ زَيْنَب، ثُمَّ رُقَيَّة، ثُمَّ أُمُّ كُلْثُوم، ثُمَّ فَاطِمَة.",
+        "kelimeler": [
+            {
+                "arapca": "وَلَدَتِ",
+                "turkce": "doğurdu (kadın)"
+            },
+            {
+                "arapca": "السَّيِّدةُ",
+                "turkce": "hanımefendi / saygıdeğer"
+            },
+            {
+                "arapca": "أَوْلَادَهُ",
+                "turkce": "onun çocukları"
+            },
+            {
+                "arapca": "كُلُّ",
+                "turkce": "her / hepsi"
+            },
+            {
+                "arapca": "إِلَّا",
+                "turkce": "hariç / dışında"
+            },
+            {
+                "arapca": "إِبْرَاهِيم",
+                "turkce": "İbrahim"
+            },
+            {
+                "arapca": "القَاسم",
+                "turkce": "Kasım"
+            },
+            {
+                "arapca": "وَالطَّيِّب",
+                "turkce": "ve Tayyib"
+            },
+            {
+                "arapca": "وَالطَّاهِر",
+                "turkce": "ve Tahir"
+            },
+            {
+                "arapca": "زَيْنَب",
+                "turkce": "Zeynep"
+            },
+            {
+                "arapca": "رُقَيَّة",
+                "turkce": "Rukiye"
+            },
+            {
+                "arapca": "فَاطِمَة",
+                "turkce": "Fatıma"
+            },
+            {
+                "arapca": "أَكْبَرُ",
+                "turkce": "en büyük"
+            },
+            {
+                "arapca": "أَبْنَاءِ",
+                "turkce": "erkek çocukları"
+            },
+            {
+                "arapca": "بَنَاتِهِ",
+                "turkce": "onun kız çocukları"
+            }
+        ]
+    }
+}

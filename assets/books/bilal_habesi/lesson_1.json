@@ -1,0 +1,463 @@
+{
+  "ders_bilgisi": {
+    "ders_no": 1,
+    "ders_adi": "İlk Müezzin: Bilal-i Habeşi",
+    "kelimeler": [
+      {
+        "arapca": "بِلَالُ",
+        "turkce": "Bilal",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بْنُ",
+        "turkce": "oğlu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَبَاحٍ",
+        "turkce": "Rabah",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "رَجُلًا",
+        "turkce": "bir adam",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَسْمَرَ",
+        "turkce": "esmer",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللَّوْنِ",
+        "turkce": "renkli",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مِنَ",
+        "turkce": "-den",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَبَشَةِ.",
+        "turkce": "Habeşistan.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِدَايَةِ",
+        "turkce": "başlangıç",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْإِسْلَامِ،",
+        "turkce": "İslam,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِلَالٌ",
+        "turkce": "Bilal",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَبْدًا",
+        "turkce": "bir köle",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "ضَعِيفًا",
+        "turkce": "zayıf",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُعَذِّبُهُ",
+        "turkce": "ona azap ediyor(du)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سَيِّدُهُ",
+        "turkce": "efendisi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَحْرَاءِ",
+        "turkce": "çöl",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مَكَّةَ",
+        "turkce": "Mekke",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْحَارَّةِ",
+        "turkce": "sıcak",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِأَنَّهُ",
+        "turkce": "çünkü o",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَسْلَمَ.",
+        "turkce": "Müslüman oldu.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "سَيِّدُهُ",
+        "turkce": "efendisi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَضَعُ",
+        "turkce": "koyuyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَخْرَةً",
+        "turkce": "bir kaya",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَبِيرَةً",
+        "turkce": "büyük",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَى",
+        "turkce": "üzerine",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَدْرِهِ،",
+        "turkce": "göğsünün,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَكِنَّ",
+        "turkce": "lakin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِلَالًا",
+        "turkce": "Bilal",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَقُولُ",
+        "turkce": "diyor/söylüyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "دَائِمًا:",
+        "turkce": "daima:",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "\"أَحَدٌ،",
+        "turkce": "\"Tek,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَحَدٌ\"،",
+        "turkce": "tek\",",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يَعْنِي",
+        "turkce": "yani",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللهُ",
+        "turkce": "Allah",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَاحِدٌ.",
+        "turkce": "birdir.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اشْتَرَاهُ",
+        "turkce": "onu satın aldı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَبُو",
+        "turkce": "Ebu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَكْرٍ",
+        "turkce": "Bekir",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الصِّدِّيقُ",
+        "turkce": "Sıddık",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَأَعْتَقَهُ",
+        "turkce": "ve onu azat etti",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَأَصْبَحَ",
+        "turkce": "böylece oldu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "حُرًّا.",
+        "turkce": "hür/özgür.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "كَانَ",
+        "turkce": "idi/vardı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِبِلَالٍ",
+        "turkce": "Bilal'in",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَوْتٌ",
+        "turkce": "bir sesi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَمِيلٌ",
+        "turkce": "güzel",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَقَوِيٌّ",
+        "turkce": "ve güçlü",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جِدًّا.",
+        "turkce": "çok.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِهَذَا",
+        "turkce": "bunun için",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "السَّبَبِ،",
+        "turkce": "sebep,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اخْتَارَهُ",
+        "turkce": "onu seçti",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النَّبِيُّ",
+        "turkce": "Peygamber",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُحَمَّدٌ",
+        "turkce": "Muhammed",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَلَّى",
+        "turkce": "salat etti",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللهُ",
+        "turkce": "Allah",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عَلَيْهِ",
+        "turkce": "üzerine",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَسَلَّمَ",
+        "turkce": "ve selam etti",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لِيَكُونَ",
+        "turkce": "olması için",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَوَّلَ",
+        "turkce": "ilk",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُؤَذِّنٍ",
+        "turkce": "müezzin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فِي",
+        "turkce": "içinde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْإِسْلَامِ.",
+        "turkce": "İslam.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "صَعِدَ",
+        "turkce": "çıktı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بِلَالٌ",
+        "turkce": "Bilal",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَوْقَ",
+        "turkce": "üzerine",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْكَعْبَةِ",
+        "turkce": "Kabe'nin",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَرَفَعَ",
+        "turkce": "ve yükseltti/okudu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَذَانَ",
+        "turkce": "ezanı",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَمَامَ",
+        "turkce": "önünde",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "النَّاسِ",
+        "turkce": "insanların",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "جَمِيعًا.",
+        "turkce": "hepsinin.",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "هَذِهِ",
+        "turkce": "bu",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْقِصَّةُ",
+        "turkce": "hikaye",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "تُعَلِّمُنَا",
+        "turkce": "bize öğretiyor",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "أَنَّ",
+        "turkce": "ki",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْإِسْلَامَ",
+        "turkce": "İslam",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "لَا",
+        "turkce": "hayır (yapmaz)",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "يُفَرِّقُ",
+        "turkce": "ayırmaz",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "بَيْنَ",
+        "turkce": "arasını",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "الْأَبْيَضِ",
+        "turkce": "beyaz",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "وَالْأَسْوَدِ،",
+        "turkce": "ve siyah,",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "فَالْجَمِيعُ",
+        "turkce": "böylece hepsi",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "مُتَسَاوُونَ",
+        "turkce": "eşittirler",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "عِنْدَ",
+        "turkce": "katında",
+        "tip": "kelime"
+      },
+      {
+        "arapca": "اللهِ.",
+        "turkce": "Allah'ın.",
+        "tip": "kelime"
+      }
+    ]
+  }
+}

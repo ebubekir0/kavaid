@@ -1,0 +1,28 @@
+{
+    "ders_bilgisi": {
+        "ders_no": 23,
+        "ders_adi": "Habeşistan Hicreti",
+        "kelimeler": [
+            {
+                "arapca": "يُهَاجِرُوا إِلَى الْحَبَشَةِ",
+                "turkce": "Habeşistan'a hicret ettiler",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "أَرْسَلُوا وَفْدًا إِلَى النَّجَاشِيِّ",
+                "turkce": "Necaşi'ye bir heyet gönderdiler",
+                "tip": "cümle"
+            },
+            {
+                "arapca": "مَلِكِ الْحَبَشَةِ",
+                "turkce": "Habeşistan kralı",
+                "tip": "isim"
+            },
+            {
+                "arapca": "فَرَفَضَ النَّجَاشِيُّ طَلَبَهُمْ",
+                "turkce": "Necaşi onların talebini reddetti",
+                "tip": "cümle"
+            }
+        ]
+    }
+}

@@ -11,7 +11,6 @@ class InteractiveBookScreen extends StatefulWidget {
   final String bookTitle;
   final String arabicTitle;
   final String thumbnail;
-  final bool isDarkMode;
 
   const InteractiveBookScreen({
     super.key,
@@ -19,7 +18,6 @@ class InteractiveBookScreen extends StatefulWidget {
     required this.bookTitle,
     required this.arabicTitle,
     required this.thumbnail,
-    required this.isDarkMode,
   });
 
   @override
@@ -54,7 +52,9 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this); // Lifecycle takibi başlat
-    _ttsService.setBookId(widget.bookId);
+    _ttsService.initialize().then((_) {
+      _ttsService.setBookId(widget.bookId);
+    });
     _loadAllContent();
   }
 
@@ -133,18 +133,11 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
     });
 
     if (_isAutoPlaying) {
-       // Auto play sırasında tıklanırsa -> Auto play'i DURDUR.
-       // Bu sayede kullanıcı manuel kontrole geçer.
-       _toggleAutoPlay(); // Durdurur ama ses bir kelime bitene kadar çalabilir, bunu speak() ile keseceğiz.
+       _toggleAutoPlay();
     } 
 
-    // Her durumda (auto play durmuş olsa bile) o kelimeyi oku
     if (_autoReadOnTap) { 
-        // DİKKAT: Ses dosyaları HAREKELİ halleriyle MD5 hashlenmiş durumda.
-        // Bu yüzden _showDiacritics kapalı olsa bile sese giden kelime HAREKELİ OLMALI.
         String ttsWord = item['arapca']; 
-        
-        // Ses seviyesini garantiye al - Çalmadan önce set et
         await _ttsService.setVolume(_currentVolume);
         await _ttsService.speak(ttsWord); 
     }
@@ -159,14 +152,12 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
 
      setState(() => _isAutoPlaying = true);
 
-     // Kalınan yerden devam
      int currentIndex = _selectedIndex;
      if (currentIndex >= _allWords.length - 1) {
        currentIndex = 0;
      }
 
      while (_isAutoPlaying && currentIndex < _allWords.length) {
-        // Newline atla
         if (_allWords[currentIndex]['type'] == 'newline') {
            currentIndex++;
            continue;
@@ -175,21 +166,16 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
         if (mounted) {
           setState(() => _selectedIndex = currentIndex);
         }
-        _scrollToCenter(currentIndex);
 
         final item = _allWords[currentIndex];
-        // DİKKAT: Ses dosyaları HAREKELİ halleriyle MD5 hashlenmiş durumda.
         String ttsWord = item['arapca']; 
         
-        // speakAndWait KULLANIYORUZ - Kelime bitmeden geçmemesi için
         if (ttsWord.trim().isNotEmpty) {
-           // Her kelimede sesi tekrar set et (Player resetlenebilir)
            await _ttsService.setVolume(_currentVolume);
            await _ttsService.speakAndWait(ttsWord);
         }
         
         if (!_isAutoPlaying) break;
-
         currentIndex++;
      }
      
@@ -207,108 +193,22 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
 
     if (newIndex >= 0 && newIndex < _allWords.length) {
       _onWordTap(newIndex);
-      _scrollToCenter(newIndex);
     }
   }
 
-  void _scrollToCenter(int index) {
-      // Pas geçildi
-  }
-
-  // Ses Ayarı Dialogu
-  void _showVolumeDialog() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            Color bgColor = widget.isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-            Color textColor = widget.isDarkMode ? Colors.white : Colors.black87;
-            Color primaryColor = widget.isDarkMode ? Colors.blueAccent : const Color(0xFF007AFF);
-
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              decoration: BoxDecoration(
-                color: bgColor,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                   Row(
-                     children:[
-                        Icon(Icons.volume_up_rounded, color: primaryColor),
-                        const SizedBox(width: 12),
-                        Text(
-                          "Okuma Sesi",
-                          style: GoogleFonts.outfit(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                     ]
-                   ),
-                   const SizedBox(height: 24),
-                   Row(
-                     children: [
-                       Icon(Icons.volume_mute_rounded, size: 20, color: textColor.withOpacity(0.5)),
-                       Expanded(
-                         child: SliderTheme(
-                            data: SliderThemeData(
-                              trackHeight: 6,
-                              activeTrackColor: primaryColor,
-                              inactiveTrackColor: primaryColor.withOpacity(0.15),
-                              thumbColor: primaryColor,
-                              overlayColor: primaryColor.withOpacity(0.2),
-                            ),
-                            child: Slider(
-                              value: _currentVolume,
-                              min: 0.0,
-                              max: 1.0,
-                              onChanged: (val) {
-                                setModalState(() => _currentVolume = val);
-                                setState(() => _currentVolume = val); // Ana ekranı da güncelle
-                                _ttsService.setVolume(val);
-                              },
-                            ),
-                         ),
-                       ),
-                       Icon(Icons.volume_up_rounded, size: 20, color: textColor.withOpacity(0.5)),
-                     ],
-                   ),
-                   const SizedBox(height: 10),
-                   Text(
-                     "%${(_currentVolume * 100).toInt()}",
-                     style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                     ),
-                   ),
-                   const SizedBox(height: 10),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   void _showSettings() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     showModalBottomSheet(
       context: context,
-      backgroundColor: widget.isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      backgroundColor: isDark ? const Color(0xFF1E1E1E) : Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            Color textColor = widget.isDarkMode ? Colors.white : Colors.black87;
-            Color primaryBlue = widget.isDarkMode ? const Color(0xFF64B5F6) : const Color(0xFF1976D2);
+            Color textColor = isDark ? Colors.white : Colors.black87;
+            Color primaryBlue = isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2);
             
             return Container(
               padding: const EdgeInsets.all(24),
@@ -354,7 +254,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                        Text("Harekeleri Göster", style: TextStyle(fontSize: 16, color: textColor)),
                        Switch(
                          value: _showDiacritics,
-                         activeColor: widget.isDarkMode ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
+                         activeColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
                          onChanged: (val) {
                            setState(() => _showDiacritics = val);
                            setModalState(() {});
@@ -369,7 +269,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                        Text("Dokununca Oku", style: TextStyle(fontSize: 16, color: textColor)),
                        Switch(
                          value: _autoReadOnTap,
-                         activeColor: widget.isDarkMode ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
+                         activeColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
                          onChanged: (val) {
                            setState(() => _autoReadOnTap = val);
                            setModalState(() {});
@@ -403,12 +303,13 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = widget.isDarkMode 
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDarkMode 
         ? const Color(0xFF121212) 
         : const Color(0xFFF8F0DA);
-    final primaryBlue = widget.isDarkMode ? const Color(0xFF64B5F6) : const Color(0xFF1976D2);
-    final textColor = widget.isDarkMode ? const Color(0xFFE0E0E0) : const Color(0xFF212121);
-    final barBgColor = widget.isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
+    final primaryBlue = isDarkMode ? const Color(0xFF64B5F6) : const Color(0xFF1976D2);
+    final textColor = isDarkMode ? const Color(0xFFE0E0E0) : const Color(0xFF212121);
+    final barBgColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
 
     final double bottomBarHeight = 90.0 + MediaQuery.of(context).padding.bottom;
 
@@ -426,7 +327,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
           top: true,
           child: Stack(
             children: [
-              // 1. İçerik Katmanı
               Positioned.fill(
                 child: _isLoading
                     ? Center(
@@ -482,7 +382,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                         padding: EdgeInsets.fromLTRB(16, 8, 16, bottomBarHeight + 16),
                         child: Column(
                           children: [
-                            // Üst Başlık ve Geri Butonu
                             Row(
                               children: [
                                 GestureDetector(
@@ -514,7 +413,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                               ],
                             ),
                             const SizedBox(height: 10),
-                            // Kitap Kapağı
                             Container(
                               width: double.infinity,
                               margin: const EdgeInsets.only(bottom: 12),
@@ -543,7 +441,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                     : const SizedBox.shrink(),
                               ),
                             ),
-                            // Metin Alanı
                             Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -559,8 +456,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                         ),
                       ),
               ),
-
-              // 2. Alt Bar (Kontroller)
               Positioned(
                 left: 0,
                 right: 0,
@@ -578,11 +473,10 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       _buildNavBtn(Icons.arrow_back_rounded, () => _navigateWord(1), textColor),
-                      // Orta Kontrol Grubu
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                         decoration: BoxDecoration(
-                          color: widget.isDarkMode ? Colors.white10 : Colors.grey[200],
+                          color: isDarkMode ? Colors.white10 : Colors.grey[200],
                           borderRadius: BorderRadius.circular(30),
                           border: Border.all(color: Colors.grey.withOpacity(0.2)),
                         ),

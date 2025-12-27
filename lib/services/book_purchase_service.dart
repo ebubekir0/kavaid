@@ -34,6 +34,7 @@ class BookPurchaseService extends ChangeNotifier {
     'kitab_kiraah_1': 'kavaid_kitab_kiraah_1',  // 1. kitap
     'kitab_kiraah_2': 'kavaid_book_kiraat_2',   // 2. kitap 
     'kitab_kiraah_3': 'kavaid_book_kiraat_3',   // 3. kitap
+    'taysir_sira': 'kavaid_taysir_sira',        // Sira kitabı
   };
 
   bool get isAvailable => _isAvailable;

@@ -13,6 +13,9 @@ import '../widgets/search_result_card.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
 import '../services/community_chat_service.dart';
+import '../services/purchase_manager.dart';
+import 'dart:math' as math;
+import 'subscription_screen.dart';
 
 /// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
 /// BookTextsScreen ile aynı UI yapısına sahip
@@ -50,12 +53,24 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         _loadData();
       }
     });
+    _checkPremiumStatus();
   }
   
   @override
   void dispose() {
     _wordsChangedSubscription?.cancel();
     super.dispose();
+  }
+
+  bool _isPremium = false;
+
+  Future<void> _checkPremiumStatus() async {
+    final isPremium = PurchaseManager().isPremium;
+    if (mounted) {
+      setState(() {
+        _isPremium = isPremium;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -100,6 +115,103 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
   }
 
   Future<void> _showAddListDialog() async {
+    // PREMİUM KONTROLU: Ücretsiz kullanıcılar max 3 liste oluşturabilir
+    if (!_isPremium && _lists.length >= 3) {
+      // Premium'a yönlendir
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0D47A1).withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: Color(0xFF0D47A1),
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Liste Limiti Aşıldı',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: widget.isDarkMode ? Colors.white : Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Daha fazla liste oluşturmak için\nPremium\'a yükselt',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: widget.isDarkMode ? Colors.white70 : const Color(0xFF666666),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: Text(
+                      'Kapat',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: widget.isDarkMode ? Colors.white60 : Colors.black54,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+                      ).then((_) => _checkPremiumStatus());
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0D47A1),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Premium Al',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
     final controller = TextEditingController();
 
     await showDialog(
@@ -692,12 +804,24 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   int _currentCardIndex = 0;
   late PageController _pageController;
   bool _showMeaning = false;
+  bool _isPremium = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
     _loadWords();
+    _checkPremiumStatus();
+  }
+
+  Future<void> _checkPremiumStatus() async {
+    // Getter senkron olduğu için await gerekmez ama metod async kalsın (ileride gerekebilir)
+    final isPremium = PurchaseManager().isPremium;
+    if (mounted) {
+      setState(() {
+        _isPremium = isPremium;
+      });
+    }
   }
 
   @override
@@ -984,26 +1108,168 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: NotificationListener<ScrollNotification>(
-              onNotification: (notification) {
-                if (notification is ScrollStartNotification && _showMeaning) {
-                  setState(() {
-                    _showMeaning = false;
-                  });
-                }
-                return false;
-              },
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _words.length,
-                physics: const BouncingScrollPhysics(),
-                onPageChanged: (index) {
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  if (notification is ScrollStartNotification && _showMeaning) {
+                    setState(() {
+                      _showMeaning = false;
+                    });
+                  }
+                  return false;
+                },
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: _isPremium ? _words.length : (_words.length > 30 ? 31 : _words.length),
+                  physics: const BouncingScrollPhysics(),
+                  onPageChanged: (index) {
                   setState(() {
                     _currentCardIndex = index;
                     _showMeaning = false;
                   });
                 },
                 itemBuilder: (context, index) {
+                  // PREMIUM KISITLAMASI: 30. karttan sonra (index 30) kilitle
+                  if (!_isPremium && index == 30) {
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+                        ).then((_) => _checkPremiumStatus());
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Color(0xFF0A2E5C), // Çok koyu mavi
+                              Color(0xFF0D47A1), // Koyu mavi
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0D47A1).withOpacity(0.4),
+                              blurRadius: 25,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: Stack(
+                          children: [
+                            // Dekoratif parıltı efekti - üst
+                            Positioned(
+                              top: -50,
+                              right: -50,
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.05),
+                                ),
+                              ),
+                            ),
+                            // Dekoratif parıltı efekti - alt
+                            Positioned(
+                              bottom: -30,
+                              left: -30,
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withOpacity(0.03),
+                                ),
+                              ),
+                            ),
+                            // Ana içerik
+                            Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // Premium ikon
+                                  Container(
+                                    padding: const EdgeInsets.all(18),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.15),
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white.withOpacity(0.2),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: const Icon(
+                                      Icons.workspace_premium_rounded,
+                                      size: 44,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  // Başlık kaldırıldı
+                                  // Açıklama
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                                    child: Text(
+                                      'Daha fazla kelime kartı için Premium\'a yükselt',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 20, // Font boyutu büyütüldü
+                                        fontWeight: FontWeight.bold, // Kalın yapıldı
+                                        color: Colors.white.withOpacity(0.95),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 32),
+                                  // Buton
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+                                        ).then((_) => _checkPremiumStatus());
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.white,
+                                        foregroundColor: const Color(0xFF0D47A1),
+                                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(16),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text(
+                                        'Premium\'a Yükselt',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
                   final word = _words[index];
                   // CustomWord'den tam WordModel oluştur
                   final wordModel = word.toWordModel();
@@ -1288,8 +1554,8 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                         child: Slider(
                           value: _currentCardIndex.toDouble(),
                           min: 0,
-                          max: (_words.length - 1).toDouble(),
-                          divisions: _words.length > 1 ? _words.length - 1 : null,
+                          max: (_isPremium ? _words.length : (_words.length > 30 ? 31 : _words.length)) - 1.toDouble(),
+                          divisions: null, // Yüksek sayıda kart için null
                           onChanged: (value) {
                             final pageIndex = value.round();
                             setState(() {
@@ -1305,7 +1571,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20),
-                        onTap: safeIndex < _words.length - 1
+                        onTap: safeIndex < (_isPremium ? _words.length : (_words.length > 30 ? 31 : _words.length)) - 1
                             ? () {
                                 _pageController.animateToPage(
                                   _currentCardIndex + 1,
@@ -1319,7 +1585,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                           child: Icon(
                             Icons.chevron_right_rounded,
                             size: 28,
-                            color: safeIndex < _words.length - 1
+                            color: safeIndex < (_isPremium ? _words.length : (_words.length > 30 ? 31 : _words.length)) - 1
                                 ? (isDarkMode ? Colors.white : const Color(0xFF1C1C1E))
                                 : subTextColor,
                           ),

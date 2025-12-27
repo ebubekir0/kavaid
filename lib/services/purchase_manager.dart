@@ -300,9 +300,9 @@ class PurchaseManager extends ChangeNotifier {
           _purchasedBooks.add(b.toString());
         }
         
-        // 2. Premium / Reklamsız (Her iki versiyonu da kontrol et)
+        // 2. Premium / Reklamsız (Tüm versiyonları kontrol et - OneTimePurchaseService 'lifetimeAdsFree' kullanıyor)
         _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
-        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? _isLifetimeNoAds;
+        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
       }
 
       // 2. Purchases Sub-collection (PurchaseManager'ın yeni stili)
@@ -316,7 +316,7 @@ class PurchaseManager extends ChangeNotifier {
       if (purchaseDoc.exists) {
         final data = purchaseDoc.data() as Map<String, dynamic>;
         
-        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? _isLifetimeNoAds;
+        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
         _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
         
         final books = (data['purchased_books'] as List<dynamic>?) ?? 

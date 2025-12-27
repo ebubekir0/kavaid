@@ -761,285 +761,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
     );
   }
 
-  void _showEmailAuthDialog(bool isDarkMode, {bool initialIsLogin = true}) {
-    final formKey = GlobalKey<FormState>();
-    final emailController = TextEditingController();
-    final passController = TextEditingController();
-    final confirmPassController = TextEditingController();
-    final emailFocus = FocusNode();
-    final passFocus = FocusNode();
-    final confirmFocus = FocusNode();
-    bool isLogin = initialIsLogin;
-    bool isLoading = false;
-    String? errorText;
-    String? successText;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        final viewInsets = MediaQuery.of(ctx).viewInsets;
-        final keyboardHeight = viewInsets.bottom;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: keyboardHeight + 16,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setSheetState) {
-              return SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isLogin ? 'Giriş Yap' : 'Kayıt Ol',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () => setSheetState(() => isLogin = !isLogin),
-                            child: Text(isLogin ? 'Kayıt Ol' : 'Giriş Yap'),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      if (isLogin) ...[
-                        Text(
-                          'Hesabınız yoksa önce kayıt olun',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (!isLogin) const SizedBox(height: 8),
-                      // Başarı/Bilgi mesajı alanı
-                      if (errorText == null && !isLogin)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            'Kayıt tamamlandıktan sonra giriş yapmanız gerekir.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDarkMode ? Colors.white70 : Colors.black54,
-                            ),
-                          ),
-                        ),
-                      if (successText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            successText!,
-                            style: const TextStyle(color: Colors.green, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (errorText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            errorText!,
-                            style: const TextStyle(color: Colors.red, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-
-                      TextFormField(
-                        controller: emailController,
-                        focusNode: emailFocus,
-                        decoration: const InputDecoration(labelText: 'E-posta'),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) => (v == null || !v.contains('@')) ? 'Geçersiz e-posta adresi' : null,
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: passController,
-                        focusNode: passFocus,
-                        decoration: const InputDecoration(labelText: 'Şifre'),
-                        obscureText: true,
-                        validator: (v) => (v == null || v.isEmpty) ? 'Şifre gerekli' : null,
-                      ),
-                      const SizedBox(height: 8),
-                      if (!isLogin)
-                        TextFormField(
-                          controller: confirmPassController,
-                          focusNode: confirmFocus,
-                          decoration: const InputDecoration(labelText: 'Şifre Tekrar'),
-                          obscureText: true,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Şifre tekrarı gerekli';
-                            if (v != passController.text) return 'Şifreler eşleşmiyor';
-                            return null;
-                          },
-                        ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : () async {
-                            if (!(formKey.currentState?.validate() ?? false)) return;
-                            try {
-                              setSheetState(() {
-                                errorText = null;
-                                successText = null;
-                                isLoading = true;
-                              });
-                              if (isLogin) {
-                                final user = await _authService.signInWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  // Kullanıcı bilgilerini güncelle
-                                  if (mounted) {
-                                    setState(() {
-                                      _currentUserId = user.uid;
-                                      _hasPhoneNumber = user.phoneNumber != null;
-                                    });
-                                    
-                                    // Firestore'dan kullanıcı adını al
-                                    FirebaseFirestore.instance
-                                        .collection('users')
-                                        .doc(user.uid)
-                                        .get()
-                                        .then((doc) {
-                                      if (doc.exists && mounted) {
-                                        final data = doc.data();
-                                        final username = data?['username'] as String?;
-                                        setState(() {
-                                          _username = username;
-                                        });
-                                        
-                                        // Otomatik dialog açma - kullanıcı kendi seçecek
-                                        // Artık otomatik açılmıyor, sadece UI'da buton görünüyor
-                                      }
-                                    });
-                                  }
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                                  Navigator.pop(context);
-                                }
-                              } else {
-                                final user = await _authService.signUpWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  // Otomatik giriş moduna geç ve alanları temizle
-                                  setSheetState(() {
-                                    successText = 'Kayıt tamamlandı. Lütfen giriş yapın.';
-                                    isLogin = true;
-                                    emailController.clear();
-                                    passController.clear();
-                                    confirmPassController.clear();
-                                  });
-                                  // Klavye açık kalsın ve e-posta alanına odaklanılsın
-                                  Future.delayed(const Duration(milliseconds: 50), () {
-                                    emailFocus.requestFocus();
-                                  });
-                                }
-                              }
-                            } catch (e) {
-                              String message = 'İşlem başarısız. Lütfen tekrar deneyin.';
-                              if (e is FirebaseAuthException) {
-                                switch (e.code) {
-                                  case 'invalid-email':
-                                    message = 'Geçerli bir e‑posta adresi giriniz.'; break;
-                                  case 'invalid-credential':
-                                    message = 'E‑posta veya şifre hatalı. Lütfen kontrol ediniz.'; break;
-                                  case 'user-not-found':
-                                    message = 'Bu e‑posta ile kayıt bulunamadı.'; break;
-                                  case 'wrong-password':
-                                    message = 'Şifre hatalı.'; break;
-                                  case 'email-already-in-use':
-                                    message = 'Bu e‑posta zaten kayıtlı.'; break;
-                                  case 'weak-password':
-                                    message = 'Şifre çok zayıf. Daha güçlü bir şifre seçin.'; break;
-                                  case 'operation-not-allowed':
-                                    message = 'Bu giriş yöntemi proje için etkin değil.'; break;
-                                  case 'network-request-failed':
-                                    message = 'Ağ hatası. İnternet bağlantınızı kontrol edin.'; break;
-                                  case 'too-many-requests':
-                                    message = 'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.'; break;
-                                  default:
-                                    message = 'Hata: ${e.message ?? e.code}';
-                                }
-                              } else {
-                                message = e.toString();
-                              }
-                              setSheetState(() { errorText = message; });
-                            }
-                            finally {
-                              setSheetState(() { isLoading = false; });
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF007AFF),
-                            foregroundColor: Colors.white,
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : Text(isLogin ? 'Giriş Yap' : 'Kayıt Ol'),
-                        ),
-                      ),
-                      // Klavyeyi ve sheet'i düzgün kapat
-                      Align(
-                        alignment: Alignment.center,
-                        child: TextButton(
-                          onPressed: () {
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            SystemChannels.textInput.invokeMethod('TextInput.hide');
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Kapat'),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
 
 
   String _formatTime(DateTime timestamp) {
@@ -1421,7 +1143,16 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                         // İnternet bağlantısı kontrolü - GİRİŞ AŞAMASI
                         final hasInternet = await _checkInternetConnection();
                         if (hasInternet) {
-                          _showEmailAuthSheet(isDarkMode, initialIsLogin: true);
+                          EmailAuthSheet.show(
+                            context, 
+                            initialIsLogin: true,
+                            onSuccess: () {
+                              setState(() {
+                                _currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                              });
+                              _checkUserProfile();
+                            },
+                          );
                         }
                       },
                       child: const Text('Giriş Yap'),
@@ -1443,7 +1174,16 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                         // İnternet bağlantısı kontrolü - KAYIT AŞAMASI
                         final hasInternet = await _checkInternetConnection();
                         if (hasInternet) {
-                          _showEmailAuthSheet(isDarkMode, initialIsLogin: false);
+                          EmailAuthSheet.show(
+                            context, 
+                            initialIsLogin: false,
+                            onSuccess: () {
+                              setState(() {
+                                _currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                              });
+                              _checkUserProfile();
+                            },
+                          );
                         }
                       },
                       child: const Text('Kayıt Ol'),
@@ -3456,7 +3196,16 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: () => _showEmailAuthSheet(isDarkMode, initialIsLogin: true),
+              onPressed: () => EmailAuthSheet.show(
+                context, 
+                initialIsLogin: true,
+                onSuccess: () {
+                  setState(() {
+                    _currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                  });
+                  _checkUserProfile();
+                },
+              ),
               child: const Text('Giriş Yap'),
             ),
           ),
@@ -3472,7 +3221,16 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: () => _showEmailAuthSheet(isDarkMode, initialIsLogin: false),
+              onPressed: () => EmailAuthSheet.show(
+                context, 
+                initialIsLogin: false,
+                onSuccess: () {
+                  setState(() {
+                    _currentUserId = FirebaseAuth.instance.currentUser?.uid;
+                  });
+                  _checkUserProfile();
+                },
+              ),
               child: const Text('Kayıt Ol'),
             ),
           ),
@@ -3482,263 +3240,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
   }
   
   // Email auth sheet göster
-  void _showEmailAuthSheet(bool isDarkMode, {bool initialIsLogin = true}) {
-    final formKey = GlobalKey<FormState>();
-    final emailController = TextEditingController();
-    final passController = TextEditingController();
-    final confirmPassController = TextEditingController();
-    final emailFocus = FocusNode();
-    final passFocus = FocusNode();
-    final confirmFocus = FocusNode();
-    bool isLogin = initialIsLogin;
-    bool isLoading = false;
-    String? errorText;
-    String? successText;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        final viewInsets = MediaQuery.of(ctx).viewInsets;
-        final keyboardHeight = viewInsets.bottom;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: keyboardHeight + 16,
-          ),
-          child: StatefulBuilder(
-            builder: (context, setSheetState) {
-              return SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            isLogin ? 'Giriş Yap' : 'Kayıt Ol',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          const Spacer(),
-                          TextButton(
-                            onPressed: () => setSheetState(() => isLogin = !isLogin),
-                            child: Text(isLogin ? 'Kayıt Ol' : 'Giriş Yap'),
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      if (isLogin) ...[
-                        Text(
-                          'Hesabınız yoksa önce kayıt olun',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (!isLogin) const SizedBox(height: 8),
-                      // Başarı/Bilgi mesajı alanı
-                      if (errorText == null && !isLogin)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Text(
-                            'Kayıt tamamlandıktan sonra giriş yapmanız gerekir.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isDarkMode ? Colors.white70 : Colors.black54,
-                            ),
-                          ),
-                        ),
-                      if (successText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            successText!,
-                            style: const TextStyle(color: Colors.green, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      if (errorText != null) ...[
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.red.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            errorText!,
-                            style: const TextStyle(color: Colors.red, fontSize: 12),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-
-                      TextFormField(
-                        controller: emailController,
-                        focusNode: emailFocus,
-                        decoration: const InputDecoration(labelText: 'E-posta'),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (v) => (v == null || !v.contains('@')) ? 'Geçersiz e-posta adresi' : null,
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: passController,
-                        focusNode: passFocus,
-                        decoration: const InputDecoration(labelText: 'Şifre'),
-                        obscureText: true,
-                        validator: (v) => (v == null || v.isEmpty) ? 'Şifre gerekli' : null,
-                      ),
-                      const SizedBox(height: 8),
-                      if (!isLogin)
-                        TextFormField(
-                          controller: confirmPassController,
-                          focusNode: confirmFocus,
-                          decoration: const InputDecoration(labelText: 'Şifre Tekrar'),
-                          obscureText: true,
-                          validator: (v) {
-                            if (v == null || v.isEmpty) return 'Şifre tekrarı gerekli';
-                            if (v != passController.text) return 'Şifreler eşleşmiyor';
-                            return null;
-                          },
-                        ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : () async {
-                            if (!(formKey.currentState?.validate() ?? false)) return;
-                            try {
-                              setSheetState(() {
-                                errorText = null;
-                                successText = null;
-                                isLoading = true;
-                              });
-                              if (isLogin) {
-                                final user = await _authService.signInWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  setState(() {
-                                    _currentUserId = user.uid;
-                                  });
-                                  Navigator.pop(context);
-                                  _checkUserProfile();
-                                }
-                              } else {
-                                final user = await _authService.signUpWithEmail(
-                                  email: emailController.text.trim(),
-                                  password: passController.text,
-                                );
-                                if (user != null) {
-                                  // Otomatik giriş moduna geç ve alanları temizle
-                                  setSheetState(() {
-                                    successText = 'Kayıt tamamlandı. Lütfen giriş yapın.';
-                                    isLogin = true;
-                                    emailController.clear();
-                                    passController.clear();
-                                    confirmPassController.clear();
-                                  });
-                                  // Klavye açık kalsın ve e-posta alanına odaklanılsın
-                                  Future.delayed(const Duration(milliseconds: 50), () {
-                                    emailFocus.requestFocus();
-                                  });
-                                }
-                              }
-                            } catch (e) {
-                              String message = 'İşlem başarısız. Lütfen tekrar deneyin.';
-                              if (e is FirebaseAuthException) {
-                                switch (e.code) {
-                                  case 'invalid-email':
-                                    message = 'Geçerli bir e‑posta adresi giriniz.';
-                                    break;
-                                  case 'invalid-credential':
-                                    message = 'E‑posta veya şifre hatalı. Lütfen kontrol ediniz.';
-                                    break;
-                                  case 'user-not-found':
-                                    message = 'Bu e‑posta ile kayıt bulunamadı.';
-                                    break;
-                                  case 'wrong-password':
-                                    message = 'Şifre hatalı.';
-                                    break;
-                                  case 'email-already-in-use':
-                                    message = 'Bu e‑posta adresi zaten kullanılıyor.';
-                                    break;
-                                  case 'weak-password':
-                                    message = 'Şifre çok zayıf. En az 6 karakter olmalı.';
-                                    break;
-                                  default:
-                                    message = 'Hata: ${e.message}';
-                                }
-                              }
-                              setSheetState(() {
-                                errorText = message;
-                                isLoading = false;
-                              });
-                            } finally {
-                              setSheetState(() => isLoading = false);
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF007AFF),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                  ),
-                                )
-                              : Text(
-                                  isLogin ? 'Giriş Yap' : 'Kayıt Ol',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
   
   // Kullanıcı adı seçme ekranı
   Widget _buildUsernameSelection(bool isDarkMode, double bottomPadding, double navBarHeight) {

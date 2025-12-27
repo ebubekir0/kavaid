@@ -1,469 +1,56 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/billing_client_wrappers.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
-import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
-import 'credits_service.dart';
-import 'turkce_analytics_service.dart';
+import 'purchase_manager.dart';
 
+/// SubscriptionService artık kullanılmıyor.
+/// Tüm abonelik işlemleri PurchaseManager üzerinden yapılır.
+/// Bu dosya geriye dönük uyumluluk için korunmaktadır.
 class SubscriptionService extends ChangeNotifier {
-  // Not: Kıraat 1 ürünü abonelikten çıkarıldı. Abonelik ID'si artık kitap ürününü
-  // işaret etmiyor. Eğer aktif bir abonelik ürünü kullanacaksanız, Play Console'daki
-  // gerçek abonelik ürün ID'sini buraya girin.
-  static const String _monthlySubscriptionId = 'kavaid_monthly_premium';
-  
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  final CreditsService _creditsService = CreditsService();
-  
-  StreamSubscription<List<PurchaseDetails>>? _subscription;
-  List<ProductDetails> _products = [];
-  List<PurchaseDetails> _purchases = [];
-  bool _isAvailable = false;
-  bool _purchasePending = false;
-  String _queryProductError = '';
-  String _lastError = '';
-  
   // Singleton
   static final SubscriptionService _instance = SubscriptionService._internal();
   factory SubscriptionService() => _instance;
   SubscriptionService._internal();
   
-  // Getter'lar
-  bool get isAvailable => _isAvailable;
-  bool get purchasePending => _purchasePending;
-  List<ProductDetails> get products => _products;
-  String get monthlyPrice => _getMonthlyPrice();
-  String get lastError => _lastError;
-  bool get hasError => _lastError.isNotEmpty;
+  final PurchaseManager _purchaseManager = PurchaseManager();
+  
+  // ========== GETTER'LAR ==========
+  
+  bool get isAvailable => true;
+  bool get purchasePending => false;
+  List<dynamic> get products => [];
+  String get lastError => '';
+  bool get hasError => false;
+  
+  /// Aylık fiyat - PurchaseManager'dan alınır
+  String get monthlyPrice => _purchaseManager.getPrice('monthly').isEmpty 
+      ? '₺79,99' 
+      : _purchaseManager.getPrice('monthly');
+  
+  // ========== METODLAR (PurchaseManager'a yönlendirir) ==========
   
   Future<void> initialize() async {
-    debugPrint('🛒 [SUBSCRIPTION] Abonelik servisi başlatılıyor...');
-    
-    try {
-      // Store bağlantısını kontrol et
-      _isAvailable = await _inAppPurchase.isAvailable();
-      debugPrint('✅ [SUBSCRIPTION] Store kullanılabilir: $_isAvailable');
-      
-      if (!_isAvailable) {
-        _lastError = 'In-App Purchase bu cihazda kullanılamıyor';
-        debugPrint('❌ [SUBSCRIPTION] $_lastError');
-        notifyListeners();
-        return;
-      }
-      
-      // iOS için pending transaction'ları tamamla
-      if (Platform.isIOS) {
-        final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
-            _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-        await iosPlatformAddition.setDelegate(KavaidPaymentQueueDelegate());
-        debugPrint('✅ [SUBSCRIPTION] iOS Payment Queue Delegate ayarlandı');
-      }
-      
-      // Satın alma stream'ini dinle
-      final Stream<List<PurchaseDetails>> purchaseUpdated = _inAppPurchase.purchaseStream;
-      _subscription = purchaseUpdated.listen(
-        _listenToPurchaseUpdated,
-        onDone: () {
-          debugPrint('🔚 [SUBSCRIPTION] Purchase stream kapandı');
-          _subscription?.cancel();
-        }, 
-        onError: (error) {
-          debugPrint('❌ [SUBSCRIPTION] Purchase stream hatası: $error');
-          _lastError = 'Satın alma dinleme hatası: $error';
-          notifyListeners();
-        }
-      );
-      
-      // Ürünleri yükle
-      await loadProducts();
-      
-      // Mevcut abonelikleri kontrol et
-      await restorePurchases();
-      
-      debugPrint('✅ [SUBSCRIPTION] Servis başarıyla başlatıldı');
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Başlatma hatası: $e');
-      _lastError = 'Abonelik servisi başlatılamadı: $e';
-      notifyListeners();
-    }
+    debugPrint('⚠️ [SubscriptionService] initialize() - Artık PurchaseManager kullanılıyor');
+    // PurchaseManager zaten main.dart'ta initialize ediliyor
   }
   
-  // Ürünleri yükle
   Future<void> loadProducts() async {
-    debugPrint('📦 [SUBSCRIPTION] Ürünler yükleniyor...');
-    
-    try {
-      // Gerçek ürün ID'sini kullan
-      Set<String> kIds = <String>{_monthlySubscriptionId};
-      final ProductDetailsResponse productDetailResponse = await _inAppPurchase.queryProductDetails(kIds);
-      
-      if (productDetailResponse.error != null) {
-        _queryProductError = productDetailResponse.error!.message;
-        _lastError = 'Ürün yükleme hatası: $_queryProductError';
-        debugPrint('❌ [SUBSCRIPTION] $_lastError');
-        debugPrint('❌ [SUBSCRIPTION] Error Code: ${productDetailResponse.error!.code}');
-        _products = [];
-        notifyListeners();
-        return;
-      }
-      
-      if (productDetailResponse.productDetails.isEmpty) {
-        _queryProductError = 'Ürün bulunamadı';
-        _lastError = 'Abonelik ürünü store\'da bulunamadı. Lütfen daha sonra tekrar deneyin.';
-        debugPrint('❌ [SUBSCRIPTION] Ürün bulunamadı! Product ID: $_monthlySubscriptionId');
-        debugPrint('❌ [SUBSCRIPTION] Store\'da ürün tanımlı mı kontrol edin');
-        _products = [];
-        notifyListeners();
-        return;
-      }
-      
-      _products = productDetailResponse.productDetails;
-      _lastError = ''; // Başarılı yükleme, hata temizle
-      debugPrint('✅ [SUBSCRIPTION] ${_products.length} ürün başarıyla yüklendi');
-      
-      for (var product in _products) {
-        debugPrint('📦 [SUBSCRIPTION] Ürün: ${product.id}');
-        debugPrint('📦 [SUBSCRIPTION] Fiyat: ${product.price}');
-        debugPrint('📦 [SUBSCRIPTION] Açıklama: ${product.description}');
-      }
-      
-      notifyListeners();
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Ürün yükleme exception: $e');
-      _lastError = 'Ürünler yüklenirken hata oluştu: $e';
-      notifyListeners();
-    }
+    await _purchaseManager.fetchProducts();
   }
   
-  // Satın alma işlemi
   Future<bool> buySubscription() async {
-    debugPrint('🛒 [SUBSCRIPTION] Satın alma işlemi başlatılıyor...');
-    debugPrint('🛒 [SUBSCRIPTION] Mevcut pending durumu: $_purchasePending');
-    
-    try {
-      // Hata temizle
-      _lastError = '';
-      
-      if (!_isAvailable) {
-        _lastError = 'Store kullanılamıyor';
-        debugPrint('❌ [SUBSCRIPTION] $_lastError');
-        notifyListeners();
-        return false;
-      }
-      
-      if (_products.isEmpty) {
-        debugPrint('❌ [SUBSCRIPTION] Ürün listesi boş, yeniden yükleniyor...');
-        await loadProducts();
-        if (_products.isEmpty) {
-          _lastError = 'Abonelik ürünü bulunamadı';
-          notifyListeners();
-          return false;
-        }
-      }
-      
-      if (_purchasePending) {
-        debugPrint('⏳ [SUBSCRIPTION] Bekleyen işlem var, temizleniyor...');
-        // Pending durumunu sıfırla ve 1 saniye bekle
-        _purchasePending = false;
-        notifyListeners();
-        await Future.delayed(const Duration(seconds: 1));
-      }
-      
-      final ProductDetails productDetails = _products[0];
-      debugPrint('🛒 [SUBSCRIPTION] Satın alma başlatılıyor: ${productDetails.id}');
-      debugPrint('🛒 [SUBSCRIPTION] Fiyat: ${productDetails.price}');
-      
-      final PurchaseParam purchaseParam = PurchaseParam(
-        productDetails: productDetails,
-        applicationUserName: null,
-      );
-      
-      _purchasePending = true;
-      notifyListeners();
-      
-      // Platform'a göre satın alma türü seç
-      bool success;
-      if (Platform.isIOS || productDetails.id.contains('subscription')) {
-        success = await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-      } else {
-        success = await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-      }
-      
-      if (success) {
-        debugPrint('✅ [SUBSCRIPTION] Satın alma komutu gönderildi');
-        // 10 saniye sonra pending durumunu temizle (kullanıcı iptal ederse)
-        Future.delayed(const Duration(seconds: 10), () {
-          if (_purchasePending) {
-            debugPrint('⏰ [SUBSCRIPTION] Timeout - pending durumu temizleniyor');
-            _purchasePending = false;
-            _lastError = '';
-            notifyListeners();
-          }
-        });
-        return true;
-      } else {
-        debugPrint('❌ [SUBSCRIPTION] Satın alma komutu gönderilemedi');
-        _purchasePending = false;
-        _lastError = 'Satın alma başlatılamadı';
-        notifyListeners();
-        return false;
-      }
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Satın alma exception: $e');
-      _purchasePending = false;
-      _lastError = 'Satın alma hatası: $e';
-      notifyListeners();
-      return false;
-    }
-  }
-  
-  // Satın alma güncellemelerini dinle
-  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
-    for (PurchaseDetails purchaseDetails in purchaseDetailsList) {
-      debugPrint('🔄 [SUBSCRIPTION] Satın alma durumu: ${purchaseDetails.status}');
-      debugPrint('🔄 [SUBSCRIPTION] Ürün ID: ${purchaseDetails.productID}');
-      
-      if (purchaseDetails.status == PurchaseStatus.pending) {
-        debugPrint('⏳ [SUBSCRIPTION] Satın alma bekleniyor...');
-        _purchasePending = true;
-        _lastError = '';
-        notifyListeners();
-        
-      } else if (purchaseDetails.status == PurchaseStatus.error) {
-        debugPrint('❌ [SUBSCRIPTION] Satın alma hatası: ${purchaseDetails.error}');
-        _purchasePending = false;
-        
-        // Kullanıcı dostu hata mesajları
-        if (purchaseDetails.error != null) {
-          switch (purchaseDetails.error!.code) {
-            case 'user_canceled':
-            case 'BillingResponse.USER_CANCELED':
-            case '1':  // iOS user canceled code
-              _lastError = 'Satın alma iptal edildi';
-              debugPrint('🔴 [SUBSCRIPTION] Kullanıcı iptal etti');
-              break;
-            case 'payment_invalid':
-              _lastError = 'Ödeme bilgileri geçersiz';
-              break;
-            case 'payment_not_allowed':
-              _lastError = 'Bu cihazda satın alma yapılamıyor';
-              break;
-            default:
-              _lastError = 'Satın alma başarısız: ${purchaseDetails.error!.message}';
-          }
-        } else {
-          _lastError = 'Bilinmeyen satın alma hatası';
-        }
-        notifyListeners();
-        
-      } else if (purchaseDetails.status == PurchaseStatus.purchased ||
-                 purchaseDetails.status == PurchaseStatus.restored) {
-        debugPrint('✅ [SUBSCRIPTION] Satın alma başarılı!');
-        _purchasePending = false;
-        
-        // Satın almayı doğrula
-        _verifyAndDeliverPurchase(purchaseDetails);
-      } else if (purchaseDetails.status == PurchaseStatus.canceled) {
-        debugPrint('🔴 [SUBSCRIPTION] Satın alma iptal edildi');
-        _purchasePending = false;
-        _lastError = 'Satın alma iptal edildi';
-        notifyListeners();
-      }
-      
-      // Satın alma işlemini tamamla
-      if (purchaseDetails.pendingCompletePurchase) {
-        _inAppPurchase.completePurchase(purchaseDetails).then((_) {
-          debugPrint('✅ [SUBSCRIPTION] Satın alma transaction\'ı tamamlandı');
-        }).catchError((error) {
-          debugPrint('❌ [SUBSCRIPTION] Transaction tamamlama hatası: $error');
-        });
-      }
-    }
-  }
-  
-  // Satın almayı doğrula ve teslim et
-  Future<void> _verifyAndDeliverPurchase(PurchaseDetails purchaseDetails) async {
-    debugPrint('🔍 [SUBSCRIPTION] Satın alma doğrulanıyor...');
-    
-    try {
-      // Gerçek uygulamada burada sunucu tarafında doğrulama yapılmalı
-      bool valid = await _verifyPurchase(purchaseDetails);
-      
-      if (valid) {
-        debugPrint('✅ [SUBSCRIPTION] Satın alma doğrulandı, ürün teslim ediliyor...');
-        await _deliverProduct(purchaseDetails);
-        _lastError = '';
-      } else {
-        debugPrint('❌ [SUBSCRIPTION] Satın alma doğrulanamadı!');
-        _lastError = 'Satın alma doğrulanamadı';
-        _handleInvalidPurchase(purchaseDetails);
-      }
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Doğrulama/teslimat hatası: $e');
-      _lastError = 'Abonelik aktifleştirilemedi: $e';
-    }
-    
-    _purchasePending = false;
-    notifyListeners();
-  }
-  
-  // Satın almayı doğrula
-  Future<bool> _verifyPurchase(PurchaseDetails purchaseDetails) async {
-    debugPrint('🔍 [SUBSCRIPTION] Receipt doğrulanıyor...');
-    
-    // Gerçek uygulamada burada:
-    // 1. Purchase token'ı sunucuya gönder
-    // 2. Google Play Billing API veya App Store API ile doğrula
-    // 3. Receipt'i kaydet
-    // 4. Abonelik durumunu takip et
-    
-    // Test için her zaman true dön
-    await Future.delayed(const Duration(milliseconds: 500)); // Gerçekçi gecikme
-    debugPrint('✅ [SUBSCRIPTION] Receipt doğrulandı (test modu)');
-    
+    debugPrint('⚠️ [SubscriptionService] buySubscription() -> PurchaseManager.buyPremiumMonthly()');
+    await _purchaseManager.buyPremiumMonthly();
     return true;
   }
   
-  // Ürünü teslim et
-  Future<void> _deliverProduct(PurchaseDetails purchaseDetails) async {
-    debugPrint('📦 [SUBSCRIPTION] Premium abonelik aktifleştiriliyor...');
-    
-    try {
-      // Premium'u aktifleştir (30 gün)
-      await _creditsService.activatePremiumMonthly();
-      
-      // Analytics event'lerini gönder
-      double price = 0.0;
-      if (_products.isNotEmpty) {
-        final priceString = _products[0].price.replaceAll(RegExp(r'[^\d,.]'), '');
-        final priceFormatted = priceString.replaceAll(',', '.');
-        price = double.tryParse(priceFormatted) ?? 59.90;
-      }
-      
-      await TurkceAnalyticsService.premiumSatinAlinaBasarili('abonelik', price);
-      await TurkceAnalyticsService.kullaniciOzellikleriniGuncelle(premiumMu: true);
-      
-      _purchases.add(purchaseDetails);
-      debugPrint('✅ [SUBSCRIPTION] Premium başarıyla aktifleştirildi!');
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Premium aktifleştirme hatası: $e');
-      _lastError = 'Premium aktifleştirilemedi: $e';
-      throw e;
-    }
-  }
-  
-  // Geçersiz satın alma
-  void _handleInvalidPurchase(PurchaseDetails purchaseDetails) {
-    debugPrint('❌ [SUBSCRIPTION] Geçersiz satın alma: ${purchaseDetails.productID}');
-    // Gerçek uygulamada burada fraud prevention yapılabilir
-  }
-  
-  // Satın almaları geri yükle
   Future<void> restorePurchases() async {
-    debugPrint('🔄 [SUBSCRIPTION] Satın almalar geri yükleniyor...');
-    
-    try {
-      await _inAppPurchase.restorePurchases();
-      debugPrint('✅ [SUBSCRIPTION] Geri yükleme komutu gönderildi');
-      // Sonuçlar _listenToPurchaseUpdated'de işlenecek
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Geri yükleme hatası: $e');
-      _lastError = 'Satın almalar geri yüklenemedi: $e';
-      notifyListeners();
-    }
+    await _purchaseManager.loadUserPurchases();
   }
   
-  // Aylık fiyat bilgisi - Play Console'dan dinamik çeker
-  String _getMonthlyPrice() {
-    if (_products.isEmpty) {
-      debugPrint('⚠️ [SUBSCRIPTION] Ürün listesi boş, Play Console bağlantısı kontrol ediliyor...');
-      // Products boşsa yeniden yüklemeyi dene
-      loadProducts();
-      return '₺59,90'; // Yüklenene kadar varsayılan
-    }
-    
-    final product = _products[0];
-    final price = product.price;
-    debugPrint('💰 [SUBSCRIPTION] Play Console fiyatı: $price (ID: ${product.id})');
-    
-    // Fiyat formatını Türkçe locale'e uygun hale getir
-    String formattedPrice = price;
-    
-    // Eğer TL işareti yoksa ekle
-    if (!price.contains('TL') && !price.contains('₺')) {
-      // Google Play genellikle "59,90 TL" formatında döner
-      formattedPrice = price.contains(',') ? price : '₺$price';
-    }
-    
-    debugPrint('💰 [SUBSCRIPTION] Formatlanmış fiyat: $formattedPrice');
-    return formattedPrice;
-  }
-  
-  // Hata temizle
-  void clearError() {
-    _lastError = '';
-    notifyListeners();
-  }
-  
-  // Abonelik durumunu kontrol et
   Future<void> checkSubscriptionStatus() async {
-    debugPrint('🔍 [SUBSCRIPTION] Abonelik durumu kontrol ediliyor...');
-    
-    try {
-      // Gerçek uygulamada burada sunucu API'si ile abonelik durumu kontrol edilir
-      await _creditsService.checkPremiumStatus();
-      debugPrint('✅ [SUBSCRIPTION] Abonelik durumu güncellendi');
-      
-    } catch (e) {
-      debugPrint('❌ [SUBSCRIPTION] Durum kontrol hatası: $e');
-    }
+    await _purchaseManager.loadUserPurchases();
   }
   
-  // Temizlik
-  @override
-  void dispose() {
-    debugPrint('🧹 [SUBSCRIPTION] Servis temizleniyor...');
-    
-    if (Platform.isIOS) {
-      try {
-        final InAppPurchaseStoreKitPlatformAddition iosPlatformAddition =
-            _inAppPurchase.getPlatformAddition<InAppPurchaseStoreKitPlatformAddition>();
-        iosPlatformAddition.setDelegate(null);
-        debugPrint('✅ [SUBSCRIPTION] iOS delegate temizlendi');
-      } catch (e) {
-        debugPrint('⚠️ [SUBSCRIPTION] iOS delegate temizleme hatası: $e');
-      }
-    }
-    
-    _subscription?.cancel();
-    debugPrint('✅ [SUBSCRIPTION] Servis temizlendi');
-    super.dispose();
+  void clearError() {
+    // Artık kullanılmıyor
   }
 }
-
-// iOS için Payment Queue Delegate
-class KavaidPaymentQueueDelegate implements SKPaymentQueueDelegateWrapper {
-  @override
-  bool shouldContinueTransaction(
-    SKPaymentTransactionWrapper transaction,
-    SKStorefrontWrapper storefront,
-  ) {
-    debugPrint('🍎 [iOS] Transaction devam etsin mi? ${transaction.transactionIdentifier}');
-    return true;
-  }
-
-  @override
-  bool shouldShowPriceConsent() {
-    debugPrint('🍎 [iOS] Fiyat onayı gösterilsin mi?');
-    return false;
-  }
-} 

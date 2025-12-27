@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'credits_service.dart';
+import 'purchase_manager.dart'; // PurchaseManager eklendi
 import 'gemini_service.dart';
 
 class AdMobService {
@@ -11,10 +11,10 @@ class AdMobService {
   factory AdMobService() => _instance;
   AdMobService._internal() {
     _appStartTime = DateTime.now();
-    _initializeCreditsListener();
+    _initializePurchaseListener();
   }
 
-  final CreditsService _creditsService = CreditsService();
+  final PurchaseManager _purchaseManager = PurchaseManager(); // CreditsService yerine PurchaseManager
   final GeminiService _geminiService = GeminiService();
 
   InterstitialAd? _interstitialAd;
@@ -26,7 +26,7 @@ class AdMobService {
   bool _didEnterBackground = false;
   
   AppLifecycleState? _previousState;
-  bool _creditsServiceInitialized = false;
+  bool _purchaseServiceInitialized = false;
   bool _isInAppAction = false;
   
   static Future<void> initialize() async {
@@ -105,28 +105,33 @@ class AdMobService {
         : 'ca-app-pub-3375249639458473/1762041055';
   }
 
-  void _initializeCreditsListener() {
-    debugPrint('🔗 [AdMob] CreditsService listener ekleniyor...');
-    _creditsService.addListener(_handleCreditsChange);
-    _creditsServiceInitialized = true;
-    debugPrint('✅ [AdMob] CreditsService listener başarıyla eklendi');
-    _handleCreditsChange();
+  void _initializePurchaseListener() {
+    debugPrint('🔗 [AdMob] PurchaseManager listener ekleniyor...');
+    _purchaseManager.addListener(_handlePurchaseStatusChange);
+    _purchaseServiceInitialized = true;
+    _handlePurchaseStatusChange();
   }
 
   void dispose() {
-    _creditsService.removeListener(_handleCreditsChange);
+    _purchaseManager.removeListener(_handlePurchaseStatusChange);
     _interstitialAd?.dispose();
   }
 
-  void _handleCreditsChange() {
-    debugPrint('🔄 [AdMob] Credits değişti - Premium: ${_creditsService.isPremium}, Lifetime: ${_creditsService.isLifetimeAdsFree}');
-    if (!_creditsService.isPremium && !_creditsService.isLifetimeAdsFree) {
-      debugPrint('📢 [AdMob] Kullanıcı premium değil, interstitial ad yükleniyor...');
-      loadInterstitialAd();
-    } else {
-      debugPrint('✨ [AdMob] Premium kullanıcı, reklamlar kapatılıyor...');
+  void _handlePurchaseStatusChange() {
+    // PurchaseManager'dan en güncel durumu al
+    debugPrint('🔄 [AdMob] Purchase durumu kontrol - Premium: ${_purchaseManager.isPremium}, NoAds: ${_purchaseManager.isLifetimeNoAds}');
+    
+    // Eğer kullanıcı premium ise veya reklamsız paket varsa
+    if (_purchaseManager.isPremium || _purchaseManager.isLifetimeNoAds) {
+      debugPrint('✨ [AdMob] Premium/NoAds aktif! Reklamlar tamamen kapatılıyor...');
       _interstitialAd?.dispose();
       _interstitialAd = null;
+    } else {
+      // Değilse ve reklam yüklenmemişse yükle
+      if (_interstitialAd == null && !_isLoadingInterstitialAd) {
+         debugPrint('📢 [AdMob] Free kullanıcı, reklam hazırlanıyor...');
+         loadInterstitialAd();
+      }
     }
   }
 
@@ -176,9 +181,9 @@ class AdMobService {
       return;
     }
     
-    // Premium kontrol ekle
-    if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
-      debugPrint('✨ [AdMob] Premium kullanıcı, interstitial ad gösterilmiyor');
+    // Premium kontrol ekle (PurchaseManager üzerinden)
+    if (_purchaseManager.isPremium || _purchaseManager.isLifetimeNoAds) {
+      debugPrint('✨ [AdMob] Premium kullanıcı, interstitial ad engellendi.');
       onAdDismissed();
       return;
     }
@@ -338,8 +343,8 @@ class AdMobService {
 
   void debugAdStatus() {
     debugPrint('--- AdMob Debug Status ---');
-    debugPrint('Premium: ${_creditsService.isPremium}');
-    debugPrint('Lifetime Ads Free: ${_creditsService.isLifetimeAdsFree}');
+    debugPrint('Premium: ${_purchaseManager.isPremium}');
+    debugPrint('Lifetime Ads Free: ${_purchaseManager.isLifetimeNoAds}');
     debugPrint('Interstitial Ad Loaded: $isInterstitialAdAvailable');
     debugPrint('Is In-App Action: $_isInAppAction');
     debugPrint('Last Interstitial Show Time: $_lastAdShowTime');

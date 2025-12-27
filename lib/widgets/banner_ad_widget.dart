@@ -11,6 +11,7 @@ import '../services/one_time_purchase_service.dart';
 import '../services/auth_service.dart';
 import '../screens/profile_screen.dart';
 import 'floating_ad_close_icon.dart';
+import '../screens/subscription_screen.dart'; // Yeni import
 
 class BannerAdWidget extends StatefulWidget {
   final Function(double) onAdHeightChanged;
@@ -240,10 +241,10 @@ class BannerAdWidgetState extends State<BannerAdWidget>
     super.dispose();
   }
 
-  void showRemoveAdsDialog() async {
+  void showRemoveAdsDialog() {
     // Premium/Reklamsız ise diyalog göstermeyelim (bilgi ver)
     if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
-      debugPrint('👑 [BannerAd] Kullanıcı premium/reklamsız – diyalog açılmayacak');
+      debugPrint('👑 [BannerAd] Kullanıcı premium/reklamsız – yönlendirme yapılmayacak');
       try {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -262,8 +263,8 @@ class BannerAdWidgetState extends State<BannerAdWidget>
       // Klavye kapat
       FocusManager.instance.primaryFocus?.unfocus();
       SystemChannels.textInput.invokeMethod('TextInput.hide');
-      if (!mounted) return;
       
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -278,85 +279,13 @@ class BannerAdWidgetState extends State<BannerAdWidget>
       return;
     }
 
-    // Ürün fiyatını yükle (gerekirse)
-    try {
-      if (_oneTimePurchase.products.isEmpty) {
-        await _oneTimePurchase.initialize();
-      }
-    } catch (_) {}
-
-    // Güçlü klavye kapatma - dialog açılmadan önce
+    // Güçlü klavye kapatma
     FocusManager.instance.primaryFocus?.unfocus();
     SystemChannels.textInput.invokeMethod('TextInput.hide');
 
-    // Banner tıklama ile çakışmasın diye güvenli diyalog
-    if (!mounted) return;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => SafeArea(
-        child: WillPopScope(
-          onWillPop: () async {
-            FocusManager.instance.primaryFocus?.unfocus();
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
-          },
-          child: AlertDialog(
-            title: const Text('Reklamları Kaldır'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Bu hesap için ömür boyu tüm reklamları kaldır'),
-                SizedBox(height: 16),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                  Navigator.of(context).pop();
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                  });
-                },
-                child: const Text('İptal'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  // Uygulama içi işlem flag'ini set et - reklam engellemek için
-                  AdMobService().setInAppActionFlag('satın_alma');
-                  try {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    Navigator.of(context).pop();
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    });
-                    await _oneTimePurchase.buyRemoveAds();
-                    // 1 dakika sonra flag'i temizle
-                    Future.delayed(const Duration(minutes: 1), () {
-                      AdMobService().clearInAppActionFlag();
-                      debugPrint('🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi');
-                    });
-                  } catch (e) {
-                    AdMobService().clearInAppActionFlag();
-                    rethrow;
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF007AFF),
-                  foregroundColor: Colors.white,
-                ),
-                child: Text(_oneTimePurchase.removeAdsPrice),
-              ),
-            ],
-          ),
-        ),
-      ),
+    // Doğrudan SubscriptionScreen'e yönlendir
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
     );
   }
 
@@ -413,96 +342,6 @@ class BannerAdWidgetState extends State<BannerAdWidget>
     return const SizedBox.shrink();
   }
   
-  void _showPremiumDialog() {
-    // Güçlü klavye kapatma - dialog açılmadan önce
-    FocusManager.instance.primaryFocus?.unfocus();
-    SystemChannels.textInput.invokeMethod('TextInput.hide');
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Dışarı tıklayarak kapatmayı engelle
-      builder: (context) => SafeArea(
-        // 🔧 ANDROID 15 FIX: Dialog safe area padding
-        child: WillPopScope(
-          onWillPop: () async {
-            // Güçlü klavye kapatma - geri tuşu
-            FocusManager.instance.primaryFocus?.unfocus();
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
-          },
-          child: AlertDialog(
-          title: const Text('Premium'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Premium ile reklamları kaldırın.'),
-              const SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Color(0xFF007AFF).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Aylık ',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      _subscriptionService.monthlyPrice,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF007AFF),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Güçlü klavye kapatma
-                FocusManager.instance.primaryFocus?.unfocus();
-                SystemChannels.textInput.invokeMethod('TextInput.hide');
-                Navigator.of(context).pop();
-                // Çoklu kontrol
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                });
-              },
-              child: const Text('İptal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Güçlü klavye kapatma
-                FocusManager.instance.primaryFocus?.unfocus();
-                SystemChannels.textInput.invokeMethod('TextInput.hide');
-                Navigator.of(context).pop();
-                // Çoklu kontrol
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                });
-                await _subscriptionService.buySubscription();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007AFF),
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Abone Ol'),
-            ),
-          ],
-          ),
-        ),
-      ),
-    );
-  }
+
 
 } 

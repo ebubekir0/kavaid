@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'banner_ad_widget.dart';
+import '../screens/subscription_screen.dart';
 
 class BannerAdWithCloseWidget extends StatefulWidget {
   final Function(double) onAdHeightChanged;
@@ -58,8 +59,10 @@ class _BannerAdWithCloseWidgetState extends State<BannerAdWithCloseWidget> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
                     onTap: () {
-                      debugPrint('🖱️ [BannerAdWithClose] Close icon tapped');
-                      _bannerKey.currentState?.showRemoveAdsDialog();
+                      debugPrint('🖱️ [BannerAdWithClose] Close icon tapped -> Navigating to SubscriptionScreen');
+                      Navigator.of(context, rootNavigator: true).push(
+                        MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                      );
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8),

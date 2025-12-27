@@ -69,6 +69,146 @@ class BookStoreService extends ChangeNotifier {
       priceText: 'Satın Al',
       imageBase: 'assets/images/kitab_kiraah_3',
     ),
+    BookInfo(
+      id: 'hz_yusuf',
+      title: 'Hz. Yusuf ve Kardeşleri',
+      subtitle: 'Kıssa-i Yusuf (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/hz_yusuf',
+    ),
+    BookInfo(
+      id: 'mimar_sinan',
+      title: 'Mimar Sinan\'ın Zekası',
+      subtitle: 'Tarihi Hikaye (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/mimar_sinan',
+    ),
+    BookInfo(
+      id: 'bilal_habesi',
+      title: 'İlk Müezzin: Bilal-i Habeşi',
+      subtitle: 'Sahabe Hayatı (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/bilal_habesi',
+    ),
+    BookInfo(
+      id: 'susuz_kopek',
+      title: 'Susuz Köpek ve Adam',
+      subtitle: 'Merhamet Örneği (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/susuz_kopek',
+    ),
+    BookInfo(
+      id: 'ibni_sina',
+      title: 'İbn-i Sina ve Tıp',
+      subtitle: 'Bilim Tarihi (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/ibni_sina',
+    ),
+    BookInfo(
+      id: 'magaradaki_orumcek',
+      title: 'Mağaradaki Örümcek',
+      subtitle: 'Hicret Mucizesi (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/magaradaki_orumcek',
+    ),
+    BookInfo(
+      id: 'durust_tuccarlar',
+      title: 'Dürüst Tüccarlar',
+      subtitle: 'Ahlak Hikayesi (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/durust_tuccarlar',
+    ),
+    BookInfo(
+      id: 'mevlana_sevgi',
+      title: 'Mevlana ve Sevgi',
+      subtitle: 'Tasavvuf Hikayesi (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/mevlana_sevgi',
+    ),
+    BookInfo(
+      id: 'sadaka_tasi',
+      title: 'Osmanlı\'da Sadaka Taşı',
+      subtitle: 'Tarihi Hikaye (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/sadaka_tasi',
+    ),
+    BookInfo(
+      id: 'aglayan_kutuk',
+      title: 'Peygamber ve Ağlayan Kütük',
+      subtitle: 'Merhamet Kıssası (A1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/aglayan_kutuk',
+    ),
+    BookInfo(
+      id: 'alice_harikalar_diyarinda',
+      title: 'Alice Harikalar Diyarında',
+      subtitle: 'Fantastik Hikaye (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/alice_harikalar_diyarinda',
+    ),
+    BookInfo(
+      id: 'don_kisot',
+      title: 'Don Kişot',
+      subtitle: 'Klasik Roman (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/don_kisot',
+    ),
+    BookInfo(
+      id: 'oliver_twist',
+      title: 'Oliver Twist',
+      subtitle: 'Klasik Roman (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/oliver_twist',
+    ),
+    BookInfo(
+      id: 'yasli_adam_ve_deniz',
+      title: 'Yaşlı Adam ve Deniz',
+      subtitle: 'Klasik Roman (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/yasli_adam_ve_deniz',
+    ),
+    BookInfo(
+      id: 'monte_kristo_kontu',
+      title: 'Monte Kristo Kontu',
+      subtitle: 'Macera Romanı (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/monte_kristo_kontu',
+    ),
+    BookInfo(
+      id: 'seksen_gunde_devrialem',
+      title: 'Seksen Günde Devrialem',
+      subtitle: 'Macera Romanı (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/seksen_gunde_devrialem',
+    ),
+    BookInfo(
+      id: 'hz_musa_ve_hizirin_yolculugu',
+      title: 'Hz. Musa ve Hızır\'ın Yolculuğu',
+      subtitle: 'Dini Kıssa (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/hz_musa_ve_hizirin_yolculugu',
+    ),
+    BookInfo(
+      id: 'kucuk_prens',
+      title: 'Küçük Prens',
+      subtitle: 'Modern Klasik (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/kucuk_prens',
+    ),
+    BookInfo(
+      id: 'robinson_crusoe',
+      title: 'Robinson Crusoe',
+      subtitle: 'Macera Romanı (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/robinson_crusoe',
+    ),
+    BookInfo(
+      id: 'sherlock_holmesun_zekasi',
+      title: 'Sherlock Holmes\'un Zekası',
+      subtitle: 'Polisiye (B1)',
+      priceText: 'Ücretsiz',
+      imageBase: 'assets/images/sherlock_holmesun_zekasi',
+    ),
   ];
 
   Set<String> _purchasedBookIds = <String>{};
@@ -116,7 +256,31 @@ class BookStoreService extends ChangeNotifier {
   }
 
   bool isPurchased(String bookId) {
-    // Artık tüm kitaplar ücretli
+    // Ücretsiz kitaplar
+    if ([
+      'hz_yusuf',
+      'mimar_sinan',
+      'bilal_habesi',
+      'susuz_kopek',
+      'ibni_sina',
+      'magaradaki_orumcek',
+      'durust_tuccarlar',
+      'mevlana_sevgi',
+      'sadaka_tasi',
+      'aglayan_kutuk',
+      'alice_harikalar_diyarinda',
+      'don_kisot',
+      'oliver_twist',
+      'yasli_adam_ve_deniz',
+      'monte_kristo_kontu',
+      'seksen_gunde_devrialem',
+      'hz_musa_ve_hizirin_yolculugu',
+      'kucuk_prens',
+      'robinson_crusoe',
+      'sherlock_holmesun_zekasi',
+    ].contains(bookId)) return true;
+    
+    // Artık tüm kitaplar ücretli (diğerleri)
     return _purchasedBookIds.contains(bookId);
   }
 

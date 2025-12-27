@@ -843,67 +843,113 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       );
                     } else if (purchaseManager.isLifetimeNoAds) {
-                      // 2. Sadece Reklamsız (Eski) - YİNE MAVİ KART (Premium'a teşvik)
-                      // Kullanıcıya reklamsız olduğunu söyle ama premium gibi görünsün
-                      return GestureDetector(
-                        onTap: () {
-                          // Zaten reklamsız ama premium özellikler için yönlendir
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SubscriptionScreen())
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                      // 2. Sadece Reklamsız (Eski) - Hem Premium teşviki Hem de Legacy Bilgisi
+                      return Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const SubscriptionScreen())
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF007AFF).withOpacity(0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: const [
+                                        Text(
+                                          "Premium'a Geç",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Tüm özelliklere erişin.",
+                                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                                ],
+                              ),
                             ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF007AFF).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                          const SizedBox(height: 12),
+                          // LEGACY CARD - MAVİ VE SADE (Premium Tasarımına Benzer)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      "Premium'a Geç",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Reklamsız Kullanım (Mevcut)",
-                                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                                    ),
-                                  ],
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
                                 ),
-                              ),
-                              const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                            ],
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: const Text(
+                                    "Reklamsız Kullanım",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                              ],
+                            ),
                           ),
-                        ),
+                        ],
                       );
                     } else {
                       // 3. Hiçbir şeyi yok - Premium'a Geç

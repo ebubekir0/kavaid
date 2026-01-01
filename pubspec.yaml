@@ -113,6 +113,7 @@ dependencies:
   audioplayers: ^6.5.1
   crypto: ^3.0.7
   googleapis_auth: ^2.0.0
+  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_test:

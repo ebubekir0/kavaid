@@ -20,6 +20,7 @@ class PurchaseManager extends ChangeNotifier {
   // States
   bool _isPremium = false;        // Abonelik durumu
   bool _isLifetimeNoAds = false;  // Eski 'Reklam Kaldır' satın alımı
+  DateTime? _premiumExpiry;       // Abonelik bitiş tarihi
   Set<String> _purchasedBooks = {};
   
   String _lastError = '';
@@ -50,7 +51,21 @@ class PurchaseManager extends ChangeNotifier {
   bool get shouldShowAds => !_isPremium && !_isLifetimeNoAds;
   
   // Premium mu?
-  bool get isPremium => _isPremium;
+  bool get isPremium {
+    if (_isPremium) {
+      // Eğer bitiş tarihi varsa, tarihin geçip geçmediğini kontrol et
+      if (_premiumExpiry != null) {
+        return _premiumExpiry!.isAfter(DateTime.now());
+      }
+      // Tarih yoksa ama premium true ise (eski kullanıcı), true döndür 
+      // (arka planda loadUserPurchases bunu güncelleyecektir)
+      return true;
+    }
+    return false;
+  }
+  
+  // Bitiş tarihi bilgisini UI'da göstermek için
+  DateTime? get premiumExpiry => _premiumExpiry;
   
   // Eski kullanıcı mı?
   bool get isLifetimeNoAds => _isLifetimeNoAds;
@@ -137,9 +152,14 @@ class PurchaseManager extends ChangeNotifier {
       FirebaseAuth.instance.authStateChanges().listen((user) {
         if (user != null) {
           debugPrint('👤 [PurchaseManager] Kullanıcı giriş yaptı, veriler yükleniyor...');
-          loadUserPurchases();
+          loadUserPurchases().then((_) {
+            // Eğer premium ama tarih yoksa (eski kullanıcı), sessizce doğrula
+            if (_isPremium && _premiumExpiry == null) {
+              _silentVerifySubscription();
+            }
+          });
         } else {
-          debugPrint('🚪 [PurchaseManager] Kullanıcı çıkış yaptı');
+          debugPrint('門 [PurchaseManager] Kullanıcı çıkış yaptı');
           _resetState();
         }
       });
@@ -170,6 +190,7 @@ class PurchaseManager extends ChangeNotifier {
   void _resetState() {
     _isPremium = false;
     _isLifetimeNoAds = false;
+    _premiumExpiry = null;
     _purchasedBooks = {};
     _saveToPrefs();
     notifyListeners();
@@ -300,9 +321,18 @@ class PurchaseManager extends ChangeNotifier {
           _purchasedBooks.add(b.toString());
         }
         
-        // 2. Premium / Reklamsız (Tüm versiyonları kontrol et - OneTimePurchaseService 'lifetimeAdsFree' kullanıyor)
+        // 2. Premium / Reklamsız (Tüm versiyonları kontrol et)
         _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
         _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
+        
+        // Bitiş tarihini yükle
+        if (data['premium_expiry'] != null) {
+          if (data['premium_expiry'] is Timestamp) {
+            _premiumExpiry = (data['premium_expiry'] as Timestamp).toDate();
+          } else if (data['premium_expiry'] is int) {
+            _premiumExpiry = DateTime.fromMillisecondsSinceEpoch(data['premium_expiry']);
+          }
+        }
       }
 
       // 2. Purchases Sub-collection (PurchaseManager'ın yeni stili)
@@ -318,6 +348,15 @@ class PurchaseManager extends ChangeNotifier {
         
         _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
         _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
+        
+        // Bitiş tarihini yükle (alt koleksiyondan da kontrol)
+        if (data['premium_expiry'] != null) {
+          if (data['premium_expiry'] is Timestamp) {
+            _premiumExpiry = (data['premium_expiry'] as Timestamp).toDate();
+          } else if (data['premium_expiry'] is int) {
+            _premiumExpiry = DateTime.fromMillisecondsSinceEpoch(data['premium_expiry']);
+          }
+        }
         
         final books = (data['purchased_books'] as List<dynamic>?) ?? 
                       (data['purchasedBooks'] as List<dynamic>?) ?? [];
@@ -416,9 +455,21 @@ class PurchaseManager extends ChangeNotifier {
       if (productType == 'ads_free') {
         updateData['is_ads_free'] = true;
       } else if (productType.startsWith('premium')) {
-        updateData['is_premium'] = true; // Gerçekte burada son kullanma tarihi set edilmeli
+        updateData['is_premium'] = true;
         updateData['premium_type'] = productType; 
         updateData['subscription_start'] = FieldValue.serverTimestamp();
+        
+        // Bitiş tarihini hesapla (Monthly: 30 gün + 3 gün tampon, Yearly: 365 gün + 7 gün tampon)
+        // Tampon süreler market senkronizasyon gecikmeleri içindir
+        DateTime now = DateTime.now();
+        DateTime expiry;
+        if (productType.contains('yearly')) {
+          expiry = now.add(const Duration(days: 372)); 
+        } else {
+          expiry = now.add(const Duration(days: 33));
+        }
+        updateData['premium_expiry'] = Timestamp.fromDate(expiry);
+        _premiumExpiry = expiry; // Local state'i de hemen güncelle
       } else if (productType.startsWith('book_')) {
          // Kitap mantığı korunuyor
          updateData['purchased_books'] = FieldValue.arrayUnion([productType]);
@@ -435,7 +486,24 @@ class PurchaseManager extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_lifetime_no_ads', _isLifetimeNoAds);
     await prefs.setBool('is_premium', _isPremium);
+    if (_premiumExpiry != null) {
+      await prefs.setInt('premium_expiry', _premiumExpiry!.millisecondsSinceEpoch);
+    } else {
+      await prefs.remove('premium_expiry');
+    }
     await prefs.setStringList('purchased_books', _purchasedBooks.toList());
+  }
+
+  // Eski kullanıcılar veya şüpheli durumlar için sessiz doğrulama
+  Future<void> _silentVerifySubscription() async {
+    try {
+      debugPrint('🔄 [PurchaseManager] Sessiz doğrulama başlatıldı...');
+      // Bu metod marketten satın almaları çeker ve local/firestore verilerini günceller
+      await _inAppPurchase.restorePurchases();
+      debugPrint('✅ [PurchaseManager] Sessiz doğrulama tamamlandı');
+    } catch (e) {
+      debugPrint('❌ [PurchaseManager] Sessiz doğrulama hatası: $e');
+    }
   }
 
   void _updateLocalState(String? productType, String productId) {

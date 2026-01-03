@@ -41,16 +41,36 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Future<void> _handlePurchase() async {
+    final pm = Provider.of<PurchaseManager>(context, listen: false);
+    
+    // Ürünlerin yüklenip yüklenmediğini kontrol et
+    if (pm.getPrice('monthly').isEmpty && pm.getPrice('yearly').isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ürünler henüz yüklenmedi veya market ayarları eksik. Lütfen biraz sonra tekrar deneyin.'))
+      );
+      // Tekrar çekmeye çalış
+      pm.fetchProducts();
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
-      final pm = Provider.of<PurchaseManager>(context, listen: false);
       if (_selectedPlan == 'monthly') {
         await pm.buyPremiumMonthly();
       } else {
         await pm.buyPremiumYearly();
       }
+      
+      // Hata kontrolü
+      if (pm.lastError.isNotEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(pm.lastError), backgroundColor: Colors.red)
+          );
+        }
+      }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -194,6 +214,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             Text(
                               "Abonelik otomatik yenilenir.",
                               style: GoogleFonts.outfit(fontSize: 11, color: Colors.white54),
+                            ),
+                            const SizedBox(height: 16),
+                            // SATIN ALMALARI GERİ YÜKLE
+                            GestureDetector(
+                              onTap: () async {
+                                final pm = Provider.of<PurchaseManager>(context, listen: false);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Satın almalar kontrol ediliyor...'), duration: Duration(seconds: 2)),
+                                );
+                                await pm.restorePurchases();
+                              },
+                              child: Text(
+                                "Satın Almaları Geri Yükle",
+                                style: GoogleFonts.outfit(
+                                  fontSize: 13,
+                                  color: Colors.white70,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.white70,
+                                ),
+                              ),
                             ),
                           ],
                         ),

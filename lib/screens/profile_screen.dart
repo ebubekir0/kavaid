@@ -716,16 +716,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "Aboneliği Yönet",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                                        decoration: TextDecoration.underline,
+                                    Row(
+                                      children: [
+                                        Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "Aboneliği Yönet",
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    // GERİ YÜKLE BUTONU
+                                    InkWell(
+                                      onTap: () async {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Satın almalar kontrol ediliyor...'), duration: Duration(seconds: 2)),
+                                        );
+                                        await Provider.of<PurchaseManager>(context, listen: false).restorePurchases();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.restore, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "Geri Yükle",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
@@ -823,8 +852,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
+                                children: [
+                                  const Text(
                                     "Premium Üyesiniz",
                                     style: TextStyle(
                                       color: Colors.white,
@@ -832,7 +861,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       fontSize: 16,
                                     ),
                                   ),
-                                  Text(
+                                  const Text(
                                     "Sınırsız içerik, reklamsız kullanım.",
                                     style: TextStyle(color: Colors.white70, fontSize: 13),
                                   ),

@@ -408,8 +408,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       return;
     }
 
-    // 350ms debouncing: her tuş vuruşunda aramayı geciktir, ana iş parçacığını rahatlat
-    _debounceTimer = Timer(const Duration(milliseconds: 350), () {
+    // 350ms -> 150ms: Daha seri tepki için süreyi kısalttık
+    _debounceTimer = Timer(const Duration(milliseconds: 150), () {
       if (mounted) {
         _performSearch(cleanText);
       }
@@ -535,10 +535,8 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
     final cleanQuery = query.trim();
     if (cleanQuery.isEmpty) return;
     
-    // Eğer zaten bir arama devam ediyorsa, iptal et
-    if (_isSearchInProgress) {
-      return;
-    }
+    // ARTIK BLOCKING YOK: Hızlı yazımda önceki requestin bitmesini beklemeden yenisini başlat.
+    // _isSearchInProgress kontrolü kaldırıldı.
     
     setState(() {
       _isSearchInProgress = true;
@@ -553,12 +551,17 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       // Optimize edilmiş arama: Veritabanı seviyesinde filtreleme (sınırsız)
       final results = await _dbService.searchWords(cleanQuery);
 
-      // DatabaseService.searchWords() zaten doğru sırala yapıyor, ek sıralama gereksiz
-      final sortedResults = results;
-      
+      // STALENESS CHECK: Eğer dönen sonuç, şu anki input ile eşleşmiyorsa (kullanıcı yazmaya devam etmişse) yoksay.
       if (mounted) {
+         final currentText = _searchController.text.trim();
+         if (currentText != cleanQuery) {
+            // Kullanıcı bu arama sürerken başka bir şey yazmış, bu sonucu çöpe at.
+            // Loading false yapma, çünkü yeni arama muhtemelen loading=true yaptı.
+            return;
+         }
+         
         setState(() {
-          _searchResults = sortedResults;
+          _searchResults = results;
           _isLoading = false;
           _selectedWord = null;
           _showAIButton = true;
@@ -568,6 +571,9 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
       }
     } catch (e) {
       if (mounted) {
+         final currentText = _searchController.text.trim();
+         if (currentText != cleanQuery) return;
+
         setState(() {
           _searchResults = [];
           _isLoading = false;

@@ -532,8 +532,8 @@ class _LearningScreenState extends State<LearningScreen> {
         centerTitle: true,
         leading: Consumer<PurchaseManager>(
           builder: (context, pm, _) {
-            // Sadece satın alınmış kitabı varsa göster
-            if (pm.purchasedBooks.isEmpty) return const SizedBox.shrink();
+            // Sadece satın alınmış kitabı varsa göster (Reklam kaldırma satın alımları hariç)
+            if (!pm.hasActiveBooks) return const SizedBox.shrink();
             
             return IconButton(
               icon: const Icon(Icons.auto_stories_rounded, color: Colors.white),

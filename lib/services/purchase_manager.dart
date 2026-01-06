@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // RevenueCat API Keys
 const _apiKeyAndroid = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE'; // RevenueCat SDK Public Key (Production)
@@ -49,9 +50,12 @@ class PurchaseManager extends ChangeNotifier {
   bool canAccessContent(String bookId, bool isFreeContent) {
     if (isFreeContent) return true; // Herkese açık
     if (_isPremium) return true;    // Abone her şeyi görür
-    // RevenueCat üzerinden kitap satın alımı yönetiliyorsa buraya eklenebilir
-    // Şimdilik eski mantığı bozmadan bırakıyoruz, ama kitaplar ayrı bir sistemde olabilir.
-    // Eğer kitaplar da RevenueCat non-consumable ise entitlements kontrolü yapılabilir.
+    
+    // Tekil olarak satın alınmış kitap kontrolü (Eski veya Yeni)
+    if (_purchasedBooks.contains(bookId)) {
+      return true;
+    }
+
     return false;
   }
 
@@ -96,14 +100,25 @@ class PurchaseManager extends ChangeNotifier {
           }
         } else {
            debugPrint('🚪 [RevenueCat] Kullanıcı çıkış yaptı');
+           
+           // State'i temizle
+           _isPremium = false;
+           _isLifetimeNoAds = false;
+           _purchasedBooks.clear();
+           notifyListeners();
+           
            if (!await Purchases.isAnonymous) {
              await Purchases.logOut();
            }
         }
+        // Logout sonrası anonim customer info çekmeye gerek olabilir veya olmayabilir,
+        // ama temiz ui için yukarıdaki temizlik şart.
         await _fetchCustomerInfo();
       });
 
       await _fetchCustomerInfo();
+      // Önce legacy kontrolü yap (Firebase)
+      await _checkLegacyPermissions(onLegacyFound: (a,b){});
       await fetchProducts(); // Offerings'i çek
 
       _isInitialized = true;
@@ -127,19 +142,104 @@ class PurchaseManager extends ChangeNotifier {
   }
 
   // Durumu güncelle
-  void _updateCustomerStatus(CustomerInfo customerInfo) {
+  Future<void> _updateCustomerStatus(CustomerInfo customerInfo) async {
     final EntitlementInfo? premiumEntitlement = customerInfo.entitlements.all['premium'];
-    final EntitlementInfo? adsFreeEntitlement = customerInfo.entitlements.all['ads_free']; // Tek seferlik
+    final EntitlementInfo? adsFreeEntitlement = customerInfo.entitlements.all['ads_free'];
     
+    // RevenueCat'den gelen durum
     bool newPremiumStatus = premiumEntitlement?.isActive ?? false;
     bool newAdsFreeStatus = adsFreeEntitlement?.isActive ?? false;
+
+    // HIBRID KONTROL: Her durumda legacy kontrolü yap ki kitaplar ve reklam kaldırma gelsin
+    await _checkLegacyPermissions(
+      onLegacyFound: (legacyPremium, legacyAdsFree) {
+        if (legacyPremium) newPremiumStatus = true;
+        
+        // Eğer yeni sistemde ads_free yoksa ama eskide varsa, eskiyi kabul et
+        if (!newAdsFreeStatus && legacyAdsFree) {
+           newAdsFreeStatus = true;
+        }
+      }
+    );
     
     // Değişiklik varsa güncelle
     if (_isPremium != newPremiumStatus || _isLifetimeNoAds != newAdsFreeStatus) {
        _isPremium = newPremiumStatus;
        _isLifetimeNoAds = newAdsFreeStatus;
        notifyListeners();
-       debugPrint('🔄 [RevenueCat] Durum Güncellendi -> Premium: $_isPremium, AdsFree: $_isLifetimeNoAds');
+       debugPrint('🔄 [PurchaseManager] Durum Güncellendi -> Premium: $_isPremium, AdsFree: $_isLifetimeNoAds');
+    }
+  }
+
+  // Reklam kaldırma ID'leri (Legacy)
+  static const List<String> _legacyAdsIds = [
+    'remove_ads', 'ads_remove', 'reklam_kaldir', 'reklam_kaldirma',
+    'ads_free', 'no_ads', 'ad_free', 'premium_ads', 'adsfree', 'noads',
+    'lifetime_ads', 'removeads'
+  ];
+
+  // Aktif kitabı var mı? (Reklam kaldırma hariç)
+  bool get hasActiveBooks {
+    if (_purchasedBooks.isEmpty) return false;
+    // Eğer tüm satın alımları sadece reklam kaldırmadan ibaretse false dön
+    return _purchasedBooks.any((id) => !_legacyAdsIds.contains(id.toLowerCase()));
+  }
+
+  // Eski sistemdeki (Firestore) satın alımları kontrol et
+  Future<void> _checkLegacyPermissions({
+    required Function(bool isLegacyPremium, bool isLegacyAdsFree) onLegacyFound
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (!doc.exists || doc.data() == null) return;
+      
+      final data = doc.data()!;
+      bool legacyAdsFree = false;
+
+      // 1. Ömür Boyu Reklam Kaldırma Kontrolü
+      // Farklı varyasyonları kontrol et (isAdsRemoved, adsRemoved, ads_removed)
+      // Tip kontrolü de yap (bool, string, vb)
+      bool checkBoolField(String field) {
+        final val = data[field];
+        if (val == true) return true;
+        if (val is String && val.toLowerCase() == 'true') return true;
+        if (val is int && val == 1) return true;
+        return false;
+      }
+
+      if (checkBoolField('lifetimeAdsFree') || 
+          checkBoolField('isAdsRemoved') || 
+          checkBoolField('adsRemoved') || 
+          checkBoolField('ads_removed') ||
+          checkBoolField('removeAds') || 
+          checkBoolField('is_ads_removed')) {
+        legacyAdsFree = true;
+        debugPrint('🏛️ [PurchaseManager] Eski sistemden "Reklam Kaldırma" hakkı bulundu (Field Check: lifetimeAdsFree veya diğerleri).');
+      }
+
+      // 2. Satın Alınan Kitapları Yükle & remove_ads kontrolü
+      if (data['purchasedBooks'] is List) {
+        final List<dynamic> books = data['purchasedBooks'];
+        
+        // Kitapları hafızaya set olarak al
+        _purchasedBooks = books.map((e) => e.toString()).toSet();
+        debugPrint('📚 [PurchaseManager] Eski satın alınan kitaplar yüklendi: $_purchasedBooks');
+
+        // Liste içinde remove_ads var mı?
+        if (books.any((bookId) => _legacyAdsIds.contains(bookId.toString().toLowerCase()))) {
+           legacyAdsFree = true;
+           debugPrint('🏛️ [PurchaseManager] Eski sistemden "Reklam Kaldırma" hakkı bulundu (purchasedBooks array).');
+        }
+      }
+
+      // NOT: Eskiden "Premium" diye bir şey olmadığı için legacyPremium hep false döner.
+      onLegacyFound(false, legacyAdsFree);
+      
+    } catch (e) {
+      debugPrint('⚠️ [PurchaseManager] Legacy kontrol hatası: $e');
     }
   }
 

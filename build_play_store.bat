@@ -33,15 +33,15 @@ flutter build appbundle --release ^
 
 echo.
 echo [7/7] AAB kopyalaniyor...
-copy build\app\outputs\bundle\release\app-release.aab kavaid-v2.1.1-build2055-play-store.aab
+copy build\app\outputs\bundle\release\app-release.aab kavaid-v3.2.0-build3201-play-store.aab
 
 echo.
 echo ===================================================
 echo Play Store Upload Hazir!
 echo ===================================================
 echo.
-echo AAB dosyasi: kavaid-v2.1.1-build2055-play-store.aab
-echo Surum: 2.1.1 (Build 2055)
+echo AAB dosyasi: kavaid-v3.2.0-build3201-play-store.aab
+echo Surum: 3.2.0 (Build 3201)
 echo.
 echo Ozellikler:
 echo - Uygulama acilis hizi optimizasyonu

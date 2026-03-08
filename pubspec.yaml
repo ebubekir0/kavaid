@@ -62,7 +62,7 @@ dependencies:
   # Google Fonts (Cairo için)
   
   # Google Fonts
-  google_fonts: ^6.2.1
+  google_fonts: 6.2.1
 
   # Google Mobile Ads (AdMob)
   google_mobile_ads: ^5.1.0

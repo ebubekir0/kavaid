@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:io';
 import '../services/purchase_manager.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -166,7 +168,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             // AYLIK PLAN
                             _buildPlanTile(
                               id: 'monthly', 
-                              title: 'Aylık', 
+                              title: 'Aylık Abonelik', 
+                              subtitle: '1 Ay boyunca Premium erişim',
                               price: pm.getPrice('monthly').isEmpty ? '₺79,99' : pm.getPrice('monthly'), 
                               badge: null,
                               isSmall: isSmallScreen
@@ -175,10 +178,10 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             // YILLIK PLAN - %50 İNDİRİM
                             _buildPlanTile(
                               id: 'yearly', 
-                              title: 'Yıllık', 
+                              title: 'Yıllık Abonelik', 
+                              subtitle: pm.getMonthlyCostForYearly().isEmpty ? '12 Ay boyunca Premium (₺40/ay)' : '12 Ay boyunca Premium (${pm.getMonthlyCostForYearly()})',
                               price: pm.getPrice('yearly').isEmpty ? '₺479,99' : pm.getPrice('yearly'), 
                               badge: '%50 İNDİRİM',
-                              subtitle: pm.getMonthlyCostForYearly().isEmpty ? '₺40/ay' : pm.getMonthlyCostForYearly(),
                               isSmall: isSmallScreen
                             ),
                           ],
@@ -218,6 +221,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               style: GoogleFonts.outfit(fontSize: 11, color: Colors.white54),
                             ),
                             const SizedBox(height: 16),
+                            // Gizlilik ve Kullanım Şartları (Apple Gereksinimi)
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _buildFooterLink("Gizlilik Politikası", "https://kavaid.app/privacy"), // Kullanıcının gerçek URL'sini buraya koyması gerek
+                                const Text("  •  ", style: TextStyle(color: Colors.white38)),
+                                _buildFooterLink("Kullanım Şartları", "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
                             // SATIN ALMALARI GERİ YÜKLE
                             GestureDetector(
                               onTap: () async {
@@ -246,6 +259,26 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFooterLink(String text, String url) {
+    return GestureDetector(
+      onTap: () async {
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      },
+      child: Text(
+        text,
+        style: GoogleFonts.outfit(
+          fontSize: 11,
+          color: Colors.white70,
+          decoration: TextDecoration.underline,
+          decorationColor: Colors.white54,
         ),
       ),
     );

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -34,7 +33,10 @@ class PurchaseManager extends ChangeNotifier {
   bool get shouldShowAds => !_isPremium && !_isLifetimeNoAds;
   
   // Premium mu?
-  bool get isPremium => _isPremium;
+  bool get isPremium {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) return true; // iOS tarafında her şey ücretsiz
+    return _isPremium;
+  }
   
   // Eski kullanıcı mı?
   bool get isLifetimeNoAds => _isLifetimeNoAds;
@@ -65,19 +67,31 @@ class PurchaseManager extends ChangeNotifier {
     
     try {
       debugPrint('🚀 [RevenueCat] Başlatılıyor...');
+
+      if (kIsWeb) {
+        debugPrint('🕸️ [RevenueCat] Web platformu - Atlanıyor');
+        _isInitialized = true;
+        notifyListeners();
+        return;
+      }
       
       await Purchases.setLogLevel(LogLevel.debug);
 
       PurchasesConfiguration configuration;
-      if (Platform.isAndroid) {
+      if (defaultTargetPlatform == TargetPlatform.android) {
         configuration = PurchasesConfiguration(_apiKeyAndroid);
-      } else if (Platform.isIOS) {
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
         configuration = PurchasesConfiguration(_apiKeyIOS);
       } else {
         return;
       }
       
       await Purchases.configure(configuration);
+      
+      // iOS Anahtar Kontrolü (Geliştirici uyarısı)
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && _apiKeyIOS.startsWith('goog_')) {
+        debugPrint('⚠️ [RevenueCat] UYARI: iOS platformunda "goog_" ile başlayan bir anahtar kullanılıyor. Bu genellikle Android anahtarıdır. Lütfen RevenueCat dashboard\'dan iOS (Apple) anahtarını ("appl_" ile başlayan) kontrol edin.');
+      }
       
       // Dinleyici ekle
       Purchases.addCustomerInfoUpdateListener((customerInfo) {

@@ -589,4 +589,46 @@ class AuthService extends ChangeNotifier {
       debugPrint('❌ [Auth] Kullanıcı adı kontrol hatası: $e');
     }
   }
+
+  // Hesabı sil
+  Future<void> deleteAccount() async {
+    if (!isSignedIn) return;
+    
+    final userId = this.userId!;
+    final user = currentUser!;
+    
+    try {
+      debugPrint('🗑️ [Auth] Hesap silme başlatılıyor: $userId');
+      
+      // 1. Firestore verilerini sil
+      await _firestore.collection('users').doc(userId).delete();
+      debugPrint('✅ [Auth] Firestore kullanıcı verileri silindi');
+      
+      // 2. Kaydedilen kelimeleri sil (Opsiyonel: Eğer Firestore'da ise zaten silindi veya SavedWordsService içinde temizlendi)
+      try {
+        await SavedWordsService().clearAllSavedWords();
+      } catch (e) {
+        debugPrint('⚠️ [Auth] Kaydedilen kelimeler temizlenirken hata: $e');
+      }
+
+      // 3. Firebase Auth kullanıcısını sil
+      // NOT: Bazı durumlarda re-authentication gerekebilir (son giriş üzerinden vakit geçmişse)
+      await user.delete();
+      debugPrint('✅ [Auth] Firebase Auth kullanıcısı silindi');
+      
+      // 4. Çıkış yap ve temizle
+      await signOut();
+      
+      debugPrint('✅ [Auth] Hesap başarıyla silindi');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        debugPrint('⚠️ [Auth] Hesap silmek için yeniden giriş yapılması gerekiyor');
+        throw Exception('Bu işlem hassas olduğu için lütfen önce tekrar giriş yapın.');
+      }
+      rethrow;
+    } catch (e) {
+      debugPrint('❌ [Auth] Hesap silme hatası: $e');
+      rethrow;
+    }
+  }
 }

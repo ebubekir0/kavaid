@@ -2121,6 +2121,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                       child: Row(
                         children: [
                           const Icon(Icons.stars_rounded, color: Colors.amber, size: 24),
+                          if (defaultTargetPlatform != TargetPlatform.iOS && _creditsService.isPremium) ...[
+                            const SizedBox(width: 8),
+                            const Icon(Icons.verified, color: Colors.blue, size: 16),
+                          ],
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(
@@ -2269,6 +2273,10 @@ class _HomeScreenState extends State<HomeScreen> with AutomaticKeepAliveClientMi
                             ),
                             child: const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 20),
                           ),
+                          if (defaultTargetPlatform != TargetPlatform.iOS && _creditsService.isPremium) ...[
+                            const SizedBox(width: 8),
+                            const Icon(Icons.verified, color: Colors.blue, size: 16),
+                          ],
                           const SizedBox(width: 12),
                           const Expanded(
                             child: Text(

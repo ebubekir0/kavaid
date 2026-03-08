@@ -148,6 +148,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             SizedBox(height: isSmallScreen ? 12 : 20),
                             _buildBullet("Öğren kısmındaki tüm materyallere erişim"),
                             const SizedBox(height: 8),
+                            _buildBullet("Kuran Sözlüğüne Sınırsız Erişim"),
+                            const SizedBox(height: 8),
                             _buildBullet("Sınırsız kelime kartı ve liste oluştur"),
                             const SizedBox(height: 8),
                             _buildBullet("Reklamsız deneyim"),

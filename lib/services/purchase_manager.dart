@@ -1,49 +1,31 @@
-import 'dart:io';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../services/turkce_analytics_service.dart';
+
+// RevenueCat API Keys
+const _apiKeyAndroid = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE'; // RevenueCat SDK Public Key (Production)
+const _apiKeyIOS = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE';     // Production Key
 
 class PurchaseManager extends ChangeNotifier {
   static final PurchaseManager _instance = PurchaseManager._internal();
   factory PurchaseManager() => _instance;
   PurchaseManager._internal();
 
-  final InAppPurchase _inAppPurchase = InAppPurchase.instance;
-  StreamSubscription<List<PurchaseDetails>>? _subscription;
-  
   bool _isInitialized = false;
   
   // States
   bool _isPremium = false;        // Abonelik durumu
   bool _isLifetimeNoAds = false;  // Eski 'Reklam Kaldır' satın alımı
-  DateTime? _premiumExpiry;       // Abonelik bitiş tarihi
   Set<String> _purchasedBooks = {};
   
   String _lastError = '';
   
-  // Product mappings
-  static Map<String, String> get _products {
-    if (Platform.isAndroid) {
-      return {
-        'premium_monthly': 'premium_monthly',
-        'premium_yearly': 'premium_yearly',
-        'ads_free': 'ads_free', // Veya remove_ads
-      };
-    } else if (Platform.isIOS) {
-       // iOS ID'leri (App Store Connect ile eşleşmeli)
-       return {
-        'premium_monthly': 'premium_monthly', 
-        'premium_yearly': 'premium_yearly',
-        'ads_free': 'ads_free',
-      };
-    }
-    return {};
-  }
-
+  // RevenueCat Offerings and Packages
+  Offerings? _offerings;
+  
   // Getters
   bool get isInitialized => _isInitialized;
   
@@ -52,476 +34,360 @@ class PurchaseManager extends ChangeNotifier {
   
   // Premium mu?
   bool get isPremium {
-    if (_isPremium) {
-      // Eğer bitiş tarihi varsa, tarihin geçip geçmediğini kontrol et
-      if (_premiumExpiry != null) {
-        return _premiumExpiry!.isAfter(DateTime.now());
-      }
-      // Tarih yoksa ama premium true ise (eski kullanıcı), true döndür 
-      // (arka planda loadUserPurchases bunu güncelleyecektir)
-      return true;
-    }
-    return false;
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) return true; // iOS tarafında her şey ücretsiz
+    return _isPremium;
   }
-  
-  // Bitiş tarihi bilgisini UI'da göstermek için
-  DateTime? get premiumExpiry => _premiumExpiry;
   
   // Eski kullanıcı mı?
   bool get isLifetimeNoAds => _isLifetimeNoAds;
 
-  Future<bool> get isAvailable async {
-    return await _inAppPurchase.isAvailable();
-  }
+  bool get isAvailable => _isInitialized; 
   String get lastError => _lastError;
   Set<String> get purchasedBooks => _purchasedBooks;
+  
+  // RevenueCat'de expiry otomatik yönetilir
+  DateTime? get subscriptionExpiryDate => null; // Detaylı bilgi istenirse CustomerInfo'dan alınabilir
 
   // İçeriğe erişim izni var mı?
   bool canAccessContent(String bookId, bool isFreeContent) {
     if (isFreeContent) return true; // Herkese açık
     if (_isPremium) return true;    // Abone her şeyi görür
-    if (_purchasedBooks.contains('book_${bookId.split('_').last}')) return true; // Satın alınmış kitap
+    
+    // Tekil olarak satın alınmış kitap kontrolü (Eski veya Yeni)
+    if (_purchasedBooks.contains(bookId)) {
+      return true;
+    }
+
     return false;
   }
-
-  // Satın alma işlemini başlat
-  Future<void> buyProduct(String productId) async {
-    try {
-      if (!await _inAppPurchase.isAvailable()) {
-        _lastError = 'Mağaza kullanılamıyor.';
-        notifyListeners();
-        return;
-      }
-      
-      final Set<String> ids = {productId};
-      final ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(ids);
-      
-      if (response.notFoundIDs.isNotEmpty) {
-        _lastError = 'Ürün bulunamadı: $productId';
-        notifyListeners();
-        debugPrint('❌ [PurchaseManager] Ürün bulunamadı: ${response.notFoundIDs}');
-        return;
-      }
-      
-      final List<ProductDetails> products = response.productDetails;
-      if (products.isEmpty) {
-        _lastError = 'Ürün detayları alınamadı.';
-        notifyListeners();
-        return;
-      }
-      
-      final ProductDetails productDetails = products.first;
-      
-      final PurchaseParam purchaseParam = PurchaseParam(productDetails: productDetails);
-      
-      // Abonelikler non-consumable olarak işlem görür
-      await _inAppPurchase.buyNonConsumable(purchaseParam: purchaseParam);
-      
-    } catch (e) {
-      _lastError = 'Satın alma başlatılamadı: $e';
-      notifyListeners();
-      debugPrint('❌ [PurchaseManager] Buy error: $e');
-    }
-  }
-
-  Future<void> buyPremiumMonthly() async {
-    await buyProduct(_products['premium_monthly']!);
-  }
-
-
-
-  Future<void> buyPremiumYearly() async {
-    await buyProduct(_products['premium_yearly']!);
-  }
-
-  // ... inside PurchaseManager
-
-  static final Map<String, ProductDetails> _productDetailsMap = {};
-  Map<String, ProductDetails> get productDetailsMap => _productDetailsMap;
-
-  // ... other methods
 
   // Initialize
   Future<void> initialize() async {
     if (_isInitialized) return;
     
     try {
-      debugPrint('🚀 [PurchaseManager] Başlatılıyor...');
+      debugPrint('🚀 [RevenueCat] Başlatılıyor...');
+
+      if (kIsWeb) {
+        debugPrint('🕸️ [RevenueCat] Web platformu - Atlanıyor');
+        _isInitialized = true;
+        notifyListeners();
+        return;
+      }
       
-      // Auth değişikliklerini dinle
-      FirebaseAuth.instance.authStateChanges().listen((user) {
-        if (user != null) {
-          debugPrint('👤 [PurchaseManager] Kullanıcı giriş yaptı, veriler yükleniyor...');
-          loadUserPurchases().then((_) {
-            // Eğer premium ama tarih yoksa (eski kullanıcı), sessizce doğrula
-            if (_isPremium && _premiumExpiry == null) {
-              _silentVerifySubscription();
-            }
-          });
-        } else {
-          debugPrint('門 [PurchaseManager] Kullanıcı çıkış yaptı');
-          _resetState();
-        }
+      await Purchases.setLogLevel(LogLevel.debug);
+
+      PurchasesConfiguration configuration;
+      if (defaultTargetPlatform == TargetPlatform.android) {
+        configuration = PurchasesConfiguration(_apiKeyAndroid);
+      } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+        configuration = PurchasesConfiguration(_apiKeyIOS);
+      } else {
+        return;
+      }
+      
+      await Purchases.configure(configuration);
+      
+      // iOS Anahtar Kontrolü (Geliştirici uyarısı)
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS && _apiKeyIOS.startsWith('goog_')) {
+        debugPrint('⚠️ [RevenueCat] UYARI: iOS platformunda "goog_" ile başlayan bir anahtar kullanılıyor. Bu genellikle Android anahtarıdır. Lütfen RevenueCat dashboard\'dan iOS (Apple) anahtarını ("appl_" ile başlayan) kontrol edin.');
+      }
+      
+      // Dinleyici ekle
+      Purchases.addCustomerInfoUpdateListener((customerInfo) {
+        _updateCustomerStatus(customerInfo);
       });
 
-      // Store bağlantısını kur
-      _subscription = _inAppPurchase.purchaseStream.listen(
-        _listenToPurchaseUpdated,
-        onDone: () => _subscription?.cancel(),
-        onError: (error) => debugPrint('❌ [PurchaseManager] Stream hatası: $error'),
-      );
+      // Firebase Auth ile Senkronizasyon (Login)
+      FirebaseAuth.instance.authStateChanges().listen((user) async {
+        if (user != null) {
+          debugPrint('👤 [RevenueCat] Kullanıcı giriş yaptı: ${user.uid}');
+          await Purchases.logIn(user.uid);
+          
+          // ESKİ KULLANICILAR İÇİN OTOMATİK MİGRASYON / SENKRONİZASYON
+          // Kullanıcı "Geri Yükle"ye basmadan aboneliği algılamak için.
+          debugPrint('🔄 [RevenueCat] Otomatik senkronizasyon yapılıyor...');
+          try {
+             await Purchases.syncPurchases();
+          } catch (e) {
+             debugPrint('⚠️ [RevenueCat] Sync hatası (Önemli değil): $e');
+          }
+        } else {
+           debugPrint('🚪 [RevenueCat] Kullanıcı çıkış yaptı');
+           
+           // State'i temizle
+           _isPremium = false;
+           _isLifetimeNoAds = false;
+           _purchasedBooks.clear();
+           notifyListeners();
+           
+           if (!await Purchases.isAnonymous) {
+             await Purchases.logOut();
+           }
+        }
+        // Logout sonrası anonim customer info çekmeye gerek olabilir veya olmayabilir,
+        // ama temiz ui için yukarıdaki temizlik şart.
+        await _fetchCustomerInfo();
+      });
 
-      // Kullanıcı verilerini yükle
-      await loadUserPurchases();
-      
-      // Ürün detaylarını (fiyatları) çek
-      await fetchProducts();
+      await _fetchCustomerInfo();
+      // Önce legacy kontrolü yap (Firebase)
+      await _checkLegacyPermissions(onLegacyFound: (a,b){});
+      await fetchProducts(); // Offerings'i çek
 
       _isInitialized = true;
-      debugPrint('✅ [PurchaseManager] Başlatıldı');
+      debugPrint('✅ [RevenueCat] Başlatıldı');
       notifyListeners();
       
     } catch (e) {
-      debugPrint('❌ [PurchaseManager] Başlatma hatası: $e');
+      debugPrint('❌ [RevenueCat] Başlatma hatası: $e');
       _lastError = 'Başlatılamadı: $e';
     }
   }
 
-  void _resetState() {
-    _isPremium = false;
-    _isLifetimeNoAds = false;
-    _premiumExpiry = null;
-    _purchasedBooks = {};
-    _saveToPrefs();
-    notifyListeners();
-  }
-
-  Future<void> fetchProducts() async {
-    if (!await _inAppPurchase.isAvailable()) return;
-    
-    final ids = _products.values.toSet();
-    final response = await _inAppPurchase.queryProductDetails(ids);
-    
-    if (response.notFoundIDs.isNotEmpty) {
-      debugPrint('❌ Ürünler bulunamadı: ${response.notFoundIDs}');
-    }
-
-    _productDetailsMap.clear();
-    for (var product in response.productDetails) {
-       // Map by our internal keys (e.g. 'premium_monthly') instead of store ID if possible, 
-       // but here store ID is easier. Or better, map 'kavaid_premium_monthly' -> ProductDetails
-       // UI uses internal keys 'monthly', 'yearly', so let's map carefully.
-       _productDetailsMap[product.id] = product;
-    }
-    notifyListeners();
-  }
-  
-  // Helper to get price
-  String getPrice(String internalKey) {
-    final storeId = _products['premium_$internalKey'];
-    if (storeId == null) return '';
-    final details = _productDetailsMap[storeId];
-    return details?.price ?? ''; // Marketten dönen formatlı fiyat (örn: ₺49.99)
-  }
-
-  // Helper to get raw price for calculations
-  double? getRawPrice(String internalKey) {
-     final storeId = _products['premium_$internalKey'];
-     if (storeId == null) return null;
-     
-     final details = _productDetailsMap[storeId];
-     if (details == null) return null;
-
-     // Fiyat metninden sayıyı ayıkla (Örn: "₺479,99" -> 479.99)
-     String cleanPrice = details.price.replaceAll(RegExp(r'[^0-9.,]'), '');
-     
-     // Virgül ve nokta karmaşasını çöz (Sonuncusu ondalık ayracıdır)
-     if (cleanPrice.contains(',') && cleanPrice.contains('.')) {
-       // Hem nokta hem virgül varsa, sondakini ondalık kabul et
-       if (cleanPrice.lastIndexOf(',') > cleanPrice.lastIndexOf('.')) {
-         cleanPrice = cleanPrice.replaceAll('.', '').replaceAll(',', '.');
-       } else {
-         cleanPrice = cleanPrice.replaceAll(',', '');
-       }
-     } else if (cleanPrice.contains(',')) {
-       // Sadece virgül varsa noktaya çevir
-       cleanPrice = cleanPrice.replaceAll(',', '.');
-     }
-     
-     return double.tryParse(cleanPrice);
-  }
-
-  // Yıllık planın aylık maliyetini hesapla
-  String getMonthlyCostForYearly() {
+  // Müşteri bilgisini çek ve işle
+  Future<void> _fetchCustomerInfo() async {
     try {
-      final yearlyPriceStr = getPrice('yearly'); // Örn: ₺479,99
-      if (yearlyPriceStr.isEmpty) return '';
+      CustomerInfo customerInfo = await Purchases.getCustomerInfo();
+      _updateCustomerStatus(customerInfo);
+    } catch (e) {
+      debugPrint('❌ [RevenueCat] CustomerInfo hatası: $e');
+    }
+  }
 
-      final yearlyRaw = getRawPrice('yearly');
-      if (yearlyRaw == null || yearlyRaw == 0) return '';
+  // Durumu güncelle
+  Future<void> _updateCustomerStatus(CustomerInfo customerInfo) async {
+    final EntitlementInfo? premiumEntitlement = customerInfo.entitlements.all['premium'];
+    final EntitlementInfo? adsFreeEntitlement = customerInfo.entitlements.all['ads_free'];
+    
+    // RevenueCat'den gelen durum
+    bool newPremiumStatus = premiumEntitlement?.isActive ?? false;
+    bool newAdsFreeStatus = adsFreeEntitlement?.isActive ?? false;
 
-      // Aylık maliyeti hesapla
-      final monthlyCost = yearlyRaw / 12;
+    // HIBRID KONTROL: Her durumda legacy kontrolü yap ki kitaplar ve reklam kaldırma gelsin
+    await _checkLegacyPermissions(
+      onLegacyFound: (legacyPremium, legacyAdsFree) {
+        if (legacyPremium) newPremiumStatus = true;
+        
+        // Eğer yeni sistemde ads_free yoksa ama eskide varsa, eskiyi kabul et
+        if (!newAdsFreeStatus && legacyAdsFree) {
+           newAdsFreeStatus = true;
+        }
+      }
+    );
+    
+    // Değişiklik varsa güncelle
+    if (_isPremium != newPremiumStatus || _isLifetimeNoAds != newAdsFreeStatus) {
+       _isPremium = newPremiumStatus;
+       _isLifetimeNoAds = newAdsFreeStatus;
+       notifyListeners();
+       debugPrint('🔄 [PurchaseManager] Durum Güncellendi -> Premium: $_isPremium, AdsFree: $_isLifetimeNoAds');
+    }
+  }
 
-      // Para birimi sembolünü bul (Rakam olmayan karakterler)
-      String currencySymbol = yearlyPriceStr.replaceAll(RegExp(r'[0-9.,\s]'), '');
+  // Reklam kaldırma ID'leri (Legacy)
+  static const List<String> _legacyAdsIds = [
+    'remove_ads', 'ads_remove', 'reklam_kaldir', 'reklam_kaldirma',
+    'ads_free', 'no_ads', 'ad_free', 'premium_ads', 'adsfree', 'noads',
+    'lifetime_ads', 'removeads'
+  ];
+
+  // Aktif kitabı var mı? (Reklam kaldırma hariç)
+  bool get hasActiveBooks {
+    if (_purchasedBooks.isEmpty) return false;
+    // Eğer tüm satın alımları sadece reklam kaldırmadan ibaretse false dön
+    return _purchasedBooks.any((id) => !_legacyAdsIds.contains(id.toLowerCase()));
+  }
+
+  // Eski sistemdeki (Firestore) satın alımları kontrol et
+  Future<void> _checkLegacyPermissions({
+    required Function(bool isLegacyPremium, bool isLegacyAdsFree) onLegacyFound
+  }) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (!doc.exists || doc.data() == null) return;
       
-      // Sembolün konumunu bul (Başta mı sonda mı?)
-      bool symbolAtStart = yearlyPriceStr.trim().startsWith(currencySymbol);
+      final data = doc.data()!;
+      bool legacyAdsFree = false;
 
-      // Fiyatı formatla (Daima 2 ondalık hane)
-      // Eğer orijinal fiyat virgül kullanıyorsa virgül, nokta kullanıyorsa nokta kullan
-      bool useComma = yearlyPriceStr.contains(',');
-      String formattedPrice = monthlyCost.toStringAsFixed(2);
-      if (useComma) formattedPrice = formattedPrice.replaceAll('.', ',');
+      // 1. Ömür Boyu Reklam Kaldırma Kontrolü
+      // Farklı varyasyonları kontrol et (isAdsRemoved, adsRemoved, ads_removed)
+      // Tip kontrolü de yap (bool, string, vb)
+      bool checkBoolField(String field) {
+        final val = data[field];
+        if (val == true) return true;
+        if (val is String && val.toLowerCase() == 'true') return true;
+        if (val is int && val == 1) return true;
+        return false;
+      }
 
-      if (symbolAtStart) {
-        return '$currencySymbol$formattedPrice/ay';
-      } else {
-        return '$formattedPrice$currencySymbol /ay';
+      if (checkBoolField('lifetimeAdsFree') || 
+          checkBoolField('isAdsRemoved') || 
+          checkBoolField('adsRemoved') || 
+          checkBoolField('ads_removed') ||
+          checkBoolField('removeAds') || 
+          checkBoolField('is_ads_removed')) {
+        legacyAdsFree = true;
+        debugPrint('🏛️ [PurchaseManager] Eski sistemden "Reklam Kaldırma" hakkı bulundu (Field Check: lifetimeAdsFree veya diğerleri).');
+      }
+
+      // 2. Satın Alınan Kitapları Yükle & remove_ads kontrolü
+      if (data['purchasedBooks'] is List) {
+        final List<dynamic> books = data['purchasedBooks'];
+        
+        // Kitapları hafızaya set olarak al
+        _purchasedBooks = books.map((e) => e.toString()).toSet();
+        debugPrint('📚 [PurchaseManager] Eski satın alınan kitaplar yüklendi: $_purchasedBooks');
+
+        // Liste içinde remove_ads var mı?
+        if (books.any((bookId) => _legacyAdsIds.contains(bookId.toString().toLowerCase()))) {
+           legacyAdsFree = true;
+           debugPrint('🏛️ [PurchaseManager] Eski sistemden "Reklam Kaldırma" hakkı bulundu (purchasedBooks array).');
+        }
+      }
+
+      // NOT: Eskiden "Premium" diye bir şey olmadığı için legacyPremium hep false döner.
+      onLegacyFound(false, legacyAdsFree);
+      
+    } catch (e) {
+      debugPrint('⚠️ [PurchaseManager] Legacy kontrol hatası: $e');
+    }
+  }
+
+  // Ürünleri (Offerings) çek
+  Future<void> fetchProducts() async {
+    try {
+      _offerings = await Purchases.getOfferings();
+      if (_offerings != null && _offerings!.current != null) {
+         debugPrint('📦 [RevenueCat] Offerings yüklendi. Paketler: ${_offerings!.current!.availablePackages.length}');
       }
     } catch (e) {
-      debugPrint('Fiyat hesaplama hatası: $e');
+      debugPrint('❌ [RevenueCat] Offerings hatası: $e');
+    }
+  }
+  
+  // Fiyat bilgisi al
+  String getPrice(String packageId) {
+    if (_offerings == null || _offerings!.current == null) return '';
+    
+    // Basit eşleşme: 'monthly' veya 'yearly' içeren paketleri bul
+    try {
+      if (packageId == 'monthly' && _offerings!.current!.monthly != null) {
+        return _offerings!.current!.monthly!.storeProduct.priceString;
+      }
+      if (packageId == 'yearly' && _offerings!.current!.annual != null) {
+        return _offerings!.current!.annual!.storeProduct.priceString;
+      }
+      
+      // Fallback: Identifier içinde ara
+       final p = _offerings!.current!.availablePackages.firstWhere(
+        (p) => p.identifier.toLowerCase().contains(packageId.toLowerCase()),
+      );
+      return p.storeProduct.priceString;
+    } catch (_) {
       return '';
     }
   }
 
-  // Kullanıcı satın almalarını yükle
-  Future<void> loadUserPurchases() async {
+  // Yıllık planın aylık maliyeti (Basit hesap)
+  String getMonthlyCostForYearly() {
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        debugPrint('🚪 [PurchaseManager] Giriş yapılmamış');
-        return;
+      final annualPackage = _offerings?.current?.annual;
+      if (annualPackage != null) {
+        final price = annualPackage.storeProduct.price;
+        final monthlyCost = price / 12;
+        return '${annualPackage.storeProduct.currencyCode} ${monthlyCost.toStringAsFixed(2)} /ay'; 
       }
-
-      // Local cache'den yükle
-      final prefs = await SharedPreferences.getInstance();
-      _isLifetimeNoAds = prefs.getBool('is_lifetime_no_ads') ?? prefs.getBool('is_ads_free') ?? false; 
-      _isPremium = prefs.getBool('is_premium') ?? false;
-      final books = prefs.getStringList('purchased_books') ?? [];
-      _purchasedBooks = books.toSet();
-
-      // FIRESTORE: İki farklı yerden de kontrol ediyoruz (Mevcut karmaşıklığı çözmek için)
-      
-      // 1. Root User Dokümanı (BookPurchaseService buraya kaydediyor)
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-
-      if (userDoc.exists) {
-        final data = userDoc.data() as Map<String, dynamic>;
-        
-        // 1. Kitaplar (Her iki versiyonu da kontrol et)
-        final books = (data['purchasedBooks'] as List<dynamic>?) ?? 
-                      (data['purchased_books'] as List<dynamic>?) ?? [];
-        
-        for (var b in books) {
-          _purchasedBooks.add(b.toString());
-        }
-        
-        // 2. Premium / Reklamsız (Tüm versiyonları kontrol et)
-        _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
-        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
-        
-        // Bitiş tarihini yükle
-        if (data['premium_expiry'] != null) {
-          if (data['premium_expiry'] is Timestamp) {
-            _premiumExpiry = (data['premium_expiry'] as Timestamp).toDate();
-          } else if (data['premium_expiry'] is int) {
-            _premiumExpiry = DateTime.fromMillisecondsSinceEpoch(data['premium_expiry']);
-          }
-        }
-      }
-
-      // 2. Purchases Sub-collection (PurchaseManager'ın yeni stili)
-      final purchaseDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .collection('purchases')
-          .doc('active')
-          .get();
-
-      if (purchaseDoc.exists) {
-        final data = purchaseDoc.data() as Map<String, dynamic>;
-        
-        _isLifetimeNoAds = data['is_ads_free'] ?? data['isAdsFree'] ?? data['lifetimeAdsFree'] ?? _isLifetimeNoAds;
-        _isPremium = data['is_premium'] ?? data['isPremium'] ?? _isPremium;
-        
-        // Bitiş tarihini yükle (alt koleksiyondan da kontrol)
-        if (data['premium_expiry'] != null) {
-          if (data['premium_expiry'] is Timestamp) {
-            _premiumExpiry = (data['premium_expiry'] as Timestamp).toDate();
-          } else if (data['premium_expiry'] is int) {
-            _premiumExpiry = DateTime.fromMillisecondsSinceEpoch(data['premium_expiry']);
-          }
-        }
-        
-        final books = (data['purchased_books'] as List<dynamic>?) ?? 
-                      (data['purchasedBooks'] as List<dynamic>?) ?? [];
-        
-        for (var b in books) {
-          _purchasedBooks.add(b.toString());
-        }
-      }
-
-      // Local cache'i güncelle
-      await _saveToPrefs();
-      notifyListeners();
-
-      debugPrint('📦 [PurchaseManager] Yüklendi: Premium=$_isPremium, BooksCount=${_purchasedBooks.length}');
-      
-    } catch (e) {
-      debugPrint('❌ [PurchaseManager] Satın alma yükleme hatası: $e');
-    }
+    } catch (_) {}
+    return '';
   }
 
-  // Satın alma dinleyici
-  void _listenToPurchaseUpdated(List<PurchaseDetails> purchaseDetailsList) {
-    for (final purchaseDetails in purchaseDetailsList) {
-      debugPrint('🔄 [PurchaseManager] Güncelleme: ${purchaseDetails.status}');
-      
-      if (purchaseDetails.status == PurchaseStatus.purchased ||
-          purchaseDetails.status == PurchaseStatus.restored) {
-        _processPurchase(purchaseDetails);
-      }
-      
-      if (purchaseDetails.pendingCompletePurchase) {
-        _inAppPurchase.completePurchase(purchaseDetails);
-      }
-    }
-  }
-
-  // Satın almayı işle
-  Future<void> _processPurchase(PurchaseDetails purchase) async {
+  // Satın Al (Paket)
+  Future<void> buyPackage(Package package) async {
     try {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) return;
-
-      if (!_isValidPurchase(purchase)) {
-        return;
+      _lastError = '';
+      CustomerInfo customerInfo = await Purchases.purchasePackage(package);
+      _updateCustomerStatus(customerInfo);
+    } on PlatformException catch (e) {
+      var errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        _lastError = 'Satın alma hatası: ${e.message}';
+        debugPrint('❌ [RevenueCat] Satın alma hatası: $e');
+        notifyListeners();
       }
-
-      final productType = _getProductType(purchase.productID);
-      
-      // Firestore'a kaydet
-      await _savePurchaseToFirestore(
-        userId: currentUser.uid,
-        productType: productType ?? 'unknown',
-        purchase: purchase,
-      );
-
-      // Local state'i güncelle
-      _updateLocalState(productType, purchase.productID);
-
-      notifyListeners();
-      
     } catch (e) {
-      debugPrint('❌ [PurchaseManager] İşleme hatası: $e');
+        _lastError = 'Beklenmedik hata: $e';
+        notifyListeners();
     }
   }
 
-  bool _isValidPurchase(PurchaseDetails purchase) {
-    // Basitleştirilmiş validasyon
-    return true; 
-  }
-
-  String? _getProductType(String productId) {
-    for (final entry in _products.entries) {
-      if (entry.value == productId) {
-        return entry.key;
-      }
+  Future<void> buyPremiumMonthly() async {
+    Package? package = _offerings?.current?.monthly;
+    
+    // Eğer standart 'monthly' boşsa, içinde 'monthly' geçen ilk paketi ara
+    if (package == null && _offerings?.current != null) {
+      try {
+        package = _offerings!.current!.availablePackages.firstWhere(
+          (p) => p.identifier.toLowerCase().contains('monthly')
+        );
+      } catch (_) {}
     }
-    return null;
-  }
 
-  Future<void> _savePurchaseToFirestore({
-    required String userId,
-    required String productType,
-    required PurchaseDetails purchase,
-  }) async {
-    try {
-      final docRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('purchases')
-          .doc('active');
-
-      Map<String, dynamic> updateData = {
-        'last_updated': FieldValue.serverTimestamp(),
-      };
-
-      if (productType == 'ads_free') {
-        updateData['is_ads_free'] = true;
-      } else if (productType.startsWith('premium')) {
-        updateData['is_premium'] = true;
-        updateData['premium_type'] = productType; 
-        updateData['subscription_start'] = FieldValue.serverTimestamp();
-        
-        // Bitiş tarihini hesapla (Monthly: 30 gün + 3 gün tampon, Yearly: 365 gün + 7 gün tampon)
-        // Tampon süreler market senkronizasyon gecikmeleri içindir
-        DateTime now = DateTime.now();
-        DateTime expiry;
-        if (productType.contains('yearly')) {
-          expiry = now.add(const Duration(days: 372)); 
-        } else {
-          expiry = now.add(const Duration(days: 33));
-        }
-        updateData['premium_expiry'] = Timestamp.fromDate(expiry);
-        _premiumExpiry = expiry; // Local state'i de hemen güncelle
-      } else if (productType.startsWith('book_')) {
-         // Kitap mantığı korunuyor
-         updateData['purchased_books'] = FieldValue.arrayUnion([productType]);
-      }
-
-      await docRef.set(updateData, SetOptions(merge: true));
-
-    } catch (e) {
-      debugPrint('❌ Firestore kayıt hatası: $e');
-    }
-  }
-
-  Future<void> _saveToPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('is_lifetime_no_ads', _isLifetimeNoAds);
-    await prefs.setBool('is_premium', _isPremium);
-    if (_premiumExpiry != null) {
-      await prefs.setInt('premium_expiry', _premiumExpiry!.millisecondsSinceEpoch);
+    if (package != null) {
+      await buyPackage(package);
     } else {
-      await prefs.remove('premium_expiry');
+      _lastError = 'Aylık paket bulunamadı. Lütfen: \n1. RevenueCat panelinde Products kısmında App olarak "Test Store" değil, gerçek uygulamanızın seçili olduğunu.\n2. Products içindeki Product IDlerin Google Play Console ile aynı olduğunu kontrol edin.';
+      notifyListeners();
     }
-    await prefs.setStringList('purchased_books', _purchasedBooks.toList());
   }
 
-  // Eski kullanıcılar veya şüpheli durumlar için sessiz doğrulama
-  Future<void> _silentVerifySubscription() async {
+  Future<void> buyPremiumYearly() async {
+    Package? package = _offerings?.current?.annual;
+    
+    // Eğer standart 'annual' boşsa, içinde 'yearly' veya 'annual' geçen ilk paketi ara
+    if (package == null && _offerings?.current != null) {
+      try {
+        package = _offerings!.current!.availablePackages.firstWhere(
+          (p) => p.identifier.toLowerCase().contains('yearly') || p.identifier.toLowerCase().contains('annual')
+        );
+      } catch (_) {}
+    }
+
+    if (package != null) {
+      await buyPackage(package);
+    } else {
+      _lastError = 'Yıllık paket bulunamadı. Lütfen: \n1. RevenueCat panelinde Products kısmında App olarak "Test Store" değil, gerçek uygulamanızın seçili olduğunu.\n2. Products içindeki Product IDlerin Google Play Console ile aynı olduğunu kontrol edin.';
+      notifyListeners();
+    }
+  }
+
+  Future<void> restorePurchases() async {
     try {
-      debugPrint('🔄 [PurchaseManager] Sessiz doğrulama başlatıldı...');
-      // Bu metod marketten satın almaları çeker ve local/firestore verilerini günceller
-      await _inAppPurchase.restorePurchases();
-      debugPrint('✅ [PurchaseManager] Sessiz doğrulama tamamlandı');
+      debugPrint('🔄 [RevenueCat] Restore...');
+      CustomerInfo customerInfo = await Purchases.restorePurchases();
+      _updateCustomerStatus(customerInfo);
+      
+      if (customerInfo.entitlements.active.isEmpty) {
+        _lastError = 'Aktif bir abonelik bulunamadı.';
+        notifyListeners(); 
+      }
     } catch (e) {
-      debugPrint('❌ [PurchaseManager] Sessiz doğrulama hatası: $e');
+       _lastError = 'Restore hatası: $e';
+       notifyListeners();
     }
   }
 
-  void _updateLocalState(String? productType, String productId) {
-    if (productType == 'ads_free') {
-      _isLifetimeNoAds = true;
-    } else if (productType != null && productType.startsWith('premium')) {
-      _isPremium = true;
-    } else if (productType != null && productType.startsWith('book_')) {
-      _purchasedBooks.add(productType);
-    }
-    _saveToPrefs();
+  // LEGACY METODLAR (Eski kodlarla uyumluluk için)
+  Future<void> loadUserPurchases() async {
+    await _fetchCustomerInfo();
   }
 
-  // MOCK METHODS FOR TESTING
   Future<void> mockSetPremium() async {
     if (kDebugMode) {
       _isPremium = true;
-      await _saveToPrefs();
       notifyListeners();
     }
   }
@@ -530,14 +396,7 @@ class PurchaseManager extends ChangeNotifier {
     if (kDebugMode) {
       _isPremium = false;
       _isLifetimeNoAds = false;
-      await _saveToPrefs();
       notifyListeners();
     }
-  }
-  
-  @override
-  void dispose() {
-    _subscription?.cancel();
-    super.dispose();
   }
 }

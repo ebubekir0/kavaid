@@ -30,7 +30,6 @@ import 'package:provider/provider.dart';
 import '../services/purchase_manager.dart';
 import 'subscription_screen.dart';
 import 'package:kavaid/widgets/email_auth_sheet.dart';
-import 'dart:io';
 import 'dart:async';
 
 class ProfileScreen extends StatefulWidget {
@@ -703,12 +702,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           },
                         ),
-                        if (_authService.isSignedIn && Provider.of<PurchaseManager>(context).isPremium)
+                        if (_authService.isSignedIn && defaultTargetPlatform != TargetPlatform.iOS && Provider.of<PurchaseManager>(context).isPremium)
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
                             child: InkWell(
                               onTap: () async {
-                                final url = Uri.parse("https://play.google.com/store/account/subscriptions");
+                                final url = defaultTargetPlatform == TargetPlatform.iOS
+                                  ? Uri.parse("https://apps.apple.com/account/subscriptions")
+                                  : Uri.parse("https://play.google.com/store/account/subscriptions");
                                 if (await canLaunchUrl(url)) {
                                   await launchUrl(url);
                                 }
@@ -716,19 +717,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "Aboneliği Yönet",
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                        color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
-                                        decoration: TextDecoration.underline,
+                                    Row(
+                                      children: [
+                                        Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          "Aboneliği Yönet",
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                            color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    // GERİ YÜKLE BUTONU
+                                    InkWell(
+                                      onTap: () async {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Satın almalar kontrol ediliyor...'), duration: Duration(seconds: 2)),
+                                        );
+                                        await Provider.of<PurchaseManager>(context, listen: false).restorePurchases();
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.restore, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "Geri Yükle",
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                              color: isDarkMode ? Colors.grey[400] : Colors.grey[700],
+                                              decoration: TextDecoration.underline,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        // HESAP SİLME (Apple Gereksinimi)
+                        if (_authService.isSignedIn)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: TextButton(
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dCtx) => AlertDialog(
+                                    title: const Text('Hesabınızı silmek istediğinize emin misiniz?'),
+                                    content: const Text('Bu işlem geri alınamaz ve tüm verileriniz (kaydedilen kelimeler, puanlar vb.) kalıcı olarak silinecektir.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(dCtx).pop(false),
+                                        child: const Text('İptal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(dCtx).pop(true),
+                                        style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                        child: const Text('Hesabımı Sil'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  try {
+                                    await _authService.deleteAccount();
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Hesabınız başarıyla silindi.')),
+                                      );
+                                      setState(() {});
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Hata: ${e.toString()}'), backgroundColor: Colors.red),
+                                      );
+                                    }
+                                  }
+                                }
+                              },
+                              child: Text(
+                                "Hesabı Sil",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.red.withOpacity(0.7),
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),
@@ -790,64 +873,176 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // Premium / Abonelik Durumu Kartı
                 Consumer<PurchaseManager>(
                   builder: (context, purchaseManager, _) {
-                    if (purchaseManager.isPremium) {
-                      // 1. Premium Üye - MAVİ KART
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF007AFF).withOpacity(0.3),
-                              blurRadius: 10,
-                              offset: const Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
+                      if (defaultTargetPlatform != TargetPlatform.iOS) {
+                        if (purchaseManager.isPremium) {
+                          // 1. Premium Üye - MAVİ KART
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
-                              child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: const [
-                                  Text(
-                                    "Premium Üyesiniz",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Premium Üyesiniz",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      const Text(
+                                        "Sınırsız içerik, reklamsız kullanım.",
+                                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        } else if (purchaseManager.isLifetimeNoAds) {
+                          // 2. Sadece Reklamsız (Eski) - Hem Premium teşviki Hem de Legacy Bilgisi
+                          return Column(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const SubscriptionScreen())
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF007AFF).withOpacity(0.3),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    "Sınırsız içerik, reklamsız kullanım.",
-                                    style: TextStyle(color: Colors.white70, fontSize: 13),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.2),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: const [
+                                            Text(
+                                              "Premium'a Geç",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                            Text(
+                                              "Tüm özelliklere erişin.",
+                                              style: TextStyle(color: Colors.white70, fontSize: 13),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    } else if (purchaseManager.isLifetimeNoAds) {
-                      // 2. Sadece Reklamsız (Eski) - Hem Premium teşviki Hem de Legacy Bilgisi
-                      return Column(
-                        children: [
-                          GestureDetector(
+                              const SizedBox(height: 12),
+                              // LEGACY CARD - MAVİ VE SADE (Premium Tasarımına Benzer)
+                              Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: const Color(0xFF007AFF).withOpacity(0.3),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 5),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: const Text(
+                                        "Reklamsız Kullanım",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                    const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          // 3. Hiçbir şeyi yok - Premium'a Geç
+                          return GestureDetector(
                             onTap: () {
+                              if (!_authService.isSignedIn) {
+                                _showLoginRequiredSnackBar();
+                                return;
+                              }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const SubscriptionScreen())
@@ -894,7 +1089,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                         Text(
-                                          "Tüm özelliklere erişin.",
+                                          "Sınırsız içerik, reklamsız kullanım.",
                                           style: TextStyle(color: Colors.white70, fontSize: 13),
                                         ),
                                       ],
@@ -904,119 +1099,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          // LEGACY CARD - MAVİ VE SADE (Premium Tasarımına Benzer)
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF007AFF).withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: const Text(
-                                    "Reklamsız Kullanım",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      // 3. Hiçbir şeyi yok - Premium'a Geç
-                      return GestureDetector(
-                        onTap: () {
-                          if (!_authService.isSignedIn) {
-                            _showLoginRequiredSnackBar();
-                            return;
-                          }
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SubscriptionScreen())
                           );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF007AFF).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
-                                    Text(
-                                      "Premium'a Geç",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    Text(
-                                      "Sınırsız içerik, reklamsız kullanım.",
-                                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
+                        }
+                      }
+                      return const SizedBox.shrink();
                   },
                 ),
                 

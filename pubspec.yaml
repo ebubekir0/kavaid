@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 3.0.30+3030
+version: 5.0.0+5000
 
 environment:
   sdk: ^3.8.1
@@ -29,6 +29,8 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
+    sdk: flutter
+  flutter_localizations:
     sdk: flutter
 
   # UI Components
@@ -76,7 +78,10 @@ dependencies:
   # Device Info
   device_info_plus: ^10.1.2
   
-  # In-App Purchase
+  # In-App Purchase (RevenueCat)
+  purchases_flutter: ^8.1.1
+  
+  # In-App Purchase (Kitap satışı için - Legacy)
   in_app_purchase: ^3.2.0
 
   # New dependencies
@@ -113,7 +118,6 @@ dependencies:
   audioplayers: ^6.5.1
   crypto: ^3.0.7
   googleapis_auth: ^2.0.0
-  pdf: ^3.11.3
 
 dev_dependencies:
   flutter_test:
@@ -217,6 +221,7 @@ flutter:
     - assets/audio/imam_gazali/
     - assets/books/frankenstein/
     - assets/audio/frankenstein/
+    - assets/data/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

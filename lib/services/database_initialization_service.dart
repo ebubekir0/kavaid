@@ -50,7 +50,7 @@ class DatabaseInitializationService {
       onProgress?.call(0.1, 'Sözlük verileri hazılanıyor...');
       
       // Batch işlemi için verileri hazırla
-      final List<Map<String, dynamic>> words = embeddedWords;
+      final List<Map<String, dynamic>> words = embeddedWordsData;
       final int totalWords = words.length;
       
       if (totalWords == 0) return true;

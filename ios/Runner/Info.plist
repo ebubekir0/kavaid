@@ -270,5 +270,19 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
+	
+	<!-- Firebase Doğrudan AppDelegate Yapılandırması (Eksik GoogleService-Info İçin) -->
+	<key>FIREBASE_GOOGLE_APP_ID</key>
+	<string>1:732976641832:ios:f5282691bc211f90ad821d</string>
+	<key>FIREBASE_API_KEY</key>
+	<string>AIzaSyBY9vqjdDT13NndXltEQYSkhyRmVOXtpdM</string>
+	<key>FIREBASE_PROJECT_ID</key>
+	<string>kavaid-2f778</string>
+	<key>FIREBASE_GCM_SENDER_ID</key>
+	<string>732976641832</string>
+	<key>FIREBASE_DATABASE_URL</key>
+	<string>https://kavaid-2f778-default-rtdb.europe-west1.firebasedatabase.app</string>
+	<key>FIREBASE_STORAGE_BUCKET</key>
+	<string>kavaid-2f778.firebasestorage.app</string>
 </dict>
 </plist>

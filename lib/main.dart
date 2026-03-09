@@ -336,9 +336,9 @@ Future<void> main() async {
     }
 
     // 🚀 ÖNCELİK 2: Firebase'i önce başlat (diğer servisler için gerekli)
-    // Not: iOS simülatör/CI ortamında native init atlanırsa [core/no-app] olur.
-    // Bunu önlemek için, eğer henüz bir Firebase app yoksa Dart tarafında
-    // DefaultFirebaseOptions ile initialize ediyoruz.
+    // Not: iOS'ta GoogleService-Info.plist eksik olabilir; bu durumda
+    // Dart tarafından DefaultFirebaseOptions ile initialize ediyoruz.
+    bool firebaseReady = false;
     try {
       if (Firebase.apps.isEmpty) {
         await Firebase.initializeApp(
@@ -346,36 +346,41 @@ Future<void> main() async {
         ).timeout(const Duration(seconds: 5));
         debugPrint('✅ Firebase (Dart) initialize edildi: DefaultFirebaseOptions');
       } else {
-        // Native tarafta başarıyla initialize edilmiş.
         debugPrint('✅ Firebase zaten initialize: native/AppDelegate');
       }
-      debugPrint('✅ Firebase kritik başlatma tamamlandı');
+      firebaseReady = Firebase.apps.isNotEmpty;
+      debugPrint('✅ Firebase kritik başlatma tamamlandı (ready=$firebaseReady)');
     } catch (e) {
-      debugPrint('❌ Firebase başlatma hatası: $e');
+      debugPrint('❌ Firebase başlatma hatası (uygulama devam ediyor): $e');
+      firebaseReady = false;
     }
 
-    // 🔒 Crashlytics toplamasını aç ve global hata yakalayıcıları kur (web'de desteklenmiyor)
-    if (!kIsWeb) {
+    // 🔒 Crashlytics - SADECE Firebase hazırsa kur (aksi halde crash olur)
+    if (!kIsWeb && firebaseReady) {
       try {
         await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-        // Flutter framework hataları
         final previousOnError = FlutterError.onError;
         FlutterError.onError = (details) {
           try {
-            FirebaseCrashlytics.instance.recordFlutterError(details);
+            if (Firebase.apps.isNotEmpty) {
+              FirebaseCrashlytics.instance.recordFlutterError(details);
+            }
           } catch (_) {}
           previousOnError?.call(details);
         };
-        // Framework dışı (async) hatalar
         WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
           try {
-            FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            if (Firebase.apps.isNotEmpty) {
+              FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+            }
           } catch (_) {}
-          return true; // Hata ele alındı
+          return true;
         };
       } catch (e) {
-        debugPrint('⚠️ Crashlytics başlatma/handler kurulum hatası: $e');
+        debugPrint('⚠️ Crashlytics başlatma hatası (uygulama devam ediyor): $e');
       }
+    } else if (!kIsWeb) {
+      debugPrint('⚠️ Firebase hazır değil - Crashlytics atlanıyor');
     }
 
     // 🚀 ÖNCELİK 3: Uygulamayı hemen çalıştır! (UI gösterilir)
@@ -398,7 +403,9 @@ Future<void> main() async {
     // En yakalanmayan hataları Crashlytics'e gönder (web'de desteklenmiyor)
     if (!kIsWeb) {
       try {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        if (Firebase.apps.isNotEmpty) {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        }
       } catch (_) {}
     }
   });

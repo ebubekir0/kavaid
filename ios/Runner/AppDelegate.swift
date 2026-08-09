@@ -39,7 +39,7 @@ import GoogleMobileAds
     }
     
     // Initialize Google Mobile Ads
-    GADMobileAds.sharedInstance().start(completionHandler: nil)
+    GADMobileAds.sharedInstance.start { _ in }
     
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)

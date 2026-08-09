@@ -198,11 +198,6 @@ class _BookTextsScreenState extends State<BookTextsScreen> {
                         return;
                       }
                       
-                      // 3. dersten sonrası için giriş ve satın alma gerekli
-                      if (!_auth.isSignedIn) {
-                        _showLoginRequiredDialog(context, isDarkMode);
-                        return;
-                      }
                       _showPurchaseDialog(context, isDarkMode);
                     },
                     child: Padding(
@@ -482,11 +477,6 @@ class _BookTextsScreenState extends State<BookTextsScreen> {
                 ),
               ElevatedButton(
                 onPressed: () async {
-                  if (!auth.isSignedIn) {
-                    Navigator.of(ctx).pop();
-                    _showLoginRequiredDialog(context, isDarkMode);
-                    return;
-                  }
                   Navigator.of(ctx).pop();
                   await bookPurchase.buyBook(widget.bookId);
                 },

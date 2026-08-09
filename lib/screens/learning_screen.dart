@@ -563,19 +563,9 @@ class _LearningScreenState extends State<LearningScreen> {
               
               return GestureDetector(
                 onTap: () {
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user == null) {
-                    // Kayıt ol sekmesi varsayılan olarak açılsın, uyarı yok
-                    EmailAuthSheet.show(
-                      context, 
-                      initialIsLogin: false,
-                      message: "Önce kayıt olup giriş yapmalısınız."
-                    );
-                  } else {
-                    Navigator.of(context, rootNavigator: true).push(
-                      MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
-                    );
-                  }
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                  );
                 },
                 child: Container(
                   margin: const EdgeInsets.only(right: 12),

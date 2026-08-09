@@ -1012,10 +1012,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // 3. Hiçbir şeyi yok - Premium'a Geç
                       return GestureDetector(
                         onTap: () {
-                          if (!_authService.isSignedIn) {
-                            _showLoginRequiredSnackBar();
-                            return;
-                          }
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => const SubscriptionScreen())
@@ -1216,10 +1212,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: ElevatedButton(
                                 onPressed: () async {
                                   final bookId = 'kitab_kiraah_1';
-                                  if (!_authService.isSignedIn) {
-                                    EmailAuthSheet.show(context, initialIsLogin: true);
-                                    return;
-                                  }
                                   try {
                                     await _bookPurchase.loadProductFor(bookId);
                                     final started = await _bookPurchase.buyBook(bookId);
@@ -2424,12 +2416,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // Güçlü klavye kapatma - dialog açılmadan önce
     FocusManager.instance.primaryFocus?.unfocus();
     SystemChannels.textInput.invokeMethod('TextInput.hide');
-    
-    if (!_authService.isSignedIn) {
-      // Oturum yoksa alttan SnackBar uyarısı göster
-      _showLoginRequiredSnackBar();
-      return;
-    }
 
     showDialog(
       context: context,

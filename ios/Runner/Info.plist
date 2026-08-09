@@ -250,11 +250,17 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 
-	<!-- Profil resmi için fotoğraf erişimi (iOS Photo Picker kullanıyoruz) -->
+	<!-- Profil resmi için fotoğraf ve kamera erişimi -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Profil fotoğrafı çekebilmeniz için kameraya erişim gereklidir.</string>
+	
+	<!-- Konum İzni -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Uygulama içi servislerin doğru bölgesel ayarlarla çalışabilmesi için konum izni gereklidir.</string>
 	
 	<!-- App Store İnceleme Notları -->
 	<key>NSInAppPurchaseUsageDescription</key>

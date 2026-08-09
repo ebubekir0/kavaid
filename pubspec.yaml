@@ -60,7 +60,7 @@ dependencies:
   # Google Fonts (Cairo için)
   
   # Google Fonts
-  google_fonts: ^6.2.1
+  google_fonts: ^6.3.3
 
 
   

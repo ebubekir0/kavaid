@@ -907,17 +907,7 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                   return FadeTransition(opacity: animation, child: child);
                                 },
                                 child: _showMeaning
-                                    ? Text(
-                                        word.anlam ?? '',
-                                        key: const ValueKey('meaning'),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w600,
-                                          color: textColor,
-                                          height: 1.4,
-                                        ),
-                                      )
+                                    ? _buildMeaningWithHarfiCer(word, textColor)
                                     : Text(
                                         displayWord,
                                         key: const ValueKey('word'),
@@ -1165,6 +1155,73 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
           ),
         ),
       ],
+    );
+  }
+  Widget _buildMeaningWithHarfiCer(WordModel word, Color textColor) {
+    final sadeAnlam = word.sadeAnlam ?? '';
+    final harfiCerler = word.harfiCerler;
+    const harfColor = Color(0xFF007AFF);
+
+    if (harfiCerler.isEmpty) {
+      return Text(
+        sadeAnlam,
+        key: const ValueKey('meaning'),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w600,
+          color: textColor,
+          height: 1.4,
+        ),
+      );
+    }
+
+    final spans = <InlineSpan>[];
+    if (sadeAnlam.isNotEmpty) {
+      spans.add(TextSpan(
+        text: sadeAnlam,
+        style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: textColor, height: 1.4),
+      ));
+    }
+
+    for (final hc in harfiCerler) {
+      final harf = hc['harf'] ?? '';
+      final hcAnlam = hc['anlamlar'] ?? '';
+      
+      spans.add(TextSpan(
+        text: '\n',
+        style: TextStyle(fontSize: 22, color: textColor, height: 1.4),
+      ));
+      
+      if (harf.isNotEmpty) {
+        spans.add(TextSpan(
+          text: harf,
+          style: const TextStyle(
+            fontSize: 24,
+            color: harfColor,
+            fontWeight: FontWeight.w700,
+            fontFamily: 'ScheherazadeNew',
+            height: 1.6,
+          ),
+        ));
+        spans.add(TextSpan(
+          text: ' ',
+          style: TextStyle(fontSize: 22, color: textColor, height: 1.4),
+        ));
+      }
+      
+      if (hcAnlam.isNotEmpty) {
+        spans.add(TextSpan(
+          text: hcAnlam,
+          style: TextStyle(fontSize: 20, color: textColor, height: 1.4, fontWeight: FontWeight.normal),
+        ));
+      }
+    }
+
+    return RichText(
+      key: const ValueKey('meaning'),
+      textAlign: TextAlign.center,
+      text: TextSpan(children: spans),
     );
   }
 }

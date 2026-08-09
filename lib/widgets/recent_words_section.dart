@@ -271,7 +271,7 @@ class _RecentWordsSectionState extends State<RecentWordsSection> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Kelimeler yükleniyor...',
+            LanguageService().isEnglish ? 'Loading words...' : (LanguageService().isArabic ? 'جارٍ تحميل الكلمات...' : 'Kelimeler yükleniyor...'),
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurface.withOpacity(0.7),
             ),
@@ -380,13 +380,47 @@ class _RecentWordsSectionState extends State<RecentWordsSection> {
                 ),
                 const SizedBox(height: 12),
               ],
-              if (word.anlam != null && word.anlam!.isNotEmpty) ...[
-                Text(
+              if ((word.sadeAnlam ?? word.anlam ?? '').isNotEmpty) ...[
+                const Text(
                   'Anlam:',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                Text(word.anlam!),
+                Text(word.sadeAnlam?.isNotEmpty == true ? word.sadeAnlam! : word.anlam!),
+                if (word.harfiCerler.isNotEmpty && !LanguageService().isArabic) ...[
+                  const SizedBox(height: 8),
+                  ...word.harfiCerler.map((hc) {
+                    final harf = hc['harf'] ?? '';
+                    final hcAnlam = hc['anlamlar'] ?? '';
+                    if (harf.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: harf,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF007AFF),
+                                fontWeight: FontWeight.bold,
+                                fontFamily: 'ScheherazadeNew',
+                              ),
+                            ),
+                            const TextSpan(text: ' '),
+                            TextSpan(
+                              text: hcAnlam,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.black87, // Popup genelde beyaz arka planlı
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ],
                 const SizedBox(height: 12),
               ],
               if (word.koku != null && word.koku!.isNotEmpty) ...[

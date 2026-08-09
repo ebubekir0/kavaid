@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/cloud_saved_words_service.dart';
+import '../services/language_service.dart';
 
 class EmailAuthSheet extends StatefulWidget {
   final bool initialIsLogin;
@@ -93,7 +94,9 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
               Row(
                 children: [
                   Text(
-                    _isLogin ? 'Giriş Yap' : 'Kayıt Ol',
+                    _isLogin 
+                      ? (LanguageService().isEnglish ? 'Log In' : (LanguageService().isArabic ? 'تسجيل الدخول' : 'Giriş Yap'))
+                      : (LanguageService().isEnglish ? 'Sign Up' : (LanguageService().isArabic ? 'إنشاء حساب' : 'Kayıt Ol')),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -107,7 +110,9 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                       _errorText = null;
                       _successText = null;
                     }),
-                    child: Text(_isLogin ? 'Kayıt Ol' : 'Giriş Yap'),
+                    child: Text(_isLogin 
+                      ? (LanguageService().isEnglish ? 'Sign Up' : (LanguageService().isArabic ? 'إنشاء حساب' : 'Kayıt Ol'))
+                      : (LanguageService().isEnglish ? 'Log In' : (LanguageService().isArabic ? 'تسجيل الدخول' : 'Giriş Yap'))),
                   )
                 ],
               ),
@@ -144,7 +149,7 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
               const SizedBox(height: 6),
               if (_isLogin) ...[
                 Text(
-                  'Hesabınız yoksa önce kayıt olun',
+                  LanguageService().isEnglish ? 'Sign up first if you don\'t have an account' : (LanguageService().isArabic ? 'سجل أولاً إذا لم يكن لديك حساب' : 'Hesabınız yoksa önce kayıt olun'),
                   style: TextStyle(
                     fontSize: 12,
                     color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
@@ -159,7 +164,7 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
-                    'Kayıt tamamlandıktan sonra giriş yapmanız gerekir.',
+                    LanguageService().isEnglish ? 'You need to log in after signing up.' : (LanguageService().isArabic ? 'تحتاج إلى تسجيل الدخول بعد إنشاء الحساب.' : 'Kayıt tamamlandıktan sonra giriş yapmanız gerekir.'),
                     style: TextStyle(
                       fontSize: 12,
                       color: isDarkMode ? Colors.white70 : Colors.black54,
@@ -204,18 +209,18 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                 key: const Key('email_field'),
                 controller: _emailController,
                 focusNode: _emailFocus,
-                decoration: const InputDecoration(labelText: 'E-posta'),
+                decoration: InputDecoration(labelText: LanguageService().isEnglish ? 'Email' : (LanguageService().isArabic ? 'البريد الإلكتروني' : 'E-posta')),
                 keyboardType: TextInputType.emailAddress,
-                validator: (v) => (v == null || !v.contains('@')) ? 'Geçersiz e-posta adresi' : null,
+                validator: (v) => (v == null || !v.contains('@')) ? (LanguageService().isEnglish ? 'Invalid email address' : (LanguageService().isArabic ? 'بريد إلكتروني غير صالح' : 'Geçersiz e-posta adresi')) : null,
               ),
               const SizedBox(height: 8),
               TextFormField(
                 key: const Key('pass_field'),
                 controller: _passController,
                 focusNode: _passFocus,
-                decoration: const InputDecoration(labelText: 'Şifre'),
+                decoration: InputDecoration(labelText: LanguageService().isEnglish ? 'Password' : (LanguageService().isArabic ? 'كلمة المرور' : 'Şifre')),
                 obscureText: true,
-                validator: (v) => (v == null || v.isEmpty) ? 'Şifre gerekli' : null,
+                validator: (v) => (v == null || v.isEmpty) ? (LanguageService().isEnglish ? 'Password required' : (LanguageService().isArabic ? 'كلمة المرور مطلوبة' : 'Şifre gerekli')) : null,
               ),
               const SizedBox(height: 8),
               
@@ -224,12 +229,12 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                   key: const Key('confirm_pass_field'),
                   controller: _confirmPassController,
                   focusNode: _confirmFocus,
-                  decoration: const InputDecoration(labelText: 'Şifre Tekrar'),
+                  decoration: InputDecoration(labelText: LanguageService().isEnglish ? 'Confirm Password' : (LanguageService().isArabic ? 'تأكيد كلمة المرور' : 'Şifre Tekrar')),
                   obscureText: true,
                   validator: (v) {
                     if (_isLogin) return null;
-                    if (v == null || v.isEmpty) return 'Şifre tekrarı gerekli';
-                    if (v != _passController.text) return 'Şifreler eşleşmiyor';
+                    if (v == null || v.isEmpty) return (LanguageService().isEnglish ? 'Confirm password required' : (LanguageService().isArabic ? 'تأكيد كلمة المرور مطلوب' : 'Şifre tekrarı gerekli'));
+                    if (v != _passController.text) return (LanguageService().isEnglish ? 'Passwords do not match' : (LanguageService().isArabic ? 'كلمات المرور غير متطابقة' : 'Şifreler eşleşmiyor'));
                     return null;
                   },
                 ),
@@ -249,18 +254,20 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                           width: 18,
                           child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                         )
-                      : Text(_isLogin ? 'Giriş Yap' : 'Kayıt Ol'),
+                      : Text(_isLogin 
+                          ? (LanguageService().isEnglish ? 'Log In' : (LanguageService().isArabic ? 'تسجيل الدخول' : 'Giriş Yap'))
+                          : (LanguageService().isEnglish ? 'Sign Up' : (LanguageService().isArabic ? 'إنشاء حساب' : 'Kayıt Ol'))),
                 ),
               ),
               Align(
                 alignment: Alignment.center,
                 child: TextButton(
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Kapat'),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text(
+                    LanguageService().isEnglish 
+                        ? 'Cancel' 
+                        : (LanguageService().isArabic ? 'إلغاء' : 'İptal'),
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -304,7 +311,7 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
         if (user != null) {
           if (mounted) {
             setState(() {
-              _successText = 'Kayıt tamamlandı. Lütfen giriş yapın.';
+              _successText = LanguageService().isEnglish ? 'Signed up successfully. Please log in.' : 'Kayıt tamamlandı. Lütfen giriş yapın.';
               _isLogin = true;
               _isLoading = false;
               _emailController.clear();
@@ -319,27 +326,27 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
         }
       }
     } catch (e) {
-      String message = 'İşlem başarısız. Lütfen tekrar deneyin.';
+      String message = LanguageService().isEnglish ? 'Transaction failed. Please try again.' : 'İşlem başarısız. Lütfen tekrar deneyin.';
       if (e is FirebaseAuthException) {
         switch (e.code) {
           case 'invalid-email':
-            message = 'Geçerli bir e‑posta adresi giriniz.'; break;
+            message = LanguageService().isEnglish ? 'Enter a valid email address.' : 'Geçerli bir e‑posta adresi giriniz.'; break;
           case 'invalid-credential':
-            message = 'E‑posta veya şifre hatalı. Lütfen kontrol ediniz.'; break;
+            message = LanguageService().isEnglish ? 'Invalid email or password. Please check.' : 'E‑posta veya şifre hatalı. Lütfen kontrol ediniz.'; break;
           case 'user-not-found':
-            message = 'Bu e‑posta ile kayıt bulunamadı.'; break;
+            message = LanguageService().isEnglish ? 'No account found with this email.' : 'Bu e‑posta ile kayıt bulunamadı.'; break;
           case 'wrong-password':
-            message = 'Şifre hatalı.'; break;
+            message = LanguageService().isEnglish ? 'Incorrect password.' : 'Şifre hatalı.'; break;
           case 'email-already-in-use':
-            message = 'Bu e‑posta zaten kayıtlı.'; break;
+            message = LanguageService().isEnglish ? 'This email is already registered.' : 'Bu e‑posta zaten kayıtlı.'; break;
           case 'weak-password':
-            message = 'Şifre çok zayıf. Daha güçlü bir şifre seçin.'; break;
+            message = LanguageService().isEnglish ? 'Password is too weak. Choose a stronger one.' : 'Şifre çok zayıf. Daha güçlü bir şifre seçin.'; break;
           case 'operation-not-allowed':
-             message = 'Bu giriş yöntemi proje için etkin değil.'; break;
+             message = LanguageService().isEnglish ? 'This login method is not enabled.' : 'Bu giriş yöntemi proje için etkin değil.'; break;
           case 'network-request-failed':
-             message = 'Ağ hatası. İnternet bağlantınızı kontrol edin.'; break;
+             message = LanguageService().isEnglish ? 'Network error. Please check your connection.' : 'Ağ hatası. İnternet bağlantınızı kontrol edin.'; break;
           case 'too-many-requests':
-             message = 'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.'; break;
+             message = LanguageService().isEnglish ? 'Too many attempts. Try again later.' : 'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.'; break;
           default:
              message = 'Hata: ${e.message ?? e.code}';
         }

@@ -87,8 +87,8 @@ class ConnectivityService {
         
         return SafeArea(
           // 🔧 ANDROID 15 FIX: Dialog safe area padding
-          child: WillPopScope(
-            onWillPop: () async => false,
+          child: PopScope(
+            canPop: false,
             child: AlertDialog(
             backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
             shape: RoundedRectangleBorder(

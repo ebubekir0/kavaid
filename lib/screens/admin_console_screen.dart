@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/admin_service.dart';
 import '../services/auth_service.dart';
 import '../services/message_tracking_service.dart';
+import '../services/promo_code_service.dart';
+import '../services/global_config_service.dart';
 
 class AdminConsoleScreen extends StatefulWidget {
   final double bottomPadding;
@@ -1021,6 +1024,126 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
           
           const SizedBox(height: 20),
           
+          // 🎁 KAMPANYA YÖNETİMİ
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.campaign, color: Colors.purple, size: 24),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Kampanya Yönetimi',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Kampanya aç/kapat toggle
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Twitter Kampanyası',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: isDarkMode ? Colors.white70 : Colors.black87,
+                        ),
+                      ),
+                    ),
+                    Switch(
+                      value: GlobalConfigService().campaignEnabled,
+                      onChanged: (value) async {
+                        await GlobalConfigService().toggleCampaignStatus();
+                        if (mounted) setState(() {});
+                      },
+                      activeColor: Colors.green,
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 8),
+                // Promo kod oluştur
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _createSinglePromoCode(),
+                        icon: const Icon(Icons.add, size: 14),
+                        label: const Text('1 Kod', style: TextStyle(fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _createBatchPromoCodes(5),
+                        icon: const Icon(Icons.library_add, size: 14),
+                        label: const Text('5 Kod', style: TextStyle(fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _createBatchPromoCodes(1000),
+                        icon: const Icon(Icons.flash_on, size: 14),
+                        label: const Text('1000 Kod', style: TextStyle(fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Kodları listele butonu
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showPromoCodesList(),
+                    icon: const Icon(Icons.list_alt, size: 18),
+                    label: const Text('Tüm Promo Kodları'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.purple,
+                      side: const BorderSide(color: Colors.purple),
+                      padding: const EdgeInsets.all(14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+          
           // Kurucu bilgisi
           Container(
             padding: const EdgeInsets.all(20),
@@ -1740,4 +1863,165 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
       },
     );
   }
+
+  // ========== PROMO KOD YÖNETİM METODLARI ==========
+
+  Future<void> _createSinglePromoCode() async {
+    final code = await PromoCodeService().createPromoCode();
+    if (!mounted) return;
+    
+    if (code != null) {
+      await Clipboard.setData(ClipboardData(text: code));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('✅ Kod oluşturuldu ve kopyalandı: $code'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('❌ Kod oluşturulamadı'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _createBatchPromoCodes([int count = 5]) async {
+    // UI kilitlenmesini engellemek için yükleniyor göster
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$count kod oluşturuluyor... Lütfen bekleyin.')));
+    
+    final codes = await PromoCodeService().createBatchPromoCodes(count: count);
+    if (!mounted) return;
+    
+    if (codes.isNotEmpty) {
+      final allCodes = codes.join('\n');
+      await Clipboard.setData(ClipboardData(text: allCodes));
+      
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('✅ Kodlar Oluşturuldu'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('${codes.length} adet kod oluşturuldu ve panoya kopyalandı!'),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                constraints: const BoxConstraints(maxHeight: 200),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: codes.take(10).map((c) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: Text(c, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600, fontSize: 15)),
+                    )).toList()
+                      ..addAll(codes.length > 10 ? [const Padding(padding: EdgeInsets.only(top: 8), child: Text('...ve diğerleri (Panoya kopyalandı)'))] : []),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Tamam'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _showPromoCodesList() async {
+    final codes = await PromoCodeService().listPromoCodes();
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.vpn_key, color: Colors.purple, size: 22),
+            const SizedBox(width: 8),
+            Text('Promo Kodları (${codes.length})'),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 400,
+          child: codes.isEmpty
+              ? const Center(child: Text('Henüz promo kodu yok'))
+              : ListView.builder(
+                  itemCount: codes.length,
+                  itemBuilder: (context, index) {
+                    final code = codes[index];
+                    final codeStr = code['code'] as String? ?? code['id'] as String? ?? '?';
+                    final isActive = code['isActive'] as bool? ?? false;
+                    final usedCount = code['usedCount'] as int? ?? 0;
+                    final maxUses = code['maxUses'] as int? ?? 1;
+                    
+                    return Card(
+                      color: isActive ? null : Colors.grey[200],
+                      child: ListTile(
+                        title: Text(
+                          codeStr,
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: isActive ? Colors.black : Colors.grey,
+                            decoration: isActive ? null : TextDecoration.lineThrough,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${isActive ? "✅ Aktif" : "❌ Deaktif"} • Kullanım: $usedCount/$maxUses',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.copy, size: 18),
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: codeStr));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('$codeStr kopyalandı')),
+                                );
+                              },
+                            ),
+                            if (isActive)
+                              IconButton(
+                                icon: const Icon(Icons.block, size: 18, color: Colors.red),
+                                onPressed: () async {
+                                  await PromoCodeService().deactivatePromoCode(codeStr);
+                                  Navigator.pop(ctx);
+                                  _showPromoCodesList();
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Kapat'),
+          ),
+        ],
+      ),
+    );
+  }
 }
+

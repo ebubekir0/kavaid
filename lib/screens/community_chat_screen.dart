@@ -974,7 +974,7 @@ class _CommunityChatScreenState extends State<CommunityChatScreen> with WidgetsB
           ),
           const SizedBox(height: 16),
           Text(
-            'Mesajlar yükleniyor...',
+            LanguageService().isEnglish ? 'Loading messages...' : (LanguageService().isArabic ? 'جارٍ تحميل الرسائل...' : 'Mesajlar yükleniyor...'),
             style: TextStyle(
               fontSize: 15,
               color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF8E8E93),

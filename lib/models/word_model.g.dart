@@ -11,6 +11,7 @@ WordModel _$WordModelFromJson(Map<String, dynamic> json) => WordModel(
   harekeliKelime: json['harekeliKelime'] as String?,
   anlam: json['anlam'] as String?,
   koku: json['koku'] as String?,
+  tip: json['tip'] as String?,
   dilbilgiselOzellikler: json['dilbilgiselOzellikler'] as Map<String, dynamic>?,
   fiilCekimler: json['fiilCekimler'] as Map<String, dynamic>?,
   ornekCumleler: (json['ornekCumleler'] as List<dynamic>?)
@@ -25,6 +26,7 @@ Map<String, dynamic> _$WordModelToJson(WordModel instance) => <String, dynamic>{
   'harekeliKelime': instance.harekeliKelime,
   'anlam': instance.anlam,
   'koku': instance.koku,
+  'tip': instance.tip,
   'dilbilgiselOzellikler': instance.dilbilgiselOzellikler,
   'fiilCekimler': instance.fiilCekimler,
   'ornekCumleler': instance.ornekCumleler,

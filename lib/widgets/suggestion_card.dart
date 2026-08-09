@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/word_model.dart';
+import '../services/language_service.dart';
 
 class SuggestionCard extends StatelessWidget {
   final WordModel word;
@@ -53,17 +54,34 @@ class SuggestionCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (word.anlam?.isNotEmpty == true) ...[
+                    if ((word.sadeAnlam ?? word.anlam ?? '').isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
-                        (word.anlam!.length > 60) 
-                            ? '${word.anlam!.substring(0, 60)}...'
-                            : word.anlam!,
+                        ((word.sadeAnlam ?? word.anlam!).length > 60) 
+                            ? '${(word.sadeAnlam ?? word.anlam!).substring(0, 60)}...'
+                            : (word.sadeAnlam ?? word.anlam!),
                         style: const TextStyle(
                           fontSize: 15,
                           color: Color(0xFF8E8E93),
                         ),
                       ),
+                      if (word.harfiCerler.isNotEmpty && !LanguageService().isArabic) ...[
+                        const SizedBox(height: 4),
+                        RichText(
+                          text: TextSpan(
+                            children: word.harfiCerler.take(2).map((hc) {
+                              return TextSpan(
+                                text: '${hc['harf']} ',
+                                style: const TextStyle(
+                                  color: Color(0xFF007AFF),
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'ScheherazadeNew',
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),

@@ -7,6 +7,7 @@ import '../utils/performance_utils.dart';
 import '../services/tts_service.dart';
 import '../services/turkce_analytics_service.dart';
 import '../services/auth_service.dart';
+import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -113,9 +114,11 @@ class _WordCardState extends State<WordCard> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text(
-                'Kelime kaydetmek için önce giriş yapın',
-                style: TextStyle(color: Colors.white),
+              content: Text(
+                LanguageService().isEnglish 
+                    ? 'Log in first to save words' 
+                    : (LanguageService().isArabic ? 'سجل الدخول أولاً لحفظ الكلمات' : 'Kelime kaydetmek için önce giriş yapın'),
+                style: const TextStyle(color: Colors.white),
               ),
               backgroundColor: Colors.black87,
               duration: const Duration(seconds: 2),
@@ -182,12 +185,28 @@ class _WordCardState extends State<WordCard> {
       final imageFile = File(imagePath);
       await imageFile.writeAsBytes(image);
       
+      String shareText = 'Kavaid - Arapça-Türkçe Sözlük\n\n'
+          '${widget.word.harekeliKelime ?? widget.word.kelime}\n';
+      
+      final sade = widget.word.sadeAnlam ?? '';
+      if (sade.isNotEmpty) {
+        shareText += '$sade\n';
+      } else if (widget.word.localizedAnlam != null) {
+        shareText += '${widget.word.localizedAnlam}\n';
+      }
+      
+      for (final hc in widget.word.harfiCerler) {
+        final h = hc['harf'] ?? '';
+        final a = hc['anlamlar'] ?? '';
+        if (h.isNotEmpty) {
+          shareText += '($h) $a\n';
+        }
+      }
+
       // Paylaş
       await Share.shareXFiles(
         [XFile(imagePath)],
-        text: 'Kavaid - Arapça-Türkçe Sözlük\n\n'
-              '${widget.word.harekeliKelime ?? widget.word.kelime}\n'
-              '${widget.word.anlam ?? ""}',
+        text: shareText.trim(),
       );
       
       // Geçici dosyayı temizle
@@ -221,87 +240,207 @@ class _WordCardState extends State<WordCard> {
   
   // 🚀 PERFORMANCE: İçeriği ayrı method'a al
   Widget _buildCardContent(bool isDarkMode, bool isSaved, SavedWordsService savedWordsService) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min, // 🚀 PERFORMANCE: Column boyutunu minimize et
-      children: [
-        // Ana içerik satırı
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Sol taraf - kelime ve anlam
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Arapça kelime - 🚀 PERFORMANCE: Sabit font stili
-                  Text(
+    final isArabic = LanguageService().isArabic;
+    
+    return Directionality(
+      textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+      child: Column(
+        crossAxisAlignment: isArabic ? CrossAxisAlignment.start : CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min, // 🚀 PERFORMANCE: Column boyutunu minimize et
+        children: [
+          // Ana içerik satırı (Arapça kelime ve sağdaki butonlar)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Kelime ve Butonlar (Dile göre yön değiştirir)
+              if (LanguageService().isArabic) ...[
+                // Arapça modunda: Kelime sağda, simgeler solda (RTL'de kod sırası ters)
+                Expanded(
+                  child: Text(
+                    widget.word.harekeliKelime ?? widget.word.kelime,
+                    style: _arabicTextStyle.copyWith(
+                      color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
+                    ),
+                    textDirection: TextDirection.rtl,
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                _buildActions(isSaved, savedWordsService, isDarkMode),
+              ] else ...[
+                // Türkçe/İngilizce modunda: Kelime solda, simgeler sağda
+                Expanded(
+                  child: Text(
                     widget.word.harekeliKelime ?? widget.word.kelime,
                     style: _arabicTextStyle.copyWith(
                       color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
                     ),
                     textDirection: TextDirection.rtl,
                   ),
-                  
-                  // Türkçe anlam
-                  if (widget.word.anlam != null && widget.word.anlam!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.word.anlam!,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isDarkMode 
-                            ? const Color(0xFF8E8E93)
-                            : const Color(0xFF6D6D70),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            
-            // Sağ taraf - butonlar
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Telaffuz butonu
-                IconButton(
-                  onPressed: _speakArabic,
-                  icon: Icon(
-                    Icons.volume_up,
-                    color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
-                  ),
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
-
-                // Kaydetme butonu
-                IconButton(
-                  onPressed: () => _toggleSaved(savedWordsService, isSaved),
-                  icon: Icon(
-                    isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: isSaved
-                        ? const Color(0xFF007AFF)
-                        : (isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70)),
-                  ),
-                  iconSize: 20,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+                _buildActions(isSaved, savedWordsService, isDarkMode),
               ],
-            ),
-          ],
-        ),
+            ],
+          ),
         
-        // 🚀 PERFORMANCE: Örnek cümle widget'ını optimize et
-        if (_isExpanded && widget.word.ornekler.isNotEmpty)
-          _buildExampleSection(isDarkMode),
+        // Türkçe anlam + harfi_cer bölümü (Tam Genişlikte) - Arapça için sadece anlam göster
+        if (widget.word.localizedAnlam != null && widget.word.localizedAnlam!.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          _buildAnlamWithHarfiCer(isDarkMode),
+        ],
+      ],
+    ),
+  );
+  }
+
+  Widget _buildActions(bool isSaved, SavedWordsService savedWordsService, bool isDarkMode) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Telaffuz butonu
+        IconButton(
+          onPressed: _speakArabic,
+          icon: Icon(
+            Icons.volume_up,
+            color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+          ),
+          iconSize: 20,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
+
+        // Kaydetme butonu
+        IconButton(
+          onPressed: () => _toggleSaved(savedWordsService, isSaved),
+          icon: Icon(
+            isSaved ? Icons.bookmark : Icons.bookmark_border,
+            color: isSaved
+                ? const Color(0xFF007AFF)
+                : (isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70)),
+          ),
+          iconSize: 20,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+        ),
       ],
     );
   }
-  
+
+  // Anlam + harfi_cer bölümünü oluştur
+  Widget _buildAnlamWithHarfiCer(bool isDarkMode) {
+    final sadeAnlam = widget.word.sadeAnlam ?? '';
+    final localizedAnlam = widget.word.localizedAnlam ?? '';
+    final harfiCerler = widget.word.harfiCerler;
+
+    final textColor = isDarkMode
+        ? const Color(0xFF8E8E93)
+        : const Color(0xFF6D6D70);
+    const harfColor = Color(0xFF007AFF); // Mavi
+    const fontSize = 16.5;
+
+    // Arapça modda sadece localizedAnlam göster, harfi cer gösterme
+    if (LanguageService().isArabic) {
+      if (localizedAnlam.isEmpty) return const SizedBox.shrink();
+      
+      return RichText(
+        text: TextSpan(
+          text: localizedAnlam,
+          style: TextStyle(fontSize: fontSize, color: textColor, height: 1.5),
+        ),
+        textDirection: TextDirection.rtl,
+        textAlign: TextAlign.right,
+        maxLines: _isExpanded ? null : 3,
+        overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+      );
+    }
+
+    // Türkçe modda harfi cer gösterilir - karakter bozulmasiz
+    if (LanguageService().isTurkish) {
+      if (sadeAnlam.isEmpty && harfiCerler.isEmpty) return const SizedBox.shrink();
+      
+      final spans = <InlineSpan>[];
+      
+      // Sade anlam
+      if (sadeAnlam.isNotEmpty) {
+        spans.add(TextSpan(
+          text: sadeAnlam,
+          style: TextStyle(fontSize: fontSize, color: textColor, height: 1.5),
+        ));
+      }
+      
+      // Harf-i cerler (Türkçe modunda da göster)
+      if (harfiCerler.isNotEmpty) {
+        if (!_isExpanded) {
+          // Kapaliysa harfler aralarinda boslukla
+          final harfsStr = harfiCerler.map((hc) => hc['harf']).where((h) => h != null && h.isNotEmpty).join(' ');
+          if (harfsStr.isNotEmpty) {
+            spans.add(TextSpan(
+              text: sadeAnlam.isEmpty ? harfsStr : ' $harfsStr',
+              style: const TextStyle(
+                fontSize: fontSize,
+                color: harfColor,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'ScheherazadeNew',
+                height: 1.5,
+              ),
+            ));
+          }
+        } else {
+          // Açiksa detayli gösterim
+          for (int i = 0; i < harfiCerler.length; i++) {
+            final hc = harfiCerler[i];
+            final harf = hc['harf'] ?? '';
+            final hcAnlam = hc['anlamlar'] ?? '';
+            
+            final isFirst = i == 0;
+            final prefixText = (isFirst && sadeAnlam.isNotEmpty) ? ', ' : (isFirst ? '' : ', ');
+
+            if (harf.isNotEmpty) {
+               spans.add(TextSpan(
+                 text: '$prefixText$harf ',
+                 style: const TextStyle(fontSize: fontSize, color: harfColor, fontWeight: FontWeight.w700, fontFamily: 'ScheherazadeNew', height: 1.5),
+               ));
+            }
+            if (hcAnlam.isNotEmpty) {
+               spans.add(TextSpan(
+                 text: hcAnlam,
+                 style: TextStyle(fontSize: fontSize, color: textColor, height: 1.5),
+               ));
+            }
+          }
+        }
+      }
+
+      return RichText(
+        text: TextSpan(children: spans),
+        textDirection: TextDirection.ltr, // Türkçe için sol->sağ
+        textAlign: TextAlign.left,
+        maxLines: _isExpanded ? null : 3,
+        overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+      );
+    }
+
+    // İngilizce modda sadece anlam göster, harfi cer gösterme
+    final spans = <InlineSpan>[];
+
+    // 1. Sade anlam
+    if (sadeAnlam.isNotEmpty) {
+      spans.add(TextSpan(
+        text: sadeAnlam,
+        style: TextStyle(fontSize: fontSize, color: textColor, height: 1.5),
+      ));
+    }
+
+    return RichText(
+      text: TextSpan(children: spans),
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.left,
+      maxLines: _isExpanded ? null : 3,
+      overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+    );
+  }
+
   // 🚀 PERFORMANCE: Örnek cümle bölümünü ayrı widget olarak optimize et
   Widget _buildExampleSection(bool isDarkMode) {
     // Debug: Örnek cümle içeriğini kontrol et
@@ -334,9 +473,11 @@ class _WordCardState extends State<WordCard> {
                 : const Color(0xFF007AFF).withOpacity(0.08),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Text(
-            'Örnek Cümle',
-            style: TextStyle(
+          child: Text(
+            LanguageService().isEnglish 
+                ? 'Example Sentence' 
+                : (LanguageService().isArabic ? 'جملة مثال' : 'Örnek Cümle'),
+            style: const TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: Color(0xFF007AFF),
@@ -370,19 +511,19 @@ class _WordCardState extends State<WordCard> {
                 // Arapça örnek cümle - 🚀 PERFORMANCE: Sabit font stili kullan
                 Text(
                   widget.word.ornekler.first.arapcaCumle,
+                  textDirection: TextDirection.rtl,
                   style: _exampleArabicTextStyle.copyWith(
                     color: isDarkMode 
                         ? Colors.white.withOpacity(0.9)
                         : const Color(0xFF1C1C1E),
                   ),
-                  textDirection: TextDirection.rtl,
                 ),
                 
-                // Türkçe çeviri
-                if (widget.word.ornekler.first.turkceCeviri.isNotEmpty) ...[
+                // Türkçe veya İngilizce çeviri
+                if (widget.word.ornekler.first.localizedCeviri.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
-                    widget.word.ornekler.first.turkceCeviri,
+                    widget.word.ornekler.first.localizedCeviri,
                     style: TextStyle(
                       fontSize: 14,
                       color: isDarkMode 

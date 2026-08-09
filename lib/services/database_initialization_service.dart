@@ -1,110 +1,172 @@
-// kavaid/lib/services/database_initialization_service.dart
-
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'database_service.dart';
 import '../data/embedded_words_data.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DatabaseInitializationService {
-  static final DatabaseInitializationService instance = DatabaseInitializationService._init();
+  static final DatabaseInitializationService instance =
+      DatabaseInitializationService._init();
+
   DatabaseInitializationService._init();
 
-  final DatabaseService _dbService = DatabaseService.instance;
-  static const String _dbVersionKey = 'database_version_embedded';
-  static const int _currentDbVersion = 5000; // pubspec version ile uyumlu olabilir
-
+  // Progress callback
   Function(double progress, String message)? onProgress;
 
+  /// Database'in güncel olup olmadığını kontrol et
   Future<bool> isDatabaseUpToDate() async {
-    if (kIsWeb) return true;
-    
-    final prefs = await SharedPreferences.getInstance();
-    final savedVersion = prefs.getInt(_dbVersionKey) ?? 0;
-    
-    if (savedVersion < _currentDbVersion) return false;
-    
-    // Ayrıca kelime sayısını kontrol et
-    final wordCount = await _dbService.getWordsCount();
-    return wordCount > 0;
-  }
-
-  Future<Map<String, dynamic>> getDatabaseInfo() async {
-    if (kIsWeb) return {'wordCount': 0};
-    final count = await _dbService.getWordsCount();
-    return {'wordCount': count};
-  }
-
-  Future<bool> forceReloadEmbeddedData() async {
-    return await initializeDatabase(force: true);
-  }
-
-  Future<bool> initializeDatabase({bool force = false}) async {
-    if (kIsWeb) return true;
-
     try {
-      final db = await _dbService.database;
-      if (db == null) return false;
-
-      onProgress?.call(0.1, 'Sözlük verileri hazılanıyor...');
-      
-      // Batch işlemi için verileri hazırla
-      final List<Map<String, dynamic>> words = embeddedWordsData;
-      final int totalWords = words.length;
-      
-      if (totalWords == 0) return true;
-
-      // Veritabanını temizle (eğer force ise)
-      if (force) {
-        await db.delete('words');
-      }
-
-      onProgress?.call(0.2, 'Veritabanına aktarılıyor...');
-
-      // Batch insert (Performans için)
-      int batchSize = 500;
-      for (int i = 0; i < totalWords; i += batchSize) {
-        final end = (i + batchSize < totalWords) ? i + batchSize : totalWords;
-        final batch = db.batch();
-        
-        for (int j = i; j < end; j++) {
-          final wordData = words[j];
-          batch.insert('words', {
-            'kelime': wordData['kelime'],
-            'harekeliKelime': wordData['harekeliKelime'],
-            'anlam': wordData['anlam'],
-            'koku': wordData['koku'],
-            'dilbilgiselOzellikler': _safeJsonEncode(wordData['dilbilgiselOzellikler']),
-            'ornekCumleler': _safeJsonEncode(wordData['ornekCumleler']),
-            'fiilCekimler': _safeJsonEncode(wordData['fiilCekimler']),
-            'eklenmeTarihi': wordData['eklenmeTarihi'] ?? DateTime.now().millisecondsSinceEpoch,
-          }, conflictAlgorithm: ConflictAlgorithm.replace);
-        }
-        
-        await batch.commit(noResult: true);
-        
-        double progress = 0.2 + (0.7 * (end / totalWords));
-        onProgress?.call(progress, 'Yükleniyor: $end / $totalWords');
-      }
-
-      // Versiyonu kaydet
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(_dbVersionKey, _currentDbVersion);
+      final isEmbeddedDataLoaded =
+          prefs.getBool('embedded_data_loaded_v3') ?? false;
+
+      // Embedded data yüklenmiş mi kontrol et
+      if (isEmbeddedDataLoaded) {
+        return true;
+      }
+
+      // Lokal database varsa ve boş değilse true dön
+      final dbService = DatabaseService.instance;
+      final count = await dbService.getWordsCount();
+      return count > 0;
+    } catch (e) {
+      debugPrint('Version kontrol hatası: $e');
+      // Hata durumunda lokal database varsa true dön
+      final dbService = DatabaseService.instance;
+      final count = await dbService.getWordsCount();
+      return count > 0;
+    }
+  }
+
+  /// Embedded data'yı yükle
+  Future<bool> initializeDatabase() async {
+    try {
+      onProgress?.call(0.0, 'Sözlük hazırlanıyor...');
+
+      // Lokal database kontrolü
+      final dbService = DatabaseService.instance;
+      final existingCount = await dbService.getWordsCount();
+
+      // Eğer veritabanında zaten kelimeler varsa ve embedded data yüklenmişse, skip et
+      final prefs = await SharedPreferences.getInstance();
+      final isEmbeddedDataLoaded =
+          prefs.getBool('embedded_data_loaded_v3') ?? false;
+
+      if (existingCount > 0 && isEmbeddedDataLoaded) {
+        onProgress?.call(1.0, 'Sözlük hazır. ${existingCount} kelime mevcut.');
+        return true;
+      }
+
+      onProgress?.call(0.1, 'Sözlük ayarlanıyor...');
+
+      // Embedded data'dan kelimeleri al
+      final wordsJson = embeddedWordsData;
+
+      onProgress?.call(0.3, 'Kelimeler yükleniyor...');
+
+      // İlk kurulumda Android input dispatch'i bloklanmasın diye parça parça yaz.
+      await dbService.recreateWordsTableFromEmbeddedMaps(
+        wordsJson,
+        onChunkCommitted: (loadedCount) {
+          final progress = 0.3 + (0.6 * (loadedCount / wordsJson.length));
+          onProgress?.call(progress, 'Sözlük ayarlanıyor...');
+        },
+      );
+
+      onProgress?.call(0.9, 'Sözlük ayarlanıyor...');
+
+      // Embedded data yüklendiğini işaretle (v3 = harfi_cer destekli yeni DB)
+      await prefs.setBool('embedded_data_loaded_v3', true);
+      await prefs.setString('database_version', 'embedded_v3_harficer');
+      await prefs.setString(
+        'last_update_date',
+        DateTime.now().toIso8601String(),
+      );
 
       onProgress?.call(1.0, 'Sözlük hazır!');
+
       return true;
     } catch (e) {
-      debugPrint('DatabaseInitializationService hatası: $e');
+      debugPrint('Database initialization hatası: $e');
+      onProgress?.call(0.0, 'Hata: ${e.toString()}');
+
+      // Hata durumunda lokal database varsa true dön
+      final dbService = DatabaseService.instance;
+      final count = await dbService.getWordsCount();
+
+      if (count > 0) {
+        onProgress?.call(1.0, 'Mevcut veritabanı kullanılacak.');
+        return true;
+      }
+
       return false;
     }
   }
 
-  String _safeJsonEncode(dynamic data) {
+  /// Database bilgilerini getir
+  Future<Map<String, dynamic>> getDatabaseInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final dbService = DatabaseService.instance;
+
+    return {
+      'version': prefs.getString('database_version') ?? 'Bilinmiyor',
+      'lastUpdate': prefs.getString('last_update_date') ?? 'Hiç güncellenmedi',
+      'wordCount': await dbService.getWordsCount(),
+      'pendingAiWords': await dbService.getPendingAiWordsCount(),
+      'hasInternet': false, // Artık internet kontrolü yapmıyoruz
+    };
+  }
+
+  /// Database'i temizle ve embedded data'yı yeniden yükle
+  Future<bool> forceReloadEmbeddedData() async {
     try {
-      return json.encode(data ?? {});
+      debugPrint('🔄 Force reload embedded data başlatılıyor...');
+
+      // SharedPreferences'ı temizle (eski ve yeni key'ler)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('embedded_data_loaded');
+      await prefs.remove('embedded_data_loaded_v3');
+      await prefs.remove('database_version');
+      await prefs.remove('last_update_date');
+      debugPrint('✅ SharedPreferences temizlendi');
+
+      // Database'i sıfırla
+      final dbService = DatabaseService.instance;
+      await dbService.recreateWordsTable([]);
+      debugPrint('✅ Database temizlendi');
+
+      // Yeni embedded data'yı yükle
+      final success = await initializeDatabase();
+
+      if (success) {
+        debugPrint('✅ Embedded data başarıyla yeniden yüklendi');
+        return true;
+      } else {
+        debugPrint('❌ Embedded data yüklenemedi');
+        return false;
+      }
     } catch (e) {
-      return '{}';
+      debugPrint('❌ Force reload hatası: $e');
+      return false;
     }
   }
+
+  /// Database'i temizle (sadece geliştirme için)
+  Future<void> clearDatabase() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('database_version');
+    await prefs.remove('last_update_date');
+    await prefs.remove('embedded_data_loaded');
+    await prefs.remove('embedded_data_loaded_v3');
+
+    final dbService = DatabaseService.instance;
+    await dbService.recreateWordsTable([]);
+  }
+}
+
+class TimeoutException implements Exception {
+  final String message;
+  TimeoutException(this.message);
+
+  @override
+  String toString() => message;
 }

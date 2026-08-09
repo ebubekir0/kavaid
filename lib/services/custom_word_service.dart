@@ -15,7 +15,7 @@ import 'auth_service.dart';
 /// İşlemler önce yerelde yapılır, internet varsa arka planda Firestore'a senkronize edilir
 class CustomWordService {
   static final CustomWordService _instance = CustomWordService._internal();
-  
+
   factory CustomWordService() {
     return _instance;
   }
@@ -26,41 +26,48 @@ class CustomWordService {
 
   CustomWordService._internal() {
     // Bağlantı değişikliklerini dinle - sadece bekleyen sync için
-    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((results) {
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((
+      results,
+    ) {
       final hasConnection = results.any((r) => r != ConnectivityResult.none);
       if (hasConnection && _isUserLoggedIn) {
         _syncPendingChangesToFirestore();
       }
     });
-    
+
     // Auth state değişikliklerini dinle (hesap değişikliği için)
-    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_onAuthStateChanged);
+    _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
+      _onAuthStateChanged,
+    );
   }
-  
+
   /// Auth state değişikliğinde çağrılır - BASİT VE SAĞLAM
   Future<void> _onAuthStateChanged(User? user) async {
     final currentUserId = user?.uid;
-    
+
     // Aynı kullanıcı ise bir şey yapma
     if (currentUserId == _previousUserId) return;
-    
-    debugPrint('🔄 [CustomWordService] Hesap değişti: ${_previousUserId ?? "yok"} -> ${currentUserId ?? "yok"}');
-    
+
+    debugPrint(
+      '🔄 [CustomWordService] Hesap değişti: ${_previousUserId ?? "yok"} -> ${currentUserId ?? "yok"}',
+    );
+
     // Her hesap değişikliğinde yerel verileri temizle
     await _clearLocalData();
-    
+
     // Yeni kullanıcı varsa Firestore'dan yükle
     if (currentUserId != null) {
       await syncFromFirestore();
     }
-    
+
     _previousUserId = currentUserId;
     _notifyListeners();
   }
-  
+
   /// Yerel verileri temizle
   Future<void> _clearLocalData() async {
     try {
+      _clearWordsCache();
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_localListsKey);
       await prefs.remove(_localWordsKey);
@@ -74,24 +81,33 @@ class CustomWordService {
   // Firestore collection references
   static const String _listsCollection = 'word_lists';
   static const String _wordsCollection = 'custom_words';
-  
+
   // Local storage keys
   static const String _localListsKey = 'local_word_lists';
   static const String _localWordsKey = 'local_custom_words';
   static const String _pendingSyncKey = 'pending_sync_operations';
   static const String _migrationKey = 'migrated_to_firestore_v3';
   static const String _lastSyncKey = 'last_firestore_sync';
-  
+
   final Uuid _uuid = const Uuid();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthService _authService = AuthService();
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+  String? _cachedWordsUserId;
+  List<CustomWord>? _cachedWords;
+  Future<List<CustomWord>>? _localWordsLoadFuture;
 
   final _changeController = StreamController<void>.broadcast();
   Stream<void> get onWordsChanged => _changeController.stream;
 
   void _notifyListeners() {
     _changeController.add(null);
+  }
+
+  void _clearWordsCache() {
+    _cachedWordsUserId = null;
+    _cachedWords = null;
+    _localWordsLoadFuture = null;
   }
 
   /// Kullanıcının Firestore document path'i
@@ -145,8 +161,30 @@ class CustomWordService {
 
   /// Yerel kelimeleri getir
   Future<List<CustomWord>> _getLocalWords() async {
-    final prefs = await SharedPreferences.getInstance();
     final userId = _authService.currentUser?.uid ?? 'guest';
+    if (_cachedWordsUserId == userId && _cachedWords != null) {
+      return List<CustomWord>.from(_cachedWords!);
+    }
+
+    if (_cachedWordsUserId == userId && _localWordsLoadFuture != null) {
+      return List<CustomWord>.from(await _localWordsLoadFuture!);
+    }
+
+    _cachedWordsUserId = userId;
+    _localWordsLoadFuture = _readLocalWords(userId)
+        .then((words) {
+          _cachedWords = List<CustomWord>.from(words);
+          return words;
+        })
+        .whenComplete(() {
+          _localWordsLoadFuture = null;
+        });
+
+    return List<CustomWord>.from(await _localWordsLoadFuture!);
+  }
+
+  Future<List<CustomWord>> _readLocalWords(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
     final key = '${_localWordsKey}_$userId';
     final String? data = prefs.getString(key);
     if (data == null) return [];
@@ -166,6 +204,9 @@ class CustomWordService {
     final key = '${_localWordsKey}_$userId';
     final String data = json.encode(words.map((e) => e.toMap()).toList());
     await prefs.setString(key, data);
+    _cachedWordsUserId = userId;
+    _cachedWords = List<CustomWord>.from(words);
+    _localWordsLoadFuture = null;
   }
 
   // ============================================================
@@ -173,11 +214,14 @@ class CustomWordService {
   // ============================================================
 
   /// Bekleyen senkronizasyon işlemlerini kaydet
-  Future<void> _addPendingOperation(String type, Map<String, dynamic> data) async {
+  Future<void> _addPendingOperation(
+    String type,
+    Map<String, dynamic> data,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final userId = _authService.currentUser?.uid ?? 'guest';
     final key = '${_pendingSyncKey}_$userId';
-    
+
     List<Map<String, dynamic>> pending = [];
     final existingData = prefs.getString(key);
     if (existingData != null) {
@@ -185,49 +229,51 @@ class CustomWordService {
         pending = List<Map<String, dynamic>>.from(json.decode(existingData));
       } catch (_) {}
     }
-    
+
     pending.add({
       'type': type,
       'data': data,
       'timestamp': DateTime.now().toIso8601String(),
     });
-    
+
     await prefs.setString(key, json.encode(pending));
   }
 
   /// Bekleyen işlemleri Firestore'a senkronize et
   Future<void> _syncPendingChangesToFirestore() async {
     if (!_isUserLoggedIn || _userPath == null) return;
-    
+
     final hasConnection = await _hasInternetConnection();
     if (!hasConnection) return;
-    
+
     final prefs = await SharedPreferences.getInstance();
     final userId = _authService.currentUser?.uid;
     final key = '${_pendingSyncKey}_$userId';
-    
+
     final existingData = prefs.getString(key);
     if (existingData == null) return;
-    
+
     List<Map<String, dynamic>> pending;
     try {
       pending = List<Map<String, dynamic>>.from(json.decode(existingData));
     } catch (_) {
       return;
     }
-    
+
     if (pending.isEmpty) return;
-    
-    debugPrint('🔄 [CustomWordService] ${pending.length} bekleyen işlem senkronize ediliyor...');
-    
+
+    debugPrint(
+      '🔄 [CustomWordService] ${pending.length} bekleyen işlem senkronize ediliyor...',
+    );
+
     final successfulOps = <int>[];
-    
+
     for (int i = 0; i < pending.length; i++) {
       final op = pending[i];
       try {
         final type = op['type'] as String;
         final data = Map<String, dynamic>.from(op['data']);
-        
+
         switch (type) {
           case 'create_list':
             await _firestore
@@ -251,7 +297,11 @@ class CustomWordService {
             for (final doc in wordsSnapshot.docs) {
               batch.delete(doc.reference);
             }
-            batch.delete(_firestore.collection('$_userPath/$_listsCollection').doc(data['id']));
+            batch.delete(
+              _firestore
+                  .collection('$_userPath/$_listsCollection')
+                  .doc(data['id']),
+            );
             await batch.commit();
             break;
           case 'add_word':
@@ -282,28 +332,30 @@ class CustomWordService {
         debugPrint('⚠️ [CustomWordService] Sync hatası: $e');
       }
     }
-    
+
     // Başarılı işlemleri listeden kaldır
     for (int i = successfulOps.length - 1; i >= 0; i--) {
       pending.removeAt(successfulOps[i]);
     }
-    
+
     if (pending.isEmpty) {
       await prefs.remove(key);
     } else {
       await prefs.setString(key, json.encode(pending));
     }
-    
-    debugPrint('✅ [CustomWordService] ${successfulOps.length} işlem senkronize edildi');
+
+    debugPrint(
+      '✅ [CustomWordService] ${successfulOps.length} işlem senkronize edildi',
+    );
   }
 
   /// Firestore'dan yerele tam senkronizasyon
   Future<void> syncFromFirestore() async {
     if (!_isUserLoggedIn || _userPath == null) return;
-    
+
     final hasConnection = await _hasInternetConnection();
     if (!hasConnection) return;
-    
+
     try {
       // Listeleri indir
       final listsSnapshot = await _firestore
@@ -313,7 +365,7 @@ class CustomWordService {
           .map((doc) => CustomWordList.fromMap(doc.data()))
           .toList();
       await _saveLocalLists(lists);
-      
+
       // Kelimeleri indir
       final wordsSnapshot = await _firestore
           .collection('$_userPath/$_wordsCollection')
@@ -322,13 +374,18 @@ class CustomWordService {
           .map((doc) => CustomWord.fromMap(doc.data()))
           .toList();
       await _saveLocalWords(words);
-      
+
       // Son sync zamanını kaydet
       final prefs = await SharedPreferences.getInstance();
       final userId = _authService.currentUser?.uid;
-      await prefs.setString('${_lastSyncKey}_$userId', DateTime.now().toIso8601String());
-      
-      debugPrint('✅ [CustomWordService] Firestore\'dan senkronizasyon tamamlandı');
+      await prefs.setString(
+        '${_lastSyncKey}_$userId',
+        DateTime.now().toIso8601String(),
+      );
+
+      debugPrint(
+        '✅ [CustomWordService] Firestore\'dan senkronizasyon tamamlandı',
+      );
       _notifyListeners();
     } catch (e) {
       debugPrint('❌ [CustomWordService] Sync hatası: $e');
@@ -342,23 +399,23 @@ class CustomWordService {
   /// Eski Firestore saved_words koleksiyonundaki kelimeleri yeni sisteme migrate et
   Future<void> migrateToFirestore() async {
     if (!_isUserLoggedIn || _userPath == null) return;
-    
+
     final prefs = await SharedPreferences.getInstance();
     final userId = _authService.currentUser?.uid;
     final migrationCheckKey = '${_migrationKey}_$userId';
-    
+
     if (prefs.getBool(migrationCheckKey) == true) {
       return;
     }
-    
+
     final hasConnection = await _hasInternetConnection();
     if (!hasConnection) {
       debugPrint('⚠️ [CustomWordService] İnternet yok, migration atlandı');
       return;
     }
-    
+
     debugPrint('🔄 [CustomWordService] Migration başlıyor...');
-    
+
     try {
       // Yeni sistemde veri var mı kontrol et
       final localLists = await _getLocalLists();
@@ -366,32 +423,34 @@ class CustomWordService {
         await prefs.setBool(migrationCheckKey, true);
         return;
       }
-      
+
       // Firestore'daki yeni sistemde veri var mı
       final firestoreLists = await _firestore
           .collection('$_userPath/$_listsCollection')
           .limit(1)
           .get();
-      
+
       if (firestoreLists.docs.isNotEmpty) {
         // Firestore'dan yerele senkronize et
         await syncFromFirestore();
         await prefs.setBool(migrationCheckKey, true);
         return;
       }
-      
+
       // Eski saved_words'den migration
       final oldSavedWordsSnapshot = await _firestore
           .collection('$_userPath/saved_words')
           .get();
-      
+
       if (oldSavedWordsSnapshot.docs.isEmpty) {
         await prefs.setBool(migrationCheckKey, true);
         return;
       }
-      
-      debugPrint('📋 [CustomWordService] ${oldSavedWordsSnapshot.docs.length} eski kelime bulundu');
-      
+
+      debugPrint(
+        '📋 [CustomWordService] ${oldSavedWordsSnapshot.docs.length} eski kelime bulundu',
+      );
+
       // Default liste oluştur
       final defaultList = CustomWordList(
         id: _uuid.v4(),
@@ -399,17 +458,17 @@ class CustomWordService {
         createdAt: DateTime.now(),
         isDefault: true,
       );
-      
+
       // Yerele kaydet
       await _saveLocalLists([defaultList]);
-      
+
       // Kelimeleri migrate et
       final migratedWords = <CustomWord>[];
       for (final doc in oldSavedWordsSnapshot.docs) {
         try {
           final data = doc.data();
           final dynamic wordDataRaw = data['word_data'];
-          
+
           Map<String, dynamic> wordData;
           if (wordDataRaw is String) {
             wordData = Map<String, dynamic>.from(json.decode(wordDataRaw));
@@ -418,33 +477,38 @@ class CustomWordService {
           } else {
             continue;
           }
-          
-          final kelime = data['kelime'] as String? ?? wordData['kelime'] as String? ?? '';
+
+          final kelime =
+              data['kelime'] as String? ?? wordData['kelime'] as String? ?? '';
           if (kelime.isEmpty) continue;
-          
-          migratedWords.add(CustomWord(
-            id: _uuid.v4(),
-            arabic: kelime,
-            turkish: wordData['anlam'] as String? ?? '',
-            harekeliKelime: wordData['harekeliKelime'] as String?,
-            wordData: wordData,
-            createdAt: DateTime.now(),
-            listId: defaultList.id,
-          ));
+
+          migratedWords.add(
+            CustomWord(
+              id: _uuid.v4(),
+              arabic: kelime,
+              turkish: wordData['anlam'] as String? ?? '',
+              harekeliKelime: wordData['harekeliKelime'] as String?,
+              wordData: wordData,
+              createdAt: DateTime.now(),
+              listId: defaultList.id,
+            ),
+          );
         } catch (e) {
           debugPrint('⚠️ [CustomWordService] Kelime migration hatası: $e');
         }
       }
-      
+
       // Yerele kaydet
       await _saveLocalWords(migratedWords);
-      
+
       // Firestore'a kaydet (arka planda)
       _syncAllToFirestore();
-      
+
       await prefs.setBool(migrationCheckKey, true);
-      debugPrint('✅ [CustomWordService] ${migratedWords.length} kelime migrate edildi');
-      
+      debugPrint(
+        '✅ [CustomWordService] ${migratedWords.length} kelime migrate edildi',
+      );
+
       _notifyListeners();
     } catch (e) {
       debugPrint('❌ [CustomWordService] Migration hatası: $e');
@@ -454,32 +518,34 @@ class CustomWordService {
   /// Tüm yerel veriyi Firestore'a senkronize et
   Future<void> _syncAllToFirestore() async {
     if (!_isUserLoggedIn || _userPath == null) return;
-    
+
     final hasConnection = await _hasInternetConnection();
     if (!hasConnection) return;
-    
+
     try {
       final lists = await _getLocalLists();
       final words = await _getLocalWords();
-      
+
       final batch = _firestore.batch();
-      
+
       for (final list in lists) {
         batch.set(
           _firestore.collection('$_userPath/$_listsCollection').doc(list.id),
           list.toMap(),
         );
       }
-      
+
       for (final word in words) {
         batch.set(
           _firestore.collection('$_userPath/$_wordsCollection').doc(word.id),
           word.toMap(),
         );
       }
-      
+
       await batch.commit();
-      debugPrint('✅ [CustomWordService] Tüm veriler Firestore\'a senkronize edildi');
+      debugPrint(
+        '✅ [CustomWordService] Tüm veriler Firestore\'a senkronize edildi',
+      );
     } catch (e) {
       debugPrint('❌ [CustomWordService] Sync hatası: $e');
     }
@@ -492,14 +558,16 @@ class CustomWordService {
   /// Tüm listeleri getir (önce yerelden)
   Future<List<CustomWordList>> getLists() async {
     if (!_isUserLoggedIn) return [];
-    
+
     // Yerelden al
     final lists = await _getLocalLists();
     return lists;
   }
 
   /// En az bir liste olduğundan emin ol, yoksa "Kaydedilenler" oluştur
-  Future<CustomWordList> getOrCreateDefaultList({bool skipMigration = false}) async {
+  Future<CustomWordList> getOrCreateDefaultList({
+    bool skipMigration = false,
+  }) async {
     if (!_isUserLoggedIn) {
       return CustomWordList(
         id: 'temp_default',
@@ -508,23 +576,26 @@ class CustomWordService {
         isDefault: true,
       );
     }
-    
+
     final lists = await getLists();
-    
+
     if (lists.isNotEmpty) {
       return lists.first;
     }
-    
+
     // Hiç liste yoksa "Kaydedilenler" oluştur
     return await createList('Kaydedilenler');
   }
 
   /// Yeni liste oluştur
-  Future<CustomWordList> createList(String name, {bool isShared = false}) async {
+  Future<CustomWordList> createList(
+    String name, {
+    bool isShared = false,
+  }) async {
     if (!_isUserLoggedIn) {
       throw Exception('Giriş yapılmamış');
     }
-    
+
     final newList = CustomWordList(
       id: _uuid.v4(),
       name: name,
@@ -532,15 +603,15 @@ class CustomWordService {
       isDefault: false,
       isShared: isShared,
     );
-    
+
     // Yerele kaydet
     final lists = await _getLocalLists();
     lists.insert(0, newList);
     await _saveLocalLists(lists);
-    
+
     // Arka planda Firestore'a kaydet
     _syncListToFirestore(newList);
-    
+
     _notifyListeners();
     return newList;
   }
@@ -566,7 +637,7 @@ class CustomWordService {
   /// Liste adını değiştir
   Future<void> renameList(String id, String newName) async {
     if (!_isUserLoggedIn) return;
-    
+
     // Yerelde güncelle
     final lists = await _getLocalLists();
     final index = lists.indexWhere((l) => l.id == id);
@@ -579,7 +650,7 @@ class CustomWordService {
       );
       await _saveLocalLists(lists);
     }
-    
+
     // Arka planda Firestore'a kaydet
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
@@ -594,23 +665,23 @@ class CustomWordService {
     } else {
       await _addPendingOperation('rename_list', {'id': id, 'name': newName});
     }
-    
+
     _notifyListeners();
   }
 
   /// Liste sil (ve içindeki kelimeleri)
   Future<void> deleteList(String id) async {
     if (!_isUserLoggedIn) return;
-    
+
     // Yerelden sil
     final lists = await _getLocalLists();
     lists.removeWhere((l) => l.id == id);
     await _saveLocalLists(lists);
-    
+
     final words = await _getLocalWords();
     words.removeWhere((w) => w.listId == id);
     await _saveLocalWords(words);
-    
+
     // Arka planda Firestore'dan sil
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
@@ -623,7 +694,9 @@ class CustomWordService {
         for (final doc in wordsSnapshot.docs) {
           batch.delete(doc.reference);
         }
-        batch.delete(_firestore.collection('$_userPath/$_listsCollection').doc(id));
+        batch.delete(
+          _firestore.collection('$_userPath/$_listsCollection').doc(id),
+        );
         await batch.commit();
       } catch (e) {
         await _addPendingOperation('delete_list', {'id': id});
@@ -631,14 +704,14 @@ class CustomWordService {
     } else {
       await _addPendingOperation('delete_list', {'id': id});
     }
-    
+
     _notifyListeners();
   }
 
   /// Kelimenin hangi listelerde olduğunu döndürür
   Future<List<String>> getListsWithWord(String arabicWord) async {
     if (!_isUserLoggedIn) return [];
-    
+
     // Yerelden kontrol et
     final words = await _getLocalWords();
     return words
@@ -660,32 +733,32 @@ class CustomWordService {
   /// Belirli listedeki kelimeleri getir (yerelden)
   Future<List<CustomWord>> getWordsByList(String listId) async {
     if (!_isUserLoggedIn) return [];
-    
+
     final words = await _getLocalWords();
-    return words
-        .where((w) => w.listId == listId)
-        .toList()
+    return words.where((w) => w.listId == listId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   /// WordModel ile kelime ekle
   Future<bool> addWordFromModel(WordModel wordModel, String listId) async {
     if (!_isUserLoggedIn) return false;
-    
+
     // Yerelden duplicate check
     final words = await _getLocalWords();
-    final exists = words.any((w) => w.listId == listId && w.arabic == wordModel.kelime);
+    final exists = words.any(
+      (w) => w.listId == listId && w.arabic == wordModel.kelime,
+    );
     if (exists) return false;
 
     final newWord = CustomWord.fromWordModel(wordModel, _uuid.v4(), listId);
-    
+
     // Yerele kaydet
     words.insert(0, newWord);
     await _saveLocalWords(words);
-    
+
     // Arka planda Firestore'a kaydet
     _syncWordToFirestore(newWord);
-    
+
     _notifyListeners();
     return true;
   }
@@ -708,9 +781,15 @@ class CustomWordService {
   }
 
   /// Basit kelime ekle (geriye uyumluluk)
-  Future<bool> addWord(String arabic, String turkish, String listId, {String? harekeliKelime, Map<String, dynamic>? wordData}) async {
+  Future<bool> addWord(
+    String arabic,
+    String turkish,
+    String listId, {
+    String? harekeliKelime,
+    Map<String, dynamic>? wordData,
+  }) async {
     if (!_isUserLoggedIn) return false;
-    
+
     // Yerelden duplicate check
     final words = await _getLocalWords();
     final exists = words.any((w) => w.listId == listId && w.arabic == arabic);
@@ -725,14 +804,14 @@ class CustomWordService {
       createdAt: DateTime.now(),
       listId: listId,
     );
-    
+
     // Yerele kaydet
     words.insert(0, newWord);
     await _saveLocalWords(words);
-    
+
     // Arka planda Firestore'a kaydet
     _syncWordToFirestore(newWord);
-    
+
     _notifyListeners();
     return true;
   }
@@ -740,12 +819,12 @@ class CustomWordService {
   /// Kelimeyi listeden kaldır
   Future<void> removeWordFromList(String arabicWord, String listId) async {
     if (!_isUserLoggedIn) return;
-    
+
     // Yerelden kaldır
     final words = await _getLocalWords();
     words.removeWhere((w) => w.listId == listId && w.arabic == arabicWord);
     await _saveLocalWords(words);
-    
+
     // Arka planda Firestore'dan kaldır
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
@@ -770,19 +849,19 @@ class CustomWordService {
         'arabic': arabicWord,
       });
     }
-    
+
     _notifyListeners();
   }
 
   /// Kelime sil (ID ile)
   Future<void> deleteWord(String id) async {
     if (!_isUserLoggedIn) return;
-    
+
     // Yerelden sil
     final words = await _getLocalWords();
     words.removeWhere((w) => w.id == id);
     await _saveLocalWords(words);
-    
+
     // Arka planda Firestore'dan sil
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
@@ -797,14 +876,18 @@ class CustomWordService {
     } else {
       await _addPendingOperation('delete_word', {'id': id});
     }
-    
+
     _notifyListeners();
   }
 
   /// Kelime güncelle
-  Future<void> updateWord(String id, String newArabic, String newTurkish) async {
+  Future<void> updateWord(
+    String id,
+    String newArabic,
+    String newTurkish,
+  ) async {
     if (!_isUserLoggedIn) return;
-    
+
     // Yerelde güncelle
     final words = await _getLocalWords();
     final index = words.indexWhere((w) => w.id == id);
@@ -820,7 +903,7 @@ class CustomWordService {
       );
       await _saveLocalWords(words);
     }
-    
+
     // Arka planda Firestore'da güncelle
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
@@ -828,31 +911,28 @@ class CustomWordService {
         await _firestore
             .collection('$_userPath/$_wordsCollection')
             .doc(id)
-            .update({
-              'arabic': newArabic,
-              'turkish': newTurkish,
-            });
+            .update({'arabic': newArabic, 'turkish': newTurkish});
       } catch (e) {
         // Pending operation eklenebilir
       }
     }
-    
+
     _notifyListeners();
   }
 
   /// Kelimeleri yeniden sırala
   Future<void> saveReorderedWords(List<CustomWord> reorderedWords) async {
     if (!_isUserLoggedIn || reorderedWords.isEmpty) return;
-    
+
     final listId = reorderedWords.first.listId;
     final allWords = await _getLocalWords();
-    
+
     // Bu listedeki kelimeleri kaldır
     allWords.removeWhere((w) => w.listId == listId);
-    
+
     // Yeni sırayla ekle
     allWords.insertAll(0, reorderedWords);
-    
+
     await _saveLocalWords(allWords);
     _notifyListeners();
   }
@@ -871,7 +951,7 @@ class CustomWordService {
     await _saveLocalLists(lists);
     _notifyListeners();
   }
-  
+
   /// Servisi dispose et
   void dispose() {
     _connectivitySubscription?.cancel();

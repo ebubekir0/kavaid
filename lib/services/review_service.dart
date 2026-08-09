@@ -86,4 +86,4 @@ class ReviewService {
     _hasRated = false;
     debugPrint('🔄 [ReviewService] Değerlendirme durumu test için sıfırlandı.');
   }
-} 
+}

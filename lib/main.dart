@@ -15,41 +15,33 @@ import 'screens/learning_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/admin_console_screen.dart';
 import 'services/admin_service.dart';
-import 'services/saved_words_service.dart';
 import 'services/admob_service.dart';
 import 'widgets/banner_ad_widget.dart';
 import 'services/credits_service.dart';
-import 'services/one_time_purchase_service.dart';
-import 'services/book_purchase_service.dart';
-import 'services/global_config_service.dart';
 import 'utils/performance_utils.dart';
 import 'utils/image_cache_manager.dart';
-import 'utils/safe_purchase_wrapper.dart';
 import 'utils/database_cleanup_utility.dart';
 import 'widgets/fps_counter_widget.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'services/firebase_service.dart';
+// import 'services/firebase_service.dart'; // PERFORMANCE: kullanılmıyor, kaldırıldı
 import 'services/firebase_options.dart';
 import 'services/turkce_analytics_service.dart';
-import 'models/word_model.dart';
+// import 'models/word_model.dart'; // PERFORMANCE: kullanılmıyor, kaldırıldı
 import 'services/app_usage_service.dart';
-import 'services/gemini_service.dart';
-import 'services/tts_service.dart';
-import 'services/review_service.dart';
-import 'services/sync_service.dart';
-import 'screens/database_loading_screen.dart';
+import 'services/language_service.dart';
+import 'services/app_startup_service.dart';
+// import 'services/sync_service.dart'; // PERFORMANCE: kullanılmıyor, kaldırıldı
 import 'services/database_service.dart';
 import 'package:sqflite/sqflite.dart';
 import 'utils/migrate_usernames.dart';
 import 'models/custom_word_list.dart';
 import 'screens/custom_words_screen.dart';
+import 'screens/translation_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'services/purchase_manager.dart';
 
 // Fontları arka planda yükle (UI'ı engellemez)
-void _preloadFonts() {
-  Future.microtask(() async {
+Future<void> _preloadFonts() async {
   try {
     // ScheherazadeNew (Tüm kalınlıkları yükle)
     final arabicLoader = FontLoader('ScheherazadeNew')
@@ -58,13 +50,14 @@ void _preloadFonts() {
       ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-SemiBold.ttf'))
       ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Bold.ttf'));
 
-    await arabicLoader.load().timeout(const Duration(seconds: 3));
+    await arabicLoader.load().timeout(const Duration(seconds: 1));
 
-    debugPrint('✅ Tüm fontlar yüklendi (FontLoader): ScheherazadeNew (Tüm Kalınlıklar)');
+    debugPrint(
+      '✅ Tüm fontlar yüklendi (FontLoader): ScheherazadeNew (Tüm Kalınlıklar)',
+    );
   } catch (e) {
     debugPrint('⚠️ Font preload başarısız (devam ediliyor): $e');
   }
-  });
 }
 
 // Custom ScrollBehavior - overscroll glow efektini kaldırmak için
@@ -81,155 +74,134 @@ class NoGlowScrollBehavior extends ScrollBehavior {
 
 // Uygulama açılışında sözlük veritabanı hazır olana kadar yükleme ekranı gösteren sarmalayıcı
 class StartupScreen extends StatefulWidget {
-  const StartupScreen({super.key});
+  final bool isDarkMode;
+  final VoidCallback? onThemeToggle;
+
+  const StartupScreen({
+    super.key,
+    required this.isDarkMode,
+    this.onThemeToggle,
+  });
 
   @override
   State<StartupScreen> createState() => _StartupScreenState();
 }
 
 class _StartupScreenState extends State<StartupScreen> {
-  bool _dbReady = false;
-  bool _checking = true;
+  final AppStartupService _startup = AppStartupService.instance;
+  bool _started = false;
 
   @override
-  void initState() {
-    super.initState();
-    _decideFlow();
-  }
-
-  Future<void> _decideFlow() async {
-    try {
-      final db = await DatabaseService.instance.database;
-      if (db == null) {
-        // Web platformu veya database yok
-        setState(() {
-          _dbReady = false;
-          _checking = false;
-        });
-        return;
-      }
-      
-      final tableInfo = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='words'");
-      bool tableExists = tableInfo.isNotEmpty;
-      int wordCount = 0;
-      if (tableExists) {
-        final countResult = await db.rawQuery('SELECT COUNT(*) FROM words');
-        wordCount = Sqflite.firstIntValue(countResult) ?? 0;
-      }
-      setState(() {
-        _dbReady = tableExists && wordCount > 0;
-        _checking = false;
-      });
-    } catch (e) {
-      // Hata durumunda güvenli tarafta kal: yükleme ekranını göster
-      setState(() {
-        _dbReady = false;
-        _checking = false;
-      });
-    }
-  }
-
-  void _onDbReady() {
-    if (!mounted) return;
-    setState(() {
-      _dbReady = true;
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    _startup.start(context: context);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_checking) {
-      // Kısa bir geçiş için boş/sade bir arka plan göster
-      return Container(color: const Color(0xFFF5F7FB));
-    }
-    if (!_dbReady) {
-      return DatabaseLoadingScreen(
-        onLoadingComplete: _onDbReady,
-      );
-    }
-    return MainScreen(
-      key: MainScreen.globalKey,
-      isDarkMode: false,
-      onThemeToggle: null,
+    return AnimatedBuilder(
+      animation: _startup,
+      builder: (context, _) {
+        if (_startup.isReady) {
+          return MainScreen(
+            key: MainScreen.globalKey,
+            isDarkMode: widget.isDarkMode,
+            onThemeToggle: widget.onThemeToggle,
+          );
+        }
+
+        final hasError = _startup.phase == StartupPhase.recoverableError;
+        final progress = _startup.progress.clamp(0.0, 1.0);
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F7FB),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.asset(
+                      'assets/images/app_icon.png',
+                      width: 120,
+                      height: 120,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.library_books,
+                        size: 80,
+                        color: Color(0xFF007AFF),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Kavaid Sözlük',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2C2C2E),
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _startup.message,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF8E8E93),
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  if (!hasError) ...[
+                    SizedBox(
+                      width: 220,
+                      child: LinearProgressIndicator(
+                        value: progress > 0 ? progress : null,
+                        minHeight: 4,
+                        backgroundColor: const Color(0xFFE5E5EA),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF007AFF),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${(progress * 100).toInt()}%',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF8E8E93),
+                      ),
+                    ),
+                  ] else ...[
+                    const Icon(
+                      Icons.error_outline,
+                      color: Color(0xFFFF3B30),
+                      size: 36,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () => _startup.retry(context: context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF007AFF),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                      ),
+                      child: const Text('Tekrar Dene'),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
-}
-
-// 🚀 PERFORMANCE MOD: Kritik servisleri arka planda hızlı başlat (Firebase zaten başlatıldı)
-void _initializeCriticalServicesBackground() {
-  Future.microtask(() async {
-  try {
-    // CreditsService'i hemen başlat (AdMob için gerekli)
-    final creditsService = CreditsService();
-    await creditsService.initialize().timeout(
-      const Duration(seconds: 3),
-    ).catchError((e) {
-      debugPrint('⚠️ CreditsService timeout/error - varsayılan değerlerle devam: $e');
-    });
-    debugPrint('✅ CreditsService kritik aşamada başlatıldı: Premium: ${creditsService.isPremium}');
-    
-    // Kullanıcı adı migration'ı arka planda çalıştır
-    // _runUsernameMigration();
-
-    // Kritik servisleri paralel başlat - hiçbiri ana thread'i bloke etmesin
-    final criticalFutures = [
-      // GlobalConfig hızlı başlat
-      GlobalConfigService().init().timeout(
-        const Duration(seconds: 2),
-        onTimeout: () {
-          debugPrint('⚠️ GlobalConfigService timeout - varsayılan değerlerle devam');
-          return null;
-        },
-      ).catchError((e) {
-        debugPrint('❌ GlobalConfigService başlatılamadı: $e');
-      }),
-      
-      // KRİTİK: Restore Purchase mekanizması - uygulama açılışında otomatik çalışacak
-      Future.microtask(() async {
-        try {
-          debugPrint('🔄 [RESTORE] Satın alma durumları restore ediliyor...');
-          
-          // OneTimePurchaseService restore
-          final oneTimeService = OneTimePurchaseService();
-          await oneTimeService.initialize().timeout(const Duration(seconds: 3));
-          await oneTimeService.restorePurchases().timeout(const Duration(seconds: 5));
-          debugPrint('✅ [RESTORE] OneTimePurchase restore tamamlandı');
-          
-          // BookPurchaseService restore  
-          final bookService = BookPurchaseService();
-          await bookService.initialize().timeout(const Duration(seconds: 3));
-          debugPrint('✅ [RESTORE] BookPurchase restore tamamlandı');
-          
-        } catch (e) {
-          debugPrint('⚠️ [RESTORE] Purchase restore hatası (devam ediyor): $e');
-        }
-      }),
-      
-      // TTS motorunu arka planda ısıt
-      Future.microtask(() async {
-        try {
-          await TTSService().warmUp().timeout(const Duration(seconds: 3));
-          debugPrint('✅ TTS warm-up tamamlandı');
-        } catch (e) {
-          debugPrint('⚠️ TTS warm-up timeout/hata: $e');
-        }
-      }),
-    ];
-    
-    // Tüm kritik servisleri paralel bekle ama timeout ile
-    await Future.wait(criticalFutures).timeout(
-      const Duration(seconds: 5),
-    ).catchError((e) {
-      debugPrint('⚠️ Kritik servisler timeout/error - uygulama devam ediyor: $e');
-      return <void>[]; // Return empty list for onError handler
-    });
-    debugPrint('✅ Kritik servisler hızlı başlatıldı');
-
-  } catch (e) {
-    debugPrint('❌ Kritik servis hatası (uygulama devam ediyor): $e');
-    // Hata durumunda da uygulama çalışmaya devam etsin
-  }
-  });
 }
 
 // 🚀 PERFORMANCE MOD: Cihaz performans modlarını ayarla (runApp'i engellemez)
@@ -239,12 +211,12 @@ void _setupPerformanceModes() {
     if (!kIsWeb && Platform.isAndroid) {
       _enableAndroidHighPerformanceMode();
     }
-    
+
     // iOS ProMotion bilgisi
     if (!kIsWeb && Platform.isIOS) {
       debugPrint('🍎 iOS ProMotion aktif - Sistem otomatik adaptasyonu');
     }
-    
+
     // Memory ve GC optimizasyonları
     if (!kIsWeb) {
       ImageCacheManager.initialize();
@@ -273,14 +245,18 @@ Future<void> _enableAndroidHighPerformanceMode() async {
         bestMode = mode;
       }
     }
-    
+
     if (bestMode != null) {
       await FlutterDisplayMode.setPreferredMode(bestMode);
-      debugPrint('🚀 En yüksek yenileme hızı ayarlandı: ${bestMode.refreshRate}Hz');
+      debugPrint(
+        '🚀 En yüksek yenileme hızı ayarlandı: ${bestMode.refreshRate}Hz',
+      );
     } else {
       // Fallback
       await FlutterDisplayMode.setHighRefreshRate();
-      debugPrint('🚀 Fallback: Yüksek yenileme hızı (setHighRefreshRate) ayarlandı.');
+      debugPrint(
+        '🚀 Fallback: Yüksek yenileme hızı (setHighRefreshRate) ayarlandı.',
+      );
     }
   } catch (e) {
     debugPrint('❌ Display mode ayarlanamadı: $e');
@@ -293,238 +269,151 @@ Future<void> _enableAndroidHighPerformanceMode() async {
   }
 }
 
+Future<void> _enableFullscreenSystemUi() async {
+  if (kIsWeb) return;
+  await SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top],
+  );
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+}
 
 Future<void> main() async {
-  await runZonedGuarded<Future<void>>(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  await runZonedGuarded<Future<void>>(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-    // 🚀 ÖNCELİK 1: Uygulama motorunu ve temel UI ayarlarını hazırla
-    // Bu işlemler hızlı ve senkron olmalı
-    if (!kIsWeb) {
-      // Frame scheduler'ı ve shader'ları erken optimize et
-      SchedulerBinding.instance.scheduleWarmUpFrame();
-      
-      if (Platform.isAndroid) {
-        // Gralloc4 ve Surface debug mesajlarını engelle
-        SystemChannels.platform.setMethodCallHandler(null);
-        FlutterError.onError = (details) {
-          final message = details.toString();
-          if (message.contains('gralloc4') || message.contains('Surface') || message.contains('FrameEvents') ||
-              message.contains('SMPTE 2094-40') || message.contains('lockHardwareCanvas') || message.contains('updateAcquireFence')) {
-            return; // Gürültülü logları yut
-          }
-          // Crashlytics'e bildir, ardından varsayılan sunumu yap (web'de desteklenmiyor)
-          if (!kIsWeb) {
+      // 🚀 ÖNCELİK 1: Fontları arka planda yükle — runApp'i bloke etme (ANR önleme)
+      // await KALDIRILDI: ilk frame gecikmesin, font flash kabul edilebilir
+      _preloadFonts().catchError((e) => debugPrint('⚠️ Font preload: $e'));
+
+      // 🎨 Tema tercihini de önceden yükle - splash ekranı olmadan başlatmak için
+      bool initialDarkMode = false;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        initialDarkMode = prefs.getBool('is_dark_mode') ?? false;
+      } catch (_) {}
+
+      // LanguageService ve diger agir servisler AppStartupService tarafindan
+      // kontrollu sirayla hazirlanir.
+
+      // 🚀 ÖNCELİK 1b: Uygulama motorunu ve temel UI ayarlarını hazırla
+      if (!kIsWeb) {
+        // Frame scheduler'ı ve shader'ları erken optimize et
+        SchedulerBinding.instance.scheduleWarmUpFrame();
+
+        if (Platform.isAndroid) {
+          // 🔧 ANR DÜZELTMESİ: SystemChannels.platform.setMethodCallHandler(null) KALDIRILDI!
+          // Bu satır platform kanalı mesaj işleyicisini silerek input dispatch'i bozuyordu
+          // → %78 ANR'ının doğrudan nedeni buydu.
+          // Gürültülü loglar için sadece FlutterError.onError filtreleme yeterli.
+          FlutterError.onError = (details) {
+            final message = details.toString();
+            if (message.contains('gralloc4') ||
+                message.contains('Surface') ||
+                message.contains('FrameEvents') ||
+                message.contains('SMPTE 2094-40') ||
+                message.contains('lockHardwareCanvas') ||
+                message.contains('updateAcquireFence')) {
+              return; // Gürültülü logları yut
+            }
+            // Crashlytics'e bildir, ardından varsayılan sunumu yap (web'de desteklenmiyor)
+            if (!kIsWeb) {
+              try {
+                FirebaseCrashlytics.instance.recordFlutterError(details);
+              } catch (_) {}
+            }
+            FlutterError.presentError(details);
+          };
+        }
+
+        await _enableFullscreenSystemUi();
+      }
+
+      // 🚀 ÖNCELİK 2: Firebase'i önce başlat (diğer servisler için gerekli)
+      try {
+        if (Firebase.apps.isEmpty) {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          ).timeout(const Duration(seconds: 5));
+          debugPrint(
+            '✅ Firebase (Dart) initialize edildi: DefaultFirebaseOptions',
+          );
+        } else {
+          debugPrint('✅ Firebase zaten initialize: native/AppDelegate');
+        }
+        debugPrint('✅ Firebase kritik başlatma tamamlandı');
+      } catch (e) {
+        debugPrint('❌ Firebase başlatma hatası: $e');
+      }
+
+      // 🔒 Crashlytics toplamasını aç ve global hata yakalayıcıları kur (web'de desteklenmiyor)
+      if (!kIsWeb) {
+        try {
+          await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+            true,
+          );
+          // Flutter framework hataları
+          final previousOnError = FlutterError.onError;
+          FlutterError.onError = (details) {
             try {
               FirebaseCrashlytics.instance.recordFlutterError(details);
             } catch (_) {}
-          }
-          FlutterError.presentError(details);
-        };
-      }
-
-      // Status bar'ı başlangıçta şeffaf yap
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-          systemNavigationBarColor: Colors.transparent,
-          systemNavigationBarIconBrightness: Brightness.dark,
-        ),
-      );
-    }
-
-    // 🚀 ÖNCELİK 2: Firebase'i önce başlat (diğer servisler için gerekli)
-    // Not: iOS'ta GoogleService-Info.plist eksik olabilir; bu durumda
-    // Dart tarafından DefaultFirebaseOptions ile initialize ediyoruz.
-    bool firebaseReady = false;
-    try {
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ).timeout(const Duration(seconds: 5));
-        debugPrint('✅ Firebase (Dart) initialize edildi: DefaultFirebaseOptions');
-      } else {
-        debugPrint('✅ Firebase zaten initialize: native/AppDelegate');
-      }
-      firebaseReady = Firebase.apps.isNotEmpty;
-      debugPrint('✅ Firebase kritik başlatma tamamlandı (ready=$firebaseReady)');
-    } catch (e) {
-      debugPrint('❌ Firebase başlatma hatası (uygulama devam ediyor): $e');
-      firebaseReady = false;
-    }
-
-    // 🔒 Crashlytics - SADECE Firebase hazırsa kur (aksi halde crash olur)
-    if (!kIsWeb && firebaseReady) {
-      try {
-        await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-        final previousOnError = FlutterError.onError;
-        FlutterError.onError = (details) {
-          try {
-            if (Firebase.apps.isNotEmpty) {
-              FirebaseCrashlytics.instance.recordFlutterError(details);
-            }
-          } catch (_) {}
-          previousOnError?.call(details);
-        };
-        WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
-          try {
-            if (Firebase.apps.isNotEmpty) {
-              FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-            }
-          } catch (_) {}
-          return true;
-        };
-      } catch (e) {
-        debugPrint('⚠️ Crashlytics başlatma hatası (uygulama devam ediyor): $e');
-      }
-    } else if (!kIsWeb) {
-      debugPrint('⚠️ Firebase hazır değil - Crashlytics atlanıyor');
-    }
-
-    // 🚀 ÖNCELİK 3: Uygulamayı hemen çalıştır! (UI gösterilir)
-    runApp(const KavaidApp());
-
-    // 🚀 ÖNCELİK 4: Diğer servisleri arka planda başlat
-    _preloadFonts();
-    _initializeCriticalServicesBackground();
-    _initializeServicesInBackground();
-    _setupPerformanceModes();
-    
-    // 🧹 Veritabanı durumu kontrol et (DEBUG)
-    if (kDebugMode) {
-      Future.delayed(const Duration(seconds: 3), () async {
-        print('\n🔍 Veritabanı durumu kontrol ediliyor...');
-        await DatabaseCleanupUtility.printDatabaseStatus();
-      });
-    }
-  }, (error, stack) {
-    // En yakalanmayan hataları Crashlytics'e gönder (web'de desteklenmiyor)
-    if (!kIsWeb) {
-      try {
-        if (Firebase.apps.isNotEmpty) {
-          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-        }
-      } catch (_) {}
-    }
-  });
-}
-
-
-// Servisleri arka planda hızlı ve ANR-free başlat
-void _initializeServicesInBackground() {
-  // Fontlar artık main() fonksiyonunda önceden yüklendiği için burada tekrar yüklemeye gerek yok
-
-  // Analitik servisini hızlı başlat
-  Future.microtask(() {
-    TurkceAnalyticsService.uygulamaBaslatildi().timeout(
-      const Duration(seconds: 2),
-      onTimeout: () => debugPrint('⚠️ Analytics timeout'),
-    ).catchError((e) {
-      debugPrint('❌ Analytics Service hatası: $e');
-    });
-  });
-
-  // Diğer servisleri tamamen arka planda başlat
-  Future.microtask(_initializeChainOfServices);
-}
-
-// Servis zincirini hızlı ve ANR-free başlat
-Future<void> _initializeChainOfServices() async {
-  try {
-    // CreditsService zaten kritik servislerde başlatıldı, sadece referansını al
-    final creditsService = CreditsService();
-    debugPrint('✅ CreditsService referansı alındı: ${creditsService.credits} hak, Premium: ${creditsService.isPremium}');
-
-    // AdMob'u arka planda başlat - ana thread'i bloke etme
-    if (!creditsService.isPremium && !creditsService.isLifetimeAdsFree) {
-      Future.microtask(() async {
-        try {
-          await AdMobService.initialize().timeout(const Duration(seconds: 5)); // 15'ten 5'e düşürüldü
-          debugPrint('✅ AdMob arka planda başlatıldı');
-
-          RequestConfiguration configuration = RequestConfiguration(
-            testDeviceIds: ['bbffd4ef-bbec-48dd-9123-fac2b36aa283'],
-          );
-          MobileAds.instance.updateRequestConfiguration(configuration);
-
-          // Reklam yüklemesini daha da arka planda yap
-          Future.delayed(const Duration(seconds: 2), () {
-            AdMobService().loadInterstitialAd();
-            debugPrint('🚀 Interstitial reklam arka planda yüklendi');
-          });
+            previousOnError?.call(details);
+          };
+          // Framework dışı (async) hatalar
+          WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
+            try {
+              FirebaseCrashlytics.instance.recordError(
+                error,
+                stack,
+                fatal: true,
+              );
+            } catch (_) {}
+            return true; // Hata ele alındı
+          };
         } catch (e) {
-          debugPrint('❌ AdMob arka plan hatası: $e');
+          debugPrint('⚠️ Crashlytics başlatma/handler kurulum hatası: $e');
         }
-      });
-    } else {
-      debugPrint('✨ Premium kullanıcı, AdMob atlandı');
-    }
-  } catch (e) {
-    debugPrint('❌ Servis zinciri hatası (devam ediyor): $e');
-  }
-
-  // Diğer tüm servisleri tamamen paralel ve hızlı başlat
-  final otherServices = [
-    SavedWordsService().initialize().timeout(
-      const Duration(seconds: 2),
-    ).then((_) => debugPrint('✅ SavedWordsService hızlı başlatıldı')).catchError((e) {
-      debugPrint('⚠️ SavedWordsService timeout/error: $e');
-    }),
-    
-    SafePurchaseWrapper.initializeService().timeout(
-      const Duration(seconds: 2),
-    ).then((_) => debugPrint('✅ OneTimePurchaseService hızlı başlatıldı')).catchError((e) {
-      debugPrint('⚠️ OneTimePurchaseService timeout/error: $e');
-    }),
-    
-    BookPurchaseService().initialize().timeout(
-      const Duration(seconds: 2),
-    ).then((_) => debugPrint('✅ BookPurchaseService hızlı başlatıldı')).catchError((e) {
-      debugPrint('⚠️ BookPurchaseService timeout/error: $e');
-    }),
-    
-    AppUsageService().startSession().timeout(
-      const Duration(seconds: 1),
-    ).then((_) => debugPrint('✅ AppUsageService hızlı başlatıldı')).catchError((e) {
-      debugPrint('⚠️ AppUsageService timeout/error: $e');
-    }),
-    
-    // TTS zaten warmUp() içinde başlatılıyor, tekrar başlatmaya gerek yok
-    
-    // GeminiService'i arka planda başlat (konfigürasyonu da yükler)
-    Future.microtask(() async {
-      try {
-        await GeminiService().initialize().timeout(const Duration(seconds: 5));
-        debugPrint('✅ GeminiService initialize edildi (config yüklendi)');
-      } catch (e) {
-        debugPrint('❌ GeminiService initialize hatası: $e');
       }
-    }),
-    
-    ReviewService().initialize().timeout(
-      const Duration(seconds: 1),
-    ).then((_) => debugPrint('✅ ReviewService hızlı başlatıldı')).catchError((e) {
-      debugPrint('⚠️ ReviewService timeout/error: $e');
-    }),
-  ];
 
-  // Tüm servisleri paralel başlat - hataları yakala ama durma
-  Future.wait(otherServices.map((future) => future.catchError((e) {
-    debugPrint('❌ Arka plan servisi hatası (devam ediyor): $e');
-    return null;
-  }))).timeout(
-    const Duration(seconds: 5), // Tüm servisler için maksimum bekleme
-    onTimeout: () {
-      debugPrint('⚠️ Bazı servisler timeout - uygulama çalışıyor');
-      return <void>[];
+      // 🚀 ÖNCELİK 3: Uygulamayı çalıştır! (Fontlar ve tema hazır, UI anında görünür)
+      runApp(KavaidApp(initialDarkMode: initialDarkMode));
+
+      // 🚀 ÖNCELİK 4: Diğer servisleri arka planda başlat
+      _setupPerformanceModes();
+
+      // 🧹 Veritabanı durumu kontrol et (DEBUG)
+      if (kDebugMode) {
+        Future.delayed(const Duration(seconds: 3), () async {
+          print('\n🔍 Veritabanı durumu kontrol ediliyor...');
+          await DatabaseCleanupUtility.printDatabaseStatus();
+        });
+      }
+    },
+    (error, stack) {
+      // En yakalanmayan hataları Crashlytics'e gönder (web'de desteklenmiyor)
+      if (!kIsWeb) {
+        try {
+          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        } catch (_) {}
+      }
     },
   );
 }
 
 class KavaidApp extends StatefulWidget {
-  const KavaidApp({super.key});
+  final bool initialDarkMode;
+  const KavaidApp({super.key, this.initialDarkMode = false});
 
   @override
   State<KavaidApp> createState() => _KavaidAppState();
@@ -532,9 +421,8 @@ class KavaidApp extends StatefulWidget {
 
 class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
   static const String _themeKey = 'is_dark_mode';
-  bool _isDarkMode = false;
+  late bool _isDarkMode;
   bool _isAppInForeground = true;
-  bool _themeLoaded = false;
   final CreditsService _creditsService = CreditsService();
   final AppUsageService _appUsageService = AppUsageService();
   Timer? _usageTimer;
@@ -542,18 +430,18 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    // Tema zaten main()'de yüklendi, direkt kullan - splash gecikmesi yok
+    _isDarkMode = widget.initialDarkMode;
     WidgetsBinding.instance.addObserver(this);
-    _loadThemePreference();
-    
+    _enableFullscreenSystemUi();
+
     // Credits service'i başlat ve dinle
     _initializeCreditsService();
-    
-    // İlk açılışta app open ad gösterme - sadece resume'da göster
-    
+
     // Kullanım süresini periyodik olarak güncelle
     _startUsageTimer();
   }
-  
+
   void _startUsageTimer() {
     // Her dakika kullanım süresini güncelle
     _usageTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
@@ -563,9 +451,10 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       }
     });
   }
-  
+
   Future<void> _initializeCreditsService() async {
-    await _creditsService.initialize();
+    // Premium state AppStartupService/PurchaseManager tarafindan yonetilir;
+    // burada sadece degisimleri dinliyoruz.
     // Premium durumu değiştiğinde rebuild için dinle
     _creditsService.addListener(() {
       if (mounted) setState(() {});
@@ -578,7 +467,7 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     _creditsService.removeListener(() {});
     _usageTimer?.cancel();
     _appUsageService.endSession();
-    
+
     super.dispose();
   }
 
@@ -588,14 +477,12 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       final prefs = await SharedPreferences.getInstance();
       setState(() {
         _isDarkMode = prefs.getBool(_themeKey) ?? false;
-        _themeLoaded = true;
       });
     } catch (e) {
       debugPrint('❌ Tema yükleme hatası: $e');
       // Hata durumunda varsayılan değerle devam et
       setState(() {
         _isDarkMode = false;
-        _themeLoaded = true;
       });
     }
   }
@@ -609,36 +496,23 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     debugPrint('🔄 [MAIN] App lifecycle state değişti: $state');
-    
-    // AdMobService'e lifecycle state'i gönder
-    try {
-      AdMobService().onAppStateChanged(state);
-      debugPrint('✅ [MAIN] AdMobService.onAppStateChanged() başarıyla çağırıldı');
-    } catch (e) {
-      debugPrint('❌ [MAIN] AdMobService.onAppStateChanged() hatası: $e');
-    }
-    
+
     // 🚀 PERFORMANCE MOD: Lifecycle'a göre cache optimizasyonu
     switch (state) {
       case AppLifecycleState.resumed:
         _isAppInForeground = true;
+        _enableFullscreenSystemUi();
         ImageCacheManager.restoreForForeground();
-        
+
         // Uygulama aktif olduğunda kullanım süresini güncelle
         _appUsageService.updateUsage();
-        
-        // TEST: 2 saniye sonra debug durumunu göster
-        Future.delayed(const Duration(seconds: 2), () {
-          debugPrint('🧪 [TEST] 2 saniye sonra debug durumu:');
-          AdMobService().debugAdStatus();
-        });
         break;
       case AppLifecycleState.paused:
         _isAppInForeground = false;
         ImageCacheManager.optimizeForBackground();
-        
+
         // Uygulama arka plana alındığında oturumu sonlandır
         _appUsageService.endSession();
         break;
@@ -655,36 +529,31 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       _isDarkMode = !_isDarkMode;
     });
     _saveThemePreference(_isDarkMode);
-    
+
     // Analytics event'i gönder
     TurkceAnalyticsService.temaDegistirildi(_isDarkMode ? 'koyu' : 'acik');
   }
 
   @override
   Widget build(BuildContext context) {
-    // Tema yüklenene kadar hızlı loading göster
-    if (!_themeLoaded) {
-      return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Container(
-          color: const Color(0xFFF5F7FB),
-          child: const SizedBox.shrink(),
-        ),
-      );
-    }
-
     // Provider entegrasyonu: PurchaseManager'ı tüm ağaca enjekte et
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => PurchaseManager()..initialize()), // Initialize here
+        // 🔧 ANR DÜZELTMESİ: ..initialize() KALDIRILDI!
+        // PurchaseManager singleton olarak agaca verilir; init akisi
+        // AppStartupService tarafindan kontrol edilir.
+        ChangeNotifierProvider.value(value: PurchaseManager()),
       ],
       child: MaterialApp(
         title: 'Kavaid - Arapça Sözlük',
         debugShowCheckedModeBanner: false,
         theme: _buildLightTheme(),
         darkTheme: _buildDarkTheme(),
-        themeMode: ThemeMode.light, // Şimdilik hep light mod isteniyor olabilir, koda sadık kalıyorum
-        home: const StartupScreen(),
+        themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+        home: StartupScreen(
+          isDarkMode: _isDarkMode,
+          onThemeToggle: _toggleTheme,
+        ),
         builder: (context, child) {
           // 🚀 PERFORMANCE MOD: Yüksek FPS için optimize edilmiş MediaQuery
           final mediaQuery = MediaQuery.of(context);
@@ -695,18 +564,19 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
               // Her dokunuşta klavyeyi kapat (sistem + Arapça)
               FocusManager.instance.primaryFocus?.unfocus();
               SystemChannels.textInput.invokeMethod('TextInput.hide');
-            },
-            onPanDown: (_) {
-              // Scroll gerekmeksizin ilk temasla kapat
-              FocusManager.instance.primaryFocus?.unfocus();
-              SystemChannels.textInput.invokeMethod('TextInput.hide');
+              Future.delayed(
+                const Duration(milliseconds: 250),
+                _enableFullscreenSystemUi,
+              );
             },
             child: MediaQuery(
               data: mediaQuery.copyWith(
                 // Performans için optimize edilmiş değerler
                 devicePixelRatio: mediaQuery.devicePixelRatio,
-                // Text scaling'i stabil tut
-                textScaleFactor: mediaQuery.textScaleFactor.clamp(0.8, 1.2),
+                // Text scaling'i stabil tut (PERFORMANCE: deprecated textScaleFactor tamamen kaldırıldı)
+                textScaler: TextScaler.linear(
+                  mediaQuery.textScaler.scale(1.0).clamp(0.8, 1.2),
+                ),
               ),
               child: ScrollConfiguration(
                 // Overscroll glow efektini kaldır - performans artışı sağlar
@@ -714,11 +584,13 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
                 child: RepaintBoundary(
                   // 🚀 PERFORMANCE MOD: Ana uygulama RepaintBoundary ile sarılı
                   child: FPSOverlay(
-                    showFPS: false, // Debug mesajlarını önlemek için tamamen kapalı
+                    showFPS:
+                        false, // Debug mesajlarını önlemek için tamamen kapalı
                     detailedFPS: false,
                     child: SafeArea(
-                      // 🔧 ANDROID 15 FIX: Global SafeArea - Navigation bar overlap fix
-                      bottom: true,
+                      // 🔧 Status bar ve Nav bar ayarları (kamera çentiği arkasına kadar boyama vs.)
+                      top: false,
+                      bottom: false,
                       child: child!,
                     ),
                   ),
@@ -741,7 +613,9 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
         onSurface: const Color(0xFF2C2C2E),
       ),
       useMaterial3: true,
-      scaffoldBackgroundColor: const Color(0xFFF5F7FB), // Daha mavimsi arka plan
+      scaffoldBackgroundColor: const Color(
+        0xFFF5F7FB,
+      ), // Daha mavimsi arka plan
       appBarTheme: const AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -756,48 +630,43 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       ),
       cardTheme: CardThemeData(
         elevation: 0,
-        color: const Color(0xFFFFFFFF), // Tam beyaz kartlar daha belirgin olması için
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        color: const Color(
+          0xFFFFFFFF,
+        ), // Tam beyaz kartlar daha belirgin olması için
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFFD1D1D6),
-            width: 1,
-          ),
+          borderSide: const BorderSide(color: Color(0xFFD1D1D6), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFFD1D1D6),
-            width: 1,
-          ),
+          borderSide: const BorderSide(color: Color(0xFFD1D1D6), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFF007AFF),
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
         ),
         filled: true,
-        fillColor: const Color(0xFFFFFFFF).withOpacity(0.8),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(
-          color: Color(0xFF8E8E93),
-          fontSize: 16,
+        fillColor: const Color(0xCCFFFFFF), // white @ 0.8
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
+        hintStyle: const TextStyle(color: Color(0xFF8E8E93), fontSize: 16),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF007AFF),
         unselectedItemColor: const Color(0xFF8E8E93),
-        backgroundColor: const Color(0xFFFFFFFF).withOpacity(0.95),
-        selectedLabelStyle: const TextStyle(fontFamily: 'Inter'), // Font ailesini uygula
-        unselectedLabelStyle: const TextStyle(fontFamily: 'Inter'), // Font ailesini uygula
+        backgroundColor: const Color(0xF2FFFFFF), // white @ 0.95
+        selectedLabelStyle: const TextStyle(
+          fontFamily: 'Inter',
+        ), // Font ailesini uygula
+        unselectedLabelStyle: const TextStyle(
+          fontFamily: 'Inter',
+        ), // Font ailesini uygula
       ),
     );
   }
@@ -828,47 +697,42 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       cardTheme: CardThemeData(
         elevation: 0,
         color: const Color(0xFF2C2C2E),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFF3A3A3C),
-            width: 1,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF3A3A3C), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFF3A3A3C),
-            width: 1,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF3A3A3C), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
-          borderSide: const BorderSide(
-            color: Color(0xFF007AFF),
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
         ),
         filled: true,
         fillColor: const Color(0xFF2C2C2E),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(
-          color: Color(0xFF8E8E93),
-          fontSize: 16,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
         ),
+        hintStyle: const TextStyle(color: Color(0xFF8E8E93), fontSize: 16),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: Color(0xFF007AFF),
         unselectedItemColor: Color(0xFF8E8E93),
-        backgroundColor: Color(0xFF1C1C1E), // Karanlık tema için siyah navigation bar
-        selectedLabelStyle: TextStyle(fontFamily: 'Inter'), // Font ailesini uygula
-        unselectedLabelStyle: TextStyle(fontFamily: 'Inter'), // Font ailesini uygula
+        backgroundColor: Color(
+          0xFF1C1C1E,
+        ), // Karanlık tema için siyah navigation bar
+        selectedLabelStyle: TextStyle(
+          fontFamily: 'Inter',
+        ), // Font ailesini uygula
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Inter',
+        ), // Font ailesini uygula
       ),
     );
   }
@@ -878,15 +742,12 @@ class MainScreen extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback? onThemeToggle;
 
-  const MainScreen({
-    super.key,
-    required this.isDarkMode,
-    this.onThemeToggle,
-  });
-  
+  const MainScreen({super.key, required this.isDarkMode, this.onThemeToggle});
+
   /// Global key for accessing MainScreen state from anywhere
-  static final GlobalKey<_MainScreenState> globalKey = GlobalKey<_MainScreenState>();
-  
+  static final GlobalKey<_MainScreenState> globalKey =
+      GlobalKey<_MainScreenState>();
+
   /// Navigate to Learning tab (index 1)
   static void navigateToLearning() {
     globalKey.currentState?._navigateToTab(1);
@@ -896,35 +757,38 @@ class MainScreen extends StatefulWidget {
   static void pushToLearningTab(Route route) {
     // Önce tab'a geç
     navigateToLearning();
-    
+
     // Sonra route'u pushla (biraz gecikmeli ki tab değişsin)
     Future.delayed(const Duration(milliseconds: 100), () {
       globalKey.currentState?._learningTabNavKey.currentState?.push(route);
     });
   }
-  
+
   /// Open specific list detail in Learning tab (clears stack first)
   static void openListDetailInLearningTab(CustomWordList list, bool isDark) {
     // 1. Öğren sekmesine geç
     navigateToLearning();
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       final nav = globalKey.currentState?._learningTabNavKey.currentState;
       if (nav != null) {
         // Önce stack'i temizle (LearningScreen'e dön)
         nav.popUntil((route) => route.isFirst);
-        
+
         // Sonra CustomWordsScreen (Listelerim) aç
         nav.push(
-          MaterialPageRoute(builder: (_) => CustomWordsScreen(isDarkMode: isDark))
+          MaterialPageRoute(
+            builder: (_) => CustomWordsScreen(isDarkMode: isDark),
+          ),
         );
-        
+
         // Sonra WordListDetailScreen (Kelimeler) aç
         Future.delayed(const Duration(milliseconds: 150), () {
           nav.push(
             MaterialPageRoute(
-              builder: (_) => WordListDetailScreen(list: list, isDarkMode: isDark)
-            )
+              builder: (_) =>
+                  WordListDetailScreen(list: list, isDarkMode: isDark),
+            ),
           );
         });
       }
@@ -943,18 +807,17 @@ class _MainScreenState extends State<MainScreen> {
   bool _isNoInternetDialogOpen = false;
   double _bannerHeight = 0; // Dinamik banner yüksekliği için state
   // Öğren sekmesi için iç içe Navigator anahtarı (bottom bar'ı korumak için)
-  final GlobalKey<NavigatorState> _learningTabNavKey = GlobalKey<NavigatorState>();
-  
+  final GlobalKey<NavigatorState> _learningTabNavKey =
+      GlobalKey<NavigatorState>();
+
   // Public getter for navigation key
   GlobalKey<NavigatorState> get learningTabNavKey => _learningTabNavKey;
-  
-  // Banner reklam widget anahtarı (çarpı ikonu için)
-  final GlobalKey<BannerAdWidgetState> _bannerKey = GlobalKey<BannerAdWidgetState>();
+
   // Admin servis
   final AdminService _adminService = AdminService();
   // Subscriptionlar
   StreamSubscription<User?>? _authSubscription;
-  
+
   // Öğren sekmesi bildirim badge'i
   bool _showLearningBadge = false;
 
@@ -962,11 +825,11 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _checkLearningBadgeStatus();
-    
+
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
       _checkInitialConnectivity();
-      
+
       // Bağlantı değişikliklerini dinle
       _connectivityService.startListening((hasConnection) {
         debugPrint('📶 Bağlantı durumu değişti: $hasConnection');
@@ -998,20 +861,22 @@ class _MainScreenState extends State<MainScreen> {
             Navigator.of(context, rootNavigator: true).maybePop();
             _isNoInternetDialogOpen = false;
           }
-          // Açık SnackBar varsa kapat (bir önceki tasarımdan kalmış olabilir)
+          // Açık SnackBar varsa kapat
           ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          // İnternet geldi — premium durumunu güncel verilerle yenile
+          unawaited(PurchaseManager().refreshEntitlements());
         }
       });
     });
   }
-  
+
   @override
   void dispose() {
     _authSubscription?.cancel();
     _connectivityService.stopListening();
     super.dispose();
   }
-  
+
   /// Navigate to a specific tab by index
   void _navigateToTab(int index) {
     if (mounted) {
@@ -1020,14 +885,16 @@ class _MainScreenState extends State<MainScreen> {
       });
     }
   }
-  
+
   // Yerel veritabanı hazır mı? Hazırsa internetsiz kullanım mümkün => engelleyici dialog gerekmez
   Future<bool> _shouldBlockForNoInternet() async {
     try {
       final db = await DatabaseService.instance.database;
       if (db == null) return true; // Web platformu - internet gerekli
-      
-      final tableInfo = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='words'");
+
+      final tableInfo = await db.rawQuery(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='words'",
+      );
       final tableExists = tableInfo.isNotEmpty;
       int wordCount = 0;
       if (tableExists) {
@@ -1041,12 +908,12 @@ class _MainScreenState extends State<MainScreen> {
       return true;
     }
   }
-  
+
   Future<void> _checkInitialConnectivity() async {
     debugPrint('🔍 İlk bağlantı kontrolü başlatılıyor...');
     final hasConnection = await _connectivityService.hasInternetConnection();
     debugPrint('📱 İlk kontrol sonucu - İnternet var mı: $hasConnection');
-    
+
     if (!mounted) return;
     if (!hasConnection) {
       debugPrint('❌ İnternet bağlantısı yok! (Başlangıçta engelleyici dialog)');
@@ -1071,7 +938,7 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint('✅ İnternet bağlantısı mevcut');
     }
   }
-  
+
   Future<void> _checkLearningBadgeStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -1086,15 +953,16 @@ class _MainScreenState extends State<MainScreen> {
       debugPrint('❌ Badge durumu kontrol hatası: $e');
     }
   }
-  
-  
+
   // Görünür sekmelerin IndexedStack index'lerini döndür
   List<int> _getVisibleStackIndices() {
     return [
       0, // Sözlük
-      1, // Öğren
-      2, // Profil
-      if (_adminService.isAdmin()) 3, // Admin Console
+      2, // Ceviri
+      if (!LanguageService().isEnglish && !LanguageService().isArabic)
+        1, // Öğren
+      3, // Profil
+      if (_adminService.isAdmin()) 4, // Admin Console
     ];
   }
 
@@ -1106,7 +974,7 @@ class _MainScreenState extends State<MainScreen> {
     }
     return 0;
   }
-  
+
   // IndexedStack index'ini Navigation bar index'ine çevir
   int _mapStackToNavigationIndex(int stackIndex) {
     final indices = _getVisibleStackIndices();
@@ -1117,7 +985,7 @@ class _MainScreenState extends State<MainScreen> {
   void _onTabTapped(int index) {
     // Navigation bar index'ini IndexedStack index'ine çevir
     final realIndex = _mapNavigationToStackIndex(index);
-    
+
     // Aynı sekmeye tıklanırsa: özel davranış
     if (realIndex == _currentIndex) {
       // Öğren sekmesi zaten açıkken tekrar tıklanırsa köke dön
@@ -1132,7 +1000,7 @@ class _MainScreenState extends State<MainScreen> {
     setState(() => _currentIndex = realIndex);
 
     // Öğren sekmesine tıklandıysa badge'i kaldır ve kaydet (index 1 = Öğren)
-    if (index == 1 && _showLearningBadge) {
+    if (realIndex == 1 && _showLearningBadge) {
       setState(() {
         _showLearningBadge = false;
       });
@@ -1163,294 +1031,368 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final hasSystemKeyboard = keyboardHeight > 0;
-    const navBarHeight = 56.0;
-    // ANDROID 15 FIX: System navigation bar yüksekliğini hesapla
-    final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
-    
+    const navBarHeight = 64.0;
+    const navBarBottomGap = 0.0;
+    const systemNavBarHeight = 0.0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         // STATUS BAR: Tema uyumlu renk ayarları
-        statusBarColor: widget.isDarkMode 
-            ? const Color(0xFF1C1C1E)  // Dark tema için siyah
+        statusBarColor: widget.isDarkMode
+            ? const Color(0xFF1C1C1E) // Dark tema için siyah
             : const Color(0xFF007AFF), // Light tema için ana mavi
-        statusBarIconBrightness: widget.isDarkMode 
-            ? Brightness.light       // Dark tema için beyaz iconlar
-            : Brightness.light,      // Light tema için beyaz iconlar (mavi arka planda)
-        statusBarBrightness: widget.isDarkMode 
-            ? Brightness.dark        // iOS için - dark tema
-            : Brightness.dark,       // iOS için - light tema
+        statusBarIconBrightness: widget.isDarkMode
+            ? Brightness
+                  .light // Dark tema için beyaz iconlar
+            : Brightness
+                  .light, // Light tema için beyaz iconlar (mavi arka planda)
+        statusBarBrightness: widget.isDarkMode
+            ? Brightness
+                  .dark // iOS için - dark tema
+            : Brightness.dark, // iOS için - light tema
         // System navigation bar ayarları
-        systemNavigationBarColor: widget.isDarkMode 
-            ? const Color(0xFF1C1C1E)  // Dark tema için siyah
-            : Colors.white,            // Light tema için beyaz
-        systemNavigationBarIconBrightness: widget.isDarkMode ? Brightness.light : Brightness.dark,
+        systemNavigationBarColor: widget.isDarkMode
+            ? const Color(0xFF1C1C1E) // Dark tema için siyah
+            : Colors.white, // Light tema için beyaz
+        systemNavigationBarIconBrightness: widget.isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
       ),
-      child: WillPopScope(
-        onWillPop: () async {
+      child: PopScope(
+        canPop: false, // Geri tuşunu manuel yönetiyoruz
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
           // Klavye açıksa önce klavyeyi kapat, hiçbir sayfayı pop etme
           if (hasSystemKeyboard) {
             FocusScope.of(context).unfocus();
-            return false;
+            return;
           }
           // Öğren sekmesindeki iç Navigator geri gidebiliyorsa önce onu pop et
           if (_currentIndex == 1) {
             if (_learningTabNavKey.currentState?.canPop() == true) {
               _learningTabNavKey.currentState!.pop();
-              return false; // Uygulamadan çıkma
+              return; // Uygulamadan çıkma
             }
             // Öğren sekmesinin ana sayfasındayken geri tuşu uygulamayı kapatmasın, Ana sekmeye dön
             setState(() => _currentIndex = 0);
-            return false;
+            return;
           }
           // Diğer sekmelerde: eğer kök navigator bir sayfa/diğer route gösterebiliyorsa önce onu kapat
           if (Navigator.of(context).canPop()) {
             Navigator.of(context).pop();
-            return false;
+            return;
           }
           // Diğer sekmelerdeyken geri tuşu uygulamayı kapatmak yerine Ana sekmeye dönsün
           if (_currentIndex != 0) {
             setState(() => _currentIndex = 0);
-            return false;
+            return;
           }
-          return true; // Ana sekmede varsayılan davranış
+          // Ana sekmede, sistemin geri tuşu davranışını uygula
+          Navigator.of(context).maybePop();
         },
         child: Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          // 1. Ana İçerik - IndexedStack ile sekmelerin state'ini koru
-          Positioned.fill(
-            child: RepaintBoundary(
-              child: Builder(
-                builder: (context) {
-                  const navBarHeight = 56.0;
-                  final systemNavBarHeight = MediaQuery.of(context).viewPadding.bottom;
-                  final totalBottomPadding = _bannerHeight + navBarHeight + systemNavBarHeight;
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              // 1. Ana İçerik - IndexedStack ile sekmelerin state'ini koru
+              Positioned.fill(
+                child: RepaintBoundary(
+                  child: Builder(
+                    builder: (context) {
+                      final totalBottomPadding =
+                          _bannerHeight +
+                          navBarHeight +
+                          navBarBottomGap +
+                          systemNavBarHeight;
 
-                  return IndexedStack(
-                    index: _currentIndex,
-                    children: [
-                      // 0: Sözlük (Home) - her zaman ağaçta, state korunur
-                      HomeScreen(
-                        key: const ValueKey('home_screen'),
-                        isActive: _currentIndex == 0,
-                        bottomPadding: totalBottomPadding,
-                        isDarkMode: widget.isDarkMode,
-                        onThemeToggle: widget.onThemeToggle,
-                        onArabicKeyboardStateChanged: _setArabicKeyboardState,
-                        isFirstOpen: _isFirstOpen,
-                        onKeyboardOpened: () {
-                          if (_isFirstOpen) setState(() => _isFirstOpen = false);
-                        },
-                      ),
+                      return IndexedStack(
+                        index: _currentIndex,
+                        children: [
+                          // 0: Sözlük (Home) - her zaman ağaçta, state korunur
+                          HomeScreen(
+                            key: const ValueKey('home_screen'),
+                            isActive: _currentIndex == 0,
+                            bottomPadding: totalBottomPadding,
+                            isDarkMode: widget.isDarkMode,
+                            onThemeToggle: widget.onThemeToggle,
+                            onArabicKeyboardStateChanged:
+                                _setArabicKeyboardState,
+                            isFirstOpen: _isFirstOpen,
+                            onKeyboardOpened: () {
+                              if (_isFirstOpen)
+                                setState(() => _isFirstOpen = false);
+                            },
+                          ),
 
-                      // 1: Öğren (iç Navigator) - state korunur
-                      Padding(
-                        key: const ValueKey('learning_screen'),
-                        padding: EdgeInsets.only(bottom: totalBottomPadding),
-                        child: Navigator(
-                          key: _learningTabNavKey,
-                          onGenerateRoute: (settings) {
-                            return MaterialPageRoute(
-                              builder: (_) => LearningScreen(
-                                // bottomPadding parametresini KALDIRDIM (LearningScreen constuctor'ında yok)
-                              ),
-                              settings: settings,
-                            );
-                          },
-                        ),
-                      ),
+                          // 1: Öğren (iç Navigator) - state korunur
+                          Padding(
+                            key: const ValueKey('learning_screen'),
+                            padding: EdgeInsets.only(
+                              bottom: totalBottomPadding,
+                            ),
+                            child: Navigator(
+                              key: _learningTabNavKey,
+                              onGenerateRoute: (settings) {
+                                return MaterialPageRoute(
+                                  builder: (_) => LearningScreen(
+                                    // bottomPadding parametresini KALDIRDIM (LearningScreen constuctor'ında yok)
+                                  ),
+                                  settings: settings,
+                                );
+                              },
+                            ),
+                          ),
 
-                      // 2: Profil - sadece aktifken oluştur
-                      _currentIndex == 2
-                          ? ProfileScreen(
-                              key: const ValueKey('profile_screen'),
-                              bottomPadding: totalBottomPadding,
-                              isDarkMode: widget.isDarkMode,
-                              onThemeToggle: widget.onThemeToggle,
-                            )
-                          : const SizedBox.shrink(),
+                          // 2: Profil - her zaman ağaçta, state korunur
+                          TranslationScreen(
+                            key: const ValueKey('translation_screen'),
+                            bottomPadding: totalBottomPadding,
+                            isDarkMode: widget.isDarkMode,
+                            isEmbedded: false,
+                          ),
 
-                      // 3: Admin Console - sadece aktifken oluştur
-                      _currentIndex == 3
-                          ? (_adminService.isAdmin()
+                          ProfileScreen(
+                            key: const ValueKey('profile_screen'),
+                            bottomPadding: totalBottomPadding,
+                            isDarkMode: widget.isDarkMode,
+                            onThemeToggle: widget.onThemeToggle,
+                          ),
+
+                          // 3: Admin Console - sadece aktifken ve adminse oluştur
+                          _adminService.isAdmin() && _currentIndex == 4
                               ? AdminConsoleScreen(
                                   key: const ValueKey('admin_screen'),
                                   topPadding: _bannerHeight,
-                                  bottomPadding: navBarHeight + systemNavBarHeight,
+                                  bottomPadding:
+                                      navBarHeight +
+                                      navBarBottomGap +
+                                      systemNavBarHeight,
                                 )
-                              : _buildErrorScreen('Admin yetkisi gerekli'))
-                          : const SizedBox.shrink(),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-
-          // 2. Banner Reklam - RepaintBoundary ile performans optimizasyonu
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 100),
-            curve: Curves.easeOut,
-            // Admin Console ekranında banner üstte, diğerlerinde altta
-            top: (_adminService.isAdmin() && _currentIndex == 3)
-                ? MediaQuery.of(context).viewPadding.top 
-                : null,
-            bottom: (_adminService.isAdmin() && _currentIndex == 3) 
-                ? null 
-                : (hasSystemKeyboard
-                    ? keyboardHeight  // Klavye açıkken direkt klavyenin üstünde - nav bar hesaplama
-                    : (_showArabicKeyboard && _currentIndex == 0)  // Sadece Home Screen'de klavye
-                        ? 280.0 + navBarHeight + MediaQuery.of(context).viewPadding.bottom  // Klavye + nav bar üstünde
-                        : navBarHeight + MediaQuery.of(context).viewPadding.bottom),
-            left: 0,
-            right: 0,
-            height: _bannerHeight,
-            child: RepaintBoundary(
-              child: BannerAdWidget(
-                key: _bannerKey,
-                onAdHeightChanged: (height) {
-                  if (mounted && _bannerHeight != height) {
-                    setState(() => _bannerHeight = height);
-                  }
-                },
-                stableKey: 'main_banner_stable',
-              ),
-            ),
-          ),
-
-          // 2b. Banner Çarpı İkonu - Banner'ın üstünde ayrı olarak
-          if (_bannerHeight > 0)
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.easeOut,
-              // Admin Console ekranında üstte, diğerlerinde altta
-              top: (_adminService.isAdmin() && _currentIndex == 3)
-                  ? MediaQuery.of(context).viewPadding.top + _bannerHeight - 10
-                  : null,
-              bottom: (_adminService.isAdmin() && _currentIndex == 3)
-                  ? null 
-                  : (hasSystemKeyboard
-                      ? keyboardHeight + _bannerHeight - 10  // Klavye açıkken banner'ın 10px üstünde
-                      : (_showArabicKeyboard && _currentIndex == 0)  // Sadece Home Screen'de klavye
-                          ? 280.0 + navBarHeight + MediaQuery.of(context).viewPadding.bottom + _bannerHeight - 10
-                          : navBarHeight + MediaQuery.of(context).viewPadding.bottom + _bannerHeight - 10),
-              right: -8, // Daha sağa
-              child: GestureDetector(
-                onTap: () {
-                  // BannerAdWidget'ın showRemoveAdsDialog metodunu çağır
-                  _bannerKey.currentState?.showRemoveAdsDialog();
-                },
-                behavior: HitTestBehavior.translucent,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: const Icon(
-                    Icons.close,
-                    size: 24,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ),
-
-          // 3. Bottom Navigation Bar - Sabit Pozisyon (Hareket Etmez)
-          Positioned(
-            bottom: 0, // Her zaman sabit pozisyonda
-            left: 0,
-            right: 0,
-            height: navBarHeight + MediaQuery.of(context).viewPadding.bottom,
-            child: RepaintBoundary(
-              child: Container(
-                // ANDROID 15 FIX: System navigation bar padding eklendi
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewPadding.bottom),
-                decoration: BoxDecoration(
-                  color: widget.isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: widget.isDarkMode
-                          ? Colors.black.withOpacity(0.3)
-                          : Colors.black.withOpacity(0.08),
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: BottomNavigationBar(
-                  currentIndex: _mapStackToNavigationIndex(_currentIndex),
-                  onTap: _onTabTapped,
-                  type: BottomNavigationBarType.fixed,
-                  backgroundColor: Colors.transparent, // Arka planı parent container'dan alır
-                  selectedItemColor: const Color(0xFF007AFF),
-                  unselectedItemColor: widget.isDarkMode
-                      ? const Color(0xFF8E8E93)
-                      : const Color(0xFF8E8E93),
-                  selectedLabelStyle: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.2,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  elevation: 0,
-                  iconSize: 24,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.menu_book_outlined),
-                      activeIcon: const Icon(Icons.menu_book),
-                      label: 'Sözlük',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          const Icon(Icons.school_outlined),
-                          if (_showLearningBadge)
-                            Positioned(
-                              right: -4,
-                              top: -4,
-                              child: Container(
-                                width: 10,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: widget.isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
-                                    width: 1.5,
-                                  ),
-                                ),
-                              ),
-                            ),
+                              : const SizedBox.shrink(),
                         ],
-                      ),
-                      activeIcon: const Icon(Icons.school),
-                      label: 'Öğren',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Icon(Icons.person_outline),
-                      activeIcon: const Icon(Icons.person),
-                      label: 'Profil',
-                    ),
-                    // Admin Console (sadece kurucu için)
-                    if (_adminService.isAdmin())
-                      const BottomNavigationBarItem(
-                        icon: Icon(Icons.admin_panel_settings_outlined),
-                        activeIcon: Icon(Icons.admin_panel_settings),
-                        label: 'Console',
-                      ),
-                  ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
+
+              // 2. Banner Reklam - RepaintBoundary ile performans optimizasyonu
+              AnimatedPositioned(
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.easeOut,
+                // Admin Console ekranında banner üstte, diğerlerinde altta
+                top: (_adminService.isAdmin() && _currentIndex == 4)
+                    ? MediaQuery.of(context).viewPadding.top
+                    : null,
+                bottom: (_adminService.isAdmin() && _currentIndex == 4)
+                    ? null
+                    : (hasSystemKeyboard
+                          ? keyboardHeight // Klavye açıkken direkt klavyenin üstünde - nav bar hesaplama
+                          : (_showArabicKeyboard &&
+                                _currentIndex ==
+                                    0) // Sadece Home Screen'de klavye
+                          ? 280.0 +
+                                navBarHeight +
+                                navBarBottomGap +
+                                systemNavBarHeight // Klavye + nav bar üstünde
+                          : navBarHeight +
+                                navBarBottomGap +
+                                systemNavBarHeight),
+                left: 0,
+                right: 0,
+                height: _bannerHeight,
+                child: RepaintBoundary(
+                  child: BannerAdWidget(
+                    onAdHeightChanged: (height) {
+                      if (mounted && _bannerHeight != height) {
+                        setState(() => _bannerHeight = height);
+                      }
+                    },
+                    stableKey: 'main_banner_stable',
+                  ),
+                ),
+              ),
+
+              // 2b. Banner Çarpı İkonu - Banner'ın üstünde ayrı olarak
+              if (_bannerHeight > 0)
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeOut,
+                  // Admin Console ekranında üstte, diğerlerinde altta
+                  top: (_adminService.isAdmin() && _currentIndex == 4)
+                      ? MediaQuery.of(context).viewPadding.top +
+                            _bannerHeight -
+                            10
+                      : null,
+                  bottom: (_adminService.isAdmin() && _currentIndex == 4)
+                      ? null
+                      : (hasSystemKeyboard
+                            ? keyboardHeight +
+                                  _bannerHeight -
+                                  10 // Klavye açıkken banner'ın 10px üstünde
+                            : (_showArabicKeyboard &&
+                                  _currentIndex ==
+                                      0) // Sadece Home Screen'de klavye
+                            ? 280.0 +
+                                  navBarHeight +
+                                  navBarBottomGap +
+                                  systemNavBarHeight +
+                                  _bannerHeight -
+                                  10
+                            : navBarHeight +
+                                  navBarBottomGap +
+                                  systemNavBarHeight +
+                                  _bannerHeight -
+                                  10),
+                  right: -8, // Daha sağa
+                  child: GestureDetector(
+                    onTap: () {
+                      // AdMob kaldırıldığı için işlem yapmıyoruz
+                    },
+                    behavior: HitTestBehavior.translucent,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(
+                        Icons.close,
+                        size: 24,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+
+              // 3. Bottom Navigation Bar - klasik alta yapışık bar
+              Positioned(
+                bottom: navBarBottomGap,
+                left: 0,
+                right: 0,
+                height: navBarHeight,
+                child: RepaintBoundary(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: widget.isDarkMode
+                          ? const Color(0xFF1C1C1E)
+                          : Colors.white,
+                      border: Border(
+                        top: BorderSide(
+                          color: widget.isDarkMode
+                              ? const Color(0x1FFFFFFF)
+                              : const Color(0x14000000),
+                          width: 0.7,
+                        ),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.isDarkMode
+                              ? const Color(0x66000000)
+                              : const Color(0x16000000),
+                          blurRadius: 12,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                    ),
+                    child: MediaQuery.removePadding(
+                      context: context,
+                      removeBottom: true,
+                      child: MediaQuery.removeViewPadding(
+                        context: context,
+                        removeBottom: true,
+                        child: BottomNavigationBar(
+                          currentIndex: _mapStackToNavigationIndex(
+                            _currentIndex,
+                          ),
+                          onTap: _onTabTapped,
+                          type: BottomNavigationBarType.fixed,
+                          backgroundColor: widget.isDarkMode
+                              ? const Color(0xFF1C1C1E)
+                              : Colors.white,
+                          selectedItemColor: const Color(0xFF007AFF),
+                          unselectedItemColor: const Color(0xFF8E8E93),
+                          selectedLabelStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0,
+                          ),
+                          unselectedLabelStyle: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0,
+                          ),
+                          elevation: 0,
+                          iconSize: 26,
+                          items: [
+                            BottomNavigationBarItem(
+                              icon: const Icon(Icons.menu_book_outlined),
+                              activeIcon: const Icon(Icons.menu_book),
+                              label: LanguageService().isEnglish
+                                  ? 'Dictionary'
+                                  : (LanguageService().isArabic
+                                        ? 'قاموس'
+                                        : 'Sözlük'),
+                            ),
+                            const BottomNavigationBarItem(
+                              icon: Icon(Icons.translate_outlined),
+                              activeIcon: Icon(Icons.translate),
+                              label: 'Çeviri',
+                            ),
+                            if (!LanguageService().isEnglish &&
+                                !LanguageService().isArabic)
+                              BottomNavigationBarItem(
+                                icon: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Icon(Icons.school_outlined),
+                                    if (_showLearningBadge)
+                                      Positioned(
+                                        right: -4,
+                                        top: -4,
+                                        child: Container(
+                                          width: 10,
+                                          height: 10,
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: widget.isDarkMode
+                                                  ? const Color(0xFF1C1C1E)
+                                                  : Colors.white,
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                activeIcon: const Icon(Icons.school),
+                                label: 'Öğren',
+                              ),
+                            BottomNavigationBarItem(
+                              icon: const Icon(Icons.person_outline),
+                              activeIcon: const Icon(Icons.person),
+                              label: LanguageService().isEnglish
+                                  ? 'Profile'
+                                  : (LanguageService().isArabic
+                                        ? 'الملف الشخصي'
+                                        : 'Profil'),
+                            ),
+                            if (_adminService.isAdmin())
+                              const BottomNavigationBarItem(
+                                icon: Icon(Icons.admin_panel_settings_outlined),
+                                activeIcon: Icon(Icons.admin_panel_settings),
+                                label: 'Console',
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   Widget _buildErrorScreen(String message) {
@@ -1481,21 +1423,26 @@ class _MainScreenState extends State<MainScreen> {
 void _runUsernameMigration() {
   Future.microtask(() async {
     try {
-      debugPrint('🔄 [MIGRATION] Kullanıcı adı migration kontrolü başlatılıyor...');
-      
+      debugPrint(
+        '🔄 [MIGRATION] Kullanıcı adı migration kontrolü başlatılıyor...',
+      );
+
       // SharedPreferences'ta migration'ın daha önce çalışıp çalışmadığını kontrol et
       final prefs = await SharedPreferences.getInstance();
-      final migrationCompleted = prefs.getBool('username_migration_completed_v2') ?? false;
-      
+      final migrationCompleted =
+          prefs.getBool('username_migration_completed_v2') ?? false;
+
       if (!migrationCompleted) {
         debugPrint('📋 [MIGRATION] Migration gerekli, başlatılıyor...');
-        
+
         // Migration'ı çalıştır
         await MigrateUsernames.migrateAllUsers();
-        
+
         // Migration'ın tamamlandığını işaretle
         await prefs.setBool('username_migration_completed_v2', true);
-        debugPrint('✅ [MIGRATION] Migration başarıyla tamamlandı ve işaretlendi');
+        debugPrint(
+          '✅ [MIGRATION] Migration başarıyla tamamlandı ve işaretlendi',
+        );
       } else {
         debugPrint('ℹ️ [MIGRATION] Migration zaten tamamlanmış, atlanıyor');
       }
@@ -1504,5 +1451,3 @@ void _runUsernameMigration() {
     }
   });
 }
-
-

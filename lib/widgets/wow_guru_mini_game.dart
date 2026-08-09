@@ -84,7 +84,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
     _targetWord = _removeDiacritics(
       selected['harekeliKelime'] as String? ?? '',
     );
-    _meaning = selected['anlam'] as String? ?? '';
+    _meaning = (selected['anlam'] as String? ?? '').split('||HARFI_CER:')[0];
 
     // Shuffle the letters
     _letters = _targetWord.split('');

@@ -46,12 +46,13 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
 
   void _updateBannerPosition() {
     if (!widget.isAdVisible || !mounted) return;
-    
-    final RenderBox? renderBox = widget.bannerKey.currentContext?.findRenderObject() as RenderBox?;
+
+    final RenderBox? renderBox =
+        widget.bannerKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox != null) {
       final position = renderBox.localToGlobal(Offset.zero);
       final size = renderBox.size;
-      
+
       if (mounted) {
         setState(() {
           _bannerPosition = position;
@@ -63,8 +64,12 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
 
   void _showRemoveAdsDialog() async {
     // Premium/Reklamsız ise diyalog göstermeyelim
-    if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
-      debugPrint('👑 [FloatingIcon] Kullanıcı premium/reklamsız – diyalog açılmayacak');
+    if (_creditsService.isEntitlementPending ||
+        _creditsService.isPremium ||
+        _creditsService.isLifetimeAdsFree) {
+      debugPrint(
+        '👑 [FloatingIcon] Kullanıcı premium/reklamsız – diyalog açılmayacak',
+      );
       try {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,7 +89,7 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
       SystemChannels.textInput.invokeMethod('TextInput.hide');
       if (!mounted) return;
       final isDark = Theme.of(context).brightness == Brightness.dark;
-      
+
       try {
         await Navigator.of(context).push(
           MaterialPageRoute(
@@ -99,7 +104,7 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
       } catch (e) {
         debugPrint('❌ [FloatingIcon] ProfileScreen açılamadı: $e');
       }
-      
+
       if (!auth.isSignedIn) {
         debugPrint('❌ [FloatingIcon] Giriş yapılmadı – diyalog açılmayacak');
         return;
@@ -122,11 +127,10 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
       context: context,
       barrierDismissible: false,
       builder: (context) => SafeArea(
-        child: WillPopScope(
-          onWillPop: () async {
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
             FocusManager.instance.primaryFocus?.unfocus();
             SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
           },
           child: AlertDialog(
             title: const Text('Reklamları Kaldır'),
@@ -165,7 +169,9 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
                     await _oneTimePurchase.buyRemoveAds();
                     Future.delayed(const Duration(minutes: 1), () {
                       AdMobService().clearInAppActionFlag();
-                      debugPrint('🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi');
+                      debugPrint(
+                        '🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi',
+                      );
                     });
                   } catch (e) {
                     AdMobService().clearInAppActionFlag();
@@ -188,7 +194,9 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
   @override
   Widget build(BuildContext context) {
     // Premium/reklamsız ise icon gösterme
-    if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
+    if (_creditsService.isEntitlementPending ||
+        _creditsService.isPremium ||
+        _creditsService.isLifetimeAdsFree) {
       return const SizedBox.shrink();
     }
 
@@ -211,7 +219,12 @@ class _FloatingAdCloseIconState extends State<FloatingAdCloseIcon> {
           _showRemoveAdsDialog();
         },
         child: const Padding(
-          padding: EdgeInsets.only(top: 5.0, left: 8.0, right: 8.0, bottom: 3.0),
+          padding: EdgeInsets.only(
+            top: 5.0,
+            left: 8.0,
+            right: 8.0,
+            bottom: 3.0,
+          ),
           child: Icon(Icons.close, size: 24, color: Colors.black),
         ),
       ),

@@ -16,10 +16,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 5.0.0+5006
+version: 3.2.21+3221
 
 environment:
-  sdk: ^3.6.0
+  sdk: ^3.8.1
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -29,8 +29,6 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
-    sdk: flutter
-  flutter_localizations:
     sdk: flutter
 
   # UI Components
@@ -48,7 +46,7 @@ dependencies:
   flutter_gemini: ^2.0.4
   provider: ^6.1.2
   shared_preferences: ^2.2.3
-  intl: ^0.20.2
+  intl: ^0.19.0
   
   # HTTP Requests (Gemini API)
   http: ^1.6.0
@@ -62,10 +60,9 @@ dependencies:
   # Google Fonts (Cairo için)
   
   # Google Fonts
-  google_fonts: ^8.0.2
+  google_fonts: ^6.2.1
 
-  # Google Mobile Ads (AdMob)
-  google_mobile_ads: ^5.1.0
+
   
   # Network Connectivity
   connectivity_plus: ^6.0.5
@@ -103,6 +100,8 @@ dependencies:
   
   # Text to Speech for Arabic pronunciation
   flutter_tts: ^4.1.0
+  speech_to_text: ^7.3.0
+  
   
   # Screenshot for sharing word cards as images
   screenshot: ^3.0.0
@@ -136,9 +135,13 @@ dev_dependencies:
 
 # Flutter Launcher Icons configuration to regenerate iOS icons without alpha channel
 flutter_launcher_icons:
+  android: true
   ios: true
+  image_path: assets/images/app_icon.png
   image_path_ios: assets/images/app_icon.png
   remove_alpha_ios: true
+  adaptive_icon_background: "#007AFF"
+  adaptive_icon_foreground: assets/images/app_icon.png
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

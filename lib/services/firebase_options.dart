@@ -88,4 +88,4 @@ class DefaultFirebaseOptions {
     databaseURL: 'https://kavaid-2f778-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'kavaid-2f778.appspot.com',
   );
-} 
+}

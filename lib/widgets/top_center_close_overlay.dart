@@ -21,7 +21,9 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
 
   Future<void> _showRemoveAdsFlow() async {
     // Premium/Reklamsız ise diyalog göstermeyelim
-    if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
+    if (_creditsService.isEntitlementPending ||
+        _creditsService.isPremium ||
+        _creditsService.isLifetimeAdsFree) {
       try {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -56,7 +58,9 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
         debugPrint('❌ [TopCenterCloseOverlay] ProfileScreen açılamadı: $e');
       }
       if (!auth.isSignedIn) {
-        debugPrint('❌ [TopCenterCloseOverlay] Giriş yapılmadı – diyalog açılmayacak');
+        debugPrint(
+          '❌ [TopCenterCloseOverlay] Giriş yapılmadı – diyalog açılmayacak',
+        );
         return;
       }
     }
@@ -77,11 +81,10 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
       context: context,
       barrierDismissible: false,
       builder: (context) => SafeArea(
-        child: WillPopScope(
-          onWillPop: () async {
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
             FocusManager.instance.primaryFocus?.unfocus();
             SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
           },
           child: AlertDialog(
             title: const Text('Reklamları Kaldır'),
@@ -120,7 +123,9 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
                     await _oneTimePurchase.buyRemoveAds();
                     Future.delayed(const Duration(minutes: 1), () {
                       AdMobService().clearInAppActionFlag();
-                      debugPrint('🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi');
+                      debugPrint(
+                        '🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi',
+                      );
                     });
                   } catch (e) {
                     AdMobService().clearInAppActionFlag();
@@ -143,7 +148,9 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
   @override
   Widget build(BuildContext context) {
     // Premium/reklamsız ise hiç göstermeyelim
-    if (_creditsService.isPremium || _creditsService.isLifetimeAdsFree) {
+    if (_creditsService.isEntitlementPending ||
+        _creditsService.isPremium ||
+        _creditsService.isLifetimeAdsFree) {
       return const SizedBox.shrink();
     }
 
@@ -156,24 +163,22 @@ class _TopCenterCloseOverlayState extends State<TopCenterCloseOverlay> {
           bottom: false,
           child: Material(
             color: Colors.transparent,
-            child: InkWell
-              (
+            child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: () {
                 debugPrint('🖱️ [TopCenterCloseOverlay] Close icon tapped');
                 _showRemoveAdsFlow();
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.08),
+                  color: const Color(0x14000000), // black @ 0.08
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Icon(
-                  Icons.close,
-                  size: 22,
-                  color: Colors.black,
-                ),
+                child: const Icon(Icons.close, size: 22, color: Colors.black),
               ),
             ),
           ),

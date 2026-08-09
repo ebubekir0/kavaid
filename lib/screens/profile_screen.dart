@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +30,9 @@ import 'package:provider/provider.dart';
 import '../services/purchase_manager.dart';
 import 'subscription_screen.dart';
 import 'package:kavaid/widgets/email_auth_sheet.dart';
+import 'dart:io';
 import 'dart:async';
+import '../services/language_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   final double bottomPadding;
@@ -89,7 +90,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && widget.autoOpenLoginSheet && !_authService.isSignedIn) {
         final isDark = Theme.of(context).brightness == Brightness.dark;
-        EmailAuthSheet.show(context, initialIsLogin: true);
+        EmailAuthSheet.show(context, initialIsLogin: true, onSuccess: () {
+          if (mounted) {
+            setState(() {});
+            _checkUserRole();
+            _listenToRoleChanges();
+          }
+        });
       }
     });
   }
@@ -404,9 +411,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(
             backgroundColor: const Color(0xFF007AFF),
             elevation: 0,
-            title: const Text(
-              'Profil',
-              style: TextStyle(
+            title: Text(
+              LanguageService().isEnglish 
+                  ? 'Profile' 
+                  : (LanguageService().isArabic ? 'الملف الشخصي' : 'Profil'),
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -611,7 +620,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                               ),
                                               child: Text(
-                                                _userRole == 'founder' ? 'KURUCU' : 'MODERATÖR',
+                                                _userRole == 'founder' 
+                                                    ? (LanguageService().isArabic ? 'المؤسس' : 'KURUCU') 
+                                                    : (LanguageService().isArabic ? 'المشرف' : 'MODERATÖR'),
                                                 style: TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.w600,
@@ -641,7 +652,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                               ),
                                               child: Text(
-                                                'MODERATÖR',
+                                                LanguageService().isArabic ? 'المشرف' : 'MODERATÖR',
                                                 style: TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.bold,
@@ -673,16 +684,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (dCtx) => AlertDialog(
-                                        title: const Text('Çıkış yapılsın mı?'),
-                                        content: const Text('Oturumunuz kapatılacak.'),
+                                        title: Text(LanguageService().isEnglish ? 'Log out?' : (LanguageService().isArabic ? 'تسجيل الخروج؟' : 'Çıkış yapılsın mı?')),
+                                        content: Text(LanguageService().isEnglish ? 'Your session will be closed.' : (LanguageService().isArabic ? 'سيتم إغلاق جلستك.' : 'Oturumunuz kapatılacak.')),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(dCtx).pop(false),
-                                            child: const Text('İptal'),
+                                            child: Text(LanguageService().isEnglish ? 'Cancel' : (LanguageService().isArabic ? 'إلغاء' : 'İptal')),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(dCtx).pop(true),
-                                            child: const Text('Çıkış'),
+                                            child: Text(LanguageService().isEnglish ? 'Log out' : (LanguageService().isArabic ? 'تسجيل الخروج' : 'Çıkış')),
                                           ),
                                         ],
                                       ),
@@ -693,7 +704,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                   icon: const Icon(Icons.logout, size: 16),
-                                  label: const Text('Çıkış'),
+                                  label: Text(LanguageService().isEnglish ? 'Log out' : (LanguageService().isArabic ? 'تسجيل الخروج' : 'Çıkış')),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                     minimumSize: const Size(0, 32),
@@ -703,14 +714,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             );
                           },
                         ),
-                        if (_authService.isSignedIn && defaultTargetPlatform != TargetPlatform.iOS && Provider.of<PurchaseManager>(context).isPremium)
+                        if (_authService.isSignedIn && Provider.of<PurchaseManager>(context).isPremium)
                           Padding(
                             padding: const EdgeInsets.only(top: 12),
                             child: InkWell(
                               onTap: () async {
-                                final url = defaultTargetPlatform == TargetPlatform.iOS
-                                  ? Uri.parse("https://apps.apple.com/account/subscriptions")
-                                  : Uri.parse("https://play.google.com/store/account/subscriptions");
+                                final url = Uri.parse("https://play.google.com/store/account/subscriptions");
                                 if (await canLaunchUrl(url)) {
                                   await launchUrl(url);
                                 }
@@ -725,7 +734,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
                                         const SizedBox(width: 8),
                                         Text(
-                                          "Aboneliği Yönet",
+                                          LanguageService().isEnglish 
+                                              ? "Manage Subscription" 
+                                              : (LanguageService().isArabic ? "إدارة الاشتراك" : "Aboneliği Yönet"),
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -748,7 +759,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Icon(Icons.restore, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
                                           const SizedBox(width: 4),
                                           Text(
-                                            "Geri Yükle",
+                                            LanguageService().isEnglish ? "Restore" : (LanguageService().isArabic ? "استعادة" : "Geri Yükle"),
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
@@ -764,65 +775,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                        // HESAP SİLME (Apple Gereksinimi)
-                        if (_authService.isSignedIn)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: TextButton(
-                              onPressed: () async {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (dCtx) => AlertDialog(
-                                    title: const Text('Hesabınızı silmek istediğinize emin misiniz?'),
-                                    content: const Text('Bu işlem geri alınamaz ve tüm verileriniz (kaydedilen kelimeler, puanlar vb.) kalıcı olarak silinecektir.'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.of(dCtx).pop(false),
-                                        child: const Text('İptal'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.of(dCtx).pop(true),
-                                        style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                        child: const Text('Hesabımı Sil'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-
-                                if (confirm == true) {
-                                  try {
-                                    await _authService.deleteAccount();
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Hesabınız başarıyla silindi.')),
-                                      );
-                                      setState(() {});
-                                    }
-                                  } catch (e) {
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Hata: ${e.toString()}'), backgroundColor: Colors.red),
-                                      );
-                                    }
-                                  }
-                                }
-                              },
-                              child: Text(
-                                "Hesabı Sil",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.red.withOpacity(0.7),
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ),
                       if (!_authService.isSignedIn) ...[
                         Row(
                           children: [
                             Expanded(
                               child: Text(
-                                'Giriş yapın veya kayıt olun',
+                                LanguageService().isEnglish 
+                                    ? 'Log in or sign up' 
+                                    : (LanguageService().isArabic ? 'تسجيل الدخول / الاشتراك' : 'Giriş yapın veya kayıt olun'),
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -844,8 +804,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: true),
-                            child: const Text('Giriş Yap'),
+                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: true, onSuccess: () {
+                              if (mounted) {
+                                setState(() {});
+                                _checkUserRole();
+                                _listenToRoleChanges();
+                              }
+                            }),
+                            child: Text(LanguageService().isArabic ? 'تسجيل الدخول' : (LanguageService().isEnglish ? 'Log In' : 'Giriş Yap')),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -860,8 +826,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: false),
-                            child: const Text('Kayıt Ol'),
+                            onPressed: () => EmailAuthSheet.show(context, initialIsLogin: false, onSuccess: () {
+                              if (mounted) {
+                                setState(() {});
+                                _checkUserRole();
+                                _listenToRoleChanges();
+                              }
+                            }),
+                            child: Text(LanguageService().isArabic ? 'الاشتراك' : (LanguageService().isEnglish ? 'Sign Up' : 'Kayıt Ol')),
                           ),
                         ),
                       ],
@@ -871,179 +843,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 12),
 
                 // Reklam kaldırma önerisi veya durumu - Profil kısmının hemen altında
-                // Premium / Abonelik Durumu Kartı
-                Consumer<PurchaseManager>(
-                  builder: (context, purchaseManager, _) {
-                      if (defaultTargetPlatform != TargetPlatform.iOS) {
-                        if (purchaseManager.isPremium) {
-                          // 1. Premium Üye - MAVİ KART
-                          return Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF007AFF).withOpacity(0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
+                // Premium / Abonelik Durumu Kartı - Arapça ve İngilizce için gizle
+                if (!LanguageService().isEnglish && !LanguageService().isArabic)
+                  Consumer<PurchaseManager>(
+                    builder: (context, purchaseManager, _) {
+                    if (purchaseManager.isPremium) {
+                      // 1. Premium Üye - MAVİ KART
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF007AFF).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
                             ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Premium Üyesiniz",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const Text(
-                                        "Sınırsız içerik, reklamsız kullanım.",
-                                        style: TextStyle(color: Colors.white70, fontSize: 13),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
                             ),
-                          );
-                        } else if (purchaseManager.isLifetimeNoAds) {
-                          // 2. Sadece Reklamsız (Eski) - Hem Premium teşviki Hem de Legacy Bilgisi
-                          return Column(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => const SubscriptionScreen())
-                                  );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Premium Üyesiniz",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                    borderRadius: BorderRadius.circular(12),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF007AFF).withOpacity(0.3),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                        child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: const [
-                                            Text(
-                                              "Premium'a Geç",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            Text(
-                                              "Tüm özelliklere erişin.",
-                                              style: TextStyle(color: Colors.white70, fontSize: 13),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
-                                    ],
+                                  const Text(
+                                    "Sınırsız içerik, reklamsız kullanım.",
+                                    style: TextStyle(color: Colors.white70, fontSize: 13),
                                   ),
-                                ),
+                                ],
                               ),
-                              const SizedBox(height: 12),
-                              // LEGACY CARD - MAVİ VE SADE (Premium Tasarımına Benzer)
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: const Color(0xFF007AFF).withOpacity(0.3),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: const Text(
-                                        "Reklamsız Kullanım",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                    const Icon(Icons.check_circle, color: Colors.white, size: 20),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          );
-                        } else {
-                          // 3. Hiçbir şeyi yok - Premium'a Geç
-                          return GestureDetector(
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (purchaseManager.isLifetimeNoAds) {
+                      // 2. Sadece Reklamsız (Eski) - Hem Premium teşviki Hem de Legacy Bilgisi
+                      return Column(
+                        children: [
+                          GestureDetector(
                             onTap: () {
-                              if (!_authService.isSignedIn) {
-                                _showLoginRequiredSnackBar();
-                                return;
-                              }
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (context) => const SubscriptionScreen())
@@ -1090,7 +951,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                         Text(
-                                          "Sınırsız içerik, reklamsız kullanım.",
+                                          "Tüm özelliklere erişin.",
                                           style: TextStyle(color: Colors.white70, fontSize: 13),
                                         ),
                                       ],
@@ -1100,10 +961,119 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ],
                               ),
                             ),
+                          ),
+                          const SizedBox(height: 12),
+                          // LEGACY CARD - MAVİ VE SADE (Premium Tasarımına Benzer)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: const Text(
+                                    "Reklamsız Kullanım",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      // 3. Hiçbir şeyi yok - Premium'a Geç
+                      return GestureDetector(
+                        onTap: () {
+                          if (!_authService.isSignedIn) {
+                            _showLoginRequiredSnackBar();
+                            return;
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SubscriptionScreen())
                           );
-                        }
-                      }
-                      return const SizedBox.shrink();
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF007AFF).withOpacity(0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: const [
+                                    Text(
+                                      "Premium'a Geç",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Sınırsız içerik, reklamsız kullanım.",
+                                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 
@@ -1512,7 +1482,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Uygulamayı Paylaş',
+                            LanguageService().isEnglish ? 'Share App' : 'Uygulamayı Paylaş',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1565,7 +1535,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'İletişim',
+                              LanguageService().isEnglish ? 'Contact' : 'İletişim',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -1659,7 +1629,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'İletişim',
+                            LanguageService().isEnglish ? 'Contact' : 'İletişim',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1678,8 +1648,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                
-                // 🧪 DEBUG: Satın alma test araçları (sadece debug modda)
+                // Hesabımı Sil kartı (Apple Guideline 5.1.1(v) Uyumlu)
+                if (_authService.isSignedIn) ...[
+                  const SizedBox(height: 12),
+                  GestureDetector(
+                    onTap: () => _showDeleteAccountConfirmation(context, isDarkMode),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDarkMode 
+                            ? const Color(0xFF2C2C2E) 
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDarkMode 
+                              ? const Color(0xFF3A3A3C) 
+                              : const Color(0xFFE5E5EA),
+                          width: 1,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDarkMode
+                                ? Colors.black.withOpacity(0.2)
+                                : Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.delete_outline_rounded,
+                              color: Colors.red,
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              LanguageService().isEnglish ? 'Delete Account' : 'Hesabımı Sil',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: Colors.red,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 if (kDebugMode) ...[
                   const SizedBox(height: 24),
                   Container(
@@ -2258,6 +2290,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  void _showDeleteAccountConfirmation(BuildContext context, bool isDarkMode) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Hesabımı Sil', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        content: const Text(
+          'Hesabınızı ve hesabınıza bağlı tüm verileri kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+          style: TextStyle(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Vazgeç'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              try {
+                await _authService.deleteAccount();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Hesabınız başarıyla silindi.'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  setState(() {});
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Hesap silinemedi: $e. Güvenlik gereği yeniden giriş yapmanız gerekebilir.'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Evet, Sil'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _shareApp() async {
     try {
       // Uygulama içi işlem flag'ini set et - reklam engellemek için
@@ -2346,12 +2436,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       barrierDismissible: false, // Dışarı tıklayarak kapatmayı engelle
       builder: (context) => SafeArea(
         // 🔧 ANDROID 15 FIX: Dialog safe area padding
-        child: WillPopScope(
-          onWillPop: () async {
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
             // Güçlü klavye kapatma - geri tuşu
             FocusManager.instance.primaryFocus?.unfocus();
             SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
           },
           child: AlertDialog(
           title: const Text('Reklamları Kaldır'),
@@ -2359,8 +2448,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Bu hesap için ömür boyu tüm reklamları kaldır'),
-              const SizedBox(height: 16),
+              const Text('Bu hesap için ömür boyu tüm reklamları kaldırın ve kesintisiz deneyim yaşayın.'),
+              const SizedBox(height: 12),
+              // Apple Guidelines Requirement: Legal links & Restore Purchases
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      launchUrl(Uri.parse('https://kavaid.app/privacy'));
+                    },
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    child: const Text('Gizlilik Politikası', style: TextStyle(fontSize: 11, color: Color(0xFF007AFF))),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'));
+                    },
+                    style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                    child: const Text('Kullanım Koşulları (EULA)', style: TextStyle(fontSize: 11, color: Color(0xFF007AFF))),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                    try {
+                      await PurchaseManager().restorePurchases();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Satın alımlar başarıyla kontrol edildi/geri yüklendi.')),
+                        );
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Geri yükleme hatası: $e')),
+                        );
+                      }
+                    }
+                  },
+                  icon: const Icon(Icons.restore, size: 16),
+                  label: const Text('Satın Alımları Geri Yükle', style: TextStyle(fontSize: 12)),
+                ),
+              ),
             ],
           ),
           actions: [

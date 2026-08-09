@@ -16,13 +16,18 @@ import '../screens/profile_screen.dart';
 class CenterRightRemoveAdsButton extends StatefulWidget {
   final EdgeInsetsGeometry padding;
 
-  const CenterRightRemoveAdsButton({super.key, this.padding = const EdgeInsets.only(right: 8) });
+  const CenterRightRemoveAdsButton({
+    super.key,
+    this.padding = const EdgeInsets.only(right: 8),
+  });
 
   @override
-  State<CenterRightRemoveAdsButton> createState() => _CenterRightRemoveAdsButtonState();
+  State<CenterRightRemoveAdsButton> createState() =>
+      _CenterRightRemoveAdsButtonState();
 }
 
-class _CenterRightRemoveAdsButtonState extends State<CenterRightRemoveAdsButton> {
+class _CenterRightRemoveAdsButtonState
+    extends State<CenterRightRemoveAdsButton> {
   final CreditsService _credits = CreditsService();
   final OneTimePurchaseService _oneTime = OneTimePurchaseService();
 
@@ -48,7 +53,9 @@ class _CenterRightRemoveAdsButtonState extends State<CenterRightRemoveAdsButton>
 
   Future<void> _handleTap() async {
     // Premium/reklamsız ise bilgilendir ve çık
-    if (_credits.isPremium || _credits.isLifetimeAdsFree) {
+    if (_credits.isEntitlementPending ||
+        _credits.isPremium ||
+        _credits.isLifetimeAdsFree) {
       try {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -93,11 +100,10 @@ class _CenterRightRemoveAdsButtonState extends State<CenterRightRemoveAdsButton>
       context: context,
       barrierDismissible: false,
       builder: (context) => SafeArea(
-        child: WillPopScope(
-          onWillPop: () async {
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
             FocusManager.instance.primaryFocus?.unfocus();
             SystemChannels.textInput.invokeMethod('TextInput.hide');
-            return true;
           },
           child: AlertDialog(
             title: const Text('Reklamları Kaldır'),
@@ -158,7 +164,9 @@ class _CenterRightRemoveAdsButtonState extends State<CenterRightRemoveAdsButton>
   @override
   Widget build(BuildContext context) {
     // Premium/reklamsız ise hiç göstermeyelim
-    if (_credits.isPremium || _credits.isLifetimeAdsFree) {
+    if (_credits.isEntitlementPending ||
+        _credits.isPremium ||
+        _credits.isLifetimeAdsFree) {
       return const SizedBox.shrink();
     }
 

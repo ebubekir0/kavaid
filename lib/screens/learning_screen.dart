@@ -8,7 +8,6 @@ import 'package:kavaid/screens/interactive_book_screen.dart';
 import 'package:kavaid/services/book_store_service.dart';
 import 'package:kavaid/services/purchase_manager.dart';
 import 'package:kavaid/screens/subscription_screen.dart';
-import 'package:flutter/foundation.dart';
 
 // Ana Model - Raf (Shelf) ve Kitap (Content)
 class LibraryCategory {
@@ -52,6 +51,14 @@ class LearningScreen extends StatefulWidget {
 }
 
 class _LearningScreenState extends State<LearningScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Sayfa açıldığında promo durumunu bir kez daha zorla tazele
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      PurchaseManager().checkPromoPremium();
+    });
+  }
   // === ÖRNEK VERİLER (Youtube Tarzı) ===
   // Gerçekte bunlar bir servisten veya JSON'dan gelebilir.
   final List<LibraryCategory> _shelves = [
@@ -549,72 +556,73 @@ class _LearningScreenState extends State<LearningScreen> {
           },
         ),
         actions: [
-          // Premium İkonu - iOS'ta her şey ücretsiz olduğu için gizle
-          if (defaultTargetPlatform != TargetPlatform.iOS)
-            Consumer<PurchaseManager>(
-              builder: (context, purchaseManager, _) {
-                if (purchaseManager.isPremium) return const SizedBox.shrink(); 
-                
-                return GestureDetector(
-                  onTap: () {
-                    final user = FirebaseAuth.instance.currentUser;
-                    if (user == null) {
-                      EmailAuthSheet.show(
-                        context, 
-                        initialIsLogin: false,
-                        message: "Önce kayıt olup giriş yapmalısınız."
-                      );
-                    } else {
-                      Navigator.of(context, rootNavigator: true).push(
-                        MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
-                      );
-                    }
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF42A5F5), Color(0xFF1976D2)], 
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+          // Premium İkonu
+          Consumer<PurchaseManager>(
+            builder: (context, purchaseManager, _) {
+              if (purchaseManager.isPremium) return const SizedBox.shrink(); // Zaten premium ise gösterme (opsiyonel)
+              
+              return GestureDetector(
+                onTap: () {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    // Kayıt ol sekmesi varsayılan olarak açılsın, uyarı yok
+                    EmailAuthSheet.show(
+                      context, 
+                      initialIsLogin: false,
+                      message: "Önce kayıt olup giriş yapmalısınız."
+                    );
+                  } else {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                    );
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF42A5F5), Color(0xFF1976D2)], // Mavi gradient
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1976D2).withOpacity(0.4),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF1976D2).withOpacity(0.4),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16), 
-                        const SizedBox(width: 4),
-                        Text(
-                          "PREMIUM'A GEÇ", 
-                          style: GoogleFonts.outfit(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                        const SizedBox(width: 2),
-                        const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 16), 
-                      ],
-                    ),
+                    ],
+                    border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
                   ),
-                );
-              },
-            ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16), // Yıldızlı efekt ikonu
+                      const SizedBox(width: 4),
+                      Text(
+                        "PREMIUM'A GEÇ", // Tıklanabilir olduğu daha belli olsun
+                        style: GoogleFonts.outfit(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.chevron_right_rounded, color: Colors.white70, size: 16), // Ok işareti ekle
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: Consumer<PurchaseManager>(
         builder: (context, purchaseManager, _) {
+          debugPrint('🏠 [LearningScreen] build - Premium: ${purchaseManager.isPremium}, Promo: ${purchaseManager.isPromoPremium}');
           // Premium kullanıcılar için "Ücretsiz İçerikler" rafını gizle
           final displayShelves = purchaseManager.isPremium 
               ? _shelves.where((s) => s.title != "Ücretsiz İçerikler").toList() 

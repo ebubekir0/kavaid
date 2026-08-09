@@ -15,11 +15,13 @@ class GlobalConfigService extends ChangeNotifier {
   // Değişkenin ilk değeri kDebugMode'a göre ayarlanır.
   int _aiBatchSyncThreshold = kDebugMode ? 2 : 10;
   bool _subscriptionDisabled = false;
+  bool _campaignEnabled = false; // Kampanya açık mı?
   bool _isInitialized = false;
 
   // Getter'lar
   int get aiBatchSyncThreshold => _aiBatchSyncThreshold;
   bool get subscriptionDisabled => _subscriptionDisabled;
+  bool get campaignEnabled => _campaignEnabled;
   bool get isInitialized => _isInitialized;
   
   // Ana başlatma metodu
@@ -93,6 +95,28 @@ class GlobalConfigService extends ChangeNotifier {
     }, onError: (error) {
       debugPrint('❌ [GlobalConfig] Realtime DB dinleme hatası: $error');
     });
+
+    // Kampanya durumu dinleyicisi
+    _configRef.child('campaign_enabled').onValue.listen((event) {
+      final value = event.snapshot.value;
+      bool newValue = false;
+      
+      if (value != null) {
+        if (value is bool) {
+          newValue = value;
+        } else if (value is String) {
+          newValue = value.toLowerCase() == 'true';
+        }
+      }
+      
+      if (_campaignEnabled != newValue) {
+        debugPrint('🔄 [GlobalConfig] campaign_enabled değişti: $_campaignEnabled -> $newValue');
+        _campaignEnabled = newValue;
+        notifyListeners();
+      }
+    }, onError: (error) {
+      debugPrint('❌ [GlobalConfig] Campaign dinleme hatası: $error');
+    });
   }
   
   // 3. Realtime Database'den ilk değeri yükle (sadece subscription için)
@@ -110,6 +134,18 @@ class GlobalConfigService extends ChangeNotifier {
         }
       }
       debugPrint('✅ [GlobalConfig] İlk değer yüklendi: subscription_disabled = $_subscriptionDisabled');
+
+      // Kampanya durumunu yükle
+      final campSnapshot = await _configRef.child('campaign_enabled').get();
+      if (campSnapshot.exists && campSnapshot.value != null) {
+        final campValue = campSnapshot.value;
+        if (campValue is bool) {
+          _campaignEnabled = campValue;
+        } else if (campValue is String) {
+          _campaignEnabled = campValue.toLowerCase() == 'true';
+        }
+      }
+      debugPrint('✅ [GlobalConfig] İlk değer yüklendi: campaign_enabled = $_campaignEnabled');
     } catch (e) {
       debugPrint('❌ [GlobalConfig] İlk Realtime DB değeri yükleme hatası: $e');
     }
@@ -132,6 +168,27 @@ class GlobalConfigService extends ChangeNotifier {
       
     } catch (e) {
       debugPrint('❌ [GlobalConfig] Toggle hatası: $e');
+      return false;
+    }
+  }
+
+  // Kampanya durumunu toggle et
+  Future<bool> toggleCampaignStatus() async {
+    try {
+      final newValue = !_campaignEnabled;
+      
+      debugPrint('🔄 [GlobalConfig] Kampanya durumu değiştiriliyor: $newValue');
+      await _configRef.child('campaign_enabled').set(newValue);
+      debugPrint('✅ [GlobalConfig] Firebase\'e yazıldı: campaign_enabled = $newValue');
+      
+      // Local değeri hemen güncelle
+      _campaignEnabled = newValue;
+      notifyListeners();
+      
+      return true;
+      
+    } catch (e) {
+      debugPrint('❌ [GlobalConfig] Kampanya toggle hatası: $e');
       return false;
     }
   }

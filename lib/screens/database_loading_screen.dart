@@ -1,142 +1,61 @@
-import 'dart:async';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:sqflite/sqflite.dart';
-import '../services/sync_service.dart';
-import '../services/database_service.dart';
-import '../services/turkce_analytics_service.dart';
+
+import '../services/app_startup_service.dart';
 
 class DatabaseLoadingScreen extends StatefulWidget {
   final VoidCallback onLoadingComplete;
-  
-  const DatabaseLoadingScreen({
-    super.key,
-    required this.onLoadingComplete,
-  });
+
+  const DatabaseLoadingScreen({super.key, required this.onLoadingComplete});
 
   @override
   State<DatabaseLoadingScreen> createState() => _DatabaseLoadingScreenState();
 }
 
 class _DatabaseLoadingScreenState extends State<DatabaseLoadingScreen> {
-  final SyncService _syncService = SyncService();
-  final DatabaseService _dbService = DatabaseService.instance;
-  
-  String _statusText = 'Sözlük ayarlanıyor...';
-  bool _isLoading = true;
-  bool _showRetryButton = false;
-  double _progress = 0.0;
-  String _sizeText = '';
-  
+  final AppStartupService _startup = AppStartupService.instance;
+  bool _started = false;
+
+  String _l(String tr, String en, String ar) {
+    return tr;
+  }
+
+  String get _textRetry => _l('Tekrar Dene', 'Retry', 'اعادة المحاولة');
+
   @override
-  void initState() {
-    super.initState();
-    _startLoadingProcess();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_started) return;
+    _started = true;
+    _startup.addListener(_onStartupChanged);
+    _startup.start(context: context);
   }
-  
-  Future<void> _startLoadingProcess() async {
-    try {
-      // 1) Önce yerel veritabanını kontrol et
-      final db = await _dbService.database;
-      if (db == null) {
-        // Web platformu - direkt ana ekrana geç
-        _completeLoading();
-        return;
-      }
-      
-      final tableInfo = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='words'");
-      bool tableExists = tableInfo.isNotEmpty;
-      int wordCount = 0;
-      if (tableExists) {
-        final countResult = await db.rawQuery('SELECT COUNT(*) FROM words');
-        wordCount = Sqflite.firstIntValue(countResult) ?? 0;
-      }
 
-      if (tableExists && wordCount > 0) {
-        // Yerel DB hazır: ana ekrana geç
-        _completeLoading();
-        return;
-      }
+  @override
+  void dispose() {
+    _startup.removeListener(_onStartupChanged);
+    super.dispose();
+  }
 
-      // 2) İlk kurulum gerekiyor: embedded data'yı yükle
-      await _performDatabaseSync();
-      
-    } catch (e) {
-      debugPrint('❌ Database loading hatası: $e');
-      await _handleError('Hata oluştu');
+  void _onStartupChanged() {
+    if (!mounted) return;
+    if (_startup.isReady) {
+      widget.onLoadingComplete();
+      return;
     }
+    setState(() {});
   }
-  
-  Future<void> _performDatabaseSync() async {
-    try {
-      await TurkceAnalyticsService.ekranGoruntulendi('veritabani_yukleme_basladi');
 
-      setState(() {
-        _progress = 0.1;
-        _statusText = 'Sözlük ayarlanıyor...';
-      });
-
-      // Embedded data'yı yükle
-      await _syncService.initializeLocalDatabase(
-        force: true,
-        onFetched: (int wordCount, int approxBytes) {
-          setState(() {
-            _progress = 0.7;
-            _statusText = 'Sözlük ayarlanıyor...';
-          });
-        },
-      );
-
-      setState(() {
-        _progress = 1.0;
-        _statusText = 'Sözlük hazır!';
-      });
-
-      final db = await _dbService.database;
-      if (db == null) {
-        _completeLoading();
-        return;
-      }
-      
-      final countResult = await db.rawQuery('SELECT COUNT(*) FROM words');
-      final finalWordCount = Sqflite.firstIntValue(countResult) ?? 0;
-      
-      await TurkceAnalyticsService.ekranGoruntulendi('veritabani_yukleme_bitti');
-      _completeLoading();
-      
-    } catch (e) {
-      debugPrint('❌ Database sync hatası: $e');
-      await _handleError('Hata oluştu');
-    }
-  }
-  
-  Future<void> _handleError(String error) async {
-    setState(() {
-      _statusText = error;
-      _isLoading = false;
-      _showRetryButton = true;
-    });
-  }
-  
-  void _completeLoading() {
-    setState(() {
-      _isLoading = false;
-    });
-    widget.onLoadingComplete();
-  }
-  
   void _retry() {
-    setState(() {
-      _isLoading = true;
-      _showRetryButton = false;
-      _progress = 0.0;
-      _statusText = 'Sözlük ayarlanıyor...';
-    });
-    _startLoadingProcess();
+    _startup.retry(context: context);
   }
-  
+
   @override
   Widget build(BuildContext context) {
+    final hasError = _startup.phase == StartupPhase.recoverableError;
+    final progress = _startup.progress.clamp(0.0, 1.0);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       body: Center(
@@ -145,7 +64,6 @@ class _DatabaseLoadingScreenState extends State<DatabaseLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Sözlük ikonu
               Container(
                 width: 80,
                 height: 80,
@@ -159,12 +77,9 @@ class _DatabaseLoadingScreenState extends State<DatabaseLoadingScreen> {
                   color: Colors.white,
                 ),
               ),
-              
               const SizedBox(height: 24),
-              
-              // Durum metni
               Text(
-                _statusText,
+                _startup.message,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -172,60 +87,51 @@ class _DatabaseLoadingScreenState extends State<DatabaseLoadingScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              
-              const SizedBox(height: 8),
-              
               const SizedBox(height: 32),
-
-              // Progress bar (sadece yükleme sırasında)
-              if (_isLoading) ...[
-                Container(
+              if (!hasError) ...[
+                SizedBox(
                   width: 200,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE5E5EA),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: _progress,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF007AFF),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+                  child: LinearProgressIndicator(
+                    value: progress > 0 ? progress : null,
+                    minHeight: 4,
+                    backgroundColor: const Color(0xFFE5E5EA),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF007AFF),
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 Text(
-                  '${(_progress * 100).toInt()}%',
+                  '${(progress * 100).toInt()}%',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF8E8E93),
                   ),
                 ),
-              ],
-
-              // Retry butonu (hata durumunda)
-              if (_showRetryButton) ...[
+              ] else ...[
+                const Icon(
+                  Icons.error_outline,
+                  color: Color(0xFFFF3B30),
+                  size: 36,
+                ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _retry,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF007AFF),
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
-                    'Tekrar Dene',
-                    style: TextStyle(
+                  child: Text(
+                    _textRetry,
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),

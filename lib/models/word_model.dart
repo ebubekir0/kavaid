@@ -1,6 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flutter/foundation.dart';
 
+import '../data/type_translations.dart';
+import '../services/language_service.dart';
+
 part 'word_model.g.dart';
 
 @JsonSerializable()
@@ -196,6 +199,12 @@ class WordModel {
     return false;
   }
 
+  // Ana sözlük tek Türkçe anlam kaynağı kullanır. İngilizce/Arapça yerel
+  // anlam verileri paket boyutu ve bellek maliyeti nedeniyle kaldırıldı.
+  String? get localizedAnlam {
+    return anlam;
+  }
+
   // Kelime türü çıkarma (dilbilgiselOzellikler'den)
   String? get kelimeTuru {
     if (dilbilgiselOzellikler != null) {
@@ -204,6 +213,33 @@ class WordModel {
              dilbilgiselOzellikler!['kelimeTuru'];
     }
     return null;
+  }
+
+  // Yerelleştirilmiş kelime türü
+  String? get localizedKelimeTuru {
+    final turkishType = kelimeTuru ?? tip;
+    if (turkishType == null || turkishType.isEmpty) return null;
+    
+    final lang = LanguageService();
+    final normalizedType = turkishType.toLowerCase().trim();
+    
+    if (lang.isEnglish) {
+      return enTypeMap[normalizedType] ?? enTypeMap[turkishType] ?? turkishType;
+    } else if (lang.isArabic) {
+      return arTypeMap[normalizedType] ?? arTypeMap[turkishType] ?? turkishType;
+    }
+    
+    // Türkçe için: Eğer dilbilgiselOzellikler'de tür varsa onu kullan, yoksa tip'i kullan
+    if (dilbilgiselOzellikler != null) {
+      final typeFromDilbilgisel = dilbilgiselOzellikler!['tür'] ?? 
+                                 dilbilgiselOzellikler!['type'] ?? 
+                                 dilbilgiselOzellikler!['kelimeTuru'];
+      if (typeFromDilbilgisel != null && typeFromDilbilgisel.toString().isNotEmpty) {
+        return typeFromDilbilgisel.toString();
+      }
+    }
+    
+    return turkishType; // Türkçe için orijinal hal
   }
 
   // Çoğul formu çıkarma
@@ -260,6 +296,45 @@ class WordModel {
   // Backward compatibility için eski alanlar
   String? get harekeliYazi => harekeliKelime;
   String? get kok => koku;
+
+  String _cleanTargetText(String text, {bool removeDots = false}) {
+    // Parantezleri ve içindekileri sil (iç içe parantez yok varsayarak)
+    var cleaned = text.replaceAll(RegExp(r'\([^()]*\)'), '');
+    if (removeDots) {
+      // 3 nokta (...) ve türevlerini kaldır
+      cleaned = cleaned.replaceAll(RegExp(r'\.{2,}'), '');
+    }
+    // Fazla boşlukları temizle
+    cleaned = cleaned.replaceAll(RegExp(r'\s{2,}'), ' ').trim();
+    return cleaned;
+  }
+
+  /// Sadece gerçek anlamları döndür (harfi_cer olmadan)
+  String? get sadeAnlam {
+    if (anlam == null || anlam!.isEmpty) return anlam;
+    final rawSade = anlam!.split('||').first.trim();
+    return _cleanTargetText(rawSade, removeDots: false); 
+  }
+
+  /// Harfi_cerler listesini döndür: [{harf: 'فِي', anlamlar: '...de olmak'}]
+  List<Map<String, String>> get harfiCerler {
+    final results = <Map<String, String>>[];
+    if (anlam == null || anlam!.isEmpty) return results;
+    
+    final parts = anlam!.split('||');
+    for (int i = 1; i < parts.length; i++) {
+      final part = parts[i].trim();
+      if (part.startsWith('HARFI_CER:')) {
+        final content = part.substring('HARFI_CER:'.length).trim();
+        final subParts = content.split('=');
+        if (subParts.length == 2) {
+          results.add({'harf': subParts[0].trim(), 'anlamlar': subParts[1].trim()});
+        }
+      }
+    }
+
+    return results;
+  }
 }
 
 @JsonSerializable()
@@ -275,6 +350,12 @@ class Ornek {
   factory Ornek.fromJson(Map<String, dynamic> json) => _$OrnekFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrnekToJson(this);
+
+  // Yerelleştirilmiş çeviri
+  String get localizedCeviri {
+    return turkceCeviri;
+  }
+
 }
 
 @JsonSerializable()

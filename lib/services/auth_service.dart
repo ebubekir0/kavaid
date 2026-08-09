@@ -7,6 +7,7 @@ import 'dart:io';
 import 'credits_service.dart';
 import 'saved_words_service.dart';
 import 'cloud_saved_words_service.dart';
+import 'purchase_manager.dart';
 
 class AuthService extends ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
@@ -29,23 +30,26 @@ class AuthService extends ChangeNotifier {
   String? get displayName => currentUser?.displayName;
   String? get photoUrl => currentUser?.photoURL;
   bool get isGoogleSignedIn =>
-      currentUser?.providerData.any((p) => p.providerId == 'google.com') ?? false;
+      currentUser?.providerData.any((p) => p.providerId == 'google.com') ??
+      false;
 
   // Cihaz bilgileri
   String? _currentDeviceId;
   String? _currentDeviceName;
-  
+
   // Önceki kullanıcı ID'sini takip et
   String? _previousUserId;
-  
+
   // Auth state değişikliklerini dinle
   void _onAuthStateChanged(User? user) async {
     final currentUserId = user?.uid;
-    
+
     // Kullanıcı değişti mi kontrol et
     if (_previousUserId != currentUserId) {
-      debugPrint('🔄 [Auth] Kullanıcı değişti: $_previousUserId -> $currentUserId');
-      
+      debugPrint(
+        '🔄 [Auth] Kullanıcı değişti: $_previousUserId -> $currentUserId',
+      );
+
       if (currentUserId != null) {
         // Yeni kullanıcı girişi - servisleri yeniden başlat
         await _reinitializeServices(user!);
@@ -53,17 +57,17 @@ class AuthService extends ChangeNotifier {
         // Kullanıcı çıkışı - servisleri temizle
         await _clearServices();
       }
-      
+
       _previousUserId = currentUserId;
       notifyListeners();
     }
   }
-  
+
   // Servis yeniden başlatma
   Future<void> _reinitializeServices(User user) async {
     try {
       debugPrint('🔄 [Auth] Servisler yeniden başlatılıyor...');
-      
+
       // 0. Kullanıcı adı kontrolü ve otomatik atama
       try {
         await _ensureUsername();
@@ -71,7 +75,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] Kullanıcı adı kontrol hatası: $e');
       }
-      
+
       // 1. Credits Service
       try {
         await CreditsService().initialize();
@@ -79,7 +83,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] CreditsService yenileme hatası: $e');
       }
-      
+
       // 2. Saved Words Service
       try {
         final SavedWordsService savedWordsService = SavedWordsService();
@@ -88,7 +92,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] SavedWordsService yenileme hatası: $e');
       }
-      
+
       // 3. Cloud Saved Words Service - Senkronizasyon
       try {
         final CloudSavedWordsService cloudService = CloudSavedWordsService();
@@ -97,18 +101,18 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] Cloud senkronizasyon hatası: $e');
       }
-      
+
       debugPrint('✅ [Auth] Tüm servisler başarıyla yenilendi');
     } catch (e) {
       debugPrint('❌ [Auth] Servis yenileme hatası: $e');
     }
   }
-  
+
   // Servisleri temizle
   Future<void> _clearServices() async {
     try {
       debugPrint('🧹 [Auth] Servisler temizleniyor...');
-      
+
       // Saved Words Service temizle
       try {
         final SavedWordsService savedWordsService = SavedWordsService();
@@ -118,7 +122,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] SavedWordsService temizleme hatası: $e');
       }
-      
+
       // Credits Service temizle
       try {
         await CreditsService().initialize(); // Sıfırla
@@ -126,7 +130,7 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] CreditsService temizleme hatası: $e');
       }
-      
+
       debugPrint('✅ [Auth] Servisler temizlendi');
     } catch (e) {
       debugPrint('❌ [Auth] Servis temizleme hatası: $e');
@@ -134,20 +138,26 @@ class AuthService extends ChangeNotifier {
   }
 
   // Email/şifre ile kayıt ol
-  Future<User?> signUpWithEmail({required String email, required String password}) async {
+  Future<User?> signUpWithEmail({
+    required String email,
+    required String password,
+  }) async {
     try {
       debugPrint('🔐 [Auth] Email sign-up başlatılıyor...');
-      final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       final user = credential.user;
       if (user == null) return null;
 
       await _initializeDeviceInfo();
       await _checkAndUpdateDeviceSession(user.uid);
       await _updateUserData(user);
-      
+
       // Otomatik kullanıcı adı oluştur
       await _ensureUsername();
-      
+
       // Girişte hesap satın alım/lifetimeAdsFree durumunu eşitle
       try {
         await CreditsService().initialize();
@@ -157,7 +167,9 @@ class AuthService extends ChangeNotifier {
       // Kayıttan sonra otomatik giriş olmasın
       try {
         await _auth.signOut();
-        debugPrint('🚪 [Auth] Kayıt sonrası otomatik giriş kapatıldı (signOut)');
+        debugPrint(
+          '🚪 [Auth] Kayıt sonrası otomatik giriş kapatıldı (signOut)',
+        );
       } catch (e) {
         debugPrint('⚠️ [Auth] Kayıt sonrası signOut hatası: $e');
       }
@@ -170,23 +182,37 @@ class AuthService extends ChangeNotifier {
   }
 
   // Email/şifre ile giriş yap
-  Future<User?> signInWithEmail({required String email, required String password}) async {
+  Future<User?> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
     try {
       debugPrint('🔐 [Auth] Email sign-in başlatılıyor...');
-      final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       final user = credential.user;
       if (user == null) return null;
 
       await _initializeDeviceInfo();
       await _checkAndUpdateDeviceSession(user.email!);
       await _updateUserData(user);
-      
+
       // Otomatik kullanıcı adı kontrolü
       await _ensureUsername();
-      
+
+      try {
+        await CreditsService().initialize();
+      } catch (e) {
+        debugPrint('[Auth] Credits initialize hatasi: $e');
+      }
+
       // NOT: Servisler artık authStateChanges listener tarafından otomatik yenileniyor
-      debugPrint('✅ [Auth] Email giriş tamamlandı, servisler otomatik yenilenecek');
-      
+      debugPrint(
+        '✅ [Auth] Email giriş tamamlandı, servisler otomatik yenilenecek',
+      );
+
       return user;
     } catch (e) {
       debugPrint('❌ [Auth] Email sign-in hatası: $e');
@@ -207,7 +233,8 @@ class AuthService extends ChangeNotifier {
       }
 
       // Authentication detaylarını al
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
       // Firebase credential oluştur
       final credential = GoogleAuthProvider.credential(
@@ -216,9 +243,10 @@ class AuthService extends ChangeNotifier {
       );
 
       // Firebase'e giriş yap
-      final UserCredential userCredential = 
-          await _auth.signInWithCredential(credential);
-      
+      final UserCredential userCredential = await _auth.signInWithCredential(
+        credential,
+      );
+
       final User? user = userCredential.user;
       if (user == null) {
         debugPrint('❌ [Auth] Firebase girişi başarısız');
@@ -233,12 +261,20 @@ class AuthService extends ChangeNotifier {
 
       // Kullanıcı bilgilerini Firestore'a kaydet/güncelle
       await _updateUserData(user);
-      
+
       // Otomatik kullanıcı adı kontrolü
       await _ensureUsername();
-      
+
+      try {
+        await CreditsService().initialize();
+      } catch (e) {
+        debugPrint('[Auth] Credits initialize hatasi: $e');
+      }
+
       // NOT: Servisler artık authStateChanges listener tarafından otomatik yenileniyor
-      debugPrint('✅ [Auth] Google giriş tamamlandı, servisler otomatik yenilenecek');
+      debugPrint(
+        '✅ [Auth] Google giriş tamamlandı, servisler otomatik yenilenecek',
+      );
 
       // Cihaz reklamsız (premium) ise bu hak kullanıcı hesabına taşınsın
       try {
@@ -247,7 +283,9 @@ class AuthService extends ChangeNotifier {
           await _firestore.collection('users').doc(user.email!).set({
             'lifetimeAdsFree': true,
           }, SetOptions(merge: true));
-          debugPrint('✅ [Auth] Cihazdaki reklamsız hak kullanıcı hesabına aktarıldı');
+          debugPrint(
+            '✅ [Auth] Cihazdaki reklamsız hak kullanıcı hesabına aktarıldı',
+          );
         }
       } catch (e) {
         debugPrint('⚠️ [Auth] Reklamsız hak aktarımı başarısız: $e');
@@ -282,16 +320,18 @@ class AuthService extends ChangeNotifier {
   Future<void> _checkAndUpdateDeviceSession(String userId) async {
     try {
       final userDoc = await _firestore.collection('users').doc(userId).get();
-      
+
       if (userDoc.exists) {
         final data = userDoc.data();
         final activeDeviceId = data?['activeDeviceId'];
         final activeDeviceName = data?['activeDeviceName'];
-        
+
         // Başka bir cihazda aktif oturum var mı?
         if (activeDeviceId != null && activeDeviceId != _currentDeviceId) {
-          debugPrint('⚠️ [Auth] Başka cihazda aktif oturum var: $activeDeviceName');
-          
+          debugPrint(
+            '⚠️ [Auth] Başka cihazda aktif oturum var: $activeDeviceName',
+          );
+
           // Eski cihazdan çıkış yapılacağını işaretle
           await _firestore.collection('users').doc(userId).update({
             'previousDeviceId': activeDeviceId,
@@ -319,7 +359,7 @@ class AuthService extends ChangeNotifier {
     try {
       // UID anahtar olarak kullan
       final userRef = _firestore.collection('users').doc(user.uid);
-      
+
       final userData = {
         'uid': user.uid,
         'email': user.email,
@@ -352,17 +392,16 @@ class AuthService extends ChangeNotifier {
     if (!isSignedIn || _currentDeviceId == null) return true;
 
     try {
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(userId)
-          .get();
-      
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+
       if (userDoc.exists) {
         final activeDeviceId = userDoc.data()?['activeDeviceId'];
-        
+
         // Bu cihazın oturumu hala geçerli mi?
         if (activeDeviceId != _currentDeviceId) {
-          debugPrint('⚠️ [Auth] Oturum başka cihazda açıldı, çıkış yapılıyor...');
+          debugPrint(
+            '⚠️ [Auth] Oturum başka cihazda açıldı, çıkış yapılıyor...',
+          );
           await signOut(showMessage: true);
           return false;
         }
@@ -379,11 +418,8 @@ class AuthService extends ChangeNotifier {
     if (!isSignedIn) return false;
 
     try {
-      final userDoc = await _firestore
-          .collection('users')
-          .doc(userId)
-          .get();
-      
+      final userDoc = await _firestore.collection('users').doc(userId).get();
+
       if (userDoc.exists) {
         final data = userDoc.data();
         return data?['lifetimeAdsFree'] == true;
@@ -412,15 +448,15 @@ class AuthService extends ChangeNotifier {
             'purchasedAt': FieldValue.serverTimestamp(),
             'deviceId': _currentDeviceId,
             'deviceName': _currentDeviceName,
-          }
+          },
         ]),
       }, SetOptions(merge: true));
-      
+
       debugPrint('✅ [Auth] Premium satın alım kaydedildi');
       notifyListeners();
     } catch (e) {
       debugPrint('❌ [Auth] Premium satın alım kaydedilemedi: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -437,20 +473,57 @@ class AuthService extends ChangeNotifier {
           debugPrint('❌ [Auth] Kelimeler buluta yedeklenemedi: $e');
         }
       }
-      
+
       // Firebase'den çıkış
       await _auth.signOut();
-      
+
       // Google Sign-In'den çıkış
       await _googleSignIn.signOut();
-      
+
       _currentDeviceId = null;
       _currentDeviceName = null;
-      
+
+      // Promo premium durumunu sıfırla (hesap bazlı)
+      PurchaseManager().resetPromoState();
+
       // NOT: Servisler artık authStateChanges listener tarafından otomatik temizleniyor
       debugPrint('✅ [Auth] Çıkış yapıldı, servisler otomatik temizlenecek');
     } catch (e) {
       debugPrint('❌ [Auth] Çıkış hatası: $e');
+    }
+  }
+
+  // Hesabı sil (Apple App Store İnceleme Politikaları - Guideline 5.1.1(v) Uyumlu)
+  Future<void> deleteAccount() async {
+    final user = currentUser;
+    if (user == null) return;
+
+    final uid = user.uid;
+    final email = user.email;
+
+    try {
+      // 1. Firestore verilerini temizle
+      if (email != null && email.isNotEmpty) {
+        await _firestore.collection('users').doc(email).delete().catchError((_) {});
+      }
+      if (uid.isNotEmpty) {
+        await _firestore.collection('users').doc(uid).delete().catchError((_) {});
+      }
+
+      // 2. Promo ve yerel satın alım durumlarını sıfırla
+      PurchaseManager().resetPromoState();
+
+      // 3. Google Sign-In oturumunu kapat
+      try {
+        await _googleSignIn.signOut();
+      } catch (_) {}
+
+      // 4. Firebase Kullanıcısını sil
+      await user.delete();
+      debugPrint('✅ [Auth] Kullanıcı hesabı başarıyla silindi');
+    } catch (e) {
+      debugPrint('❌ [Auth] Hesap silme hatası: $e');
+      rethrow;
     }
   }
 
@@ -464,14 +537,15 @@ class AuthService extends ChangeNotifier {
     if (!isSignedIn) return null;
     return _firestore.collection('users').doc(userEmail!).snapshots();
   }
-  
+
   // Benzersiz kullanıcı adı oluştur (otomatik)
   Future<String> _generateUniqueUsername() async {
     try {
       // Rastgele 3-6 haneli sayı oluştur
-      final random = (100 + (DateTime.now().millisecondsSinceEpoch % 899900)).toString();
+      final random = (100 + (DateTime.now().millisecondsSinceEpoch % 899900))
+          .toString();
       String username = 'kullanıcı$random';
-      
+
       // Benzersizliği kontrol et
       int attempts = 0;
       while (attempts < 10) {
@@ -480,18 +554,22 @@ class AuthService extends ChangeNotifier {
             .where('username', isEqualTo: username)
             .limit(1)
             .get();
-        
+
         if (existingUser.docs.isEmpty) {
           debugPrint('✅ [Auth] Benzersiz kullanıcı adı oluşturuldu: $username');
           return username;
         }
-        
+
         // Çakışma varsa yeni numara oluştur
-        final newRandom = (100 + (DateTime.now().millisecondsSinceEpoch % 899900) + attempts * 1000).toString();
+        final newRandom =
+            (100 +
+                    (DateTime.now().millisecondsSinceEpoch % 899900) +
+                    attempts * 1000)
+                .toString();
         username = 'kullanıcı$newRandom';
         attempts++;
       }
-      
+
       // Son çare: UID'nin ilk 6 karakterini kullan
       username = 'kullanıcı${currentUser!.uid.substring(0, 6)}';
       debugPrint('✅ [Auth] Kullanıcı adı UID\'den oluşturuldu: $username');
@@ -502,14 +580,14 @@ class AuthService extends ChangeNotifier {
       return 'kullanıcı${DateTime.now().millisecondsSinceEpoch % 1000000}';
     }
   }
-  
+
   // Kullanıcı adını güncelle
   Future<bool> updateUsername(String newUsername) async {
     if (!isSignedIn) {
       debugPrint('❌ [Auth] Kullanıcı giriş yapmamış');
       return false;
     }
-    
+
     try {
       // Formatı kontrol et
       final formatted = newUsername
@@ -517,44 +595,45 @@ class AuthService extends ChangeNotifier {
           .replaceAll(' ', '')
           .replaceAll(RegExp(r'[^a-z0-9çğıöşü]'), '')
           .trim();
-      
+
       if (formatted.isEmpty || formatted.length < 3) {
         debugPrint('❌ [Auth] Geçersiz kullanıcı adı formatı');
         return false;
       }
-      
+
       // Mevcut kullanıcı verilerini kontrol et
       final userDoc = await _firestore.collection('users').doc(userId).get();
       if (userDoc.exists) {
         final data = userDoc.data();
         final usernameChanged = data?['usernameChanged'] ?? false;
-        
+
         // Eğer daha önce değiştirilmişse izin verme
         if (usernameChanged == true) {
           debugPrint('⚠️ [Auth] Kullanıcı adı zaten değiştirilmiş');
           return false;
         }
       }
-      
+
       // Benzersizliği kontrol et
       final existingUser = await _firestore
           .collection('users')
           .where('username', isEqualTo: formatted)
           .limit(1)
           .get();
-      
-      if (existingUser.docs.isNotEmpty && existingUser.docs.first.id != userId) {
+
+      if (existingUser.docs.isNotEmpty &&
+          existingUser.docs.first.id != userId) {
         debugPrint('❌ [Auth] Bu kullanıcı adı zaten kullanılıyor');
         return false;
       }
-      
+
       // Kullanıcı adını güncelle
       await _firestore.collection('users').doc(userId).set({
         'username': formatted,
         'usernameChanged': true, // Değiştirildi olarak işaretle
         'usernameChangedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      
+
       debugPrint('✅ [Auth] Kullanıcı adı güncellendi: $formatted');
       return true;
     } catch (e) {
@@ -562,73 +641,33 @@ class AuthService extends ChangeNotifier {
       return false;
     }
   }
-  
+
   // Kullanıcı adını kontrol et ve yoksa oluştur
   Future<void> _ensureUsername() async {
     if (!isSignedIn) return;
-    
+
     try {
       final userDoc = await _firestore.collection('users').doc(userId).get();
-      
+
       if (!userDoc.exists || userDoc.data()?['username'] == null) {
         // Kullanıcı adı yoksa otomatik oluştur
         final autoUsername = await _generateUniqueUsername();
-        
+
         await _firestore.collection('users').doc(userId).set({
           'username': autoUsername,
           'usernameChanged': false, // Henüz değiştirilmedi
           'autoGenerated': true, // Otomatik oluşturuldu
           'createdAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
-        
+
         debugPrint('✅ [Auth] Otomatik kullanıcı adı atandı: $autoUsername');
       } else {
-        debugPrint('ℹ️ [Auth] Kullanıcı adı mevcut: ${userDoc.data()?['username']}');
+        debugPrint(
+          'ℹ️ [Auth] Kullanıcı adı mevcut: ${userDoc.data()?['username']}',
+        );
       }
     } catch (e) {
       debugPrint('❌ [Auth] Kullanıcı adı kontrol hatası: $e');
-    }
-  }
-
-  // Hesabı sil
-  Future<void> deleteAccount() async {
-    if (!isSignedIn) return;
-    
-    final userId = this.userId!;
-    final user = currentUser!;
-    
-    try {
-      debugPrint('🗑️ [Auth] Hesap silme başlatılıyor: $userId');
-      
-      // 1. Firestore verilerini sil
-      await _firestore.collection('users').doc(userId).delete();
-      debugPrint('✅ [Auth] Firestore kullanıcı verileri silindi');
-      
-      // 2. Kaydedilen kelimeleri sil (Opsiyonel: Eğer Firestore'da ise zaten silindi veya SavedWordsService içinde temizlendi)
-      try {
-        await SavedWordsService().clearAllSavedWords();
-      } catch (e) {
-        debugPrint('⚠️ [Auth] Kaydedilen kelimeler temizlenirken hata: $e');
-      }
-
-      // 3. Firebase Auth kullanıcısını sil
-      // NOT: Bazı durumlarda re-authentication gerekebilir (son giriş üzerinden vakit geçmişse)
-      await user.delete();
-      debugPrint('✅ [Auth] Firebase Auth kullanıcısı silindi');
-      
-      // 4. Çıkış yap ve temizle
-      await signOut();
-      
-      debugPrint('✅ [Auth] Hesap başarıyla silindi');
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'requires-recent-login') {
-        debugPrint('⚠️ [Auth] Hesap silmek için yeniden giriş yapılması gerekiyor');
-        throw Exception('Bu işlem hassas olduğu için lütfen önce tekrar giriş yapın.');
-      }
-      rethrow;
-    } catch (e) {
-      debugPrint('❌ [Auth] Hesap silme hatası: $e');
-      rethrow;
     }
   }
 }

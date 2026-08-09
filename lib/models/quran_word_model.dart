@@ -6,11 +6,19 @@ class QuranWordModel {
   final String anlamlar;
   final List<QuranAyetOrnek> ayetOrnekleri;
 
+  // Ön-normalize edilmiş arama anahtarları (ANR önleme için)
+  final String normalizedKelime;
+  final String normalizedKok;
+  final String normalizedAnlamlar;
+
   const QuranWordModel({
     required this.kelime,
     required this.kok,
     required this.anlamlar,
     required this.ayetOrnekleri,
+    required this.normalizedKelime,
+    required this.normalizedKok,
+    required this.normalizedAnlamlar,
   });
 
   /// CSV satırından model oluştur
@@ -30,11 +38,18 @@ class QuranWordModel {
       }
     }
 
+    final cleanKelime = _stripArabicDiacritics(kelime);
+    final cleanKok = _stripArabicDiacritics(kok);
+    final cleanAnlamlar = anlamlar.toLowerCase();
+
     return QuranWordModel(
       kelime: kelime,
       kok: kok,
       anlamlar: anlamlar,
       ayetOrnekleri: ayetler,
+      normalizedKelime: cleanKelime,
+      normalizedKok: cleanKok,
+      normalizedAnlamlar: cleanAnlamlar,
     );
   }
 
@@ -103,4 +118,10 @@ class QuranAyetOrnek {
       return null;
     }
   }
+}
+
+final RegExp _diacriticsRx = RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]');
+
+String _stripArabicDiacritics(String text) {
+  return text.replaceAll(_diacriticsRx, '');
 }

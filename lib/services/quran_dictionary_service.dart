@@ -47,7 +47,7 @@ List<QuranWordModel> _parseCsvInIsolate(String contents) {
     if (fields.isEmpty || fields[0].trim().isEmpty) continue;
 
     final word = QuranWordModel.fromCsvRow(fields);
-    
+
     // Aynı harekeli kelime (birebir aynı) ise listeye ekleme
     if (!wordMap.containsKey(word.kelime)) {
       wordMap[word.kelime] = word;
@@ -58,6 +58,9 @@ List<QuranWordModel> _parseCsvInIsolate(String contents) {
 }
 
 class QuranDictionaryService {
+  static final RegExp _diacriticsRx = RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]');
+  static final RegExp _arabicRx = RegExp(r'[\u0600-\u06FF]');
+
   static final QuranDictionaryService _instance =
       QuranDictionaryService._internal();
   static QuranDictionaryService get instance => _instance;
@@ -67,25 +70,40 @@ class QuranDictionaryService {
   List<QuranWordModel> _allWords = [];
   bool _isLoaded = false;
   bool _isLoading = false;
+  Future<void>? _loadingFuture;
 
   bool get isLoaded => _isLoaded;
+  bool get isLoading => _isLoading;
   int get wordCount => _allWords.length;
 
   /// Servisi başlat ve CSV verisini yükle
   Future<void> initialize() async {
-    if (_isLoaded || _isLoading) return;
+    if (_isLoaded) return;
+    if (_loadingFuture != null) return _loadingFuture;
+
     _isLoading = true;
+    _loadingFuture = _loadDictionary();
 
     try {
-      final String contents =
-          await rootBundle.loadString('assets/data/quran_sozluk_okunakli.csv');
+      await _loadingFuture;
+    } finally {
+      _loadingFuture = null;
+    }
+  }
+
+  Future<void> _loadDictionary() async {
+    try {
+      final String contents = await rootBundle.loadString(
+        'assets/data/quran_sozluk_okunakli.csv',
+      );
 
       // Ağır CSV ayrıştırmayı arka plan isolate'te yap
       _allWords = await compute(_parseCsvInIsolate, contents);
 
       _isLoaded = true;
       debugPrint(
-          'QuranDictionaryService: ${_allWords.length} kelime yüklendi (CSV).');
+        'QuranDictionaryService: ${_allWords.length} kelime yüklendi (CSV).',
+      );
     } catch (e) {
       debugPrint('QuranDictionaryService initialization error: $e');
     } finally {
@@ -95,8 +113,7 @@ class QuranDictionaryService {
 
   /// Arapça harekelerini kaldır
   String removeArabicDiacritics(String text) {
-    return text.replaceAll(
-        RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]'), '');
+    return text.replaceAll(_diacriticsRx, '');
   }
 
   /// Kelime ara (kelime + kök + anlam üzerinden)
@@ -106,7 +123,7 @@ class QuranDictionaryService {
     final cleanQuery = query.trim();
     if (cleanQuery.isEmpty) return [];
 
-    final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(cleanQuery);
+    final hasArabic = _arabicRx.hasMatch(cleanQuery);
     final normalizedQuery = hasArabic
         ? removeArabicDiacritics(cleanQuery)
         : cleanQuery.toLowerCase();
@@ -120,8 +137,8 @@ class QuranDictionaryService {
     for (final word in _allWords) {
       if (hasArabic) {
         // Arapça arama
-        final normKelime = removeArabicDiacritics(word.kelime);
-        final normKok = removeArabicDiacritics(word.kok);
+        final normKelime = word.normalizedKelime;
+        final normKok = word.normalizedKok;
 
         if (normKelime == normalizedQuery) {
           exact.add(word);
@@ -134,8 +151,8 @@ class QuranDictionaryService {
         }
       } else {
         // Türkçe/Latin arama → anlam üzerinden
-        final anlam = word.anlamlar.toLowerCase();
-        final kok = word.kok.toLowerCase();
+        final anlam = word.normalizedAnlamlar;
+        final kok = word.normalizedKok;
 
         if (anlam == normalizedQuery) {
           exact.add(word);
@@ -149,7 +166,8 @@ class QuranDictionaryService {
       }
 
       // Performans: max 100 sonuç
-      final total = exact.length +
+      final total =
+          exact.length +
           startsWith.length +
           rootMatch.length +
           contains.length +

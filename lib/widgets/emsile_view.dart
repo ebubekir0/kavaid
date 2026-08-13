@@ -177,21 +177,6 @@ class _EmsileViewState extends State<EmsileView> {
             const SizedBox(height: 20),
             InkWell(
               onTap: () {
-                // Giriş kontrolü
-                if (!AuthService().isSignedIn) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Lütfen önce kayıt olun, giriş yapın.',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.black87,
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.fixed,
-                    ),
-                  );
-                  return;
-                }
                 widget.onPremiumTap?.call();
               },
               borderRadius: BorderRadius.circular(16),
@@ -366,21 +351,6 @@ class _EmsileViewState extends State<EmsileView> {
           InkWell(
             onTap: () {
               if (locked) {
-                // Giriş kontrolü
-                if (!AuthService().isSignedIn) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Lütfen önce kayıt olun, giriş yapın.',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.black87,
-                      duration: Duration(seconds: 2),
-                      behavior: SnackBarBehavior.fixed,
-                    ),
-                  );
-                  return;
-                }
                 _showPremiumDialog(context);
                 return;
               }

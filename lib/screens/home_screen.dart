@@ -3236,27 +3236,12 @@ class _HomeScreenState extends State<HomeScreen>
                     _creditsService.isLifetimeAdsFree))
                   InkWell(
                     onTap: () {
-                      final auth = AuthService();
-                      if (!auth.isSignedIn) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Lütfen önce kayıt olun, giriş yapın.',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Colors.black87,
-                            duration: Duration(seconds: 2),
-                            behavior: SnackBarBehavior.fixed,
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SubscriptionScreen(),
-                          ),
-                        );
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(
@@ -3466,31 +3451,12 @@ class _HomeScreenState extends State<HomeScreen>
                         _creditsService.isLifetimeAdsFree))
                   InkWell(
                     onTap: () {
-                      final auth = AuthService();
-                      if (!auth.isSignedIn) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              LanguageService().isEnglish
-                                  ? 'Please log in or sign up first'
-                                  : (LanguageService().isArabic
-                                        ? 'يرجى تسجيل الدخول أو الاشتراك أولاً'
-                                        : 'Lütfen önce kayıt olun, giriş yapın.'),
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            backgroundColor: Colors.black87,
-                            duration: Duration(seconds: 2),
-                            behavior: SnackBarBehavior.fixed,
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SubscriptionScreen(),
-                          ),
-                        );
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
+                        ),
+                      );
                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Container(

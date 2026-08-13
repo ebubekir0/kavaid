@@ -42,19 +42,12 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Future<void> _handlePurchase() async {
     final pm = Provider.of<PurchaseManager>(context, listen: false);
-    
-    // Ürünlerin yüklenip yüklenmediğini kontrol et
-    if (pm.getPrice('monthly').isEmpty && pm.getPrice('yearly').isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Ürünler henüz yüklenmedi veya market ayarları eksik. Lütfen biraz sonra tekrar deneyin.'))
-      );
-      // Tekrar çekmeye çalış
-      pm.fetchProducts();
-      return;
-    }
 
     setState(() => _isLoading = true);
     try {
+      if (pm.getPrice('monthly').isEmpty && pm.getPrice('yearly').isEmpty) {
+        await pm.fetchProducts();
+      }
       if (_selectedPlan == 'monthly') {
         await pm.buyPremiumMonthly();
       } else {

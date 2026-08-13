@@ -44,29 +44,12 @@ class _CampaignBannerState extends State<CampaignBanner> with SingleTickerProvid
 
     return InkWell(
       onTap: () {
-        final auth = AuthService();
-        if (!auth.isSignedIn) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                LanguageService().isEnglish 
-                    ? 'Please log in or sign up first' 
-                    : (LanguageService().isArabic ? 'يرجى تسجيل الدخول أو الاشتراك أولاً' : 'Lütfen önce kayıt olun, giriş yapın.'),
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.black87,
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.fixed,
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CampaignScreen(isDarkMode: isDark),
-            ),
-          );
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CampaignScreen(isDarkMode: isDark),
+          ),
+        );
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(

@@ -959,12 +959,13 @@ class PurchaseManager extends ChangeNotifier {
     if (package == null && _offerings != null) {
       for (final offering in _offerings!.all.values) {
         try {
-          package = offering.availablePackages.firstWhere((p) {
+          final found = offering.availablePackages.firstWhere((p) {
             final id = p.identifier.toLowerCase();
             final storeId = p.storeProduct.identifier.toLowerCase();
             return id.contains('monthly') || storeId.contains('monthly');
           });
-          if (package != null) break;
+          package = found;
+          break;
         } catch (_) {}
       }
     }
@@ -994,12 +995,13 @@ class PurchaseManager extends ChangeNotifier {
     if (package == null && _offerings != null) {
       for (final offering in _offerings!.all.values) {
         try {
-          package = offering.availablePackages.firstWhere((p) {
+          final found = offering.availablePackages.firstWhere((p) {
             final id = p.identifier.toLowerCase();
             final storeId = p.storeProduct.identifier.toLowerCase();
             return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual');
           });
-          if (package != null) break;
+          package = found;
+          break;
         } catch (_) {}
       }
     }

@@ -37,7 +37,7 @@ REM Rename the APK with version and date
 echo.
 echo [4/5] APK yeniden adlandiriliyor...
 set TODAY=%date:~-4%-%date:~3,2%-%date:~0,2%
-set OUTPUT_NAME=kavaid-v2.1.0-build2025-fps-optimized-%TODAY%.apk
+set OUTPUT_NAME=kavaid-v3.2.9-build3209-fps-optimized-%TODAY%.apk
 copy "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk" "%OUTPUT_NAME%"
 
 echo.

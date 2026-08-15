@@ -6,8 +6,21 @@ build/
 debug-info/ 
 release_output/
 .dart_tool/
+.agent/
 *.so
 .flutter-plugins-dependencies 
+
+# Memory dumps and logs
+*.hprof
+*.log
+*.jsonl
+analyze*.txt
+*.gz
+*.db
+*.pdf
+emsile_*.json
+SON_GUNCEL_*.json
+SOZLUK_*.json
 
 # Sensitive files (do not commit)
 *.jks

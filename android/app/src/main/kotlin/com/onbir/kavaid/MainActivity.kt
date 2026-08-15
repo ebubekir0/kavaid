@@ -33,8 +33,9 @@ class MainActivity : FlutterActivity() {
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         
-        // 🚀 PERFORMANCE MOD: Performance flags
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        // 🔧 ANR DÜZELTMESİ: FLAG_KEEP_SCREEN_ON KALDIRILDI
+        // Ekranı daima açık tutmak thermal throttling'e yol açıyor → ANR riski
+        // Kullanıcı cihazının ekran süresi ayarına saygı duyulmalı
         
         // 🚀 FPS FIX: Refresh rate optimizasyonu
         optimizeRefreshRate()
@@ -141,10 +142,9 @@ class MainActivity : FlutterActivity() {
         when (category) {
             "high_end" -> {
                 Log.d(TAG, "Yüksek performans optimizasyonları uygulanıyor...")
-                // Sustained performance mode (API 24+)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    window.setSustainedPerformanceMode(true)
-                }
+                // 🔧 ANR DÜZELTMESİ: setSustainedPerformanceMode KALDIRILDI
+                // Bu mod paradoks olarak performansı DÜŞÜRÜR (CPU/GPU frekansını sınırlar)
+                // Amacı "tutarlı ama düşük" performans sağlamaktır, bu da ANR riskini artırır
             }
             "mid_range" -> {
                 Log.d(TAG, "Orta performans optimizasyonları uygulanıyor...")
@@ -352,22 +352,13 @@ class MainActivity : FlutterActivity() {
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
                 )
                 
-                // Keep screen on
-                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                
-                // Sustained performance mode
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    window.setSustainedPerformanceMode(true)
-                }
+                // 🔧 ANR DÜZELTMESİ: FLAG_KEEP_SCREEN_ON ve setSustainedPerformanceMode KALDIRILDI
+                // Her ikisi de thermal throttling ve düşük performansa neden oluyordu
             }
         } else {
             runOnUiThread {
-                // Normal mod
-                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    window.setSustainedPerformanceMode(false)
-                }
+                // Normal mod - ek işlem gerekmez
+                Log.d(TAG, "Normal performans modu")
             }
         }
     }

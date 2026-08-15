@@ -1,0 +1,30 @@
+Total: 54971
+Sample keys: ['id', 'kelime', 'harekeliKelime', 'koku', 'dilbilgiselOzellikler', 'fiilCekimler', 'ornekCumleler', 'anlamlar', 'harfi_cerler']
+{
+  "id": "-OVmLvfOvTRWl8lLsdxW",
+  "kelime": "تأمين",
+  "harekeliKelime": "تَأْمِينٌ",
+  "koku": "أمن",
+  "dilbilgiselOzellikler": {
+    "cogulForm": "تَأْمِينَاتٌ",
+    "tur": "Mastar"
+  },
+  "fiilCekimler": {
+    "emirForm": "أَمِّنْ",
+    "mastarForm": "تَأْمِينٌ",
+    "maziForm": "أَمَّنَ",
+    "muzariForm": "يُؤَمِّنُ"
+  },
+  "ornekCumleler": [
+    {
+      "arapcaCümle": "يَجِبُ عَلَيْنَا الْحُصُولُ عَلَى تَأْمِينٍ صِحِّيٍّ.",
+      "turkceAnlam": "Sağlık sigortası yaptırmamız gerekiyor."
+    },
+    {
+      "arapcaCümle": "تَأْمِينُ الْمُسْتَقْبَلِ أَمْرٌ مُهِمٌّ.",
+      "turkceAnlam": "Geleceği güvence altına almak önemli bir konudur."
+    }
+  ],
+  "anlamlar": "güvence altına alma, sigortalama, teminat, emniyete alma, sağlama alma",
+  "harfi_cerler": []
+}

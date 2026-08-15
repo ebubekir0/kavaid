@@ -28,7 +28,7 @@
     <uses-feature android:name="android.hardware.screen.landscape" android:required="false"/>
     
     <application
-        android:label="Kavaid"
+        android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
         android:largeHeap="true"

@@ -3,14 +3,14 @@ echo 🚀 Kavaid - Google Play Store Upload Hazırlığı
 echo ================================================
 
 echo 📋 Kontrol Listesi:
-echo [✅] AAB Dosyası: kavaid-v3.2.0-build3201-play-store.aab
+echo [✅] AAB Dosyası: kavaid-v3.2.20-build3220-play-store.aab
 echo [✅] Keystore: upload-keystore.jks
-echo [✅] Version: 3.2.0 (Build 3201)
+echo [✅] Version: 3.2.20 (Build 3220)
 echo [✅] Firebase Config: android/app/google-services.json
 
 echo.
 echo 📱 Dosya Kontrolleri:
-if exist "kavaid-v3.2.0-build3201-play-store.aab" (
+if exist "kavaid-v3.2.20-build3220-play-store.aab" (
     echo [✅] AAB dosyası bulundu
 ) else (
     echo [❌] AAB dosyası bulunamadı!
@@ -46,7 +46,7 @@ echo 6. Detaylı rehber: PLAY_STORE_YAYIN_REHBERİ.md
 
 echo.
 echo 📊 AAB Dosya Bilgileri:
-for %%A in ("kavaid-v3.2.0-build3201-play-store.aab") do (
+for %%A in ("kavaid-v3.2.20-build3220-play-store.aab") do (
     echo    Boyut: %%~zA bytes (~86MB)
     echo    Tarih: %%~tA
 )

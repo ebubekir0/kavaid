@@ -1,9 +1,9 @@
 # 🚀 Kavaid - Google Play Store Yayınlama Rehberi
 
 ## 📱 Hazır Dosyalar Listesi
-- ✅ **AAB Dosyası**: `kavaid-v2.1.0-build2046-yeni-icon.aab` (86MB)
+- ✅ **AAB Dosyası**: `kavaid-v3.2.9-build3209.aab` (86MB)
 - ✅ **Keystore**: `upload-keystore.jks` 
-- ✅ **Version**: 2.1.0 (Build 2046)
+- ✅ **Version**: 3.2.9 (Build 3209)
 - ✅ **Firebase**: Entegre edilmiş
 - ✅ **AdMob**: Entegre edilmiş
 - ✅ **Subscription**: Hazır
@@ -53,8 +53,8 @@
 # Önce dahili test için yükleyin
 1. Play Console > Testing > Internal Testing
 2. Create New Release
-3. Upload AAB: kavaid-v2.1.0-build2046-yeni-icon.aab
-4. Release Name: "v2.1.0 - İlk Test"
+3. Upload AAB: kavaid-v3.2.9-build3209.aab
+4. Release Name: "v3.2.9 - İlk Test"
 5. Release Notes: "İlk dahili test sürümü"
 6. Testers: Kendi email adresinizi ekleyin
 ```
@@ -148,9 +148,9 @@ Uzun Açıklama:
 ### Release Hazırlığı
 ```bash
 # Final AAB kontrolü
-File: kavaid-v2.1.0-build2046-yeni-icon.aab
+File: kavaid-v3.2.9-build3209.aab
 Size: 86MB
-Version: 2.1.0 (2046)
+Version: 3.2.9 (3209)
 Signing: ✅ Production keystore
 ```
 
@@ -158,7 +158,7 @@ Signing: ✅ Production keystore
 1. **App Bundle**: Son AAB'yi yükleyin
 2. **Release Notes**: 
    ```
-   🎉 Kavaid v2.1.0 - İlk Sürüm
+   🎉 Kavaid v3.2.9 - İlk Sürüm
    
    ✨ Yeni Özellikler:
    • AI destekli Arapça-Türkçe çeviri

@@ -13,7 +13,7 @@ import 'promo_code_service.dart';
 import 'connectivity_service.dart';
 
 const _apiKeyAndroid = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE';
-const _apiKeyIOS = 'appl_JUkLUxlscZqowPzLzmvYPKddTbE';
+const _apiKeyIOS = 'appl_NZgrRHVUkpanVmNiCcqlEpQlMXo';
 
 class PurchaseManager extends ChangeNotifier {
   static final PurchaseManager _instance = PurchaseManager._internal();

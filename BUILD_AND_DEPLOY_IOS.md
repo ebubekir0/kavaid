@@ -32,7 +32,7 @@ cd ..
 
 `pubspec.yaml` dosyasını düzenle:
 ```yaml
-version: 3.0.4+3004  # version: major.minor.patch+buildNumber
+version: 3.2.9+3209  # version: major.minor.patch+buildNumber
 ```
 
 ### 3. Debug Build (Test için)

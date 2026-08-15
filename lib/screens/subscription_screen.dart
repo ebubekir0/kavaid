@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/purchase_manager.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -13,6 +14,9 @@ class SubscriptionScreen extends StatefulWidget {
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   bool _isLoading = false;
   String _selectedPlan = 'monthly';
+
+  static const String _privacyPolicyUrl = 'https://kavaid.app/privacy';
+  static const String _termsOfUseUrl = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
   @override
   void initState() {
@@ -35,8 +39,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     if (pm.isPremium) {
       if (Navigator.of(context).canPop()) Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('🎉 Premium üyelik aktif!'), backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text('🎉 Premium üyelik aktif!'),
+          backgroundColor: Colors.green,
+        ),
       );
+    }
+  }
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(uri);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bağlantı açılamadı: $e')),
+        );
+      }
     }
   }
 
@@ -53,17 +77,25 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       } else {
         await pm.buyPremiumYearly();
       }
-      
+
       // Hata kontrolü
       if (pm.lastError.isNotEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(pm.lastError), backgroundColor: Colors.red)
+            SnackBar(
+              content: Text(pm.lastError),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 4),
+            ),
           );
         }
       }
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -72,15 +104,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   @override
   Widget build(BuildContext context) {
     final pm = Provider.of<PurchaseManager>(context);
-    const gradientStart = Color(0xFF0D47A1); 
-    const gradientEnd = Color(0xFF1976D2);   
+    const gradientStart = Color(0xFF0D47A1);
+    const gradientEnd = Color(0xFF1976D2);
 
-    // Ekran boyutuna göre dinamik ölçekleme
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isSmallScreen = screenHeight < 700;
+    final monthlyPrice = pm.getPrice('monthly').isEmpty ? '79,99₺' : pm.getPrice('monthly');
+    final yearlyPrice = pm.getPrice('yearly').isEmpty ? '479,99₺' : pm.getPrice('yearly');
+    final yearlyMonthlyCost = pm.getMonthlyCostForYearly().isEmpty ? '40₺/ay' : pm.getMonthlyCostForYearly();
 
     return Scaffold(
       body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [gradientStart, gradientEnd],
@@ -89,159 +123,197 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           ),
         ),
         child: SafeArea(
-          bottom: true, 
-          child: Column(
-            children: [
-              // ÜST BAR: Çarpı Butonu (Tam sol köşede)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Padding azaltıldı
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 28),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(), 
-                      style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: Column(
+                children: [
+                  // ÜST BAR: Çarpı Butonu
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 28),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap),
+                        ),
+                        const Spacer(),
+                      ],
                     ),
-                    const Spacer(),
-                  ],
-                ),
-              ),
-
-              // ANA İÇERİK (Padding ile sarılı)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      // 1. HEADER (Flex değerini düşürdüm, yer açmak için)
-                      Expanded(
-                        flex: isSmallScreen ? 3 : 4,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12), // Padding küçültüldü
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.workspace_premium_rounded, size: 36, color: Colors.white), // İkon küçültüldü
-                            ),
-                            SizedBox(height: isSmallScreen ? 8 : 16),
-                            Text(
-                              "Kavaid Premium",
-                              style: GoogleFonts.outfit(
-                                fontSize: isSmallScreen ? 22 : 26,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(height: isSmallScreen ? 12 : 20),
-                            _buildBullet("Çeviriye sınırsız erişim"),
-                            const SizedBox(height: 8),
-                            _buildBullet("7000+ fiilin 24 sığa emsile çekimlerini aç"),
-                            const SizedBox(height: 8),
-                            _buildBullet("Öğren kısmındaki tüm materyallere erişim"),
-                            const SizedBox(height: 8),
-                            _buildBullet("Kuran Sözlüğüne Sınırsız Erişim"),
-                            const SizedBox(height: 8),
-                            _buildBullet("Sınırsız kelime kartı ve liste oluştur"),
-                            const SizedBox(height: 8),
-                            _buildBullet("Reklamsız deneyim"),
-                          ],
-                        ),
-                      ),
-                      
-                      // 2. PLANLAR (Aylık ve Yıllık)
-                      Expanded(
-                        flex: isSmallScreen ? 5 : 4, 
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // AYLIK PLAN
-                            _buildPlanTile(
-                              id: 'monthly', 
-                              title: 'Aylık', 
-                              price: pm.getPrice('monthly').isEmpty ? '79,99₺' : pm.getPrice('monthly'), 
-                              badge: null,
-                              isSmall: isSmallScreen
-                            ),
-                            const SizedBox(height: 12),
-                            // YILLIK PLAN - %50 İNDİRİM
-                            _buildPlanTile(
-                              id: 'yearly', 
-                              title: 'Yıllık', 
-                              price: pm.getPrice('yearly').isEmpty ? '479,99₺' : pm.getPrice('yearly'), 
-                              badge: '%50 İNDİRİM',
-                              subtitle: pm.getMonthlyCostForYearly().isEmpty ? '45₺/ay' : pm.getMonthlyCostForYearly(),
-                              isSmall: isSmallScreen
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // 3. BUTON ve Footer
-                      Expanded(
-                        flex: 2,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              height: 54,
-                              child: ElevatedButton(
-                                onPressed: _handlePurchase,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: gradientStart,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                  elevation: 0,
-                                ),
-                                child: _isLoading 
-                                  ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: gradientStart, strokeWidth: 2.5))
-                                  : Text("Abone Ol", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "İstediğin zaman iptal edebilirsin.",
-                              style: GoogleFonts.outfit(fontSize: 12, color: Colors.white60),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Abonelik otomatik yenilenir.",
-                              style: GoogleFonts.outfit(fontSize: 11, color: Colors.white54),
-                            ),
-                            const SizedBox(height: 16),
-                            // SATIN ALMALARI GERİ YÜKLE
-                            GestureDetector(
-                              onTap: () async {
-                                final pm = Provider.of<PurchaseManager>(context, listen: false);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Satın almalar kontrol ediliyor...'), duration: Duration(seconds: 2)),
-                                );
-                                await pm.restorePurchases();
-                              },
-                              child: Text(
-                                "Satın Almaları Geri Yükle",
-                                style: GoogleFonts.outfit(
-                                  fontSize: 13,
-                                  color: Colors.white70,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Colors.white70,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
-                ),
+
+                  // ANA İÇERİK - SCROLLABLE (iPad ve her ekran boyutuna uygun)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      child: Column(
+                        children: [
+                          // 1. HEADER
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.workspace_premium_rounded, size: 36, color: Colors.white),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "Kavaid Premium",
+                            style: GoogleFonts.outfit(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildBullet("Çeviriye sınırsız erişim"),
+                          const SizedBox(height: 8),
+                          _buildBullet("7000+ fiilin 24 sığa emsile çekimlerini aç"),
+                          const SizedBox(height: 8),
+                          _buildBullet("Öğren kısmındaki tüm materyallere erişim"),
+                          const SizedBox(height: 8),
+                          _buildBullet("Kuran Sözlüğüne Sınırsız Erişim"),
+                          const SizedBox(height: 8),
+                          _buildBullet("Sınırsız kelime kartı ve liste oluştur"),
+                          const SizedBox(height: 8),
+                          _buildBullet("Reklamsız deneyim"),
+
+                          const SizedBox(height: 24),
+
+                          // 2. PLANLAR (Aylık ve Yıllık)
+                          _buildPlanTile(
+                            id: 'monthly',
+                            title: 'Aylık Abonelik',
+                            subtitleText: '1 Ay boyunca sınırsız erişim',
+                            price: monthlyPrice,
+                            badge: null,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildPlanTile(
+                            id: 'yearly',
+                            title: 'Yıllık Abonelik',
+                            subtitleText: '1 Yıl boyunca sınırsız erişim ($yearlyMonthlyCost)',
+                            price: yearlyPrice,
+                            badge: '%50 İNDİRİM',
+                          ),
+
+                          const SizedBox(height: 20),
+
+                          // 3. SATIN ALMA BUTONU
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handlePurchase,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: gradientStart,
+                                disabledBackgroundColor: Colors.white70,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                elevation: 0,
+                              ),
+                              child: _isLoading
+                                  ? SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(color: gradientStart, strokeWidth: 2.5),
+                                    )
+                                  : Text(
+                                      _selectedPlan == 'monthly'
+                                          ? "Aylık Abone Ol ($monthlyPrice)"
+                                          : "Yıllık Abone Ol ($yearlyPrice)",
+                                      style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold),
+                                    ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // 4. ABONELİK AÇIKLAMASI (App Store / Guideline 3.1.2 Uyumu)
+                          Text(
+                            "Ödeme Apple ID hesabınızdan tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman App Store Hesap Ayarları'ndan iptal edebilirsiniz.",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.outfit(
+                              fontSize: 11,
+                              color: Colors.white.withOpacity(0.75),
+                              height: 1.35,
+                            ),
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          // 5. SATIN ALMALARI GERİ YÜKLE & YASAL LİNKLER (EULA & Gizlilik Politikası)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 12,
+                            runSpacing: 6,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Satın almalar kontrol ediliyor...'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                  await Provider.of<PurchaseManager>(context, listen: false).restorePurchases();
+                                },
+                                child: Text(
+                                  "Satın Almaları Geri Yükle",
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Text("•", style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                              GestureDetector(
+                                onTap: () => _openUrl(_termsOfUseUrl),
+                                child: Text(
+                                  "Kullanım Koşulları (EULA)",
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              Text("•", style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                              GestureDetector(
+                                onTap: () => _openUrl(_privacyPolicyUrl),
+                                child: Text(
+                                  "Gizlilik Politikası",
+                                  style: GoogleFonts.outfit(
+                                    fontSize: 12,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -258,7 +330,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(fontSize: 14, color: Colors.white.withOpacity(0.95), fontWeight: FontWeight.w500),
+            style: GoogleFonts.outfit(fontSize: 13.5, color: Colors.white.withOpacity(0.95), fontWeight: FontWeight.w500),
           ),
         ),
       ],
@@ -266,21 +338,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   }
 
   Widget _buildPlanTile({
-    required String id, 
-    required String title, 
-    required String price, 
+    required String id,
+    required String title,
+    required String subtitleText,
+    required String price,
     String? badge,
-    String? subtitle,
-    bool isSmall = false,
   }) {
     final isSelected = _selectedPlan == id;
-    
+
     return GestureDetector(
       onTap: () => setState(() => _selectedPlan = id),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        height: isSmall ? 64 : 72,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.white.withOpacity(0.08),
           borderRadius: BorderRadius.circular(14),
@@ -305,21 +375,21 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   Text(
                     title,
                     style: GoogleFonts.outfit(
-                      fontSize: isSmall ? 15 : 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: isSelected ? const Color(0xFF0D47A1) : Colors.white,
                     ),
                   ),
-                  if (subtitle != null)
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? const Color(0xFF1976D2) : Colors.white70,
-                        fontFamily: 'sans-serif',
-                      ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitleText,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w500,
+                      color: isSelected ? const Color(0xFF1976D2) : Colors.white70,
+                      fontFamily: 'sans-serif',
                     ),
+                  ),
                 ],
               ),
             ),
@@ -335,14 +405,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       color: const Color(0xFF4CAF50),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Text(badge, style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white)),
+                    child: Text(
+                      badge,
+                      style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.white),
+                    ),
                   ),
                 ],
                 Text(
                   price,
                   style: TextStyle(
-                    fontSize: isSmall ? 15 : 17, 
-                    fontWeight: FontWeight.bold, 
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: isSelected ? const Color(0xFF1976D2) : Colors.white,
                     fontFamily: 'sans-serif',
                   ),
@@ -355,3 +428,4 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 }
+

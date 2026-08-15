@@ -36,8 +36,8 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = 3203
-        versionName = "3.2.2"
+        versionCode = 3220
+        versionName = "3.2.20"
         
         // Multidex desteği
         multiDexEnabled = true
@@ -104,11 +104,6 @@ android {
             isJniDebuggable = false
             isRenderscriptDebuggable = false
             
-            // 🚀 PERFORMANCE MOD: Release optimizasyonları - Debug symbol stripping devre dışı
-            ndk {
-                debugSymbolLevel = "NONE"
-            }
-            
             // 🚀 PERFORMANCE MOD: Optimize edilmiş build flags
             packagingOptions {
                 // Gereksiz dosyaları çıkar
@@ -135,7 +130,7 @@ android {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
             
-            resValue("string", "app_name", "Kavaid Debug")
+            resValue("string", "app_name", "Kavaid")
         }
         
         // 🚀 PERFORMANCE MOD: Mevcut profile build type'ını optimize et

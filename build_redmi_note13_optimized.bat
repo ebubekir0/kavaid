@@ -52,11 +52,11 @@ call flutter build apk ^
     --dart-define=REDMI_NOTE_13=true ^
     --dart-define=TARGET_FPS=90 ^
     --no-tree-shake-icons ^
-    --build-name=2.1.0 ^
-    --build-number=2041
+    --build-name=3.2.9 ^
+    --build-number=3209
 
 if %errorlevel% neq 0 (
-    echo ❌ APK build başarısız!
+    echo APK build başarısız!
     pause
     exit /b 1
 )

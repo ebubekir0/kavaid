@@ -1,7 +1,7 @@
 @echo off
 echo ======================================
 echo KAVAID FPS OPTIMIZED APK BUILD
-echo Version: 2.1.0 Build 2043
+echo Version: 3.2.9 Build 3209
 echo ======================================
 echo.
 
@@ -36,8 +36,8 @@ set "DD=%dt:~6,2%"
 set "DATE_STR=%YYYY%-%MM%-%DD%"
 
 REM Copy APKs with meaningful names
-copy "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk" "%OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%-arm64.apk"
-copy "build\app\outputs\flutter-apk\app-armeabi-v7a-release.apk" "%OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%-arm32.apk"
+copy "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk" "%OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%-arm64.apk"
+copy "build\app\outputs\flutter-apk\app-armeabi-v7a-release.apk" "%OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%-arm32.apk"
 
 REM Build bundle for Play Store
 echo.
@@ -45,7 +45,7 @@ echo [5/5] Building App Bundle for Play Store...
 call flutter build appbundle --release
 if errorlevel 1 goto error
 
-copy "build\app\outputs\bundle\release\app-release.aab" "%OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%.aab"
+copy "build\app\outputs\bundle\release\app-release.aab" "%OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%.aab"
 
 echo.
 echo ======================================
@@ -53,9 +53,9 @@ echo BUILD SUCCESSFUL!
 echo ======================================
 echo.
 echo Output files:
-echo - ARM64 APK: %OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%-arm64.apk
-echo - ARM32 APK: %OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%-arm32.apk
-echo - App Bundle: %OUTPUT_DIR%\kavaid-v2.1.0-build2043-fps-optimized-%DATE_STR%.aab
+echo - ARM64 APK: %OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%-arm64.apk
+echo - ARM32 APK: %OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%-arm32.apk
+echo - App Bundle: %OUTPUT_DIR%\kavaid-v3.2.9-build3209-fps-optimized-%DATE_STR%.aab
 echo.
 echo FPS Optimizations included:
 echo - Advanced device detection

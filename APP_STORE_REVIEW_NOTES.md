@@ -13,32 +13,32 @@ Email: test@kavaid.com
 
 ### Ürünler ve SKU'lar
 
-#### 1. Reklamları Kaldır (Non-Consumable)
+#### 1. Kavaid Premium Aylık Abonelik (Auto-Renewable Subscription)
+- **SKU:** `kavaid_premium_monthly` (veya `kavaid_monthly_subscription`)
+- **Fiyat:** ₺79,99 / ay
+- **Açıklama:** Sınırsız kelime detayları, çekimler, sözlük ve reklamsız deneyim
+
+#### 2. Kavaid Premium Yıllık Abonelik (Auto-Renewable Subscription)
+- **SKU:** `kavaid_premium_yearly` (veya `kavaid_yearly_subscription`)
+- **Fiyat:** ₺479,99 / yıl
+- **Açıklama:** 1 yıl boyunca tüm özelliklere sınırsız erişim (%50 indirimli)
+
+#### 3. Reklamları Kaldır (Non-Consumable)
 - **SKU:** `kavaid_remove_ads_lifetime`
 - **Fiyat:** ₺69,99
 - **Açıklama:** Uygulamadaki tüm reklamları kalıcı olarak kaldırır
-- **Test Adımları:**
-  1. Uygulamaya giriş yapın
-  2. Profil > Reklamları Kaldır'a tıklayın
-  3. Satın alma işlemini tamamlayın
-  4. Reklamların kaldırıldığını doğrulayın
 
-#### 2. Kitabul Kıraat 1 (Non-Consumable)
+#### 4. Kitabul Kıraat 1 (Non-Consumable)
 - **SKU:** `kavaid_kitab_kiraah_1`
 - **Fiyat:** ₺89,99
 - **Açıklama:** Temel Kıraat Eğitimi kitabının tamamına erişim
-- **Test Adımları:**
-  1. Öğrenme sekmesine gidin
-  2. Kitap 1'e tıklayın
-  3. İlk 3 ders ücretsizdir
-  4. 4. derse tıkladığınızda satın alma ekranı açılır
 
-#### 3. Kitabul Kıraat 2 (Non-Consumable)
+#### 5. Kitabul Kıraat 2 (Non-Consumable)
 - **SKU:** `kavaid_book_kiraat_2`
 - **Fiyat:** ₺89,99
 - **Açıklama:** İleri Seviye Kıraat kitabının tamamına erişim
 
-#### 4. Kitabul Kıraat 3 (Non-Consumable)
+#### 6. Kitabul Kıraat 3 (Non-Consumable)
 - **SKU:** `kavaid_book_kiraat_3`
 - **Fiyat:** ₺89,99
 - **Açıklama:** Uzman Seviye Kıraat kitabının tamamına erişim
@@ -104,7 +104,34 @@ Email: test@kavaid.com
 ## 📞 İletişim
 Sorunuz olursa: support@kavaid.com
 
+## ✉️ Apple Review Ekibine Gönderilecek Yanıt Şablonu
+
+```text
+Hello Apple Review Team,
+
+Thank you for your feedback. We have addressed the issue regarding In-App Purchases (Guideline 2.1(b) - Performance - App Completeness).
+
+1. In-App Purchase and Subscription Products:
+We have verified that the Auto-Renewable Subscriptions (Monthly and Yearly) and Non-Consumable products are active and configured in App Store Connect.
+- Monthly Subscription: kavaid_premium_monthly (or kavaid_monthly_subscription)
+- Yearly Subscription: kavaid_premium_yearly (or kavaid_yearly_subscription)
+- Remove Ads: kavaid_remove_ads_lifetime
+
+2. App Implementation:
+We updated the StoreKit product fetching logic, handled dynamic localized price display, strengthened fallback product identifiers, and improved error handling / retry flow on the subscription screen to ensure a seamless purchasing experience in the sandbox environment.
+
+3. Testing:
+We tested the purchase flow in the Sandbox environment, and both subscription tiers as well as in-app purchases complete successfully.
+
+Please let us know if any further information is needed. Thank you for your review.
+
+Best regards,
+Kavaid Team
+```
+
 ## Değişiklik Geçmişi
+- v4.0.1: App Store Review IAP & Subscription (StoreKit) geliştirmeleri ve dinamik fiyatlandırma
 - v3.0.4: iOS satın alma sistemi eklendi
 - v3.0.3: Android Photo Picker entegrasyonu
 - v3.0.2: Restore purchase düzeltmesi
+

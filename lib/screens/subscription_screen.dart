@@ -86,6 +86,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               content: Text(pm.lastError),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: 'Tekrar Dene',
+                textColor: Colors.white,
+                onPressed: () {
+                  pm.fetchProducts();
+                },
+              ),
             ),
           );
         }
@@ -107,9 +114,19 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     const gradientStart = Color(0xFF0D47A1);
     const gradientEnd = Color(0xFF1976D2);
 
-    final monthlyPrice = pm.getPrice('monthly').isEmpty ? '79,99₺' : pm.getPrice('monthly');
-    final yearlyPrice = pm.getPrice('yearly').isEmpty ? '479,99₺' : pm.getPrice('yearly');
-    final yearlyMonthlyCost = pm.getMonthlyCostForYearly().isEmpty ? '40₺/ay' : pm.getMonthlyCostForYearly();
+    final rawMonthly = pm.getPrice('monthly');
+    final rawYearly = pm.getPrice('yearly');
+    final rawYearlyMonthly = pm.getMonthlyCostForYearly();
+
+    final monthlyPrice = rawMonthly.isNotEmpty ? rawMonthly : (pm.isFetchingProducts ? '...' : '79,99₺');
+    final yearlyPrice = rawYearly.isNotEmpty ? rawYearly : (pm.isFetchingProducts ? '...' : '479,99₺');
+    final yearlyMonthlyCost = rawYearlyMonthly.isNotEmpty
+        ? rawYearlyMonthly
+        : (pm.isFetchingProducts ? '...' : '40₺/ay');
+
+    final buttonPriceText = _selectedPlan == 'monthly'
+        ? (rawMonthly.isNotEmpty ? " ($rawMonthly)" : "")
+        : (rawYearly.isNotEmpty ? " ($rawYearly)" : "");
 
     return Scaffold(
       body: Container(
@@ -225,8 +242,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                     )
                                   : Text(
                                       _selectedPlan == 'monthly'
-                                          ? "Aylık Abone Ol ($monthlyPrice)"
-                                          : "Yıllık Abone Ol ($yearlyPrice)",
+                                          ? "Aylık Abone Ol$buttonPriceText"
+                                          : "Yıllık Abone Ol$buttonPriceText",
                                       style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold),
                                     ),
                             ),

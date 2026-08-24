@@ -84,7 +84,78 @@
     "_developerTeamID": "XXXXXXXXXX",
     "_lastSynchronizedDate": 738853802.564885
   },
-  "subscriptions": [],
+  "subscriptions": [
+    {
+      "id": "2E9102B3",
+      "localizations": [
+        {
+          "description": "Kavaid Premium Abonelikleri",
+          "displayName": "Kavaid Premium",
+          "locale": "tr"
+        },
+        {
+          "description": "Kavaid Premium Subscriptions",
+          "displayName": "Kavaid Premium",
+          "locale": "en_US"
+        }
+      ],
+      "name": "Kavaid Premium",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "79.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6475304001",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Kavaid Premium Aylık Abonelik",
+              "displayName": "Aylık Abonelik",
+              "locale": "tr"
+            },
+            {
+              "description": "Kavaid Premium Monthly Subscription",
+              "displayName": "Monthly Subscription",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "kavaid_premium_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kavaid Premium Monthly",
+          "subscriptionGroupID": "2E9102B3",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "479.99",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "6475304002",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "Kavaid Premium Yıllık Abonelik",
+              "displayName": "Yıllık Abonelik",
+              "locale": "tr"
+            },
+            {
+              "description": "Kavaid Premium Annual Subscription",
+              "displayName": "Annual Subscription",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "kavaid_premium_yearly",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Kavaid Premium Yearly",
+          "subscriptionGroupID": "2E9102B3",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
   "version": {
     "major": 3,
     "minor": 0

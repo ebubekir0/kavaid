@@ -856,6 +856,33 @@ class PurchaseManager extends ChangeNotifier {
     }
   }
 
+  static const List<String> monthlyProductIds = [
+    'kavaid_premium_monthly',
+    'kavaid_monthly_subscription',
+    'kavaid_monthly_premium',
+    'monthly_subscription',
+    'kavaid_premium_1month',
+    'kavaid_subscription_monthly',
+  ];
+
+  static const List<String> yearlyProductIds = [
+    'kavaid_premium_yearly',
+    'kavaid_yearly_subscription',
+    'kavaid_yearly_premium',
+    'yearly_subscription',
+    'kavaid_premium_1year',
+    'kavaid_annual_subscription',
+    'kavaid_subscription_yearly',
+  ];
+
+  List<StoreProduct> _fallbackProducts = [];
+  bool _isFetchingProducts = false;
+  bool _hasFetchedProducts = false;
+
+  bool get isFetchingProducts => _isFetchingProducts;
+  bool get hasFetchedProducts => _hasFetchedProducts;
+  List<StoreProduct> get fallbackProducts => _fallbackProducts;
+
   Future<void> fetchProducts() async {
     if (!_isInitialized) {
       await initialize(fetchOfferings: false);
@@ -871,6 +898,7 @@ class PurchaseManager extends ChangeNotifier {
   }
 
   Future<void> _fetchProductsInternal() async {
+    _isFetchingProducts = true;
     try {
       _offerings = await Purchases.getOfferings().timeout(
         const Duration(seconds: 8),
@@ -878,46 +906,105 @@ class PurchaseManager extends ChangeNotifier {
       debugPrint(
         '[RevenueCat] Offerings loaded: ${_offerings?.current?.availablePackages.length ?? 0}',
       );
-      notifyListeners();
     } catch (e) {
-      _lastError = 'Urunler yuklenemedi: $e';
       debugPrint('[RevenueCat] Offerings error: $e');
-      notifyListeners();
     }
+
+    // Fallback: Paketler offering içinde bulunamazsa StoreKit'ten doğrudan çekmeyi dene
+    if (_offerings?.current == null || (_offerings?.current?.availablePackages.isEmpty ?? true)) {
+      try {
+        final allIds = [...monthlyProductIds, ...yearlyProductIds];
+        _fallbackProducts = await Purchases.getProducts(allIds).timeout(
+          const Duration(seconds: 8),
+        );
+        debugPrint('[RevenueCat] Fallback products loaded: ${_fallbackProducts.length}');
+      } catch (e) {
+        debugPrint('[RevenueCat] Fallback products error: $e');
+      }
+    }
+
+    _hasFetchedProducts = true;
+    _isFetchingProducts = false;
+    notifyListeners();
   }
 
   String getPrice(String packageId) {
-    if (_offerings == null || _offerings!.current == null) return '';
-
-    try {
-      var priceStr = '';
-      if (packageId == 'monthly' && _offerings!.current!.monthly != null) {
-        priceStr = _offerings!.current!.monthly!.storeProduct.priceString;
-      } else if (packageId == 'yearly' && _offerings!.current!.annual != null) {
-        priceStr = _offerings!.current!.annual!.storeProduct.priceString;
-      } else {
-        final package = _offerings!.current!.availablePackages.firstWhere(
-          (p) => p.identifier.toLowerCase().contains(packageId.toLowerCase()),
-        );
-        priceStr = package.storeProduct.priceString;
-      }
-      final cleanPrice = priceStr
-          .replaceAll('TRY', '')
-          .replaceAll('₺', '')
-          .trim();
-      return '$cleanPrice₺';
-    } catch (_) {
-      return '';
+    // 1. Current Offering'den kontrol et
+    if (_offerings != null && _offerings!.current != null) {
+      try {
+        if (packageId == 'monthly' && _offerings!.current!.monthly != null) {
+          return _offerings!.current!.monthly!.storeProduct.priceString;
+        } else if (packageId == 'yearly' && _offerings!.current!.annual != null) {
+          return _offerings!.current!.annual!.storeProduct.priceString;
+        } else {
+          final package = _offerings!.current!.availablePackages.firstWhere(
+            (p) {
+              final id = p.identifier.toLowerCase();
+              final storeId = p.storeProduct.identifier.toLowerCase();
+              return id.contains(packageId.toLowerCase()) || storeId.contains(packageId.toLowerCase());
+            },
+          );
+          return package.storeProduct.priceString;
+        }
+      } catch (_) {}
     }
+
+    // 2. Diğer Offering'lerden kontrol et
+    if (_offerings != null) {
+      for (final offering in _offerings!.all.values) {
+        try {
+          final package = offering.availablePackages.firstWhere((p) {
+            final id = p.identifier.toLowerCase();
+            final storeId = p.storeProduct.identifier.toLowerCase();
+            if (packageId == 'monthly') {
+              return id.contains('monthly') || storeId.contains('monthly');
+            } else {
+              return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual');
+            }
+          });
+          return package.storeProduct.priceString;
+        } catch (_) {}
+      }
+    }
+
+    // 3. Fallback doğrudan StoreKit ürünlerinden kontrol et
+    if (_fallbackProducts.isNotEmpty) {
+      final targetIds = packageId == 'monthly' ? monthlyProductIds : yearlyProductIds;
+      for (final p in _fallbackProducts) {
+        if (targetIds.contains(p.identifier) || p.identifier.toLowerCase().contains(packageId.toLowerCase())) {
+          return p.priceString;
+        }
+      }
+    }
+
+    return '';
   }
 
   String getMonthlyCostForYearly() {
     try {
-      final annualPackage = _offerings?.current?.annual;
-      if (annualPackage != null) {
-        final price = annualPackage.storeProduct.price;
+      StoreProduct? annualProduct = _offerings?.current?.annual?.storeProduct;
+      if (annualProduct == null && _fallbackProducts.isNotEmpty) {
+        for (final p in _fallbackProducts) {
+          if (yearlyProductIds.contains(p.identifier) ||
+              p.identifier.toLowerCase().contains('yearly') ||
+              p.identifier.toLowerCase().contains('annual')) {
+            annualProduct = p;
+            break;
+          }
+        }
+      }
+      if (annualProduct != null) {
+        final price = annualProduct.price;
         final monthlyCost = price / 12;
-        return '${monthlyCost.toStringAsFixed(0)}₺ /ay';
+        final currencyCode = annualProduct.currencyCode;
+        if (annualProduct.priceString.contains('₺') || currencyCode == 'TRY') {
+          return '${monthlyCost.toStringAsFixed(0)}₺/ay';
+        } else if (annualProduct.priceString.contains('\$') || currencyCode == 'USD') {
+          return '\$${monthlyCost.toStringAsFixed(2)}/mo';
+        } else if (annualProduct.priceString.contains('€') || currencyCode == 'EUR') {
+          return '${monthlyCost.toStringAsFixed(2)}€/mo';
+        }
+        return '${monthlyCost.toStringAsFixed(0)} /ay';
       }
     } catch (_) {}
     return '';
@@ -932,8 +1019,27 @@ class PurchaseManager extends ChangeNotifier {
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        _lastError = 'Satin alma hatasi: ${e.message}';
+        _lastError = 'Satın alma hatası: ${e.message ?? e.toString()}';
         debugPrint('[RevenueCat] Purchase error: $e');
+        notifyListeners();
+      }
+    } catch (e) {
+      _lastError = 'Beklenmedik hata: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<void> buyStoreProduct(StoreProduct product) async {
+    await initialize(fetchOfferings: false);
+    try {
+      _lastError = '';
+      final customerInfo = await Purchases.purchaseStoreProduct(product);
+      await _updateCustomerStatus(customerInfo);
+    } on PlatformException catch (e) {
+      final errorCode = PurchasesErrorHelper.getErrorCode(e);
+      if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
+        _lastError = 'Satın alma hatası: ${e.message ?? e.toString()}';
+        debugPrint('[RevenueCat] Purchase product error: $e');
         notifyListeners();
       }
     } catch (e) {
@@ -944,14 +1050,14 @@ class PurchaseManager extends ChangeNotifier {
 
   Future<void> buyPremiumMonthly() async {
     await fetchProducts();
-    var package = _offerings?.current?.monthly;
+    Package? package = _offerings?.current?.monthly;
 
     if (package == null && _offerings?.current != null) {
       try {
         package = _offerings!.current!.availablePackages.firstWhere((p) {
           final id = p.identifier.toLowerCase();
           final storeId = p.storeProduct.identifier.toLowerCase();
-          return id.contains('monthly') || storeId.contains('monthly');
+          return id.contains('monthly') || storeId.contains('monthly') || monthlyProductIds.contains(p.storeProduct.identifier);
         });
       } catch (_) {}
     }
@@ -962,7 +1068,7 @@ class PurchaseManager extends ChangeNotifier {
           final found = offering.availablePackages.firstWhere((p) {
             final id = p.identifier.toLowerCase();
             final storeId = p.storeProduct.identifier.toLowerCase();
-            return id.contains('monthly') || storeId.contains('monthly');
+            return id.contains('monthly') || storeId.contains('monthly') || monthlyProductIds.contains(p.storeProduct.identifier);
           });
           package = found;
           break;
@@ -972,22 +1078,37 @@ class PurchaseManager extends ChangeNotifier {
 
     if (package != null) {
       await buyPackage(package);
-    } else {
-      _lastError = 'Aylik paket bulunamadi.';
-      notifyListeners();
+      return;
     }
+
+    // Direct StoreProduct fallback
+    StoreProduct? fallbackProduct;
+    for (final p in _fallbackProducts) {
+      if (monthlyProductIds.contains(p.identifier) || p.identifier.toLowerCase().contains('monthly')) {
+        fallbackProduct = p;
+        break;
+      }
+    }
+
+    if (fallbackProduct != null) {
+      await buyStoreProduct(fallbackProduct);
+      return;
+    }
+
+    _lastError = 'Abonelik paketi yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
+    notifyListeners();
   }
 
   Future<void> buyPremiumYearly() async {
     await fetchProducts();
-    var package = _offerings?.current?.annual;
+    Package? package = _offerings?.current?.annual;
 
     if (package == null && _offerings?.current != null) {
       try {
         package = _offerings!.current!.availablePackages.firstWhere((p) {
           final id = p.identifier.toLowerCase();
           final storeId = p.storeProduct.identifier.toLowerCase();
-          return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual');
+          return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual') || yearlyProductIds.contains(p.storeProduct.identifier);
         });
       } catch (_) {}
     }
@@ -998,7 +1119,7 @@ class PurchaseManager extends ChangeNotifier {
           final found = offering.availablePackages.firstWhere((p) {
             final id = p.identifier.toLowerCase();
             final storeId = p.storeProduct.identifier.toLowerCase();
-            return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual');
+            return id.contains('yearly') || id.contains('annual') || storeId.contains('yearly') || storeId.contains('annual') || yearlyProductIds.contains(p.storeProduct.identifier);
           });
           package = found;
           break;
@@ -1008,16 +1129,31 @@ class PurchaseManager extends ChangeNotifier {
 
     if (package != null) {
       await buyPackage(package);
-    } else {
-      _lastError = 'Yillik paket bulunamadi.';
-      notifyListeners();
+      return;
     }
+
+    // Direct StoreProduct fallback
+    StoreProduct? fallbackProduct;
+    for (final p in _fallbackProducts) {
+      if (yearlyProductIds.contains(p.identifier) || p.identifier.toLowerCase().contains('yearly') || p.identifier.toLowerCase().contains('annual')) {
+        fallbackProduct = p;
+        break;
+      }
+    }
+
+    if (fallbackProduct != null) {
+      await buyStoreProduct(fallbackProduct);
+      return;
+    }
+
+    _lastError = 'Abonelik paketi yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
+    notifyListeners();
   }
 
   Future<void> restorePurchases() async {
     await refreshEntitlements(includePromo: true);
     if (!_isRevenueCatConfigured) {
-      _lastError = 'Satin alma kontrolu icin internet baglantisi gerekiyor.';
+      _lastError = 'Satın alma kontrolü için internet bağlantısı gerekiyor.';
       notifyListeners();
       return;
     }

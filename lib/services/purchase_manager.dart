@@ -857,6 +857,7 @@ class PurchaseManager extends ChangeNotifier {
   }
 
   static const List<String> monthlyProductIds = [
+    'premium_monthly',
     'kavaid_premium_monthly',
     'kavaid_monthly_subscription',
     'kavaid_monthly_premium',
@@ -866,6 +867,7 @@ class PurchaseManager extends ChangeNotifier {
   ];
 
   static const List<String> yearlyProductIds = [
+    'premium_yearly',
     'kavaid_premium_yearly',
     'kavaid_yearly_subscription',
     'kavaid_yearly_premium',

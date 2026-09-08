@@ -152,8 +152,8 @@ class AuthService extends ChangeNotifier {
       if (user == null) return null;
 
       await _initializeDeviceInfo();
-      await _checkAndUpdateDeviceSession(user.uid);
       await _updateUserData(user);
+      await _checkAndUpdateDeviceSession(user.uid);
 
       // Otomatik kullanıcı adı oluştur
       await _ensureUsername();
@@ -164,15 +164,8 @@ class AuthService extends ChangeNotifier {
       } catch (e) {
         debugPrint('⚠️ [Auth] Credits initialize hatası: $e');
       }
-      // Kayıttan sonra otomatik giriş olmasın
-      try {
-        await _auth.signOut();
-        debugPrint(
-          '🚪 [Auth] Kayıt sonrası otomatik giriş kapatıldı (signOut)',
-        );
-      } catch (e) {
-        debugPrint('⚠️ [Auth] Kayıt sonrası signOut hatası: $e');
-      }
+
+      debugPrint('✅ [Auth] Kayıt başarılı, kullanıcı giriş yaptı: ${user.uid}');
       notifyListeners();
       return user;
     } catch (e) {
@@ -196,8 +189,8 @@ class AuthService extends ChangeNotifier {
       if (user == null) return null;
 
       await _initializeDeviceInfo();
-      await _checkAndUpdateDeviceSession(user.email!);
       await _updateUserData(user);
+      await _checkAndUpdateDeviceSession(user.uid);
 
       // Otomatik kullanıcı adı kontrolü
       await _ensureUsername();
@@ -257,10 +250,8 @@ class AuthService extends ChangeNotifier {
 
       // Cihaz bilgilerini al ve kontrol et
       await _initializeDeviceInfo();
-      await _checkAndUpdateDeviceSession(user.email!);
-
-      // Kullanıcı bilgilerini Firestore'a kaydet/güncelle
       await _updateUserData(user);
+      await _checkAndUpdateDeviceSession(user.uid);
 
       // Otomatik kullanıcı adı kontrolü
       await _ensureUsername();
@@ -280,7 +271,7 @@ class AuthService extends ChangeNotifier {
       try {
         final adFree = CreditsService().isLifetimeAdsFree;
         if (adFree) {
-          await _firestore.collection('users').doc(user.email!).set({
+          await _firestore.collection('users').doc(user.uid).set({
             'lifetimeAdsFree': true,
           }, SetOptions(merge: true));
           debugPrint(
@@ -333,20 +324,20 @@ class AuthService extends ChangeNotifier {
           );
 
           // Eski cihazdan çıkış yapılacağını işaretle
-          await _firestore.collection('users').doc(userId).update({
+          await _firestore.collection('users').doc(userId).set({
             'previousDeviceId': activeDeviceId,
             'previousDeviceName': activeDeviceName,
             'sessionTransferredAt': FieldValue.serverTimestamp(),
-          });
+          }, SetOptions(merge: true));
         }
       }
 
       // Yeni cihazı aktif olarak işaretle
-      await _firestore.collection('users').doc(userId).update({
+      await _firestore.collection('users').doc(userId).set({
         'activeDeviceId': _currentDeviceId,
         'activeDeviceName': _currentDeviceName,
         'lastActiveAt': FieldValue.serverTimestamp(),
-      });
+      }, SetOptions(merge: true));
 
       debugPrint('✅ [Auth] Cihaz oturumu güncellendi');
     } catch (e) {

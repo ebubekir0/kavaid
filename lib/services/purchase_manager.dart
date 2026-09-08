@@ -270,20 +270,34 @@ class PurchaseManager extends ChangeNotifier {
 
     final uid = user?.uid;
 
-    // Null user çevrimiçide: gerçek çıkış yaptı, entitlements temizle
+    // Null user çevrimiçide: kullanıcı giriş yapmamış veya çıkış yapmış
     if (uid == null) {
-      if (!forceRefresh &&
-          _lastAuthUserId == null &&
-          _entitlementsResolved) {
-        return; // Zaten temizlenmiş
-      }
       _lastAuthUserId = null;
-      _clearRuntimeEntitlements();
-      if (logOutOnNull &&
-          _isRevenueCatConfigured &&
-          !(await Purchases.isAnonymous)) {
-        await Purchases.logOut();
+      _legacyChecked = false;
+      _cachedLegacyPremium = false;
+      _cachedLegacyAdsFree = false;
+      _isPromoPremium = false;
+      _hasUsedPromo = false;
+      _promoExpiryDate = null;
+      _promoExpiryTimer?.cancel();
+
+      // Cihazın StoreKit / RevenueCat durumunu sorgula (Anonim satın almalar)
+      if (_isRevenueCatConfigured) {
+        try {
+          final customerInfo = await Purchases.getCustomerInfo();
+          await _updateCustomerStatus(customerInfo);
+        } catch (e) {
+          debugPrint('[RevenueCat] Anonim customerInfo hatası: $e');
+        }
       }
+
+      // Eğer StoreKit'ten aktif abonelik gelmediyse önbellekteki son durumu kontrol et
+      if (!_isPremium && !_isLifetimeNoAds) {
+        await _applyCachedEntitlementSnapshot();
+      }
+
+      _entitlementPending = false;
+      _entitlementsResolved = true;
       notifyListeners();
       return;
     }
@@ -492,7 +506,7 @@ class PurchaseManager extends ChangeNotifier {
     final entitlements = customerInfo.entitlements.all;
     final premiumEntitlement =
         entitlements['premium'] ??
-        _firstActiveEntitlement(entitlements, const ['premium', 'pro']);
+        _firstActiveEntitlement(entitlements, const ['premium', 'pro', 'sub', 'yearly', 'annual', 'monthly']);
     final adsFreeEntitlement =
         entitlements['ads_free'] ??
         _firstActiveEntitlement(entitlements, const [
@@ -505,9 +519,37 @@ class PurchaseManager extends ChangeNotifier {
     var newPremiumStatus = premiumEntitlement?.isActive ?? false;
     var newAdsFreeStatus = adsFreeEntitlement?.isActive ?? false;
 
-    final expiry = _parseDate(
+    // STOREKIT DIRECT ACTIVE SUBSCRIPTIONS CHECK:
+    // RevenueCat dashboard'da entitlement eşleştirilmemiş olsa dahi,
+    // Apple'da aktif aboneliği olan kullanıcıyı KESİNLİKLE Premium yap!
+    if (customerInfo.activeSubscriptions.isNotEmpty) {
+      debugPrint('[PurchaseManager] Aktif StoreKit aboneliği algılandı: ${customerInfo.activeSubscriptions}');
+      newPremiumStatus = true;
+    }
+
+    if (customerInfo.entitlements.active.isNotEmpty) {
+      debugPrint('[PurchaseManager] Aktif Entitlement algılandı: ${customerInfo.entitlements.active.keys}');
+      newPremiumStatus = true;
+    }
+
+    // Reklam kaldırma ürün kontrolü
+    for (final id in customerInfo.allPurchasedProductIdentifiers) {
+      final lower = id.toLowerCase();
+      if (lower.contains('remove_ads') ||
+          lower.contains('no_ads') ||
+          lower.contains('ad_free') ||
+          lower.contains('reklam')) {
+        newAdsFreeStatus = true;
+      }
+    }
+
+    DateTime? expiry = _parseDate(
       premiumEntitlement?.expirationDate ?? customerInfo.latestExpirationDate,
     );
+    if (expiry == null && newPremiumStatus) {
+      // Aktif abonelik varsa ama tarih parse edilemediyse 1 yıl varsay
+      expiry = DateTime.now().toUtc().add(const Duration(days: 365));
+    }
 
     var legacyFailed = false;
     if (!_legacyChecked) {
@@ -535,8 +577,7 @@ class PurchaseManager extends ChangeNotifier {
       }
     }
 
-    // KORUMA: Legacy kontrol HATA verdİ VE sonuç premium düşürülecekse → iptal
-    // Çünkü veri eksik — Firestore'a ulaşılamadı.
+    // KORUMA: Legacy kontrol HATA verdi VE sonuç premium düşürülecekse → iptal
     final wouldDowngrade = (_isPremium || _isLifetimeNoAds || _usingOfflineSnapshot) &&
         !newPremiumStatus && !newAdsFreeStatus;
     if (legacyFailed && wouldDowngrade) {
@@ -557,6 +598,22 @@ class PurchaseManager extends ChangeNotifier {
     );
 
     await _saveEntitlementSnapshot(source: 'revenuecat');
+
+    // Kullanıcı Firebase'e giriş yapmışsa ve premium aktifse, Firestore'a da kaydet
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && newPremiumStatus) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).set({
+          'isPremium': true,
+          'premiumExpiry': verifiedExpiry?.toIso8601String(),
+          'premiumSource': 'storekit_revenuecat',
+          'lastVerifiedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        debugPrint('✅ [PurchaseManager] Premium Firestore kullanıcı hesabına eşitlendi');
+      } catch (e) {
+        debugPrint('⚠️ [PurchaseManager] Firestore sync hatası: $e');
+      }
+    }
   }
 
   EntitlementInfo? _firstActiveEntitlement(
@@ -1166,6 +1223,7 @@ class PurchaseManager extends ChangeNotifier {
       await _updateCustomerStatus(customerInfo);
 
       if (customerInfo.entitlements.active.isEmpty &&
+          customerInfo.activeSubscriptions.isEmpty &&
           !isPremium &&
           !_isLifetimeNoAds &&
           _purchasedBooks.isEmpty) {

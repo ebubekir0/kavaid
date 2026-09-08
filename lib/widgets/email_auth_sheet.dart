@@ -310,19 +310,21 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
         );
         if (user != null) {
           if (mounted) {
-            setState(() {
-              _successText = LanguageService().isEnglish ? 'Signed up successfully. Please log in.' : 'Kayıt tamamlandı. Lütfen giriş yapın.';
-              _isLogin = true;
-              _isLoading = false;
-              _emailController.clear();
-              _passController.clear();
-              _confirmPassController.clear();
-            });
-            // Klavye açık kalsın ve email'e odaklansın
-            Future.delayed(const Duration(milliseconds: 50), () {
-              _emailFocus.requestFocus();
-            });
+            final messenger = ScaffoldMessenger.of(context);
+            FocusManager.instance.primaryFocus?.unfocus();
+            SystemChannels.textInput.invokeMethod('TextInput.hide');
+            Navigator.pop(context); // Sheet'i kapat
+            await _cloudSavedWords.mergeSync();
+            widget.onSuccess?.call();
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(LanguageService().isEnglish ? '🎉 Welcome! Account created successfully.' : '🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu.'),
+                backgroundColor: Colors.green,
+                duration: const Duration(seconds: 3),
+              ),
+            );
           }
+          return;
         }
       }
     } catch (e) {

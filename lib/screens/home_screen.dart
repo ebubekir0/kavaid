@@ -164,7 +164,11 @@ class _HomeScreenState extends State<HomeScreen>
       });
 
       if (_isEmsileMode) {
-        Future.microtask(_loadRandomEmsile);
+        // ANR: Future.microtask UI thread'inde input olayları işlenmeden
+        // çalışır. Platform kanalı işi olan bir çağrıyı buraya koyma.
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) _loadRandomEmsile();
+        });
       }
     });
 
@@ -177,8 +181,10 @@ class _HomeScreenState extends State<HomeScreen>
     // Kuran kullanım süresini yükle
     _loadQuranUsage();
 
-    // Reklam yüklemelerini arka planda yap - ana thread'i bloke etme
-    Future.microtask(() {
+    // Reklam yüklemelerini arka planda yap - ana thread'i bloke etme.
+    // ANR: microtask yerine event-loop'a ertele (input dispatch'ın önüne geçmesin).
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
       _loadNativeAd();
       _adMobService.loadInterstitialAd();
     });
@@ -885,8 +891,10 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     // Önceki timer'ı iptal et (birden fazla aramanın paralel çalışmasını engelle)
+    // ANR: 80ms her tuşta isolate + 2x SQLite demekti; düşük cihazda
+    // platform kanalı yığılıp input dispatch timeout'a giriyordu.
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 80), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       if (mounted) {
         _performSearch(cleanText);
       }
@@ -2653,8 +2661,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildReviewPromptCard() {
-    final isDarkMode = widget.isDarkMode;
+  Widget _buildReviewPromptCard() {    final isDarkMode = widget.isDarkMode;
     final backgroundColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
     final borderColor = isDarkMode
         ? const Color(0xFF48484A)

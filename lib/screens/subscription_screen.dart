@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,7 +17,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   String _selectedPlan = 'monthly';
 
   static const String _privacyPolicyUrl = 'https://kavaid.app/privacy';
-  static const String _termsOfUseUrl = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String _appleTermsUrl =
+      'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+  static const String _playTermsUrl = 'https://kavaid.app/terms';
+
+  bool get _isApplePlatform =>
+      kIsWeb || defaultTargetPlatform == TargetPlatform.iOS;
+
+  /// Kullanım koşulları linki platforma göre: iOS'ta Apple EULA,
+  /// Android'de kendi koşullarımız (Apple'ın EULA'sı Android'de geçersiz).
+  String get _termsOfUseUrl => _isApplePlatform ? _appleTermsUrl : _playTermsUrl;
 
   @override
   void initState() {
@@ -251,9 +261,14 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
                           const SizedBox(height: 14),
 
-                          // 4. ABONELİK AÇIKLAMASI (App Store / Guideline 3.1.2 Uyumu)
+                          // 4. ABONELİK AÇIKLAMASI
+                          // Platform metni AYRI: Android'de Apple ID / App Store
+                          // yazısı çıkması yanlış bilgi ve Google Play politikası
+                          // ihlaliydi.
                           Text(
-                            "Ödeme Apple ID hesabınızdan tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman App Store Hesap Ayarları'ndan iptal edebilirsiniz.",
+                            _isApplePlatform
+                                ? 'Ödeme Apple ID hesabınızdan tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman App Store Hesap Ayarları\'ndan iptal edebilirsiniz.'
+                                : 'Ödeme Google Play üzerinden tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman Google Play Hesap Ayarları\'ndan iptal edebilirsiniz.',
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               fontSize: 11,

@@ -131,6 +131,12 @@ class AiTeacherService {
     return await remainingFreeUses() <= 0;
   }
 
+  /// Günlük hakkı tüket. AiChatService de aynı kotayı paylaşsın diye açık.
+  Future<void> consumeQuota() async {
+    if (isPremium) return;
+    await _incrementUsage();
+  }
+
   Future<void> _incrementUsage() async {
     await _resetIfNeeded();
     final prefs = await SharedPreferences.getInstance();

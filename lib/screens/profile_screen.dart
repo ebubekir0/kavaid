@@ -2436,7 +2436,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               const Text('Bu hesap için ömür boyu tüm reklamları kaldırın ve kesintisiz deneyim yaşayın.'),
               const SizedBox(height: 12),
-              // Apple Guidelines Requirement: Legal links & Restore Purchases
+              // Yasal linkler. Apple EULA'sı yalnızca iOS'ta geçerli;
+              // Android'de apple.com linki yanlış yönlendirme olurdu.
               Wrap(
                 alignment: WrapAlignment.spaceBetween,
                 children: [
@@ -2449,7 +2450,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   TextButton(
                     onPressed: () {
-                      launchUrl(Uri.parse('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'));
+                      final apple = kIsWeb ||
+                          defaultTargetPlatform == TargetPlatform.iOS;
+                      launchUrl(Uri.parse(apple
+                          ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
+                          : 'https://kavaid.app/terms'));
                     },
                     style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
                     child: const Text('Kullanım Koşulları (EULA)', style: TextStyle(fontSize: 11, color: Color(0xFF007AFF))),

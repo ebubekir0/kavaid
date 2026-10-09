@@ -12,6 +12,8 @@ class ReviewService {
 
   final InAppReview _inAppReview = InAppReview.instance;
   static const String _hasRatedAppKey = 'has_rated_app_v2';
+  static const String _appleStoreId = '6503463570';
+  static const String _androidStoreId = 'com.onbir.kavaid';
 
   bool _hasRated = false;
   bool get hasRated => _hasRated;
@@ -57,17 +59,26 @@ class ReviewService {
 
   // Yedek plan: Uygulamanın mağaza sayfasını aç
   Future<void> _openStoreListing() async {
+    // Platforma göre mağaza kimliği. Android'de iOS App Store ID'si
+    // vermek yanlış mağazaya (ya da hata) götürürdü.
+    final isApple = kIsWeb || defaultTargetPlatform == TargetPlatform.iOS;
     try {
+      // Bu sürümde androidStoreId yok; Android'de paket adı otomatik
+      // çözülüyor. App Store ID'si SADECE Apple tarafında verilmeli.
       await _inAppReview.openStoreListing(
-        appStoreId: '6503463570', // iOS App Store ID'niz
+        appStoreId: isApple ? _appleStoreId : null,
       );
     } catch (e) {
       debugPrint('❌ [ReviewService] Mağaza sayfası açılamadı: $e');
-      // En son çare olarak URL ile dene
-      final Uri fallbackUrl = Uri.parse('https://play.google.com/store/apps/details?id=com.onbir.kavaid');
-       if (await canLaunchUrl(fallbackUrl)) {
-         await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
-       }
+      // En son çare olarak doğrudan URL ile dene
+      final fallbackUrl = Uri.parse(
+        isApple
+            ? 'https://apps.apple.com/app/id$_appleStoreId'
+            : 'https://play.google.com/store/apps/details?id=$_androidStoreId',
+      );
+      if (await canLaunchUrl(fallbackUrl)) {
+        await launchUrl(fallbackUrl, mode: LaunchMode.externalApplication);
+      }
     }
   }
 

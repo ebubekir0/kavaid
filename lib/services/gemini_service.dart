@@ -1078,6 +1078,113 @@ Sadece JSON dondur:
 ''';
   }
 
+  // ─── SÖZLÜK SOHBETİ (chat bot) ───────────────────────────────────────────
+  // Mevcut answerTeacherQuestion tek seferliktir ve sadece önceki özeti
+  // gönderir; kullanıcı "peki ya bu?" diye sorunca bağ kopuyor.
+  // Burada gerçek konuşma geçmişi (contents dizisi) gönderilir.
+
+  /// Sohbet asistanına düz metin cevap alır (JSON değil, hızlı ve doğal).
+  /// [history] sırayla gönderilir; ilk girdi 'user' olmalıdır.
+  Future<String> askInChat({
+    required List<Map<String, dynamic>> history,
+    WordModel? contextWord,
+    Duration timeout = const Duration(seconds: 12),
+  }) async {
+    if (history.isEmpty) {
+      throw const FormatException('Sohbet gecmisi bos.');
+    }
+
+    await _initializeFirebaseConfig();
+
+    final apiKey = await _getApiKey();
+    final model = await _getModel();
+    final url = Uri.https(
+      'generativelanguage.googleapis.com',
+      '/v1beta/models/$model:generateContent',
+      {'key': apiKey},
+    );
+
+    final requestBody = <String, dynamic>{
+      'contents': history,
+      'generationConfig': <String, dynamic>{
+        'temperature': 0.4,
+        'topP': 0.85,
+        // Kisa cevap = hizli + ucuz. Sözlük asistanı uzun metin yazmaz.
+        'maxOutputTokens': 500,
+        'thinkingConfig': _teacherThinkingConfig(model),
+      },
+      'systemInstruction': {
+        'parts': [
+          {'text': _buildChatSystemPrompt(contextWord)},
+        ],
+      },
+    };
+
+    final response = await http
+        .post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(requestBody),
+        )
+        .timeout(timeout);
+
+    if (response.statusCode != 200) {
+      if (response.body.contains('API_KEY_INVALID')) {
+        throw const GeminiApiKeyInvalidException();
+      }
+      debugPrint(
+        '[GeminiService] Chat API hatasi: ${response.statusCode} ${response.body.length > 300 ? response.body.substring(0, 300) : response.body}',
+      );
+      throw Exception('AI asistan hatasi: ${response.statusCode}');
+    }
+
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final candidates = data['candidates'];
+    if (candidates is! List || candidates.isEmpty) {
+      throw const FormatException('AI asistan cevabi bos.');
+    }
+    final content = candidates.first['content'];
+    final parts = content is Map ? content['parts'] : null;
+    if (parts is! List || parts.isEmpty) {
+      throw const FormatException('AI asistan cevabi bos.');
+    }
+    final text = parts.first['text']?.toString().trim() ?? '';
+    if (text.isEmpty) {
+      throw const FormatException('AI asistan metni bos.');
+    }
+    return text;
+  }
+
+  String _buildChatSystemPrompt(WordModel? word) {
+    final buffer = StringBuffer('''
+Sen Kavaid sozlugunun icinde calisan Turkce bir Arapca asistanisin.
+Kullanici Turkce konusuyor, Arapca ogreniyor.
+
+Kurallar:
+- Kisa ve net cevap ver. En fazla 4-5 cumle. Paragraf yazma.
+- Sohbet eden bir ogretmen gibi davran: samimi, vevazli, cesaretlendirici.
+- Arapca kelime veya ornek yazacaksan MUTLAKA tam harekeli yaz.
+- Emin olmadigin bilgiyi uydurma; bilmiyorsan "bilmiyorum" de.
+- Parantez kullanma. Listeyi asiri kullanim.
+- Kullanici kelime sormazsa once onu ne oldugunu kisaca hatirlat.
+''');
+
+    if (word != null) {
+      buffer.write('''
+Su an su kelime uzerine konusuyoruz. Kelime kartindaki veriler:
+${json.encode(_teacherWordPayload(word))}
+Bu kelimeye bagli sorulari bu veriye gore cevapla.
+''');
+    } else {
+      buffer.write('''
+Su an belirli bir kelime secili degil. Genel Arapca sorularini cevapla.
+Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
+''');
+    }
+
+    return buffer.toString();
+  }
+
   Map<String, dynamic> _teacherWordPayload(WordModel word) {
     return {
       'kelime': word.kelime,

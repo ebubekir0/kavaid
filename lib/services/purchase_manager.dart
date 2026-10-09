@@ -67,13 +67,47 @@ class PurchaseManager extends ChangeNotifier {
   bool get isEntitlementPending => _entitlementPending;
   bool get usingOfflineSnapshot => _usingOfflineSnapshot;
 
+  // DÜZELTME: ham _isPremium yerine bitiş kontrolü yapan isPremium
+  // getter'ı kullanılıyor. Yoksa süresi dolmuş ama timer henüz
+  // tetiklenmemişken reklamlar gizli kalıyordu.
   bool get shouldShowAds =>
       !_entitlementPending &&
-      !_isPremium &&
-      !_isLifetimeNoAds &&
-      !_isPromoPremium;
+      !isPremium &&
+      !_isLifetimeNoAds;
 
-  bool get isPremium => _isPremium || _isPromoPremium;
+  bool get isPremium {
+    // Bitiş tarihi geçmişse premium'u düşür (canlı kontrol).
+    // _subscriptionExpiryDate == null => lifetime veya RevenueCat aktif
+    // (tarihsiz) durumudur, premium korunur.
+    if (_isSubscriptionExpired) {
+      // Abonelik bitti; promo hâlâ geçerliyse ondan devam et.
+      final promoExpiry = _promoExpiryDate;
+      if (promoExpiry == null) return _isPromoPremium;
+      if (DateTime.now().toUtc().isAfter(promoExpiry.toUtc())) {
+        return false;
+      }
+      return _isPromoPremium;
+    }
+    return _isPremium || _isPromoPremium;
+  }
+
+  /// Abonelik süresi dolmuş mu? (canlı kontrol)
+  bool get isSubscriptionExpired => _isSubscriptionExpired;
+  bool get _isSubscriptionExpired {
+    final exp = _subscriptionExpiryDate;
+    if (exp == null) return false;
+    return DateTime.now().toUtc().isAfter(exp.toUtc());
+  }
+
+  /// Promo dahil en geç bitiş tarihi bitmiş mi?
+  bool get isEntitlementExpired {
+    final exp = subscriptionExpiryDate;
+    if (exp == null) {
+      // Tarih yoksa: herhangi bir premium flag varsa lifetime say.
+      return !_isPremium && !_isPromoPremium;
+    }
+    return DateTime.now().toUtc().isAfter(exp.toUtc());
+  }
   bool get isPromoPremium => _isPromoPremium;
   bool get hasUsedPromo => _hasUsedPromo;
   bool get isLifetimeNoAds => _isLifetimeNoAds;
@@ -465,10 +499,27 @@ class PurchaseManager extends ChangeNotifier {
         expiresAt: _subscriptionExpiryDate,
         source: 'firebase_legacy',
       );
-    } else if (checkedLegacy && _entitlementPending) {
+    } else if (checkedLegacy) {
+      // DÜZELTME: sadece pending'de değil, her zaman downgrade et.
+      // Önceden stale cache'teki _isPremium=true burada tekrar uygulanıp
+      // bitiş hiç düşürülemiyordu. Artık expiry kontrolü
+      // _applyVerifiedEntitlements içinde yapılıyor ve bitmişse false
+      // uygulanıyor.
+      final expiryExpired = _subscriptionExpiryDate != null &&
+          DateTime.now().toUtc().isAfter(_subscriptionExpiryDate!.toUtc());
+
+      // RevenueCat başarılıysa _isPremium zaten taze RC sonucudur → onu kullan.
+      // RC BAŞARISIZSA (ağ kesintisi, 5sn timeout) mevcut durumu DÜŞÜRME:
+      // yerel cache'te premium görünüyorsa ve bitiş tarihi GELECEKTE ise
+      // abonelik geçerlidir, korunmalı. Aksi halde aktif aboneli kullanıcı
+      // anlık internet dalgalanmasında premium'unu kaybediyordu.
+      final keepCachedPremium = _isPremium && !_isSubscriptionExpired;
+      final effectivePremium =
+          revenueCatSucceeded ? _isPremium : keepCachedPremium;
+
       _applyVerifiedEntitlements(
-        isPremium: _isPremium,
-        isLifetimeNoAds: _isLifetimeNoAds,
+        isPremium: expiryExpired ? false : effectivePremium,
+        isLifetimeNoAds: _isLifetimeNoAds || _cachedLegacyAdsFree,
         purchasedBooks: _purchasedBooks,
         expiresAt: _subscriptionExpiryDate,
         source: 'firebase_legacy',
@@ -546,14 +597,17 @@ class PurchaseManager extends ChangeNotifier {
     DateTime? expiry = _parseDate(
       premiumEntitlement?.expirationDate ?? customerInfo.latestExpirationDate,
     );
-    if (expiry == null && newPremiumStatus) {
-      // Aktif abonelik varsa ama tarih parse edilemediyse 1 yıl varsay
-      expiry = DateTime.now().toUtc().add(const Duration(days: 365));
-    }
+    // NOT: expiry null ise uydurma tarih YAZMA.
+    // RevenueCat aktif diyorsa o an için premium ver, ancak kalıcı
+    // cache/Firestore'a "1 yıl" gibi sahte bitiş yazıp gerçek bitişi
+    // maskeleme. expiry null kalır, bir sonraki refresh doğrusunu getirir.
 
     var legacyFailed = false;
     if (!_legacyChecked) {
       try {
+        // ANR: Firestore takılırsa (kötü ağ) UI isolate'te bekleyen
+        // future yığılmasın. Dış timeout zaten var ama bu yol
+        // timeout'suz da çağrılıyordu (listener).
         await _checkLegacyPermissions(
           onLegacyFound: (legacyPremium, legacyAdsFree) {
             _cachedLegacyPremium = legacyPremium;
@@ -561,7 +615,7 @@ class PurchaseManager extends ChangeNotifier {
             if (legacyPremium) newPremiumStatus = true;
             if (!newAdsFreeStatus && legacyAdsFree) newAdsFreeStatus = true;
           },
-        );
+        ).timeout(const Duration(seconds: 4));
         _legacyChecked = true;
       } catch (e) {
         debugPrint('[PurchaseManager] Legacy kontrol hatası: $e');
@@ -599,16 +653,45 @@ class PurchaseManager extends ChangeNotifier {
 
     await _saveEntitlementSnapshot(source: 'revenuecat');
 
-    // Kullanıcı Firebase'e giriş yapmışsa ve premium aktifse, Firestore'a da kaydet
+    // Kullanıcı Firebase'e giriş yapmışsa Firestore'a da eşitle.
+    // KRİTİK: sadece true değil, false (bitiş) durumu da yazılmalı.
+    // Yoksa Firestore'da eski isPremium:true sonsuza kadar kalıp
+    // legacy kontrolü tekrar premium yapar (sonsuz premium bug'ı).
     final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null && newPremiumStatus) {
+    if (currentUser != null) {
       try {
-        await FirebaseFirestore.instance.collection('users').doc(currentUser.uid).set({
-          'isPremium': true,
-          'premiumExpiry': verifiedExpiry?.toIso8601String(),
-          'premiumSource': 'storekit_revenuecat',
-          'lastVerifiedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        if (newPremiumStatus) {
+          // expiry null + aktif = RevenueCat tarihsiz aktiflik.
+          // Bunu lifetime gibi Firestore'a null yazma; legacy tarafı
+          // null expiry + isPremium:true'yu lifetime sanır.
+          // Bu durumda premiumExpiry alanına dokunma (eski tarihi koru).
+          final data = <String, Object?>{
+            'isPremium': true,
+            'premiumSource': 'storekit_revenuecat',
+            'lastVerifiedAt': FieldValue.serverTimestamp(),
+          };
+          if (verifiedExpiry != null) {
+            data['premiumExpiry'] = verifiedExpiry.toIso8601String();
+          }
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.uid)
+              .set(data, SetOptions(merge: true));
+        } else if (_legacyChecked &&
+            !_cachedLegacyPremium &&
+            !_isPromoPremium) {
+          // StoreKit + legacy ikisi de premium yok diyor ve promo da yok:
+          // bitişi Firestore'a işle ki legacy tekrar diriltmesin.
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(currentUser.uid)
+              .set({
+            'isPremium': false,
+            'premiumSource': 'storekit_revenuecat_expired',
+            'lastVerifiedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+          debugPrint('[PurchaseManager] Premium bitişi Firestore\'a işlendi');
+        }
         debugPrint('✅ [PurchaseManager] Premium Firestore kullanıcı hesabına eşitlendi');
       } catch (e) {
         debugPrint('⚠️ [PurchaseManager] Firestore sync hatası: $e');
@@ -636,8 +719,15 @@ class PurchaseManager extends ChangeNotifier {
     required DateTime? expiresAt,
     required String source,
   }) {
+    // Bitiş tarihi geçmişse memory'de premium tutma.
+    // expiresAt == null => lifetime / tarihsiz aktiflik, korunur.
+    var effectivePremium = isPremium;
+    if (expiresAt != null &&
+        DateTime.now().toUtc().isAfter(expiresAt.toUtc())) {
+      effectivePremium = false;
+    }
     final changed =
-        _isPremium != isPremium ||
+        _isPremium != effectivePremium ||
         _isLifetimeNoAds != isLifetimeNoAds ||
         !_setEquals(_purchasedBooks, purchasedBooks) ||
         _subscriptionExpiryDate != expiresAt ||
@@ -645,7 +735,7 @@ class PurchaseManager extends ChangeNotifier {
         !_entitlementsResolved ||
         _usingOfflineSnapshot;
 
-    _isPremium = isPremium;
+    _isPremium = effectivePremium;
     _isLifetimeNoAds = isLifetimeNoAds;
     _purchasedBooks = Set<String>.from(purchasedBooks);
     _subscriptionExpiryDate = expiresAt;
@@ -658,9 +748,10 @@ class PurchaseManager extends ChangeNotifier {
     if (changed) {
       notifyListeners();
       debugPrint(
-        '[PurchaseManager] Entitlements updated -> premium: $isPremium, adsFree: $isLifetimeNoAds, books: ${_purchasedBooks.length}',
+        '[PurchaseManager] Entitlements updated -> premium: $effectivePremium, adsFree: $isLifetimeNoAds, books: ${_purchasedBooks.length}, expires: $expiresAt',
       );
     }
+    _startSubscriptionExpiryTimer();
     unawaited(_saveLocalCache());
   }
 
@@ -1283,15 +1374,70 @@ class PurchaseManager extends ChangeNotifier {
 
   void _startPromoExpiryTimer() {
     _promoExpiryTimer?.cancel();
-    _promoExpiryTimer = Timer.periodic(const Duration(minutes: 5), (_) async {
+    _promoExpiryTimer = Timer.periodic(const Duration(minutes: 1), (_) async {
       final expiry = _promoExpiryDate;
       if (expiry != null && DateTime.now().toUtc().isAfter(expiry.toUtc())) {
         _isPromoPremium = false;
         _promoExpiryTimer?.cancel();
+        _promoExpiryDate = null;
         await _saveEntitlementSnapshot(source: 'promo_expired');
+        unawaited(_saveLocalCache());
         notifyListeners();
+        debugPrint('[PurchaseManager] Promo süresi doldu, premium düşürüldü');
       }
     });
+    // Abonelik bitişi de aynı periyotta kontrol edilsin.
+    _startSubscriptionExpiryTimer();
+  }
+
+  Timer? _subscriptionExpiryTimer;
+
+  /// Uygulama açıkken abonelik biterse premium'u düşür.
+  /// RevenueCat listener her zaman tetiklenmeyebilir, bu timer garantiler.
+  void _startSubscriptionExpiryTimer() {
+    _subscriptionExpiryTimer?.cancel();
+    final expiry = _subscriptionExpiryDate;
+    if (expiry == null) return; // lifetime / tarihsiz -> timer yok
+    if (DateTime.now().toUtc().isBefore(expiry.toUtc())) {
+      final remaining = expiry.toUtc().difference(DateTime.now().toUtc());
+      // En geç 5 dakikada bir kontrol et, bitiş anında da tetikle.
+      final firstCheck = remaining < const Duration(minutes: 5)
+          ? remaining + const Duration(seconds: 5)
+          : const Duration(minutes: 5);
+      _subscriptionExpiryTimer = Timer(firstCheck, () async {
+        if (_isSubscriptionExpired && _isPremium) {
+          debugPrint('[PurchaseManager] Abonelik süresi doldu, premium düşürülüyor');
+          _isPremium = false;
+          await _saveEntitlementSnapshot(source: 'subscription_expired');
+          unawaited(_saveLocalCache());
+          // Firestore'daki şişmiş isPremium:true'yu da temizle
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            try {
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(user.uid)
+                  .set({
+                'isPremium': false,
+                'premiumSource': 'local_expiry',
+                'lastVerifiedAt': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true));
+            } catch (_) {}
+          }
+          notifyListeners();
+        }
+        // Hala premium varsa (lifetime'a dönmüş olabilir) tekrar kur.
+        if (_isPremium && !_isSubscriptionExpired) {
+          _startSubscriptionExpiryTimer();
+        }
+      });
+    } else if (_isPremium) {
+      // Zaten dolmuş ama flag hala true: hemen düşür.
+      _isPremium = false;
+      unawaited(_saveEntitlementSnapshot(source: 'subscription_expired'));
+      unawaited(_saveLocalCache());
+      notifyListeners();
+    }
   }
 
   void resetPromoState() {
@@ -1325,23 +1471,51 @@ class PurchaseManager extends ChangeNotifier {
       final expiresAt = _parseMillis(decoded['expiresAt']);
       final lastVerifiedAt = _parseMillis(decoded['lastVerifiedAt']);
       final cachedPremium = decoded['isPremium'] == true;
-      final activePremium =
-          cachedPremium &&
-          (expiresAt == null || expiresAt.isAfter(DateTime.now().toUtc()));
       final books = (decoded['purchasedBooks'] as List<dynamic>? ?? [])
           .map((e) => e.toString())
           .toSet();
 
+      // DÜZELTME: abonelik ve promo bitişini AYRI oku.
+      // Eskiden ikisi 'expiresAt' içinde max() olarak birleştiriliyordu;
+      // lifetime premium + promo olan kullanıcıda promo bitince
+      // uygulama yeniden açıldığında lifetime premium da düşüyordu.
+      final subExpiry = _parseMillis(decoded['subscriptionExpiresAt']);
+      final promoExpiry = _parseMillis(decoded['promoExpiresAt']);
+      final isPromoCached = decoded['isPromoPremium'] == true;
+
+      // Yeni format varsa ayrı değerleri kullan, yoksa eski 'expiresAt'.
+      final hasSeparateExpiry =
+          decoded.containsKey('subscriptionExpiresAt') ||
+              decoded.containsKey('promoExpiresAt');
+
+      final now = DateTime.now().toUtc();
+      final subActive = !hasSeparateExpiry
+          ? (expiresAt == null || expiresAt.isAfter(now))
+          : (subExpiry == null || subExpiry.isAfter(now));
+      final promoActive = hasSeparateExpiry &&
+          isPromoCached &&
+          promoExpiry != null &&
+          promoExpiry.isAfter(now);
+
+      final activePremium = cachedPremium && (subActive || promoActive);
+
       _isPremium = activePremium;
       _isLifetimeNoAds = decoded['isLifetimeNoAds'] == true;
       _purchasedBooks = books;
-      _subscriptionExpiryDate = expiresAt;
+      _subscriptionExpiryDate = hasSeparateExpiry ? subExpiry : expiresAt;
+      _promoExpiryDate = promoActive ? promoExpiry : null;
+      _isPromoPremium = promoActive;
       _lastVerifiedAt = lastVerifiedAt;
       _entitlementSource = decoded['source']?.toString() ?? 'cache';
       _entitlementsResolved = true;
       _entitlementPending = false;
       _usingOfflineSnapshot = true;
+      if (promoActive) _startPromoExpiryTimer();
+      _startSubscriptionExpiryTimer();
       notifyListeners();
+      debugPrint(
+        '[PurchaseManager] Snapshot yüklendi: premium=$activePremium, sub=$_subscriptionExpiryDate, promo=$promoActive',
+      );
     } catch (e) {
       debugPrint('[PurchaseManager] Cache read error: $e');
     }
@@ -1361,6 +1535,11 @@ class PurchaseManager extends ChangeNotifier {
       'isLifetimeNoAds': _isLifetimeNoAds,
       'purchasedBooks': _purchasedBooks.toList()..sort(),
       'expiresAt': expiresAt?.millisecondsSinceEpoch,
+      // DÜZELTME: abonelik ve promo bitişini ayrı yaz. max() birleşimi
+      // lifetime + promo senaryosunda lifetime'ı promo bitişine bağlıyordu.
+      'subscriptionExpiresAt': _subscriptionExpiryDate?.millisecondsSinceEpoch,
+      'promoExpiresAt': _promoExpiryDate?.millisecondsSinceEpoch,
+      'isPromoPremium': _isPromoPremium,
       'lastVerifiedAt': now.millisecondsSinceEpoch,
       'source': source,
     };
@@ -1486,10 +1665,13 @@ class PurchaseManager extends ChangeNotifier {
         expiresAt = DateTime.fromMillisecondsSinceEpoch(expiresAtMillis, isUtc: true);
       }
 
-      // Abonelik süresi dolmuş mu kontrol et (lifetime ise sona ermez)
-      final isExpired = expiresAt != null && expiresAt.isBefore(DateTime.now().toUtc());
-      // Lifetime NoAds veya books varsa süre dolsa da geçerli
-      final activePremium = isPremium && (!isExpired || isLifetimeNoAds);
+      // Abonelik süresi dolmuş mu kontrol et.
+      // DÜZELTME: lifetime NoAds, premium aboneliği uzatmaz.
+      // NoAds sadece reklamları kapatır, premium içerik için expiry şarttır.
+      // expiresAt == null => lifetime premium (tarihsiz), korunur.
+      final isExpired =
+          expiresAt != null && DateTime.now().toUtc().isAfter(expiresAt.toUtc());
+      final activePremium = isPremium && !isExpired;
 
       _isPremium = activePremium;
       _isLifetimeNoAds = isLifetimeNoAds;

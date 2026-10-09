@@ -133,8 +133,15 @@ class AppStartupService extends ChangeNotifier {
       ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-SemiBold.ttf'))
       ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Bold.ttf'));
 
-    await interLoader.load().timeout(const Duration(seconds: 2));
-    await arabicLoader.load().timeout(const Duration(seconds: 2));
+    // ANR: fontları paralel yükle, tek tek 2sn bekleme (toplam 4sn blok).
+    await Future.wait([
+      interLoader.load().timeout(const Duration(seconds: 2)).catchError((e) {
+        debugPrint('Inter font load error: $e');
+      }),
+      arabicLoader.load().timeout(const Duration(seconds: 2)).catchError((e) {
+        debugPrint('Arabic font load error: $e');
+      }),
+    ]);
   }
 
   Future<void> _precacheStartupAssets(BuildContext context) async {
@@ -207,7 +214,21 @@ class AppStartupService extends ChangeNotifier {
       message: 'Arama hazirlaniyor...',
     );
 
-    await DatabaseService.ensureSearchCacheReady();
+    // ANR: arama cache'i kritik yol değil. Isolate düşük cihazda
+    // takılırsa ready'yi bloklamasın — 3sn'de pes et, arkada devam etsin.
+    try {
+      await DatabaseService.ensureSearchCacheReady().timeout(
+        const Duration(seconds: 3),
+      );
+    } catch (e) {
+      debugPrint('Search cache warmup timeout (deferred): $e');
+      // Arka planda tekrar dene, ready'yi engelleme.
+      unawaited(
+        DatabaseService.ensureSearchCacheReady().catchError((e) {
+          debugPrint('Search cache deferred retry error: $e');
+        }),
+      );
+    }
 
     _setState(
       phase: StartupPhase.warmingSearch,
@@ -221,8 +242,16 @@ class AppStartupService extends ChangeNotifier {
       return true;
     }
 
-    final count = await DatabaseService.instance.getWordsCount();
-    return count > 0;
+    // ANR: SQLite ilk açılış düşük cihazda saniyeler sürebilir.
+    try {
+      final count = await DatabaseService.instance
+          .getWordsCount()
+          .timeout(const Duration(seconds: 4));
+      return count > 0;
+    } catch (e) {
+      debugPrint('_hasUsableMainDictionary timeout/error: $e');
+      return false;
+    }
   }
 
   Future<void> _markMainDictionaryReady() async {
@@ -262,21 +291,24 @@ class AppStartupService extends ChangeNotifier {
     if (_deferredStarted) return;
     _deferredStarted = true;
 
+    // ANR: ready sonrası tüm ağır işleri aynı anda microtask'e yığma.
+    // İlk frame + kullanıcı input'u ile yarışıp dispatch timeout'a
+    // sokuyordu. Kademeli gecikmeyle yay.
     _runDeferredTask('purchase bootstrap', () {
       return PurchaseManager().bootstrapEntitlements().timeout(
         const Duration(seconds: 5),
       );
-    });
+    }, delay: const Duration(milliseconds: 1500));
     _runDeferredTask('safe purchase wrapper', () {
       return SafePurchaseWrapper.initializeService().timeout(
         const Duration(seconds: 2),
       );
-    });
+    }, delay: const Duration(seconds: 2));
     _runDeferredTask('saved words', () {
       return SavedWordsService().initialize().timeout(
         const Duration(seconds: 2),
       );
-    });
+    }, delay: const Duration(seconds: 3));
     _runDeferredTask('usage session', () {
       return AppUsageService().startSession().timeout(
         const Duration(seconds: 1),
@@ -298,9 +330,15 @@ class AppStartupService extends ChangeNotifier {
     });
   }
 
-  void _runDeferredTask(String name, Future<void> Function() task) {
-    Future.microtask(() async {
+  void _runDeferredTask(
+    String name,
+    Future<void> Function() task, {
+    Duration delay = Duration.zero,
+  }) {
+    Future.delayed(delay, () async {
+      // İlk frame çizilmeden ağır işe girme.
       try {
+        await Future<void>.delayed(Duration.zero);
         await task();
       } catch (e) {
         debugPrint('Deferred startup task error ($name): $e');

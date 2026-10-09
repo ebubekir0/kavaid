@@ -1775,10 +1775,12 @@ class SearchIsolateWorker {
     if (_isInitialized || _hasError) return;
     try {
       final receivePort = ReceivePort();
-      _isolate = await Isolate.spawn(_isolateEntry, receivePort.sendPort);
-      
-      // Wait for the first message, which is the worker's SendPort
-      final firstMessage = await receivePort.first;
+      _isolate = await Isolate.spawn(_isolateEntry, receivePort.sendPort)
+          .timeout(const Duration(seconds: 4));
+      // ANR: isolate başlamazsa (düşük RAM) sonsuza kadar bekleme.
+      final firstMessage = await receivePort.first.timeout(
+        const Duration(seconds: 4),
+      );
       _sendPort = firstMessage as SendPort;
       _isInitialized = true;
       _readyCompleter.complete();
@@ -1793,10 +1795,21 @@ class SearchIsolateWorker {
 
   Future<List<Map<String, dynamic>>> search(Map<String, dynamic> args) async {
     if (!_isInitialized && !_hasError) {
-      await _readyCompleter.future;
+      // ANR: isolate hazır değilken sonsuza kadar bekleme.
+      await _readyCompleter.future.timeout(const Duration(seconds: 4));
     }
     if (_hasError || _sendPort == null) {
-      // Fallback to synchronous search on the main thread
+      // ANR: Eski yol UI thread'inde senkron _runIsolateSearch çağırıyordu;
+      // o da _buildCache() ile 55K kelimeyi senkron normalize ediyordu
+      // (tek seferde 5sn+ blok, "Input dispatching timed out").
+      // Artık: UI thread'inde cache senkron kurulmaz. Kurulum arka planda
+      // parçalı (zaman aralıklı) yapılır, bu arama boş döner.
+      if (DatabaseService._normalizedHKCache == null) {
+        unawaited(DatabaseService.prewarmCache());
+        debugPrint('⚠️ [Search] Isolate yok, cache arka planda kuruluyor');
+        return <Map<String, dynamic>>[];
+      }
+      // Cache zaten kuruluysa senkron arama makul (10-30ms).
       return DatabaseService._runIsolateSearch(args);
     }
     final responsePort = ReceivePort();
@@ -1804,9 +1817,17 @@ class SearchIsolateWorker {
       'args': args,
       'replyPort': responsePort.sendPort,
     });
-    final response = await responsePort.first;
-    responsePort.close();
-    return (response as List).cast<Map<String, dynamic>>();
+    // ANR: isolate cevap vermezse UI await'te takılı kalmasın, boş dön.
+    try {
+      final response = await responsePort.first.timeout(
+        const Duration(seconds: 4),
+      );
+      responsePort.close();
+      return (response as List).cast<Map<String, dynamic>>();
+    } catch (_) {
+      responsePort.close();
+      return <Map<String, dynamic>>[];
+    }
   }
 
   static void _isolateEntry(SendPort sendPort) {

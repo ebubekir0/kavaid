@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
+import 'dart:math' show min;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmsileDatabaseService {
   static final EmsileDatabaseService instance = EmsileDatabaseService._init();
@@ -11,36 +13,178 @@ class EmsileDatabaseService {
 
   EmsileDatabaseService._init();
 
+  static const String _dbAsset = 'assets/data/emsile.db';
+  static const String _dbName = 'emsile.db';
+  static const String _tempName = 'emsile.db.installing';
+  static const String _sizePrefsKey = 'emsile_db_installed_size_v1';
+
+  /// Yazma tamponu. 30 MB'lık DB'yi tek seferde writeAsBytes ile yazmak
+  /// ikinci bir büyük tampon oluşturuyordu; parça parça yazıyoruz.
+  static const int _writeChunkSize = 512 * 1024;
+
+  /// DB'nin gerçek boyutundan küçükse dosya yarım kalmış demektir.
+  static const int _minPlausibleSize = 1024 * 1024;
+
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('emsile.db');
+    _database = await _openVerified();
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
+  /// Kalıcı çözüm: DB'yi "kur-oku-yoksa kendini yeniden kur" mantığıyla aç.
+  ///
+  /// Önceden sadece `databaseExists` kontrolü vardı. Yazma sırasında uygulama
+  /// öldürülürse (iOS jetsam, düşük bellek, disk dolması) dosya YARIM olarak
+  /// diskte kalıyordu. `exists == true` olduğu için bir daha asla kopyalanmıyor
+  /// ve Emsile kalıcı olarak bozuk kalıyordu. Veri silinene kadar düzelmiyordu.
+  ///
+  /// Artık:
+  ///  - kurulum geçici dosyaya yapılır (yarım yazma hedef dosyayı bozmaz)
+  ///  - boyut doğrulanır
+  ///  - dosya atomik olarak hedefe taşınır
+  ///  - açılışta bir probe sorgusuyla içerik gerçekten okunabiliyor mu test edilir
+  ///  - herhangi bir aşama başarısız olursa dosya silinip bir sonraki açılışta
+  ///    baştan kurulur
+  Future<Database> _openVerified() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
+    final target = join(dbPath, _dbName);
 
-    // Only copy if the database does not exist to avoid redundant disk writes and UI blocks
-    final exists = await databaseExists(path);
-    if (!exists) {
-      await _copyDbFromAssets(path);
-    }
-
-    // Eski veritabanı dosyalarını temizle (yer açmak için)
     _cleanupOldDbs(dbPath);
 
-    return await openDatabase(path, readOnly: true);
+    // 1) Mevcut dosya gerçekten kullanılabilir mi?
+    if (await _probeUsable(target)) {
+      try {
+        return await openDatabase(target, readOnly: true);
+      } catch (e) {
+        debugPrint('[Emsile] DB acilamadi, yeniden kurulacak: $e');
+      }
+    }
+
+    // 2) Bozuk/eksik/yarim dosyayi temizle
+    await _deleteQuietly(target);
+
+    // 3) Atomik kurulum
+    await _install(dbPath, target);
+
+    // 4) Kurulumdan sonra dogrula, sonra ac
+    if (!await _probeUsable(target)) {
+      await _deleteQuietly(target);
+      throw StateError(
+        'Emsile veritabani kurulamadi. Dosya dogrulanamadi, sonraki acilista yeniden denenecek.',
+      );
+    }
+
+    final db = await openDatabase(target, readOnly: true);
+    // Icgerik kontrolu: tablo gercekten okunabiliyor mu
+    await db.rawQuery('SELECT COUNT(*) AS c FROM emsile');
+    return db;
   }
 
-  Future<void> _copyDbFromAssets(String path) async {
+  /// Dosya var mi, boyutu tutuyor mu VE icerik okunabiliyor mu?
+  Future<bool> _probeUsable(String path) async {
+    final file = File(path);
+    if (!await file.exists()) return false;
+
+    int size;
     try {
-      ByteData data = await rootBundle.load('assets/data/emsile.db');
-      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await File(path).writeAsBytes(bytes, flush: true);
-    } catch (e) {
-      print("Error copying Emsile database: \$e");
+      size = await file.length();
+    } catch (_) {
+      return false;
     }
+    if (size < _minPlausibleSize) {
+      debugPrint('[Emsile] Dosya cok kucuk, yarim kalmis olabilir: $size byte');
+      return false;
+    }
+
+    // Onceki basarili kurulumdan kaydedilen boyutla karsilastir.
+    // Boyut degistiyse dosya bozulmus demektir.
+    final prefs = await SharedPreferences.getInstance();
+    final expected = prefs.getInt(_sizePrefsKey);
+    if (expected != null && expected != size) {
+      debugPrint('[Emsile] Boyut uyusmadi (beklenen $expected, bulunan $size) - bozuk dosya');
+      return false;
+    }
+
+    // icerik probe
+    try {
+      final db = await openDatabase(path, readOnly: true);
+      final res = await db.rawQuery('SELECT COUNT(*) AS c FROM emsile');
+      await db.close();
+      final count = (res.first['c'] as int?) ?? 0;
+      if (count <= 0) {
+        debugPrint('[Emsile] Tablo bos, dosya bozuk');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('[Emsile] Icerik probe basarisiz: $e');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// DB'yi gecici dosyaya yaz, dogrula, sonra atomik olarak hedefe tasi.
+  Future<void> _install(String dbPath, String target) async {
+    final temp = join(dbPath, _tempName);
+    await _deleteQuietly(temp);
+
+    ByteData data;
+    try {
+      data = await rootBundle.load(_dbAsset);
+    } catch (e, st) {
+      // Hata mesajini GERCEKTEN yaz (onceki kodda '\$e' kaçisi vardi,
+      // bu yuzden hicbir sey gorunmuyordu).
+      debugPrint('[Emsile] Asset okunamadi ($_dbAsset): $e');
+      debugPrintStack(stackTrace: st, label: '[Emsile] asset stack');
+      rethrow;
+    }
+
+    // asUint8List bir GORUNUM (kopyalamaz), ayri bir 30MB tampon olusmaz.
+    final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
+    try {
+      final raf = await File(temp).open(mode: FileMode.write);
+      var written = 0;
+      try {
+        while (written < bytes.length) {
+          final end = min(written + _writeChunkSize, bytes.length);
+          // writeFrom(buffer, start, end) -> end MUTLAK indeks, fark degil.
+          await raf.writeFrom(bytes, written, end);
+          written = end;
+        }
+        await raf.flush();
+      } finally {
+        await raf.close();
+      }
+
+      // Boyut dogrula: yarim kalmis gecici dosyayi hedefe tasima.
+      final writtenLength = await File(temp).length();
+      if (writtenLength != bytes.length) {
+        throw StateError(
+          'Yazma dogrulamasi basarisiz: beklenen ${bytes.length}, yazilan $writtenLength',
+        );
+      }
+
+      // Atomik degistir
+      await File(temp).rename(target);
+
+      // Basarili boyutu kaydet (gelecek acilis icin referans)
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_sizePrefsKey, writtenLength);
+      debugPrint('[Emsile] DB kuruldu ve dogrulandi: $writtenLength byte');
+    } catch (e, st) {
+      debugPrint('[Emsile] DB kurulumu basarisiz: $e');
+      debugPrintStack(stackTrace: st, label: '[Emsile] install stack');
+      await _deleteQuietly(temp);
+      rethrow;
+    }
+  }
+
+  Future<void> _deleteQuietly(String path) async {
+    try {
+      final f = File(path);
+      if (await f.exists()) await f.delete();
+    } catch (_) {}
   }
 
   /// Eski veritabanı dosyalarını temizle

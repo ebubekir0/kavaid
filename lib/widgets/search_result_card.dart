@@ -20,7 +20,7 @@ import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../services/custom_word_service.dart'; // Import for custom lists
 import '../services/emsile_database_service.dart';
-import 'ai_teacher_sheet.dart';
+import 'ai_chat_sheet.dart';
 
 // PERFORMANCE: Font'ları cache'le — GoogleFonts yerine yerleşik fontFamily kullan
 // GoogleFonts.scheherazadeNew() internetten indirme deniyordu, yerel font zaten assets/fonts/ içinde
@@ -94,7 +94,7 @@ class SearchResultCard extends StatefulWidget {
 
 class _SearchResultCardState extends State<SearchResultCard>
     with SingleTickerProviderStateMixin {
-  static const bool _aiTeacherFeatureEnabled = false;
+  static const bool _aiTeacherFeatureEnabled = true;
 
   // PERFORMANCE: Single ticker
   final CustomWordService _customWordService =
@@ -121,11 +121,11 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   StreamSubscription<void>? _wordChangeSubscription;
 
+  // AI asistanı: kelime kartından bağımsız. Önceden kaydet/çıkar butonlarına
+  // bağlıydı, bu yüzden kitap metinleri ve özel kelime listelerinde hiç
+  // görünmüyordu.
   bool get _shouldShowAiTeacherButton =>
-      _aiTeacherFeatureEnabled &&
-      widget.showAiTeacherButton &&
-      widget.showAddButton &&
-      !widget.showRemoveButton;
+      _aiTeacherFeatureEnabled && widget.showAiTeacherButton;
 
   @override
   void initState() {
@@ -617,6 +617,9 @@ class _SearchResultCardState extends State<SearchResultCard>
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        // Kök rozeti — kelimenin hemen yanında
+                        Flexible(child: _buildRootChip(isDarkMode)),
                       ],
                     ),
                   ),
@@ -647,6 +650,9 @@ class _SearchResultCardState extends State<SearchResultCard>
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        // Kök rozeti — kelimenin hemen yanında
+                        Flexible(child: _buildRootChip(isDarkMode)),
                         const SizedBox(width: 8),
                         // Kelime türü chip'i
                         Flexible(
@@ -785,11 +791,11 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   Widget _buildAiTeacherButton(bool isDarkMode) {
     return Tooltip(
-      message: 'AI Kelime Asistanı',
+      message: 'Asistana sor',
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: _showAiTeacherSheet,
+          onTap: _showAiChatSheet,
           borderRadius: BorderRadius.circular(14),
           child: Container(
             width: 28,
@@ -806,13 +812,81 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
+  /// Kelimeye bağlı AI sohbeti açar.
+  void _showAiChatSheet({String? openingMessage}) {
+    FocusScope.of(context).unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => AiChatSheet(
+        word: widget.word,
+        isDarkMode: Theme.of(context).brightness == Brightness.dark,
+        openingMessage: openingMessage,
+      ),
+    );
+  }
+
+  /// "Daha fazla bilgi al" butonu — kart genişleyince görünür, sohbeti açar.
+  Widget _buildMoreInfoButton(bool isDarkMode) {
+    final fg = const Color(0xFF007AFF);
+    final label = LanguageService().isEnglish
+        ? 'Get more info'
+        : (LanguageService().isArabic
+              ? 'مزيد من المعلومات'
+              : 'Daha fazla bilgi al');
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _showAiChatSheet,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: isDarkMode
+                ? fg.withOpacity(0.12)
+                : const Color(0xFF007AFF).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isDarkMode ? fg.withOpacity(0.35) : fg.withOpacity(0.22),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.auto_awesome_rounded, size: 16, color: fg),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: fg,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMoreAiExamplesButton(bool isDarkMode) {
     final fg = const Color(0xFF007AFF);
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () =>
-            _showAiTeacherSheet(initialMode: AiTeacherInitialMode.moreExamples),
+        onTap: () => _showAiChatSheet(
+          openingMessage:
+              'Bu kelimeyle seviyeme uygun 5 yeni örnek ver: kolaydan zora doğru.',
+        ),
         borderRadius: BorderRadius.circular(8),
         child: Container(
           width: double.infinity,
@@ -842,23 +916,6 @@ class _SearchResultCardState extends State<SearchResultCard>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showAiTeacherSheet({
-    AiTeacherInitialMode initialMode = AiTeacherInitialMode.overview,
-  }) {
-    FocusScope.of(context).unfocus();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => AiTeacherSheet(
-        word: widget.word,
-        isDarkMode: Theme.of(context).brightness == Brightness.dark,
-        initialMode: initialMode,
       ),
     );
   }
@@ -910,6 +967,67 @@ class _SearchResultCardState extends State<SearchResultCard>
     return chips;
   }
 
+  /// Ana kartta kelimenin yanında gösterilen kompakt kök (koku) rozeti.
+  Widget _buildRootChip(bool isDarkMode) {
+    final root = widget.word.koku?.trim();
+    if (root == null || root.isEmpty) return const SizedBox.shrink();
+
+    final blue = const Color(0xFF007AFF);
+    final label = LanguageService().isEnglish
+        ? 'root'
+        : (LanguageService().isArabic ? 'جذر' : 'kök');
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        color: blue.withOpacity(isDarkMode ? 0.14 : 0.08),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: blue.withOpacity(isDarkMode ? 0.28 : 0.18),
+          width: 0.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+              color: blue.withOpacity(0.85),
+              letterSpacing: 0.2,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                root,
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(
+                  fontFamily: 'ScheherazadeNew',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
+                  height: 1.25,
+                  fontFeatures: const [
+                    ui.FontFeature.enable('liga'),
+                    ui.FontFeature.enable('calt'),
+                  ],
+                ),
+                textDirection: TextDirection.rtl,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildExpandedContent(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -925,8 +1043,14 @@ class _SearchResultCardState extends State<SearchResultCard>
           ),
           const SizedBox(height: 8),
 
-          // Kök ve çoğul bilgileri (yan yana, sadece varsa göster)
-          _buildRootAndPluralRow(isDarkMode),
+          // "Daha fazla bilgi al" — kart genişleyince en üstte, sohbeti açar
+          if (_shouldShowAiTeacherButton) ...[
+            _buildMoreInfoButton(isDarkMode),
+            const SizedBox(height: 12),
+          ],
+
+          // Kök ana kartta kelimenin yanında; çoğul alt kartta
+          _buildPluralRow(isDarkMode),
 
           // Fiil çekimleri (yan yana, sadece varsa göster)
           _buildConjugationRow(isDarkMode),
@@ -941,8 +1065,7 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  Widget _buildRootAndPluralRow(bool isDarkMode) {
-    final hasRoot = widget.word.koku?.isNotEmpty == true;
+  Widget _buildPluralRow(bool isDarkMode) {
     final hasPlural =
         widget.word.dilbilgiselOzellikler?.containsKey('cogulForm') == true &&
         widget.word.dilbilgiselOzellikler!['cogulForm']
@@ -951,97 +1074,13 @@ class _SearchResultCardState extends State<SearchResultCard>
                 .isNotEmpty ==
             true;
 
-    if (!hasRoot && !hasPlural) return const SizedBox.shrink();
+    // Kök (koku) artık alt kartta değil, ana kartta kelimenin yanında.
+    if (!hasPlural) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
         children: [
-          if (hasRoot) ...[
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDarkMode
-                        ? [
-                            const Color(0xFF2C2C2E),
-                            const Color(0xFF2C2C2E).withOpacity(0.8),
-                          ]
-                        : [const Color(0xFFF8F9FA), const Color(0xFFF2F3F5)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDarkMode
-                        ? const Color(0xFF48484A).withOpacity(0.5)
-                        : const Color(0xFFD0D0D0),
-                    width: 0.8,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? const Color(0xFF8E8E93).withOpacity(0.2)
-                              : const Color(0xFF007AFF).withOpacity(0.08),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(9),
-                            bottomRight: Radius.circular(6),
-                          ),
-                        ),
-                        child: Text(
-                          LanguageService().isEnglish
-                              ? 'Root'
-                              : (LanguageService().isArabic ? 'جذر' : 'Kök'),
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: isDarkMode
-                                ? const Color(0xFF8E8E93)
-                                : const Color(0xFF007AFF).withOpacity(0.8),
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 26, 8, 8),
-                      child: Center(
-                        child: Text(
-                          widget.word.koku!,
-                          style: TextStyle(
-                            fontFamily: 'ScheherazadeNew',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: isDarkMode
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
-                            height: 1.2,
-                            fontFeatures: const [
-                              ui.FontFeature.enable('liga'),
-                              ui.FontFeature.enable('calt'),
-                            ],
-                          ),
-                          textDirection: TextDirection.rtl,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-          if (hasRoot && hasPlural) const SizedBox(width: 8),
           if (hasPlural) ...[
             Expanded(
               child: Container(

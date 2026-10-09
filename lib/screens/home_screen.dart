@@ -984,6 +984,7 @@ class _HomeScreenState extends State<HomeScreen>
       if (success) {
         // Database bilgilerini al
         final info = await dbInitService.getDatabaseInfo();
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

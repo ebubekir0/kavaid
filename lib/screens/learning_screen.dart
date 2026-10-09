@@ -1207,20 +1207,23 @@ class _PurchasedBooksScreenState extends State<PurchasedBooksScreen> {
 
   Future<void> _refreshPurchases(BuildContext context) async {
     setState(() => _isRefreshing = true);
+    // async boşluktan önce al: context sonradan geçersiz olabilir
+    final purchaseManager = Provider.of<PurchaseManager>(context, listen: false);
+    final messenger = ScaffoldMessenger.of(context);
     try {
       // PurchaseManager'ı manuel olarak tetikle
-      await Provider.of<PurchaseManager>(context, listen: false).initialize();
+      await purchaseManager.initialize();
       // Veritabanından tekrar çek
-      await Provider.of<PurchaseManager>(context, listen: false).loadUserPurchases();
-      
+      await purchaseManager.loadUserPurchases();
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           const SnackBar(content: Text("Satın almalar güncellendi.")),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        messenger.showSnackBar(
           SnackBar(content: Text("Hata: $e")),
         );
       }

@@ -266,7 +266,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                 final name = controller.text.trim();
                 if (name.isEmpty) return;
                 await _service.createList(name);
-                if (!mounted) return;
+                if (!mounted || !context.mounted) return;
                 Navigator.of(context).pop();
                 _loadData();
               },
@@ -327,7 +327,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                 final name = controller.text.trim();
                 if (name.isEmpty) return;
                 await _service.renameList(list.id, name);
-                if (!mounted) return;
+                if (!mounted || !context.mounted) return;
                 Navigator.of(context).pop();
                 _loadData();
               },

@@ -452,9 +452,10 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
                     }
                     try {
                       await BookStoreService().mockPurchase(widget.bookId);
-                      if (context.mounted) Navigator.of(ctx).pop();
-                      setState(() {});
+                      if (ctx.mounted) Navigator.of(ctx).pop();
+                      if (mounted) setState(() {});
                     } catch (e) {
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Giriş hatası: $e')),
                       );

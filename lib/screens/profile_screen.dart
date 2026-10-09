@@ -1105,7 +1105,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: ElevatedButton(
                                 onPressed: () async {
                                   await _appUsageService.setUsageTimeForTest(31);
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Kullanım süresi 31 dakikaya ayarlandı'),
@@ -1129,7 +1129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () async {
                                   await _reviewService.resetRatingStatus();
                                   
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Değerlendirme durumu sıfırlandı - Yıldız butonu aktif'),
@@ -1154,7 +1154,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   await _appUsageService.resetUsageStats();
                                   await _reviewService.resetRatingStatus();
                                   
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
                                         content: Text('Tüm veriler sıfırlandı'),
@@ -1182,7 +1182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () async {
                                   // Reklam kaldırma durumunu toggle et
                                   await _creditsService.toggleAdsFreeForTest();
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(_creditsService.isLifetimeAdsFree
@@ -1214,7 +1214,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   try {
                                     await _bookPurchase.loadProductFor(bookId);
                                     final started = await _bookPurchase.buyBook(bookId);
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text(started ? 'Satın alma başlatıldı' : (_bookPurchase.lastError.isNotEmpty ? _bookPurchase.lastError : 'Satın alma başlatılamadı')),
@@ -1223,7 +1223,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       );
                                     }
                                   } catch (e) {
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Satın alma hatası: $e'),
@@ -1250,7 +1250,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   try {
                                     await _purchaseService.loadProducts();
                                     final started = await _purchaseService.buyRemoveAds();
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text(started ? 'Reklam kaldırma satın alma başlatıldı' : (_purchaseService.lastError.isNotEmpty ? _purchaseService.lastError : 'Satın alma başlatılamadı')),
@@ -1259,7 +1259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       );
                                     }
                                   } catch (e) {
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Reklam kaldırma hatası: $e'),
@@ -1878,8 +1878,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }, SetOptions(merge: true));
                                     
                                     // Manager'ı yenile
+                                    if (!context.mounted) return;
                                     await Provider.of<PurchaseManager>(context, listen: false).loadUserPurchases();
                                     
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(content: Text('✅ Debug: Premium verildi!')),
                                     );
@@ -1924,6 +1926,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await creditsService.initialize();
                                     
                                     debugPrint('✅ [TEST] Reklamları kaldır aktifleştirildi!');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Reklamları Kaldır Aktif!'),
@@ -1932,6 +1935,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   } catch (e) {
                                     debugPrint('❌ [TEST] Hata: $e');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -1970,6 +1974,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await bookStore.mockPurchase('kitab_kiraah_1');
                                     
                                     debugPrint('✅ [TEST] Kitap 1 satın alındı!');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 1 Aktif!'),
@@ -1978,6 +1983,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   } catch (e) {
                                     debugPrint('❌ [TEST] Hata: $e');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2016,6 +2022,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await bookStore.mockPurchase('kitab_kiraah_2');
                                     
                                     debugPrint('✅ [TEST] Kitap 2 satın alındı!');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 2 Aktif!'),
@@ -2024,6 +2031,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   } catch (e) {
                                     debugPrint('❌ [TEST] Hata: $e');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2062,6 +2070,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await bookStore.mockPurchase('kitab_kiraah_3');
                                     
                                     debugPrint('✅ [TEST] Kitap 3 satın alındı!');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 3 Aktif!'),
@@ -2070,6 +2079,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   } catch (e) {
                                     debugPrint('❌ [TEST] Hata: $e');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2121,6 +2131,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await bookStore.removePurchase('kitab_kiraah_3');
                                     
                                     debugPrint('✅ [TEST] Tüm satın alımlar temizlendi!');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Tüm Satın Alımlar Temizlendi!'),
@@ -2129,6 +2140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   } catch (e) {
                                     debugPrint('❌ [TEST] Hata: $e');
+                                    if (!context.mounted) return;
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2236,7 +2248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 onPressed: () async {
                                   debugPrint('🧹 Otomatik temizlik başlatılıyor...');
                                   final result = await DatabaseCleanupUtility.performAutoCleanup();
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
@@ -2707,7 +2719,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     final success = await _authService.updateUsername(newUsername);
                     
                     if (success) {
-                      if (mounted) {
+                      if (dialogContext.mounted && context.mounted) {
                         Navigator.of(dialogContext).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

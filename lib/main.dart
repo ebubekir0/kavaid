@@ -849,7 +849,7 @@ class _MainScreenState extends State<MainScreen> {
           () async {
             if (!mounted) return;
             final shouldBlock = await _shouldBlockForNoInternet();
-            if (!shouldBlock) return; // DB hazır, dialog gösterme
+            if (!shouldBlock || !mounted) return; // DB hazır, dialog gösterme
             if (_isNoInternetDialogOpen) return;
             _isNoInternetDialogOpen = true;
             await ConnectivityService.showNoInternetDialog(

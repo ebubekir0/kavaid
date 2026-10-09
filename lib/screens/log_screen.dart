@@ -43,7 +43,7 @@ class _LogScreenState extends State<LogScreen> {
                   .map((e) => e.toString())
                   .join('\n');
               await Clipboard.setData(ClipboardData(text: text));
-              if (mounted) {
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Loglar panoya kopyalandı')),
                 );

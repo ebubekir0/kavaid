@@ -1872,6 +1872,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
     
     if (code != null) {
       await Clipboard.setData(ClipboardData(text: code));
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('✅ Kod oluşturuldu ve kopyalandı: $code'),
@@ -1899,7 +1900,8 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
     if (codes.isNotEmpty) {
       final allCodes = codes.join('\n');
       await Clipboard.setData(ClipboardData(text: allCodes));
-      
+      if (!mounted) return;
+
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
@@ -2003,6 +2005,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
                                 icon: const Icon(Icons.block, size: 18, color: Colors.red),
                                 onPressed: () async {
                                   await PromoCodeService().deactivatePromoCode(codeStr);
+                                  if (!ctx.mounted) return;
                                   Navigator.pop(ctx);
                                   _showPromoCodesList();
                                 },

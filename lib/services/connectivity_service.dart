@@ -79,6 +79,7 @@ class ConnectivityService {
       // DB kontrolü hatasında, eski davranışa (dialog) geri düş
     }
 
+    if (!context.mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -133,7 +134,7 @@ class ConnectivityService {
                 onPressed: () async {
                   // Bağlantıyı tekrar kontrol et
                   final hasConnection = await ConnectivityService().hasInternetConnection();
-                  if (hasConnection) {
+                  if (hasConnection && context.mounted) {
                     Navigator.of(context).pop();
                     onRetry?.call();
                   }

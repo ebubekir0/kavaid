@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/promo_code_service.dart';
@@ -58,8 +57,9 @@ class _CampaignScreenState extends State<CampaignScreen> {
         Navigator.pop(context); // Ana sayfaya dön
       } else {
         String errorMsg = 'Geçersiz veya kullanılmış kod.';
-        if (result == 'already_used') errorMsg = 'Bu kodu daha önce kullandınız.';
-        else if (result == 'expired') errorMsg = 'Bu kodun süresi dolmuş.';
+        if (result == 'already_used') {
+          errorMsg = 'Bu kodu daha önce kullandınız.';
+        } else if (result == 'expired') errorMsg = 'Bu kodun süresi dolmuş.';
         else if (result == 'used') errorMsg = 'Bu kodun kullanım limiti dolmuş.';
         else if (result == 'login_required') errorMsg = 'Lütfen önce giriş yapın.';
 
@@ -81,8 +81,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
   Widget build(BuildContext context) {
     final isDark = widget.isDarkMode;
     final bgColor = isDark ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7);
-    final cardColor = isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.02);
-    final borderColor = isDark ? Colors.white.withOpacity(0.08) : Colors.black.withOpacity(0.05);
+    final cardColor = isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.02);
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.05);
     final textColor = isDark ? Colors.white : const Color(0xFF1C1C1E);
     final subtitleColor = isDark ? const Color(0xFFBBBBBB) : const Color(0xFF444446);
 
@@ -112,7 +112,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.amber.withOpacity(0.15),
+                      color: Colors.amber.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -268,11 +268,11 @@ class _CampaignScreenState extends State<CampaignScreen> {
                           decoration: InputDecoration(
                             hintText: 'KVDX9K2',
                             hintStyle: TextStyle(
-                              color: subtitleColor.withOpacity(0.5),
+                              color: subtitleColor.withValues(alpha: 0.5),
                               letterSpacing: 1.5,
                             ),
                             filled: true,
-                            fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
+                            fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
@@ -333,7 +333,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
           height: 24,
           margin: const EdgeInsets.only(top: 2),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.1) : Colors.black.withOpacity(0.05),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
             shape: BoxShape.circle,
           ),
           child: Center(

@@ -2,7 +2,6 @@ import 'dart:async';
 // PERFORMANCE: dart:isolate importı kaldırıldı (kullanılmıyordu)
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import '../models/word_model.dart';
 import '../models/quran_word_model.dart';
 import '../services/gemini_service.dart';
@@ -17,7 +16,6 @@ import '../widgets/word_card.dart';
 import '../widgets/search_result_card.dart';
 import '../widgets/quran_word_card.dart';
 import '../widgets/arabic_keyboard.dart';
-import '../widgets/banner_ad_widget.dart';
 import '../utils/performance_utils.dart';
 import '../utils/quran_mode_notifier.dart';
 import '../services/admob_service.dart';
@@ -38,9 +36,6 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../services/language_service.dart';
 import '../widgets/campaign_banner.dart';
 import '../services/global_config_service.dart';
-import '../services/purchase_manager.dart';
-import '../services/promo_code_service.dart';
-import 'package:provider/provider.dart';
 
 // Arka planda arama sonuçlarını sıralama fonksiyonu kaldırıldı
 // Artık DatabaseService.searchWords() zaten doğru sıralamayı yapıyor
@@ -94,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen>
   OverlayEntry? _tapHintOverlay;
   bool _didAutoOpenKeyboard = false; // Bir kez klavye açıldı mı?
   String _lastSearchText = ''; // Son arama metnini takip et
-  String _normalSearchText = ''; // Normal sözlükteki son arama
-  String _quranSearchText = ''; // Kuran sözlüğündeki son arama
+  final String _normalSearchText = ''; // Normal sözlükteki son arama
+  final String _quranSearchText = ''; // Kuran sözlüğündeki son arama
   bool _hasInternet = true; // İnternet bağlantısı var mı?
   bool _scrollDebounce = false; // Scroll başlangıcını throttle et
   bool _prewarmPending =
@@ -116,7 +111,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool _speechEnabled = false;
   bool _isListening = false;
 
-  int _aiSearchClickCount = 0;
+  final int _aiSearchClickCount = 0;
   final AdMobService _adMobService = AdMobService();
   final ReviewService _reviewService = ReviewService();
   final ConnectivityService _connectivityService = ConnectivityService();
@@ -134,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen>
   bool _hasShownTapHint = false;
   bool get _debugAlwaysShowHint => kDebugMode;
 
+  @override
   bool get wantKeepAlive =>
       true; // Keep alive açık: sekmeler arası geçişte state korunsun
 
@@ -280,8 +276,10 @@ class _HomeScreenState extends State<HomeScreen>
         }
       },
       localeId: 'ar_SA', // Arapça olarak algıla
-      cancelOnError: true,
-      partialResults: true,
+      listenOptions: SpeechListenOptions(
+        cancelOnError: true,
+        partialResults: true,
+      ),
     );
     setState(() => _isListening = true);
   }
@@ -399,8 +397,9 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted ||
           ((!_debugAlwaysShowHint && _hasShownTapHint) ||
-              _tapHintOverlay != null))
+              _tapHintOverlay != null)) {
         return;
+      }
 
       final isDark = widget.isDarkMode;
       _tapHintOverlay = OverlayEntry(
@@ -999,7 +998,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SnackBar(
             content: Text('Sözlük güncellenirken hata oluştu!'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
       }
@@ -1475,7 +1474,7 @@ class _HomeScreenState extends State<HomeScreen>
 
     return PopScope(
       canPop: !_showArabicKeyboard, // Arapça klavye açıkken çıkışı engelle
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, _) {
         if (_showArabicKeyboard && !didPop) {
           // Arapça klavye açıkken geri tuşuna basıldığında klavyeyi kapat
           setState(() {
@@ -2023,8 +2022,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                       child: InkWell(
                                                         onTap: () {
                                                           if (_isQuranMode &&
-                                                              _isQuranUsageExceeded)
+                                                              _isQuranUsageExceeded) {
                                                             return;
+                                                          }
 
                                                           if (_isListening) {
                                                             _stopListening();
@@ -2308,7 +2308,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 activeColor = widget.isDarkMode
                                                     ? const Color(
                                                         0xFF007AFF,
-                                                      ).withOpacity(0.8)
+                                                      ).withValues(alpha: 0.8)
                                                     : const Color(0xFF007AFF);
                                               }
 
@@ -2338,7 +2338,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                         boxShadow: [
                                                           BoxShadow(
                                                             color: activeColor
-                                                                .withOpacity(
+                                                                .withValues(alpha: 
                                                                   0.3,
                                                                 ),
                                                             blurRadius: 4,
@@ -2567,7 +2567,7 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFFFD700).withOpacity(0.4),
+                            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
                             blurRadius: 8,
                             spreadRadius: 0,
                             offset: const Offset(0, 2),
@@ -2702,7 +2702,7 @@ class _HomeScreenState extends State<HomeScreen>
                   decoration: BoxDecoration(
                     color: const Color(
                       0xFF007AFF,
-                    ).withOpacity(isDarkMode ? 0.18 : 0.1),
+                    ).withValues(alpha: isDarkMode ? 0.18 : 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -2914,7 +2914,7 @@ class _HomeScreenState extends State<HomeScreen>
                       Icon(
                         Icons.search_off_rounded,
                         size: 48,
-                        color: const Color(0xFFB8D4A0).withOpacity(0.5),
+                        color: const Color(0xFFB8D4A0).withValues(alpha: 0.5),
                       ),
                       const SizedBox(height: 12),
                       Text(
@@ -2922,7 +2922,7 @@ class _HomeScreenState extends State<HomeScreen>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: const Color(0xFFB8D4A0).withOpacity(0.7),
+                          color: const Color(0xFFB8D4A0).withValues(alpha: 0.7),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -2930,7 +2930,7 @@ class _HomeScreenState extends State<HomeScreen>
                         'Farklı bir kelime veya kök ile aramayı deneyin',
                         style: TextStyle(
                           fontSize: 13,
-                          color: const Color(0xFFB8D4A0).withOpacity(0.5),
+                          color: const Color(0xFFB8D4A0).withValues(alpha: 0.5),
                         ),
                       ),
                     ],
@@ -2960,8 +2960,9 @@ class _HomeScreenState extends State<HomeScreen>
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  if (index >= groupedResults.length)
+                  if (index >= groupedResults.length) {
                     return const SizedBox.shrink();
+                  }
                   final item = groupedResults[index];
                   if (item is _MatchHeaderItem) {
                     return Padding(
@@ -3035,7 +3036,7 @@ class _HomeScreenState extends State<HomeScreen>
                       size: 48,
                       color: widget.isDarkMode
                           ? Colors.white24
-                          : const Color(0xFF8E8E93).withOpacity(0.5),
+                          : const Color(0xFF8E8E93).withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -3096,15 +3097,15 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         decoration: BoxDecoration(
                           color: widget.isDarkMode
-                              ? const Color(0xFF2D4720).withOpacity(0.1)
+                              ? const Color(0xFF2D4720).withValues(alpha: 0.1)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: const Color(0xFF4A5729).withOpacity(0.2),
+                            color: const Color(0xFF4A5729).withValues(alpha: 0.2),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 15,
                               offset: const Offset(0, 5),
                             ),
@@ -3115,7 +3116,7 @@ class _HomeScreenState extends State<HomeScreen>
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4A5729).withOpacity(0.1),
+                                color: const Color(0xFF4A5729).withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -3154,13 +3155,13 @@ class _HomeScreenState extends State<HomeScreen>
                         padding: const EdgeInsets.all(22),
                         decoration: BoxDecoration(
                           color: widget.isDarkMode
-                              ? const Color(0xFF2D4720).withOpacity(0.12)
-                              : const Color(0xFF4A5729).withOpacity(0.04),
+                              ? const Color(0xFF2D4720).withValues(alpha: 0.12)
+                              : const Color(0xFF4A5729).withValues(alpha: 0.04),
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: widget.isDarkMode
-                                ? const Color(0xFF4A5729).withOpacity(0.25)
-                                : const Color(0xFF4A5729).withOpacity(0.08),
+                                ? const Color(0xFF4A5729).withValues(alpha: 0.25)
+                                : const Color(0xFF4A5729).withValues(alpha: 0.08),
                           ),
                         ),
                         child: Stack(
@@ -3274,7 +3275,7 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -3300,7 +3301,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           Icon(
                             Icons.chevron_right_rounded,
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                           ),
                         ],
                       ),
@@ -3325,12 +3326,14 @@ class _HomeScreenState extends State<HomeScreen>
                     listenable: GlobalConfigService(),
                     builder: (context, _) {
                       final globalConfig = GlobalConfigService();
-                      if (!globalConfig.campaignEnabled)
+                      if (!globalConfig.campaignEnabled) {
                         return const SizedBox.shrink();
+                      }
 
                       // PurchaseManager'daki hazır state'i kullan (Gecikmesiz/Flashsız)
-                      if (_creditsService.hasUsedPromo)
+                      if (_creditsService.hasUsedPromo) {
                         return const SizedBox.shrink();
+                      }
 
                       return CampaignBanner(isDarkMode: widget.isDarkMode);
                     },
@@ -3339,13 +3342,13 @@ class _HomeScreenState extends State<HomeScreen>
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     color: widget.isDarkMode
-                        ? Colors.white.withOpacity(0.03)
-                        : Colors.black.withOpacity(0.02),
+                        ? Colors.white.withValues(alpha: 0.03)
+                        : Colors.black.withValues(alpha: 0.02),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: widget.isDarkMode
-                          ? Colors.white.withOpacity(0.08)
-                          : Colors.black.withOpacity(0.05),
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.05),
                     ),
                   ),
                   child: Column(
@@ -3481,7 +3484,7 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0D47A1).withOpacity(0.3),
+                            color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -3492,7 +3495,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -3541,8 +3544,8 @@ class _HomeScreenState extends State<HomeScreen>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? const Color(0xFF8BC34A).withOpacity(0.1)
-                : const Color(0xFF4A5729).withOpacity(0.05),
+                ? const Color(0xFF8BC34A).withValues(alpha: 0.1)
+                : const Color(0xFF4A5729).withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(

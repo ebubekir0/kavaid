@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../screens/campaign_screen.dart';
-import '../services/auth_service.dart';
-import '../services/language_service.dart';
 
 /// Sözlük ana sayfasında gösterilen kampanya banner widget'ı.
 /// Non-premium kullanıcılara ve kampanya aktifken gösterilir.
@@ -65,7 +62,7 @@ class _CampaignBannerState extends State<CampaignBanner> with SingleTickerProvid
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0D47A1).withOpacity(0.3),
+              color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -76,7 +73,7 @@ class _CampaignBannerState extends State<CampaignBanner> with SingleTickerProvid
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 20),

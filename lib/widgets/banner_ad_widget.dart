@@ -7,10 +7,10 @@ class BannerAdWidget extends StatelessWidget {
   final String? stableKey;
 
   const BannerAdWidget({
-    Key? key,
+    super.key,
     required this.onAdHeightChanged,
     this.stableKey,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

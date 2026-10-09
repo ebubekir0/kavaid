@@ -35,7 +35,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
   int _selectedIndex = 0; 
   double _fontSize = 19.0; // Default: 19
 
-  String _selectedFont = 'Scheherazade New';
+  final String _selectedFont = 'Scheherazade New';
   final List<String> _arabicFonts = [
     'Scheherazade New',
     'Noto Naskh Arabic',
@@ -254,7 +254,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                        Text("Harekeleri Göster", style: TextStyle(fontSize: 16, color: textColor)),
                        Switch(
                          value: _showDiacritics,
-                         activeColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
+                         activeThumbColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
                          onChanged: (val) {
                            setState(() => _showDiacritics = val);
                            setModalState(() {});
@@ -269,7 +269,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                        Text("Dokununca Oku", style: TextStyle(fontSize: 16, color: textColor)),
                        Switch(
                          value: _autoReadOnTap,
-                         activeColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
+                         activeThumbColor: isDark ? const Color(0xFF64B5F6) : const Color(0xFF1976D2),
                          onChanged: (val) {
                            setState(() => _autoReadOnTap = val);
                            setModalState(() {});
@@ -315,7 +315,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, _) async {
         if (didPop) {
           _stopAutoPlay();
           _ttsService.stop();
@@ -339,7 +339,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                               "Kitap içeriği hazırlanıyor...",
                               style: GoogleFonts.outfit(
                                 fontSize: 16,
-                                color: textColor.withOpacity(0.8),
+                                color: textColor.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -389,7 +389,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: textColor.withOpacity(0.08),
+                                      color: textColor.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 18),
@@ -420,7 +420,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.08),
+                                    color: Colors.black.withValues(alpha: 0.08),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
@@ -465,7 +465,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                     color: barBgColor, 
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                     border: Border(
-                      top: BorderSide(color: primaryBlue.withOpacity(0.5), width: 1.2),
+                      top: BorderSide(color: primaryBlue.withValues(alpha: 0.5), width: 1.2),
                     ),
                   ),
                   padding: EdgeInsets.fromLTRB(20, 10, 20, MediaQuery.of(context).padding.bottom + 10),
@@ -478,7 +478,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                         decoration: BoxDecoration(
                           color: isDarkMode ? Colors.white10 : Colors.grey[200],
                           borderRadius: BorderRadius.circular(30),
-                          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -500,7 +500,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                 padding: const EdgeInsets.all(8.0),
                                 child: Icon(
                                   _currentVolume == 0 ? Icons.volume_off_rounded : Icons.volume_up_rounded, 
-                                  color: textColor.withOpacity(0.8),
+                                  color: textColor.withValues(alpha: 0.8),
                                   size: 22,
                                 ),
                               ),
@@ -516,7 +516,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: primaryBlue.withOpacity(0.3),
+                                        color: primaryBlue.withValues(alpha: 0.3),
                                         blurRadius: 6,
                                         offset: const Offset(0, 2),
                                       ),
@@ -535,7 +535,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                               borderRadius: BorderRadius.circular(20),
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Icon(Icons.settings_rounded, color: textColor.withOpacity(0.8), size: 22),
+                                child: Icon(Icons.settings_rounded, color: textColor.withValues(alpha: 0.8), size: 22),
                               ),
                             ),
                           ],
@@ -559,10 +559,10 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: textColor.withOpacity(0.05),
+          color: textColor.withValues(alpha: 0.05),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: textColor.withOpacity(0.8), size: 24),
+        child: Icon(icon, color: textColor.withValues(alpha: 0.8), size: 24),
       ),
     );
   }
@@ -595,7 +595,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
               height: 2.5,
               fontWeight: FontWeight.normal,
               color: textColor,
-              backgroundColor: isSelected ? accentColor.withOpacity(0.2) : Colors.transparent,
+              backgroundColor: isSelected ? accentColor.withValues(alpha: 0.2) : Colors.transparent,
           ),
           recognizer: TapGestureRecognizer()
             ..onTap = () => _onWordTap(i),
@@ -646,7 +646,7 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
                                 borderRadius: BorderRadius.circular(10),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withValues(alpha: 0.2),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),

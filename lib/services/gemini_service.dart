@@ -161,7 +161,7 @@ fiilCekimler (object): Fiilse çekimler.
       debugPrint('   First Ad Delay: $_firstAdDelaySeconds saniye');
     } catch (e) {
       debugPrint('❌ Firebase config validation hatası: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -374,7 +374,7 @@ fiilCekimler (object): Fiilse çekimler.
       }
     } catch (e) {
       debugPrint('❌ Firebase config oluşturma hatası: $e');
-      throw e;
+      rethrow;
     }
   }
 

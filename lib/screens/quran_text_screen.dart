@@ -197,8 +197,8 @@ class _QuranTextScreenState extends State<QuranTextScreen> {
                             end: Alignment.topCenter,
                             colors: [
                               bgColor,
-                              bgColor.withOpacity(0.9),
-                              bgColor.withOpacity(0.0),
+                              bgColor.withValues(alpha: 0.9),
+                              bgColor.withValues(alpha: 0.0),
                             ],
                           ),
                         ),

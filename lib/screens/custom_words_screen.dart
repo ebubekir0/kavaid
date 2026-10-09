@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemUiOverlayStyle;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:ui' as ui;
-import 'dart:convert';
 import 'dart:async';
 
 import '../models/custom_word.dart';
@@ -15,7 +12,6 @@ import '../services/tts_service.dart';
 import '../services/community_chat_service.dart';
 import '../services/purchase_manager.dart';
 import '../services/language_service.dart';
-import 'dart:math' as math;
 import 'subscription_screen.dart';
 
 /// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
@@ -131,7 +127,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D47A1).withOpacity(0.1),
+                  color: const Color(0xFF0D47A1).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -534,8 +530,8 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         boxShadow: [
           BoxShadow(
             color: isDark
-                ? Colors.black.withOpacity(0.2)
-                : Colors.black.withOpacity(0.06),
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -1090,7 +1086,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
             return Material(
               elevation: 8,
               color: Colors.transparent,
-              shadowColor: Colors.black.withOpacity(0.2),
+              shadowColor: Colors.black.withValues(alpha: 0.2),
               child: child,
             );
           },
@@ -1221,7 +1217,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF0D47A1).withOpacity(0.4),
+                              color: const Color(0xFF0D47A1).withValues(alpha: 0.4),
                               blurRadius: 25,
                               offset: const Offset(0, 12),
                             ),
@@ -1238,7 +1234,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                 height: 150,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white.withOpacity(0.05),
+                                  color: Colors.white.withValues(alpha: 0.05),
                                 ),
                               ),
                             ),
@@ -1251,7 +1247,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                 height: 100,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white.withOpacity(0.03),
+                                  color: Colors.white.withValues(alpha: 0.03),
                                 ),
                               ),
                             ),
@@ -1264,10 +1260,10 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(18),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.15),
+                                      color: Colors.white.withValues(alpha: 0.15),
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color: Colors.white.withValues(alpha: 0.2),
                                         width: 2,
                                       ),
                                     ),
@@ -1290,7 +1286,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                       style: TextStyle(
                                         fontSize: 20, // Font boyutu büyütüldü
                                         fontWeight: FontWeight.bold, // Kalın yapıldı
-                                        color: Colors.white.withOpacity(0.95),
+                                        color: Colors.white.withValues(alpha: 0.95),
                                         height: 1.4,
                                       ),
                                     ),
@@ -1302,7 +1298,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.2),
+                                          color: Colors.black.withValues(alpha: 0.2),
                                           blurRadius: 10,
                                           offset: const Offset(0, 4),
                                         ),
@@ -1365,8 +1361,8 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: isDarkMode
-                                ? Colors.black.withOpacity(0.35)
-                                : Colors.black.withOpacity(0.08),
+                                ? Colors.black.withValues(alpha: 0.35)
+                                : Colors.black.withValues(alpha: 0.08),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -1384,7 +1380,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                               },
                               icon: Icon(
                                 Icons.volume_up_rounded,
-                                color: subTextColor.withOpacity(0.7),
+                                color: subTextColor.withValues(alpha: 0.7),
                                 size: 28,
                               ),
                               tooltip: LanguageService().isEnglish ? 'Listen' : (LanguageService().isArabic ? 'استمع' : 'Dinle'),
@@ -1430,40 +1426,40 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                 List<dynamic>? ornekler;
                                 
                                 // Debug: wordData içeriğini kontrol et
-                                print('🔍 CustomWord wordData: ${word.wordData}');
-                                print('🔍 CustomWord wordData ornekCumleler: ${word.wordData?['ornekCumleler']}');
+                                debugPrint('🔍 CustomWord wordData: ${word.wordData}');
+                                debugPrint('🔍 CustomWord wordData ornekCumleler: ${word.wordData?['ornekCumleler']}');
                                 
                                 // Önce wordData'dan dene
                                 if (word.wordData != null && word.wordData!['ornekCumleler'] != null) {
                                   ornekler = word.wordData!['ornekCumleler'] as List<dynamic>?;
-                                  print('✅ ornekler wordData\'dan alındı: $ornekler');
+                                  debugPrint('✅ ornekler wordData\'dan alındı: $ornekler');
                                 }
                                 
                                 // Eğer yoksa toWordModel() ile dene
                                 if (ornekler == null || ornekler.isEmpty) {
                                   final wordModel = word.toWordModel();
                                   ornekler = wordModel.ornekCumleler;
-                                  print('⚠️ ornekler toWordModel()\'dan alındı: $ornekler');
+                                  debugPrint('⚠️ ornekler toWordModel()\'dan alındı: $ornekler');
                                 }
                                 
                                 if (ornekler == null || ornekler.isEmpty) {
-                                  print('❌ Örnek cümle bulunamadı');
+                                  debugPrint('❌ Örnek cümle bulunamadı');
                                   return const SizedBox.shrink();
                                 }
                                 
                                 final ornek = ornekler[0];
-                                print('📖 İlk örnek: $ornek');
+                                debugPrint('📖 İlk örnek: $ornek');
                                 
                                 if (ornek is! Map<String, dynamic>) {
-                                  print('❌ Örnek Map değil: ${ornek.runtimeType}');
+                                  debugPrint('❌ Örnek Map değil: ${ornek.runtimeType}');
                                   return const SizedBox.shrink();
                                 }
                                 
                                 // Farklı format desteği (arapcaCümle vs arapcaCumle, turkceAnlam vs turkceCeviri)
                                 final arapcaCumle = (ornek['arapcaCumle'] ?? ornek['arapcaCümle'] ?? ornek['arapca'] ?? '').toString();
                                 final turkceCeviri = (ornek['turkceCeviri'] ?? ornek['turkceAnlam'] ?? ornek['turkce'] ?? '').toString();
-                                print('📝 arapcaCumle: $arapcaCumle');
-                                print('📝 turkceCeviri: $turkceCeviri');
+                                debugPrint('📝 arapcaCumle: $arapcaCumle');
+                                debugPrint('📝 turkceCeviri: $turkceCeviri');
                                 
                                 // Dinamik font boyutu - uzun cümleler için küçültme
                                 final double fontSize = arapcaCumle.length > 90 ? 17 : (arapcaCumle.length > 50 ? 19 : 21);
@@ -1476,13 +1472,13 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                                   decoration: BoxDecoration(
                                     color: isDarkMode 
-                                        ? Colors.white.withOpacity(0.03)
-                                        : Colors.black.withOpacity(0.025),
+                                        ? Colors.white.withValues(alpha: 0.03)
+                                        : Colors.black.withValues(alpha: 0.025),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: isDarkMode 
-                                          ? Colors.white.withOpacity(0.1)
-                                          : Colors.black.withOpacity(0.05),
+                                          ? Colors.white.withValues(alpha: 0.1)
+                                          : Colors.black.withValues(alpha: 0.05),
                                       width: 1,
                                     ),
                                   ),
@@ -1497,7 +1493,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                         style: GoogleFonts.scheherazadeNew(
                                           fontSize: fontSize,
                                           fontWeight: FontWeight.w600,
-                                          color: textColor.withOpacity(0.85),
+                                          color: textColor.withValues(alpha: 0.85),
                                           height: 1.5,
                                         ),
                                       ),
@@ -1547,7 +1543,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -1611,7 +1607,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                           activeTrackColor: const Color(0xFF007AFF),
                           inactiveTrackColor: isDarkMode ? const Color(0xFF3A3A3C) : const Color(0xFFE5E5EA),
                           thumbColor: const Color(0xFF007AFF),
-                          overlayColor: const Color(0xFF007AFF).withOpacity(0.2),
+                          overlayColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
                           trackShape: const RoundedRectSliderTrackShape(),
                         ),
                         child: Slider(

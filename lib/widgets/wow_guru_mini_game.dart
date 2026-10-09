@@ -6,7 +6,7 @@ import '../data/embedded_words.dart';
 
 class WowGuruMiniGame extends StatefulWidget {
   final bool isDarkMode;
-  const WowGuruMiniGame({Key? key, required this.isDarkMode}) : super(key: key);
+  const WowGuruMiniGame({super.key, required this.isDarkMode});
 
   @override
   State<WowGuruMiniGame> createState() => _WowGuruMiniGameState();
@@ -217,11 +217,11 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                     ),
                   ],
@@ -253,11 +253,11 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                     ),
                   ],
@@ -303,14 +303,14 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF5E35B1).withOpacity(0.3),
+                color: const Color(0xFF5E35B1).withValues(alpha: 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 8),
               ),
               BoxShadow(
                 color: widget.isDarkMode
-                    ? Colors.white.withOpacity(0.05)
-                    : Colors.white.withOpacity(0.5),
+                    ? Colors.white.withValues(alpha: 0.05)
+                    : Colors.white.withValues(alpha: 0.5),
                 blurRadius: 2,
                 offset: const Offset(0, -1), // Subtle inner light
               ),
@@ -353,8 +353,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                   letterToShow = _letters[_selectedIndices[index]];
                 }
 
-                Color boxColor = Colors.white.withOpacity(0.9);
-                Color borderColor = Colors.white.withOpacity(0.3);
+                Color boxColor = Colors.white.withValues(alpha: 0.9);
+                Color borderColor = Colors.white.withValues(alpha: 0.3);
 
                 if (_isSuccess) {
                   boxColor = const Color(0xFF4CAF50);
@@ -379,7 +379,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                     boxShadow: [
                       if (letterToShow.isNotEmpty)
                         BoxShadow(
-                          color: boxColor.withOpacity(0.4),
+                          color: boxColor.withValues(alpha: 0.4),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -432,7 +432,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -519,7 +519,7 @@ class _LinePainter extends CustomPainter {
     if (selectedIndices.isEmpty) return;
 
     final paint = Paint()
-      ..color = pathColor.withOpacity(0.8)
+      ..color = pathColor.withValues(alpha: 0.8)
       ..strokeWidth = 12.0
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round

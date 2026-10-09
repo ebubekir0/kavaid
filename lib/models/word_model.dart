@@ -111,16 +111,16 @@ class WordModel {
       for (final item in value) {
         if (item is Map) {
           final mapItem = <String, dynamic>{};
-          (item as Map<dynamic, dynamic>).forEach((k, v) {
+          (item).forEach((k, v) {
             if (k != null) {
               mapItem[k.toString()] = v;
             }
           });
           // Debug: Dönüşen map'i kontrol et
           if (mapItem.containsKey('arapcaCumle') || mapItem.containsKey('turkceCeviri')) {
-            print(' OrnekCumle Map Dönüştürüldü: ');
-            print('   arapcaCumle: ${mapItem['arapcaCumle'] ?? "NULL"}');
-            print('   turkceCeviri: ${mapItem['turkceCeviri'] ?? "NULL"}'); 
+            debugPrint(' OrnekCumle Map Dönüştürüldü: ');
+            debugPrint('   arapcaCumle: ${mapItem['arapcaCumle'] ?? "NULL"}');
+            debugPrint('   turkceCeviri: ${mapItem['turkceCeviri'] ?? "NULL"}'); 
           }
           result.add(mapItem);
         }

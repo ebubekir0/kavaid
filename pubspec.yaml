@@ -101,6 +101,9 @@ dependencies:
   audioplayers: ^6.5.1
   crypto: ^3.0.7
 
+  # Özel kelime/liste kimlikleri (custom_word_service)
+  uuid: ^4.5.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -118,6 +121,9 @@ dev_dependencies:
   # JSON Serialization Build Runner
   build_runner: ^2.4.13
   json_serializable: ^6.8.0
+
+  # tool/download_book_audio.dart (Google TTS ile kitap sesleri)
+  googleapis_auth: ^2.0.0
 
 # Flutter Launcher Icons configuration to regenerate iOS icons without alpha channel
 flutter_launcher_icons:

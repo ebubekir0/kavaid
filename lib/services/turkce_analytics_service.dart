@@ -52,7 +52,7 @@ class TurkceAnalyticsService {
           'kelime_uzunluk': kelime.length,
         },
       );
-      debugPrint('📊 [Analytics] Kelime arandı: $kelime (${sonucSayisi} sonuç)');
+      debugPrint('📊 [Analytics] Kelime arandı: $kelime ($sonucSayisi sonuç)');
     } catch (e) {
       debugPrint('❌ [Analytics] Kelime arama hatası: $e');
     }
@@ -198,7 +198,7 @@ class TurkceAnalyticsService {
           'sonuc_sayisi': sonucSayisi,
         },
       );
-      debugPrint('📊 [Analytics] Kayıtlı kelimelerde arama: $aramaKelime (${sonucSayisi} sonuç)');
+      debugPrint('📊 [Analytics] Kayıtlı kelimelerde arama: $aramaKelime ($sonucSayisi sonuç)');
     } catch (e) {
       debugPrint('❌ [Analytics] Kayıtlı kelime arama hatası: $e');
     }

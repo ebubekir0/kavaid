@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -31,10 +32,10 @@ class MessageTrackingService {
           'userEmail': currentUser.email,
         });
 
-        print('👁️ [MessageTracking] Mesaj okundu: $messageId by ${currentUser.uid}');
+        debugPrint('👁️ [MessageTracking] Mesaj okundu: $messageId by ${currentUser.uid}');
       }
     } catch (e) {
-      print('❌ [MessageTracking] Mesaj okuma kayıt hatası: $e');
+      debugPrint('❌ [MessageTracking] Mesaj okuma kayıt hatası: $e');
     }
   }
 
@@ -48,7 +49,7 @@ class MessageTrackingService {
       
       return snapshot.docs.length;
     } catch (e) {
-      print('❌ [MessageTracking] Okuma sayısı alma hatası: $e');
+      debugPrint('❌ [MessageTracking] Okuma sayısı alma hatası: $e');
       return 0;
     }
   }
@@ -71,7 +72,7 @@ class MessageTrackingService {
         };
       }).toList();
     } catch (e) {
-      print('❌ [MessageTracking] Okuyucu listesi alma hatası: $e');
+      debugPrint('❌ [MessageTracking] Okuyucu listesi alma hatası: $e');
       return [];
     }
   }
@@ -95,7 +96,7 @@ class MessageTrackingService {
 
       return readCounts;
     } catch (e) {
-      print('❌ [MessageTracking] Kullanıcı mesaj okuma sayıları alma hatası: $e');
+      debugPrint('❌ [MessageTracking] Kullanıcı mesaj okuma sayıları alma hatası: $e');
       return {};
     }
   }
@@ -132,7 +133,7 @@ class MessageTrackingService {
 
       return totalMessages - readMessages;
     } catch (e) {
-      print('❌ [MessageTracking] Okunmamış mesaj sayısı alma hatası: $e');
+      debugPrint('❌ [MessageTracking] Okunmamış mesaj sayısı alma hatası: $e');
       return 0;
     }
   }
@@ -147,7 +148,7 @@ class MessageTrackingService {
         'lastSeen': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print('❌ [MessageTracking] Son görülme güncelleme hatası: $e');
+      debugPrint('❌ [MessageTracking] Son görülme güncelleme hatası: $e');
     }
   }
 
@@ -162,9 +163,9 @@ class MessageTrackingService {
         'usernameSetAt': FieldValue.serverTimestamp(),
       });
 
-      print('🏷️ [MessageTracking] Kullanıcı adı kaydedildi: $username');
+      debugPrint('🏷️ [MessageTracking] Kullanıcı adı kaydedildi: $username');
     } catch (e) {
-      print('❌ [MessageTracking] Kullanıcı adı kayıt hatası: $e');
+      debugPrint('❌ [MessageTracking] Kullanıcı adı kayıt hatası: $e');
     }
   }
 }

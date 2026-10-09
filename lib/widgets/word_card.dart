@@ -90,8 +90,8 @@ class _WordCardState extends State<WordCard> {
                   boxShadow: PerformanceUtils.enableShadows ? [
                     BoxShadow(
                       color: isDarkMode 
-                          ? Colors.black.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.05),
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.05),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -134,7 +134,7 @@ class _WordCardState extends State<WordCard> {
         await service.saveWord(widget.word);
       }
     } catch (e) {
-      print('Toggle saved error: $e');
+      debugPrint('Toggle saved error: $e');
     }
   }
   
@@ -469,8 +469,8 @@ class _WordCardState extends State<WordCard> {
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             color: isDarkMode 
-                ? const Color(0xFF007AFF).withOpacity(0.1)
-                : const Color(0xFF007AFF).withOpacity(0.08),
+                ? const Color(0xFF007AFF).withValues(alpha: 0.1)
+                : const Color(0xFF007AFF).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -494,13 +494,13 @@ class _WordCardState extends State<WordCard> {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isDarkMode 
-                  ? const Color(0xFF1C1C1E).withOpacity(0.5)
+                  ? const Color(0xFF1C1C1E).withValues(alpha: 0.5)
                   : const Color(0xFFF2F2F7),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: isDarkMode 
-                    ? const Color(0xFF3A3A3C).withOpacity(0.5)
-                    : const Color(0xFFE5E5EA).withOpacity(0.5),
+                    ? const Color(0xFF3A3A3C).withValues(alpha: 0.5)
+                    : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
                 width: 0.5,
               ),
             ),
@@ -514,7 +514,7 @@ class _WordCardState extends State<WordCard> {
                   textDirection: TextDirection.rtl,
                   style: _exampleArabicTextStyle.copyWith(
                     color: isDarkMode 
-                        ? Colors.white.withOpacity(0.9)
+                        ? Colors.white.withValues(alpha: 0.9)
                         : const Color(0xFF1C1C1E),
                   ),
                 ),
@@ -569,7 +569,7 @@ class _FeatureChips extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
           decoration: BoxDecoration(
             color: isDarkMode 
-                ? const Color(0xFF3A3A3C).withOpacity(0.8)
+                ? const Color(0xFF3A3A3C).withValues(alpha: 0.8)
                 : const Color(0xFFE8F0FF), // Daha mavi tonlu chip arka planı
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
@@ -581,12 +581,12 @@ class _FeatureChips extends StatelessWidget {
             boxShadow: [
               if (!isDarkMode) ...[
                 BoxShadow(
-                  color: const Color(0xFF007AFF).withOpacity(0.05), // Mavi gölge
+                  color: const Color(0xFF007AFF).withValues(alpha: 0.05), // Mavi gölge
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   blurRadius: 1,
                   offset: const Offset(0, -0.5),
                 ),

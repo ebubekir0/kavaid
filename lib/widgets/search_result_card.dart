@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'emsile_bottom_sheet.dart';
 import '../utils/dictionary_mode_notifier.dart';
 import 'dart:ui' as ui;
 import '../models/word_model.dart';
@@ -13,10 +12,8 @@ import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:path_provider/path_provider.dart';
 import '../services/custom_word_service.dart'; // Import for custom lists
 import '../services/emsile_database_service.dart';
@@ -114,7 +111,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
   Animation<double>? _expandAnimation;
-  bool _animationInitialized = false;
+  final bool _animationInitialized = false;
   Future<Map<String, dynamic>?>? _emsileLookupFuture;
   String? _emsileLookupMazi;
   Timer? _savedStatusTimer;
@@ -847,11 +844,11 @@ class _SearchResultCardState extends State<SearchResultCard>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? fg.withOpacity(0.12)
-                : const Color(0xFF007AFF).withOpacity(0.08),
+                ? fg.withValues(alpha: 0.12)
+                : const Color(0xFF007AFF).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isDarkMode ? fg.withOpacity(0.35) : fg.withOpacity(0.22),
+              color: isDarkMode ? fg.withValues(alpha: 0.35) : fg.withValues(alpha: 0.22),
             ),
           ),
           child: Row(
@@ -893,11 +890,11 @@ class _SearchResultCardState extends State<SearchResultCard>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? fg.withOpacity(0.12)
-                : const Color(0xFF007AFF).withOpacity(0.08),
+                ? fg.withValues(alpha: 0.12)
+                : const Color(0xFF007AFF).withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: isDarkMode ? fg.withOpacity(0.35) : fg.withOpacity(0.22),
+              color: isDarkMode ? fg.withValues(alpha: 0.35) : fg.withValues(alpha: 0.22),
             ),
           ),
           child: Row(
@@ -933,30 +930,30 @@ class _SearchResultCardState extends State<SearchResultCard>
       typeText = widget.word.tip;
     }
 
-    if (typeText != null && typeText!.trim().isNotEmpty) {
+    if (typeText != null && typeText.trim().isNotEmpty) {
       chips.add(
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? const Color(0xFF007AFF).withOpacity(0.2)
-                : const Color(0xFF007AFF).withOpacity(0.12),
+                ? const Color(0xFF007AFF).withValues(alpha: 0.2)
+                : const Color(0xFF007AFF).withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: isDarkMode
-                  ? const Color(0xFF007AFF).withOpacity(0.3)
-                  : const Color(0xFF007AFF).withOpacity(0.2),
+                  ? const Color(0xFF007AFF).withValues(alpha: 0.3)
+                  : const Color(0xFF007AFF).withValues(alpha: 0.2),
               width: 0.5,
             ),
           ),
           child: Text(
-            typeText!,
+            typeText,
             style: GoogleFonts.inter(
               fontSize: 9.5,
               fontWeight: FontWeight.w600,
               color: isDarkMode
                   ? const Color(0xFF007AFF)
-                  : const Color(0xFF007AFF).withOpacity(0.9),
+                  : const Color(0xFF007AFF).withValues(alpha: 0.9),
               letterSpacing: 0.2,
             ),
           ),
@@ -980,10 +977,10 @@ class _SearchResultCardState extends State<SearchResultCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: blue.withOpacity(isDarkMode ? 0.14 : 0.08),
+        color: blue.withValues(alpha: isDarkMode ? 0.14 : 0.08),
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: blue.withOpacity(isDarkMode ? 0.28 : 0.18),
+          color: blue.withValues(alpha: isDarkMode ? 0.28 : 0.18),
           width: 0.5,
         ),
       ),
@@ -995,7 +992,7 @@ class _SearchResultCardState extends State<SearchResultCard>
             style: GoogleFonts.inter(
               fontSize: 9.5,
               fontWeight: FontWeight.w600,
-              color: blue.withOpacity(0.85),
+              color: blue.withValues(alpha: 0.85),
               letterSpacing: 0.2,
             ),
           ),
@@ -1089,7 +1086,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                     colors: isDarkMode
                         ? [
                             const Color(0xFF2C2C2E),
-                            const Color(0xFF2C2C2E).withOpacity(0.8),
+                            const Color(0xFF2C2C2E).withValues(alpha: 0.8),
                           ]
                         : [const Color(0xFFF8F9FA), const Color(0xFFF2F3F5)],
                     begin: Alignment.topLeft,
@@ -1098,7 +1095,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isDarkMode
-                        ? const Color(0xFF48484A).withOpacity(0.5)
+                        ? const Color(0xFF48484A).withValues(alpha: 0.5)
                         : const Color(0xFFD0D0D0),
                     width: 0.8,
                   ),
@@ -1115,8 +1112,8 @@ class _SearchResultCardState extends State<SearchResultCard>
                         ),
                         decoration: BoxDecoration(
                           color: isDarkMode
-                              ? const Color(0xFF8E8E93).withOpacity(0.2)
-                              : const Color(0xFF007AFF).withOpacity(0.08),
+                              ? const Color(0xFF8E8E93).withValues(alpha: 0.2)
+                              : const Color(0xFF007AFF).withValues(alpha: 0.08),
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(9),
                             bottomRight: Radius.circular(6),
@@ -1131,7 +1128,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                             fontWeight: FontWeight.w600,
                             color: isDarkMode
                                 ? const Color(0xFF8E8E93)
-                                : const Color(0xFF007AFF).withOpacity(0.8),
+                                : const Color(0xFF007AFF).withValues(alpha: 0.8),
                             letterSpacing: 0.3,
                           ),
                         ),
@@ -1193,22 +1190,22 @@ class _SearchResultCardState extends State<SearchResultCard>
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isDarkMode
-                  ? const Color(0xFF48484A).withOpacity(0.5)
+                  ? const Color(0xFF48484A).withValues(alpha: 0.5)
                   : const Color(0xFFD0D0D0),
               width: 0.8,
             ),
             boxShadow: [
               BoxShadow(
                 color: isDarkMode
-                    ? Colors.black.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.04),
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.04),
                 blurRadius: isDarkMode ? 4 : 6,
                 offset: Offset(0, isDarkMode ? 2 : 2),
                 spreadRadius: isDarkMode ? 0 : 0.3,
               ),
               if (!isDarkMode) ...[
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   blurRadius: 1,
                   offset: const Offset(0, -1),
                   spreadRadius: 0,
@@ -1227,8 +1224,8 @@ class _SearchResultCardState extends State<SearchResultCard>
                 ),
                 decoration: BoxDecoration(
                   color: isDarkMode
-                      ? const Color(0xFF007AFF).withOpacity(0.15)
-                      : const Color(0xFF007AFF).withOpacity(0.08),
+                      ? const Color(0xFF007AFF).withValues(alpha: 0.15)
+                      : const Color(0xFF007AFF).withValues(alpha: 0.08),
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(7),
                     topRight: Radius.circular(7),
@@ -1311,10 +1308,10 @@ class _SearchResultCardState extends State<SearchResultCard>
                                     isDarkMode
                                         ? const Color(
                                             0xFF48484A,
-                                          ).withOpacity(0.3)
+                                          ).withValues(alpha: 0.3)
                                         : const Color(
                                             0xFFE5E5EA,
-                                          ).withOpacity(0.5),
+                                          ).withValues(alpha: 0.5),
                                     Colors.transparent,
                                   ],
                                 ),
@@ -1348,8 +1345,9 @@ class _SearchResultCardState extends State<SearchResultCard>
     }
     // Sadece fiil çekimi olan kelimelerde göster. İngilizcede gizle
     if (LanguageService().isEnglish) return const SizedBox.shrink();
-    if (widget.word.fiilCekimler?.isNotEmpty != true)
+    if (widget.word.fiilCekimler?.isNotEmpty != true) {
       return const SizedBox.shrink();
+    }
 
     // En az mazi veya müzari form olmalı
     final hasMazi =
@@ -1397,19 +1395,19 @@ class _SearchResultCardState extends State<SearchResultCard>
                   gradient: LinearGradient(
                     colors: isDarkMode
                         ? [
-                            emsileBlue.withOpacity(0.15),
-                            emsileBlue.withOpacity(0.08),
+                            emsileBlue.withValues(alpha: 0.15),
+                            emsileBlue.withValues(alpha: 0.08),
                           ]
                         : [
-                            emsileBlue.withOpacity(0.10),
-                            emsileBlue.withOpacity(0.05),
+                            emsileBlue.withValues(alpha: 0.10),
+                            emsileBlue.withValues(alpha: 0.05),
                           ],
                   ),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: isDarkMode
-                        ? emsileBlue.withOpacity(0.4)
-                        : emsileBlue.withOpacity(0.3),
+                        ? emsileBlue.withValues(alpha: 0.4)
+                        : emsileBlue.withValues(alpha: 0.3),
                     width: 0.8,
                   ),
                 ),
@@ -1431,7 +1429,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                     Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 12,
-                      color: emsileBlue.withOpacity(0.6),
+                      color: emsileBlue.withValues(alpha: 0.6),
                     ),
                   ],
                 ),
@@ -1444,8 +1442,9 @@ class _SearchResultCardState extends State<SearchResultCard>
   }
 
   Widget _buildConjugationRow(bool isDarkMode) {
-    if (widget.word.fiilCekimler?.isNotEmpty != true)
+    if (widget.word.fiilCekimler?.isNotEmpty != true) {
       return const SizedBox.shrink();
+    }
 
     final conjugations = <String, String>{};
     final fiilCekimler = widget.word.fiilCekimler!;
@@ -1515,8 +1514,8 @@ class _SearchResultCardState extends State<SearchResultCard>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
             color: isDarkMode
-                ? const Color(0xFF007AFF).withOpacity(0.15)
-                : const Color(0xFF007AFF).withOpacity(0.08),
+                ? const Color(0xFF007AFF).withValues(alpha: 0.15)
+                : const Color(0xFF007AFF).withValues(alpha: 0.08),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(8),
               topRight: Radius.circular(8),
@@ -1556,15 +1555,15 @@ class _SearchResultCardState extends State<SearchResultCard>
             ),
             border: Border.all(
               color: isDarkMode
-                  ? const Color(0xFF48484A).withOpacity(0.5)
+                  ? const Color(0xFF48484A).withValues(alpha: 0.5)
                   : const Color(0xFFD0D0D0),
               width: 1.0,
             ),
             boxShadow: [
               BoxShadow(
                 color: isDarkMode
-                    ? Colors.black.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.04),
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.04),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
@@ -1613,22 +1612,22 @@ class _SearchResultCardState extends State<SearchResultCard>
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: isDarkMode
-              ? const Color(0xFF48484A).withOpacity(0.3)
+              ? const Color(0xFF48484A).withValues(alpha: 0.3)
               : const Color(0xFFD0D0D0),
           width: 0.7,
         ),
         boxShadow: [
           BoxShadow(
             color: isDarkMode
-                ? Colors.black.withOpacity(0.2)
-                : Colors.black.withOpacity(0.03),
+                ? Colors.black.withValues(alpha: 0.2)
+                : Colors.black.withValues(alpha: 0.03),
             blurRadius: isDarkMode ? 4 : 5,
             offset: Offset(0, isDarkMode ? 2 : 1),
             spreadRadius: isDarkMode ? 0 : 0.2,
           ),
           if (!isDarkMode) ...[
             BoxShadow(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withValues(alpha: 0.8),
               blurRadius: 1,
               offset: const Offset(0, -0.5),
               spreadRadius: 0,

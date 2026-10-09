@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kavaid/widgets/email_auth_sheet.dart'; // Import eklendi
 import 'package:kavaid/screens/legacy_book_texts_screen.dart';
 import 'package:kavaid/screens/interactive_book_screen.dart';
-import 'package:kavaid/services/book_store_service.dart';
 import 'package:kavaid/services/purchase_manager.dart';
 import 'package:kavaid/screens/subscription_screen.dart';
 
@@ -579,12 +578,12 @@ class _LearningScreenState extends State<LearningScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color(0xFF1976D2).withOpacity(0.4),
+                        color: const Color(0xFF1976D2).withValues(alpha: 0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
                     ],
-                    border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -643,7 +642,7 @@ class _LearningScreenState extends State<LearningScreen> {
             style: GoogleFonts.outfit(
               fontSize: 19, 
               fontWeight: FontWeight.w800,
-              color: textColor.withOpacity(0.9),
+              color: textColor.withValues(alpha: 0.9),
               letterSpacing: -0.5,
             ),
           ),
@@ -671,7 +670,7 @@ class _LearningScreenState extends State<LearningScreen> {
           child: Divider(
             height: 1,
             thickness: 0.5,
-            color: textColor.withOpacity(0.1),
+            color: textColor.withValues(alpha: 0.1),
           ),
         ),
       ],
@@ -699,10 +698,10 @@ class _LearningScreenState extends State<LearningScreen> {
               height: thumbnailHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10), // Daha yuvarlak
-                color: Colors.grey.withOpacity(0.15), 
+                color: Colors.grey.withValues(alpha: 0.15), 
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -737,7 +736,7 @@ class _LearningScreenState extends State<LearningScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.lock_rounded, color: Colors.white, size: 16),
@@ -751,7 +750,7 @@ class _LearningScreenState extends State<LearningScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -911,7 +910,7 @@ class _ContentDetailSheet extends StatelessWidget {
                       ? DecorationImage(
                           image: AssetImage(content.thumbnail),
                           fit: BoxFit.cover,
-                          colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.3), BlendMode.darken),
+                          colorFilter: ColorFilter.mode(Colors.black.withValues(alpha: 0.3), BlendMode.darken),
                         )
                       : null,
                   color: content.thumbnail.isEmpty ? Colors.grey[800] : null,
@@ -928,7 +927,7 @@ class _ContentDetailSheet extends StatelessWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -947,7 +946,7 @@ class _ContentDetailSheet extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     shadows: [
-                       Shadow(color: Colors.black.withOpacity(0.8), blurRadius: 10),
+                       Shadow(color: Colors.black.withValues(alpha: 0.8), blurRadius: 10),
                     ]
                   ),
                 ),
@@ -979,7 +978,7 @@ class _ContentDetailSheet extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.15),
+                          color: Colors.grey.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -990,7 +989,7 @@ class _ContentDetailSheet extends StatelessWidget {
                               style: GoogleFonts.outfit(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: textColor.withOpacity(0.8),
+                                color: textColor.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -1000,7 +999,7 @@ class _ContentDetailSheet extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: primaryBlue.withOpacity(0.15),
+                          color: primaryBlue.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -1023,7 +1022,7 @@ class _ContentDetailSheet extends StatelessWidget {
                         content.description,
                         style: GoogleFonts.outfit(
                           fontSize: 15,
-                          color: textColor.withOpacity(0.8),
+                          color: textColor.withValues(alpha: 0.8),
                           height: 1.6,
                         ),
                       ),
@@ -1065,7 +1064,7 @@ class _ContentDetailSheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         elevation: 4,
-                        shadowColor: primaryBlue.withOpacity(0.4),
+                        shadowColor: primaryBlue.withValues(alpha: 0.4),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1307,7 +1306,7 @@ class _PurchasedBooksScreenState extends State<PurchasedBooksScreen> {
                child: Column(
                  mainAxisAlignment: MainAxisAlignment.center,
                  children: [
-                   Icon(Icons.library_books_rounded, size: 64, color: Colors.grey.withOpacity(0.5)),
+                   Icon(Icons.library_books_rounded, size: 64, color: Colors.grey.withValues(alpha: 0.5)),
                    const SizedBox(height: 16),
                    Text(
                      "Satın alınmış kitap bulunamadı.",
@@ -1360,7 +1359,7 @@ class _PurchasedBooksScreenState extends State<PurchasedBooksScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import '../utils/purchase_helper.dart';
@@ -26,7 +25,7 @@ class BookPurchaseService extends ChangeNotifier {
   // Dinamik olarak seçilen kitap için ürün detayı tutulur
   ProductDetails? _currentProduct;
   String? _currentBookId; // kitab_kiraah_1 gibi
-  bool _isLoadingProduct = false; // Ürün yükleme kontrolü
+  final bool _isLoadingProduct = false; // Ürün yükleme kontrolü
 
   // BookId -> Store SKU (iOS ve Android için aynı)
   // App Store Connect ve Play Console'da aynı SKU'lar kullanılmalı

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -98,32 +99,32 @@ class AdminService {
     }
     
     try {
-      print('📧 [FOUNDER] Moderatör atama başladı: $email');
+      debugPrint('📧 [FOUNDER] Moderatör atama başladı: $email');
       
       final userQuery = await _firestore
           .collection('users')
           .where('email', isEqualTo: email.toLowerCase())
           .get();
       
-      print('🔍 [ADMIN] Kullanıcı sorgusu yapıldı, sonuç sayısı: ${userQuery.docs.length}');
+      debugPrint('🔍 [ADMIN] Kullanıcı sorgusu yapıldı, sonuç sayısı: ${userQuery.docs.length}');
       
       if (userQuery.docs.isEmpty) {
-        print('❌ [ADMIN] Kullanıcı bulunamadı: $email');
+        debugPrint('❌ [ADMIN] Kullanıcı bulunamadı: $email');
         throw Exception('Kullanıcı bulunamadı. Bu email ile kayıtlı kullanıcı yok.');
       }
       
       final userId = userQuery.docs.first.id;
       final username = userQuery.docs.first.data()['username'] as String?;
-      print('👤 [ADMIN] Kullanıcı bulundu: $username (ID: $userId)');
+      debugPrint('👤 [ADMIN] Kullanıcı bulundu: $username (ID: $userId)');
       
       await _firestore.collection('users').doc(userId).update({
         'role': 'moderator',
         'moderatorSince': FieldValue.serverTimestamp(),
       });
-      print('✅ [ADMIN] Firestore güncellendi');
+      debugPrint('✅ [ADMIN] Firestore güncellendi');
       
       _userRoleCache[userId] = 'moderator';
-      print('💾 [ADMIN] Cache güncellendi');
+      debugPrint('💾 [ADMIN] Cache güncellendi');
       
       // Log kaydet
       await _logModerationAction(
@@ -131,10 +132,10 @@ class AdminService {
         targetUserId: userId,
         details: 'Email: $email, Kullanıcı: ${username ?? "Bilinmiyor"}',
       );
-      print('📝 [ADMIN] Log kaydedildi');
-      print('🎉 [ADMIN] Moderatör atama tamamlandı: $username');
+      debugPrint('📝 [ADMIN] Log kaydedildi');
+      debugPrint('🎉 [ADMIN] Moderatör atama tamamlandı: $username');
     } catch (e) {
-      print('❌ [ADMIN] Moderatör atama hatası: $e');
+      debugPrint('❌ [ADMIN] Moderatör atama hatası: $e');
       rethrow;
     }
   }
@@ -325,7 +326,7 @@ class AdminService {
         'timestamp': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print('❌ Log kaydetme hatası: $e');
+      debugPrint('❌ Log kaydetme hatası: $e');
     }
   }
   
@@ -383,9 +384,9 @@ class AdminService {
         'timestamp': FieldValue.serverTimestamp(),
       });
       
-      print('📝 [LOG] Mesaj silme kaydı oluşturuldu: $deleterUsername -> $messageOwnerUsername');
+      debugPrint('📝 [LOG] Mesaj silme kaydı oluşturuldu: $deleterUsername -> $messageOwnerUsername');
     } catch (e) {
-      print('❌ [LOG] Mesaj silme logu kaydetme hatası: $e');
+      debugPrint('❌ [LOG] Mesaj silme logu kaydetme hatası: $e');
     }
   }
   

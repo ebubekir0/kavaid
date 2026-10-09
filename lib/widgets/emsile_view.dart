@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:google_fonts/google_fonts.dart';
-import '../services/auth_service.dart';
 
 /// Emsile Ekran\u0131
 /// - Kapal\u0131 sat\u0131r: RTL  [G\u0130TMEK ............. \u0630\u064e\u0647\u064e\u0628\u064e  \u064a\u064e\u0630\u0652\u0647\u064e\u0628\u0640\u064f  \u203a]
@@ -77,7 +76,7 @@ class _EmsileViewState extends State<EmsileView> {
     {'bg': Color(0xFFEAF1F9), 'rowBg': Color(0xFFF8FAFC), 'detailBg': Color(0xFFD9E6F4), 'div': Color(0xFFBFD4EC), 'sigaBg': Color(0xFFCADCF0), 'sigaBrd': Color(0xFFA2C3E5), 'conjBg': Color(0xFFC4D9ED), 'cellBg': Color(0xFFB7CEE5), 'arabic': Color(0xFF0D2138), 'anlam': Color(0xFF3E5A7A), 'label': Color(0xFF224266), 'accent': Color(0xFF135CAE), 'btnBg': Color(0xFF98BFEB)},
   ];
 
-  int _selectedThemeIdx = 12;
+  final int _selectedThemeIdx = 12;
 
   // Holistic Getters
   Color get _bg        => _appThemes[_selectedThemeIdx]['bg']!;
@@ -152,13 +151,13 @@ class _EmsileViewState extends State<EmsileView> {
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: isDarkMode 
-            ? Colors.white.withOpacity(0.03) 
-            : Colors.black.withOpacity(0.02),
+            ? Colors.white.withValues(alpha: 0.03) 
+            : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDarkMode 
-              ? Colors.white.withOpacity(0.08) 
-              : Colors.black.withOpacity(0.05),
+              ? Colors.white.withValues(alpha: 0.08) 
+              : Colors.black.withValues(alpha: 0.05),
         ),
       ),
       child: Column(
@@ -194,7 +193,7 @@ class _EmsileViewState extends State<EmsileView> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -220,7 +219,7 @@ class _EmsileViewState extends State<EmsileView> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.chevron_right_rounded, color: Colors.white.withOpacity(0.7)),
+                    Icon(Icons.chevron_right_rounded, color: Colors.white.withValues(alpha: 0.7)),
                   ],
                 ),
               ),
@@ -244,10 +243,10 @@ class _EmsileViewState extends State<EmsileView> {
             padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [_accent.withOpacity(0.15), _accent.withOpacity(0.08)],
+                colors: [_accent.withValues(alpha: 0.15), _accent.withValues(alpha: 0.08)],
               ),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: _accent.withOpacity(0.3), width: 1),
+              border: Border.all(color: _accent.withValues(alpha: 0.3), width: 1),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -337,7 +336,7 @@ class _EmsileViewState extends State<EmsileView> {
 
     return Container(
       decoration: BoxDecoration(
-        color: locked ? _ccBg.withOpacity(0.6) : _ccBg,
+        color: locked ? _ccBg.withValues(alpha: 0.6) : _ccBg,
         border: Border(
           bottom: BorderSide(
             color: _ccBorder, 
@@ -369,7 +368,7 @@ class _EmsileViewState extends State<EmsileView> {
                 children: [
                   // 1. En Sol: Ok ikonu veya Kilit ikonu
                   locked
-                    ? Icon(Icons.lock_rounded, color: _accent.withOpacity(0.5), size: 20)
+                    ? Icon(Icons.lock_rounded, color: _accent.withValues(alpha: 0.5), size: 20)
                     : AnimatedRotation(
                         turns: expanded ? 0.25 : 0,
                         duration: const Duration(milliseconds: 200),
@@ -850,7 +849,7 @@ class _EmsileViewState extends State<EmsileView> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, -5),
                 ),

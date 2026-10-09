@@ -22,12 +22,12 @@ void main(List<String> args) async {
   }
 
   final String bookId = args[0];
-  final String SOURCE_JSON = "assets/books/$bookId/full_book.json";
-  final String DEST_DIR = "assets/audio/$bookId";
+  final String sourceJson = "assets/books/$bookId/full_book.json";
+  final String destDir = "assets/audio/$bookId";
 
   print("🚀 Google Cloud TTS İndirici Başlatılıyor...");
   print("📖 Kitap: $bookId");
-  print("📂 Hedef: $DEST_DIR");
+  print("📂 Hedef: $destDir");
   
   // 1. Service Account Credentials
   final saFile = File(SERVICE_ACCOUNT_FILE);
@@ -46,16 +46,16 @@ void main(List<String> args) async {
   print("✅ Kimlik doğrulandı!");
 
   // 3. Dizin oluştur
-  final destDir = Directory(DEST_DIR);
+  final destDir = Directory(destDir);
   if (!destDir.existsSync()) {
     destDir.createSync(recursive: true);
-    print("📁 Klasör oluşturuldu: $DEST_DIR");
+    print("📁 Klasör oluşturuldu: $destDir");
   }
 
   // 4. Kelimeleri yükle
-  final sourceFile = File(SOURCE_JSON);
+  final sourceFile = File(sourceJson);
   if (!sourceFile.existsSync()) {
-    print("❌ Kaynak JSON bulunamadı: $SOURCE_JSON");
+    print("❌ Kaynak JSON bulunamadı: $sourceJson");
     authClient.close();
     return;
   }
@@ -79,7 +79,7 @@ void main(List<String> args) async {
   for (String word in uniqueWords) {
     index++;
     final filename = "${md5.convert(utf8.encode(word))}.mp3";
-    final filePath = "$DEST_DIR/$filename";
+    final filePath = "$destDir/$filename";
     
     if (File(filePath).existsSync() && File(filePath).lengthSync() > 100) {
       skipCount++;

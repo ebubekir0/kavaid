@@ -305,11 +305,11 @@ class DatabaseService {
 
     await db.execute('''
 CREATE TABLE IF NOT EXISTS words ( 
-  kelime ${idType}, harekeliKelime ${textType}, anlam ${textType}, koku ${textType}, dilbilgiselOzellikler ${textType}, ornekCumleler ${textType}, fiilCekimler ${textType}, eklenmeTarihi ${intType}
+  kelime $idType, harekeliKelime $textType, anlam $textType, koku $textType, dilbilgiselOzellikler $textType, ornekCumleler $textType, fiilCekimler $textType, eklenmeTarihi $intType
 )''');
     await db.execute('''
 CREATE TABLE IF NOT EXISTS pending_ai_words ( 
-  kelime ${idType}, harekeliKelime ${textType}, anlam ${textType}, koku ${textType}, dilbilgiselOzellikler ${textType}, ornekCumleler ${textType}, fiilCekimler ${textType}, eklenmeTarihi ${intType}
+  kelime $idType, harekeliKelime $textType, anlam $textType, koku $textType, dilbilgiselOzellikler $textType, ornekCumleler $textType, fiilCekimler $textType, eklenmeTarihi $intType
 )''');
 
     // ANR önleme için performans indeksleri
@@ -335,20 +335,18 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     dynamic ornekCumlelerData;
     if (word.ornekCumleler != null) {
       // Eğer Map listesi ise direkt encode et
-      if (word.ornekCumleler!.isNotEmpty && word.ornekCumleler![0] is Map) {
+      if (word.ornekCumleler!.isNotEmpty) {
         ornekCumlelerData = json.encode(word.ornekCumleler);
       }
       // Eğer başka bir format ise (örn: Ornek objesi) Map'e çevir
       else {
         ornekCumlelerData = json.encode(
           word.ornekCumleler!.map((e) {
-            if (e is Map) {
-              return {
-                'arapcaCumle': e['arapcaCumle'] ?? '',
-                'turkceCeviri': e['turkceCeviri'] ?? '',
-              };
-            }
-            // Ornek objesi ise Map'e çevir (dynamic türü için)
+            return {
+              'arapcaCumle': e['arapcaCumle'] ?? '',
+              'turkceCeviri': e['turkceCeviri'] ?? '',
+            };
+                      // Ornek objesi ise Map'e çevir (dynamic türü için)
             try {
               return {
                 'arapcaCumle': (e as dynamic)?.arapcaCumle ?? '',
@@ -717,8 +715,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 
           for (int j = 0; j < parts.length; j++) {
             final m = parts[j].trim();
-            if (m.isEmpty || !m.contains(turkQuery))
+            if (m.isEmpty || !m.contains(turkQuery)) {
               continue; // hızlı eleman skiple
+            }
             int r = 9999;
             if (m == turkQuery) {
               r = 0 + j;
@@ -851,8 +850,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       final hk = (map['harekeliKelime'] as String? ?? '').trim();
       // 3'ten fazla kelime içeren ifadeleri (örnek cümleler) listeden çıkar
       if (hk.isNotEmpty &&
-          hk.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).length > 2)
+          hk.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).length > 2) {
         continue;
+      }
       // Dedupe: aynı harekeli kelimeyi ikinci kez gösterme
       final dedupeKey = hk.isNotEmpty ? hk : (map['kelime'] as String? ?? '');
       if (dedupeKey.isNotEmpty && !seen.add(dedupeKey)) continue;
@@ -1309,7 +1309,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         deletedCount++;
       }
 
-      print(
+      debugPrint(
         '🗑️ Duplicate temizlendi: "$harekeliKelime" (${wordsToDelete.length} kopya silindi)',
       );
     }
@@ -1334,7 +1334,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       await db.delete('words', where: 'rowid = ?', whereArgs: [rowId]);
       deletedCount++;
 
-      print(
+      debugPrint(
         '🗑️ Latin harf içeren kelime silindi: "$kelime" / "$harekeliKelime"',
       );
     }
@@ -1346,17 +1346,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
   Future<Map<String, int>> performDatabaseCleanup() async {
     if (kIsWeb) return {};
 
-    print('🧹 Veritabanı temizliği başlatılıyor...');
+    debugPrint('🧹 Veritabanı temizliği başlatılıyor...');
 
     final duplicatesDeleted = await cleanDuplicateHarekeliWords();
     final latinDeleted = await cleanWordsWithLatinInArabic();
 
     final totalWords = await getWordsCount();
 
-    print('✅ Veritabanı temizliği tamamlandı!');
-    print('   - Duplicate silinen: $duplicatesDeleted');
-    print('   - Latin harf silinen: $latinDeleted');
-    print('   - Kalan toplam: $totalWords');
+    debugPrint('✅ Veritabanı temizliği tamamlandı!');
+    debugPrint('   - Duplicate silinen: $duplicatesDeleted');
+    debugPrint('   - Latin harf silinen: $latinDeleted');
+    debugPrint('   - Kalan toplam: $totalWords');
 
     return {
       'duplicatesDeleted': duplicatesDeleted,
@@ -1410,8 +1410,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           // 2.1 Baz formu öne al: harekeliKelime'nin normalize hali sorguya tam eşitse tercih et
           final aHarekeliNormEq = aNormHarekeli.toLowerCase() == nq;
           final bHarekeliNormEq = bNormHarekeli.toLowerCase() == nq;
-          if (aHarekeliNormEq != bHarekeliNormEq)
+          if (aHarekeliNormEq != bHarekeliNormEq) {
             return aHarekeliNormEq ? -1 : 1;
+          }
 
           // 2.2 Prefiks cezası: harekeliKelime başında parçacık varsa (س, سوف, و, ل) cezalandır
           final aPref = _getArabicPrefixPenalty(a.harekeliKelime ?? '');
@@ -1480,10 +1481,11 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           final qLen = nq.length;
           final aDist = (aLen - qLen).abs();
           final bDist = (bLen - qLen).abs();
-          if (aDist != bDist)
+          if (aDist != bDist) {
             return aDist.compareTo(
               bDist,
             ); // tam eşleşmeye en yakın uzunluk (0 en iyi)
+          }
         }
         // Başlangıç (normalize)
         final aStarts =
@@ -1731,8 +1733,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     if (trimmed.startsWith('سوف')) return 2;
     if (trimmed.startsWith('س') ||
         trimmed.startsWith('و') ||
-        trimmed.startsWith('ل'))
+        trimmed.startsWith('ل')) {
       return 1;
+    }
     return 0;
   }
 

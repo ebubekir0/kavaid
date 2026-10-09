@@ -197,7 +197,7 @@ class FirebaseService {
         return results;
       }
     } catch (e) {
-      print('Firebase arama hatası: $e');
+      debugPrint('Firebase arama hatası: $e');
       return [];
     }
   }
@@ -557,7 +557,7 @@ class FirebaseService {
       // Kelime zaten var mı kontrol et
       final existingWord = await getWordByName(word.kelime);
       if (existingWord != null) {
-        print('Kelime zaten mevcut: ${word.kelime}');
+        debugPrint('Kelime zaten mevcut: ${word.kelime}');
         return true;
       }
 
@@ -570,10 +570,10 @@ class FirebaseService {
       // Cache'i temizle - yeni kelime eklendiği için
       clearCache();
       
-      print('Kelime kaydedildi: ${word.kelime}');
+      debugPrint('Kelime kaydedildi: ${word.kelime}');
       return true;
     } catch (e) {
-      print('Kelime kaydetme hatası: $e');
+      debugPrint('Kelime kaydetme hatası: $e');
       return false;
     }
   }
@@ -667,7 +667,7 @@ class FirebaseService {
       debugPrint('❌ Firebase\'de kelime bulunamadı: $searchTerm');
       return null;
     } catch (e) {
-      print('Kelime arama hatası: $e');
+      debugPrint('Kelime arama hatası: $e');
       return null;
     }
   }
@@ -725,7 +725,7 @@ class FirebaseService {
 
       return words.take(limit).toList();
     } catch (e) {
-      print('Son kelimeler getirme hatası: $e');
+      debugPrint('Son kelimeler getirme hatası: $e');
       return [];
     }
   }
@@ -739,7 +739,7 @@ class FirebaseService {
       final data = snapshot.value as Map<dynamic, dynamic>;
       return data.length;
     } catch (e) {
-      print('Kelime sayısı getirme hatası: $e');
+      debugPrint('Kelime sayısı getirme hatası: $e');
       return 0;
     }
   }
@@ -750,7 +750,7 @@ class FirebaseService {
       await _wordsRef.limitToFirst(1).get();
       return true;
     } catch (e) {
-      print('Firebase bağlantı testi hatası: $e');
+      debugPrint('Firebase bağlantı testi hatası: $e');
       return false;
     }
   }
@@ -803,7 +803,7 @@ class FirebaseService {
       words.shuffle();
       return words.take(count).toList();
     } catch (e) {
-      print('Rastgele kelimeler getirme hatası: $e');
+      debugPrint('Rastgele kelimeler getirme hatası: $e');
       return [];
     }
   }
@@ -901,7 +901,7 @@ class FirebaseService {
       debugPrint('Firebase\'den toplam ${words.length} kelime çekildi.');
       return words;
     } catch (e) {
-      print('Tüm kelimeleri Firebase\'den çekerken hata: $e');
+      debugPrint('Tüm kelimeleri Firebase\'den çekerken hata: $e');
       return [];
     }
   }

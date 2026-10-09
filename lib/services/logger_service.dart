@@ -45,7 +45,7 @@ class LoggerService {
     if (!kReleaseMode) {
       // Konsola da bas (debug/dev)
       // ignore: avoid_print
-      print(entry.toString());
+      debugPrint(entry.toString());
     }
     _streamController.add(List.unmodifiable(_entries));
   }

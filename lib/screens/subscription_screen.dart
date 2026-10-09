@@ -183,7 +183,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.workspace_premium_rounded, size: 36, color: Colors.white),
@@ -272,7 +272,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               fontSize: 11,
-                              color: Colors.white.withOpacity(0.75),
+                              color: Colors.white.withValues(alpha: 0.75),
                               height: 1.35,
                             ),
                           ),
@@ -307,7 +307,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                   ),
                                 ),
                               ),
-                              Text("•", style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                              Text("•", style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
                               GestureDetector(
                                 onTap: () => _openUrl(_termsOfUseUrl),
                                 child: Text(
@@ -321,7 +321,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                   ),
                                 ),
                               ),
-                              Text("•", style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
+                              Text("•", style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 12)),
                               GestureDetector(
                                 onTap: () => _openUrl(_privacyPolicyUrl),
                                 child: Text(
@@ -362,7 +362,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(fontSize: 13.5, color: Colors.white.withOpacity(0.95), fontWeight: FontWeight.w500),
+            style: GoogleFonts.outfit(fontSize: 13.5, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w500),
           ),
         ),
       ],
@@ -384,7 +384,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.white : Colors.white.withOpacity(0.08),
+          color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected ? Colors.white : Colors.white24,

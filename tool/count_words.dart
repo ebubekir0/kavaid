@@ -27,7 +27,7 @@ Future<void> main() async {
         print('📊 Veritabanında kelime bulunamadı (null)');
       } else if (data is Map) {
         final wordCount = data.length;
-        print('\n' + '=' * 50);
+        print('\n${'=' * 50}');
         print('📊 TOPLAM KELİME SAYISI: $wordCount');
         print('=' * 50);
       } else {
@@ -45,7 +45,7 @@ Future<void> main() async {
       
       if (statsResponse.statusCode == 200) {
         final count = json.decode(statsResponse.body);
-        print('\n' + '=' * 50);
+        print('\n${'=' * 50}');
         print('📊 KAYITLI KELİME SAYISI (stats): $count');
         print('=' * 50);
       } else {

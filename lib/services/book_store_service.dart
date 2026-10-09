@@ -278,7 +278,9 @@ class BookStoreService extends ChangeNotifier {
       'kucuk_prens',
       'robinson_crusoe',
       'sherlock_holmesun_zekasi',
-    ].contains(bookId)) return true;
+    ].contains(bookId)) {
+      return true;
+    }
     
     // Artık tüm kitaplar ücretli (diğerleri)
     return _purchasedBookIds.contains(bookId);

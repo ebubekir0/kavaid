@@ -55,7 +55,7 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
               ),
               boxShadow: isDarkMode ? null : [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -98,13 +98,13 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                               decoration: BoxDecoration(
                                 color: isDarkMode
-                                    ? const Color(0xFF2D4720).withOpacity(0.3)
-                                    : const Color(0xFF4A5729).withOpacity(0.1),
+                                    ? const Color(0xFF2D4720).withValues(alpha: 0.3)
+                                    : const Color(0xFF4A5729).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: isDarkMode
-                                      ? const Color(0xFF8BC34A).withOpacity(0.4)
-                                      : const Color(0xFF4A5729).withOpacity(0.3),
+                                      ? const Color(0xFF8BC34A).withValues(alpha: 0.4)
+                                      : const Color(0xFF4A5729).withValues(alpha: 0.3),
                                   width: 0.6,
                                 ),
                               ),
@@ -225,7 +225,7 @@ class LogicalKeyRow extends StatelessWidget {
                     : const Color(0xFFF1F6EC),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isDarkMode ? const Color(0xFF3D5A28) : const Color(0xFF8BC34A).withOpacity(0.5),
+                  color: isDarkMode ? const Color(0xFF3D5A28) : const Color(0xFF8BC34A).withValues(alpha: 0.5),
                   width: 0.8,
                 ),
               ),
@@ -315,7 +315,7 @@ class QuranWordCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.2 : 0.1),
+            color: Colors.black.withValues(alpha: isDarkMode ? 0.2 : 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -371,7 +371,7 @@ class QuranWordCard extends StatelessWidget {
               color: isDarkMode ? const Color(0xFF1E3215) : const Color(0xFF2D4720),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF3D5A28).withOpacity(0.8),
+                color: const Color(0xFF3D5A28).withValues(alpha: 0.8),
                 width: 0.8,
               ),
             ),
@@ -450,7 +450,7 @@ class QuranWordCard extends StatelessWidget {
           color: isDarkMode ? const Color(0xFF1E3215) : const Color(0xFF2D4720),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: const Color(0xFF3D5A28).withOpacity(0.8),
+            color: const Color(0xFF3D5A28).withValues(alpha: 0.8),
             width: 0.8,
           ),
         ),

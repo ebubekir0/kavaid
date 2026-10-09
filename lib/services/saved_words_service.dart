@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/word_model.dart';
@@ -63,7 +62,7 @@ class SavedWordsService extends ChangeNotifier {
 
       return _database;
     } catch (e) {
-      print('SavedWordsService: Database açma hatası: $e');
+      debugPrint('SavedWordsService: Database açma hatası: $e');
       return null;
     }
   }
@@ -151,7 +150,7 @@ class SavedWordsService extends ChangeNotifier {
       
       return _cachedSavedWords;
     } catch (e) {
-      print('SavedWordsService: Kelimeleri getirme hatası: $e');
+      debugPrint('SavedWordsService: Kelimeleri getirme hatası: $e');
       _isInitialized = true;
       return _cachedSavedWords;
     }
@@ -165,7 +164,7 @@ class SavedWordsService extends ChangeNotifier {
     }
     
     // Cache yüklenmemişse false döndür
-    if (!_isInitialized || _cachedSavedWords == null) {
+    if (!_isInitialized) {
       return false;
     }
     
@@ -272,7 +271,7 @@ class SavedWordsService extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      print('SavedWordsService: Save error: $e');
+      debugPrint('SavedWordsService: Save error: $e');
       _operationInProgress.remove('save_${word.kelime}');
       return false;
     }
@@ -354,7 +353,7 @@ class SavedWordsService extends ChangeNotifier {
         return false;
       }
     } catch (e) {
-      print('SavedWordsService: Remove error: $e');
+      debugPrint('SavedWordsService: Remove error: $e');
       _operationInProgress.remove('remove_${word.kelime}');
       return false;
     }
@@ -363,7 +362,7 @@ class SavedWordsService extends ChangeNotifier {
   // Tüm kayıtlı kelimeleri temizle
   Future<void> clearAllSavedWords() async {
     try {
-      print('DEBUG: Tüm kayıtlı kelimeler temizleniyor');
+      debugPrint('DEBUG: Tüm kayıtlı kelimeler temizleniyor');
       
       // Temizlenecek kelime sayısını al
       final kelimeSayisi = _cachedSavedWords.length;
@@ -406,9 +405,9 @@ class SavedWordsService extends ChangeNotifier {
       // Tüm dinleyicileri bilgilendir
       notifyListeners();
       
-      print('DEBUG: Tüm kayıtlı kelimeler başarıyla temizlendi');
+      debugPrint('DEBUG: Tüm kayıtlı kelimeler başarıyla temizlendi');
     } catch (e) {
-      print('DEBUG: Kayıtlı kelimeler temizleme hatası: $e');
+      debugPrint('DEBUG: Kayıtlı kelimeler temizleme hatası: $e');
     }
   }
 
@@ -439,7 +438,7 @@ class SavedWordsService extends ChangeNotifier {
     if (!_isWebPlatform && _database != null && _database!.isOpen) {
       await _database!.close();
       _database = null;
-      print('DEBUG: Database kapatıldı');
+      debugPrint('DEBUG: Database kapatıldı');
     }
   }
 

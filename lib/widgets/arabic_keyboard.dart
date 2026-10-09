@@ -99,8 +99,8 @@ class ArabicKeyboard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: isDarkMode
-                ? Colors.black.withOpacity(0.5)
-                : Colors.black.withOpacity(0.15),
+                ? Colors.black.withValues(alpha: 0.5)
+                : Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -115,11 +115,11 @@ class ArabicKeyboard extends StatelessWidget {
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: isDarkMode
-                  ? const Color(0xFF007AFF).withOpacity(0.1)
-                  : const Color(0xFF007AFF).withOpacity(0.05),
+                  ? const Color(0xFF007AFF).withValues(alpha: 0.1)
+                  : const Color(0xFF007AFF).withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: const Color(0xFF007AFF).withOpacity(0.2),
+                color: const Color(0xFF007AFF).withValues(alpha: 0.2),
                 width: 0.5,
               ),
             ),
@@ -133,7 +133,7 @@ class ArabicKeyboard extends StatelessWidget {
                       child: _buildDiacriticKey(context, diacritic),
                     ),
                   );
-                }).toList(),
+                }),
                 // Kapatma butonu
                 const SizedBox(width: 4),
                 Material(
@@ -146,8 +146,8 @@ class ArabicKeyboard extends StatelessWidget {
                       width: 40,
                       decoration: BoxDecoration(
                         color: isDarkMode
-                            ? const Color(0xFF48484A).withOpacity(0.3)
-                            : const Color(0xFF8E8E93).withOpacity(0.1),
+                            ? const Color(0xFF48484A).withValues(alpha: 0.3)
+                            : const Color(0xFF8E8E93).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Icon(
@@ -187,7 +187,7 @@ class ArabicKeyboard extends StatelessWidget {
                         }).toList(),
                       ),
                     );
-                  }).toList(),
+                  }),
                   
                   // Son satır: Boşluk ve kontrol butonları - Expanded ile
                   Expanded(
@@ -250,8 +250,8 @@ class ArabicKeyboard extends StatelessWidget {
       child: InkWell(
         onTap: () => _insertText(text),
         borderRadius: BorderRadius.circular(8),
-        splashColor: const Color(0xFF007AFF).withOpacity(0.3),
-        highlightColor: const Color(0xFF007AFF).withOpacity(0.1),
+        splashColor: const Color(0xFF007AFF).withValues(alpha: 0.3),
+        highlightColor: const Color(0xFF007AFF).withValues(alpha: 0.1),
         child: Ink(
           decoration: BoxDecoration(
             color: isDarkMode
@@ -261,16 +261,16 @@ class ArabicKeyboard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isDarkMode
-                    ? Colors.black.withOpacity(0.3)
-                    : Colors.black.withOpacity(0.08),
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : Colors.black.withValues(alpha: 0.08),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
             ],
             border: Border.all(
               color: isDarkMode
-                  ? const Color(0xFF48484A).withOpacity(0.3)
-                  : const Color(0xFFE5E5EA).withOpacity(0.5),
+                  ? const Color(0xFF48484A).withValues(alpha: 0.3)
+                  : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
               width: 0.5,
             ),
           ),
@@ -301,14 +301,14 @@ class ArabicKeyboard extends StatelessWidget {
       child: InkWell(
         onTap: () => _insertText(diacritic),
         borderRadius: BorderRadius.circular(6),
-        splashColor: const Color(0xFF007AFF).withOpacity(0.4),
-        highlightColor: const Color(0xFF007AFF).withOpacity(0.2),
+        splashColor: const Color(0xFF007AFF).withValues(alpha: 0.4),
+        highlightColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
         child: Ink(
           height: 36,
           decoration: BoxDecoration(
             color: isDarkMode
-                ? const Color(0xFF007AFF).withOpacity(0.2)
-                : const Color(0xFF007AFF).withOpacity(0.1),
+                ? const Color(0xFF007AFF).withValues(alpha: 0.2)
+                : const Color(0xFF007AFF).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(6),
           ),
           child: Center(
@@ -363,18 +363,18 @@ class ArabicKeyboard extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: isSearch
-                    ? const Color(0xFF007AFF).withOpacity(0.3)
+                    ? const Color(0xFF007AFF).withValues(alpha: 0.3)
                     : (isDarkMode
-                        ? Colors.black.withOpacity(0.3)
-                        : Colors.black.withOpacity(0.08)),
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : Colors.black.withValues(alpha: 0.08)),
                 blurRadius: isSearch ? 8 : 4,
                 offset: const Offset(0, 2),
               ),
             ],
             border: isSearch ? null : Border.all(
               color: isDarkMode
-                  ? const Color(0xFF48484A).withOpacity(0.3)
-                  : const Color(0xFFE5E5EA).withOpacity(0.5),
+                  ? const Color(0xFF48484A).withValues(alpha: 0.3)
+                  : const Color(0xFFE5E5EA).withValues(alpha: 0.5),
               width: 0.5,
             ),
           ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle, SystemUiOverlayStyle;
 import 'package:flutter/foundation.dart' show kReleaseMode;
-import '../services/one_time_purchase_service.dart';
 import '../services/book_store_service.dart';
 import '../services/book_purchase_service.dart';
 import '../services/auth_service.dart';
@@ -12,7 +11,6 @@ import '../services/book_lessons_service.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
 import '../widgets/search_result_card.dart';
-import 'profile_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/purchase_manager.dart';
 
@@ -180,8 +178,8 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
                   boxShadow: [
                     BoxShadow(
                       color: isDarkMode
-                          ? Colors.black.withOpacity(0.2)
-                          : Colors.black.withOpacity(0.06),
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.black.withValues(alpha: 0.06),
                       blurRadius: 12,
                       offset: const Offset(0, 2),
                     ),
@@ -292,7 +290,7 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
                               borderRadius: BorderRadius.circular(18),
                               boxShadow: (purchased || i < 3) ? [
                                 BoxShadow(
-                                  color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                                   blurRadius: 12,
                                   offset: const Offset(0, 4),
                                   spreadRadius: 0,
@@ -324,8 +322,8 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
                                   _showPurchaseDialog(context, isDarkMode);
                                 },
                                 borderRadius: BorderRadius.circular(18),
-                                splashColor: Colors.white.withOpacity(0.3),
-                                highlightColor: Colors.white.withOpacity(0.1),
+                                splashColor: Colors.white.withValues(alpha: 0.3),
+                                highlightColor: Colors.white.withValues(alpha: 0.1),
                                 child: Center(
                                   child: (_loadingTextId == t.id)
                                           ? const SizedBox(
@@ -871,8 +869,8 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: isDarkMode
-                                ? Colors.black.withOpacity(0.35)
-                                : Colors.black.withOpacity(0.08),
+                                ? Colors.black.withValues(alpha: 0.35)
+                                : Colors.black.withValues(alpha: 0.08),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -890,7 +888,7 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                               },
                               icon: Icon(
                                 Icons.volume_up_rounded,
-                                color: subTextColor.withOpacity(0.7),
+                                color: subTextColor.withValues(alpha: 0.7),
                                 size: 28,
                               ),
                               tooltip: 'Dinle',
@@ -937,9 +935,6 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                 }
                                 
                                 final ornek = ornekler[0];
-                                if (ornek is! Map<String, dynamic>) {
-                                  return const SizedBox.shrink();
-                                }
                                 
                                 // Farklı format desteği
                                 final arapcaCumle = (ornek['arapcaCumle'] ?? ornek['arapcaCümle'] ?? ornek['arapca'] ?? '').toString();
@@ -956,13 +951,13 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                   padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                                   decoration: BoxDecoration(
                                     color: isDarkMode 
-                                        ? Colors.white.withOpacity(0.03)
-                                        : Colors.black.withOpacity(0.025),
+                                        ? Colors.white.withValues(alpha: 0.03)
+                                        : Colors.black.withValues(alpha: 0.025),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: isDarkMode 
-                                          ? Colors.white.withOpacity(0.1)
-                                          : Colors.black.withOpacity(0.05),
+                                          ? Colors.white.withValues(alpha: 0.1)
+                                          : Colors.black.withValues(alpha: 0.05),
                                       width: 1,
                                     ),
                                   ),
@@ -977,7 +972,7 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                         style: GoogleFonts.scheherazadeNew(
                                           fontSize: fontSize,
                                           fontWeight: FontWeight.w600,
-                                          color: textColor.withOpacity(0.85),
+                                          color: textColor.withValues(alpha: 0.85),
                                           height: 1.5,
                                         ),
                                       ),
@@ -1027,7 +1022,7 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -1102,7 +1097,7 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                               ? const Color(0xFF3A3A3C)
                               : const Color(0xFFE5E5EA),
                           thumbColor: const Color(0xFF007AFF),
-                          overlayColor: const Color(0xFF007AFF).withOpacity(0.2),
+                          overlayColor: const Color(0xFF007AFF).withValues(alpha: 0.2),
                           trackShape: const RoundedRectSliderTrackShape(),
                         ),
                         child: Slider(

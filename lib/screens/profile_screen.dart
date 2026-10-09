@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share_plus/share_plus.dart';
 import '../services/auth_service.dart';
@@ -155,11 +154,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final userId = _authService.userId;
     final userEmail = _authService.userEmail;
     
-    print('🔍 [PROFILE] Yetki kontrolü: Email=$userEmail, UserId=$userId');
+    debugPrint('🔍 [PROFILE] Yetki kontrolü: Email=$userEmail, UserId=$userId');
     
     // Kurucu mu? (Email kontrolü)
     if (userEmail != null && userEmail.toLowerCase() == 'ebubekir@gmail.com') {
-      print('👑 [PROFILE] KURUCU tespit edildi');
+      debugPrint('👑 [PROFILE] KURUCU tespit edildi');
       setState(() => _userRole = 'founder');
       return;
     }
@@ -173,17 +172,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
             .get();
         
         final role = userDoc.data()?['role'] as String?;
-        print('📄 [PROFILE] Firestore role: $role');
+        debugPrint('📄 [PROFILE] Firestore role: $role');
         
         if (role == 'moderator') {
-          print('⭐ [PROFILE] MODERATÖR tespit edildi');
+          debugPrint('⭐ [PROFILE] MODERATÖR tespit edildi');
           setState(() => _userRole = 'moderator');
         } else {
-          print('👤 [PROFILE] Normal kullanıcı');
+          debugPrint('👤 [PROFILE] Normal kullanıcı');
           setState(() => _userRole = null);
         }
       } catch (e) {
-        print('❌ [PROFILE] Firestore okuma hatası: $e');
+        debugPrint('❌ [PROFILE] Firestore okuma hatası: $e');
         setState(() => _userRole = null);
       }
     }
@@ -221,7 +220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       if (_userRole != newRole) {
         setState(() => _userRole = newRole);
-        print('🔄 Profil yetkisi güncellendi: ${newRole ?? "NORMAL"}');
+        debugPrint('🔄 Profil yetkisi güncellendi: ${newRole ?? "NORMAL"}');
       }
     });
   }
@@ -433,8 +432,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: widget.isDarkMode 
-                          ? Colors.white.withOpacity(0.2)
-                          : Colors.white.withOpacity(0.3),
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.3),
                     ),
                     child: Stack(
                       children: [
@@ -451,7 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(13),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
+                                  color: Colors.black.withValues(alpha: 0.2),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -609,13 +608,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: _userRole == 'founder'
-                                                    ? const Color(0xFFFF6B35).withOpacity(0.15)
-                                                    : const Color(0xFF4ECDC4).withOpacity(0.15),
+                                                    ? const Color(0xFFFF6B35).withValues(alpha: 0.15)
+                                                    : const Color(0xFF4ECDC4).withValues(alpha: 0.15),
                                                 borderRadius: BorderRadius.circular(10),
                                                 border: Border.all(
                                                   color: _userRole == 'founder'
-                                                      ? const Color(0xFFFF6B35).withOpacity(0.3)
-                                                      : const Color(0xFF4ECDC4).withOpacity(0.3),
+                                                      ? const Color(0xFFFF6B35).withValues(alpha: 0.3)
+                                                      : const Color(0xFF4ECDC4).withValues(alpha: 0.3),
                                                   width: 0.5,
                                                 ),
                                               ),
@@ -641,8 +640,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                               decoration: BoxDecoration(
                                                 color: isDarkMode 
-                                                    ? Colors.grey[800]?.withOpacity(0.5)
-                                                    : Colors.grey[300]?.withOpacity(0.5),
+                                                    ? Colors.grey[800]?.withValues(alpha: 0.5)
+                                                    : Colors.grey[300]?.withValues(alpha: 0.5),
                                                 borderRadius: BorderRadius.circular(4),
                                                 border: Border.all(
                                                   color: isDarkMode 
@@ -860,7 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF007AFF).withOpacity(0.3),
+                              color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                               blurRadius: 10,
                               offset: const Offset(0, 5),
                             ),
@@ -871,7 +870,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: const Icon(Icons.verified_rounded, color: Colors.white, size: 28),
@@ -921,7 +920,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF007AFF).withOpacity(0.3),
+                                    color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                                     blurRadius: 10,
                                     offset: const Offset(0, 5),
                                   ),
@@ -932,7 +931,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Container(
                                     padding: const EdgeInsets.all(10),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
@@ -975,7 +974,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF007AFF).withOpacity(0.3),
+                                  color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                                   blurRadius: 10,
                                   offset: const Offset(0, 5),
                                 ),
@@ -986,7 +985,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Icon(Icons.verified_user_rounded, color: Colors.white, size: 28),
@@ -1028,7 +1027,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF007AFF).withOpacity(0.3),
+                                color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -1039,7 +1038,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: const Icon(Icons.diamond_outlined, color: Colors.white, size: 28),
@@ -1081,10 +1080,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: Colors.red.withOpacity(0.3),
+                        color: Colors.red.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -1449,8 +1448,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       boxShadow: [
                         BoxShadow(
                           color: isDarkMode
-                              ? Colors.black.withOpacity(0.2)
-                              : Colors.black.withOpacity(0.05),
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -1462,7 +1461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF007AFF).withOpacity(0.2),
+                            color: const Color(0xFF007AFF).withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -1551,10 +1550,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF007AFF).withOpacity(0.1),
+                                  color: const Color(0xFF007AFF).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: const Color(0xFF007AFF).withOpacity(0.3),
+                                    color: const Color(0xFF007AFF).withValues(alpha: 0.3),
                                   ),
                                 ),
                                 child: Row(
@@ -1596,8 +1595,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       boxShadow: [
                         BoxShadow(
                           color: isDarkMode
-                              ? Colors.black.withOpacity(0.2)
-                              : Colors.black.withOpacity(0.05),
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.05),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -1609,7 +1608,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF007AFF).withOpacity(0.2),
+                            color: const Color(0xFF007AFF).withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
@@ -1661,8 +1660,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         boxShadow: [
                           BoxShadow(
                             color: isDarkMode
-                                ? Colors.black.withOpacity(0.2)
-                                : Colors.black.withOpacity(0.05),
+                                ? Colors.black.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.05),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -1674,7 +1673,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.15),
+                              color: Colors.red.withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -1709,9 +1708,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.withOpacity(0.3)),
+                      border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1738,9 +1737,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Auth State Null simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Auth State Null simüle ediliyor...');
                                   await FirebaseAuth.instance.signOut();
-                                  print('🔍 [TEST] Console\'da auth null loglarını kontrol et');
+                                  debugPrint('🔍 [TEST] Console\'da auth null loglarını kontrol et');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -1753,14 +1752,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Restore Purchase tetikleniyor...');
+                                  debugPrint('🧪 [TEST] Restore Purchase tetikleniyor...');
                                   try {
                                     await OneTimePurchaseService().initialize();
                                     await OneTimePurchaseService().restorePurchases();
                                     await BookPurchaseService().initialize();
-                                    print('✅ [TEST] Restore Purchase tamamlandı');
+                                    debugPrint('✅ [TEST] Restore Purchase tamamlandı');
                                   } catch (e) {
-                                    print('❌ [TEST] Restore hatası: $e');
+                                    debugPrint('❌ [TEST] Restore hatası: $e');
                                   }
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -1781,16 +1780,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Satın alma durumları yazdırılıyor...');
+                                  debugPrint('🧪 [TEST] Satın alma durumları yazdırılıyor...');
                                   final oneTime = OneTimePurchaseService();
                                   final book = BookStoreService();
                                   final credits = CreditsService();
                                   
-                                  print('📊 [TEST] OneTime AdsFree: ${oneTime.isLifetimeAdsFree}');
-                                  print('📊 [TEST] Credits Premium: ${credits.isPremium}');
-                                  print('📊 [TEST] Book 1 Purchased: ${book.isPurchased("kitab_kiraah_1")}');
-                                  print('📊 [TEST] Book 2 Purchased: ${book.isPurchased("kitab_kiraah_2")}');
-                                  print('📊 [TEST] Book 3 Purchased: ${book.isPurchased("kitab_kiraah_3")}');
+                                  debugPrint('📊 [TEST] OneTime AdsFree: ${oneTime.isLifetimeAdsFree}');
+                                  debugPrint('📊 [TEST] Credits Premium: ${credits.isPremium}');
+                                  debugPrint('📊 [TEST] Book 1 Purchased: ${book.isPurchased("kitab_kiraah_1")}');
+                                  debugPrint('📊 [TEST] Book 2 Purchased: ${book.isPurchased("kitab_kiraah_2")}');
+                                  debugPrint('📊 [TEST] Book 3 Purchased: ${book.isPurchased("kitab_kiraah_3")}');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,
@@ -1803,7 +1802,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Local cache durumu kontrol ediliyor...');
+                                  debugPrint('🧪 [TEST] Local cache durumu kontrol ediliyor...');
                                   final prefs = await SharedPreferences.getInstance();
                                   
                                   // Ads cache
@@ -1815,8 +1814,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   final booksCache = prefs.getStringList('purchased_books');
                                   final booksUserId = prefs.getString('purchased_books_user_id');
                                   
-                                  print('📱 [TEST] Ads Cache: $adsCache (User: $adsUserId, timestamp: $adsTimestamp)');
-                                  print('📱 [TEST] Books Cache: $booksCache (User: $booksUserId)');
+                                  debugPrint('📱 [TEST] Ads Cache: $adsCache (User: $adsUserId, timestamp: $adsTimestamp)');
+                                  debugPrint('📱 [TEST] Books Cache: $booksCache (User: $booksUserId)');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.purple,
@@ -1834,9 +1833,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Container(
                           padding: EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.1),
+                            color: Colors.orange.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                            border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1862,7 +1861,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Premium Test
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Premium (Abone) olma simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Premium (Abone) olma simüle ediliyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
@@ -1885,7 +1884,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       SnackBar(content: Text('✅ Debug: Premium verildi!')),
                                     );
                                   } catch (e) {
-                                    print('Test hatası: $e');
+                                    debugPrint('Test hatası: $e');
                                   }
                                 },
                                 icon: const Icon(Icons.diamond_outlined),
@@ -1902,7 +1901,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Reklamları Kaldır Test
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Reklamları Kaldır satın alımı simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Reklamları Kaldır satın alımı simüle ediliyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
@@ -1924,7 +1923,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await creditsService.setLifetimeAdsFree(true);
                                     await creditsService.initialize();
                                     
-                                    print('✅ [TEST] Reklamları kaldır aktifleştirildi!');
+                                    debugPrint('✅ [TEST] Reklamları kaldır aktifleştirildi!');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Reklamları Kaldır Aktif!'),
@@ -1932,7 +1931,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } catch (e) {
-                                    print('❌ [TEST] Hata: $e');
+                                    debugPrint('❌ [TEST] Hata: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -1955,11 +1954,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Kitap 1 Test
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Kitap 1 satın alımı simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Kitap 1 satın alımı simüle ediliyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
-                                      print('❌ [TEST] Kullanıcı giriş yapmamış!');
+                                      debugPrint('❌ [TEST] Kullanıcı giriş yapmamış!');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Önce giriş yapın!')),
                                       );
@@ -1970,7 +1969,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final bookStore = BookStoreService();
                                     await bookStore.mockPurchase('kitab_kiraah_1');
                                     
-                                    print('✅ [TEST] Kitap 1 satın alındı!');
+                                    debugPrint('✅ [TEST] Kitap 1 satın alındı!');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 1 Aktif!'),
@@ -1978,7 +1977,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } catch (e) {
-                                    print('❌ [TEST] Hata: $e');
+                                    debugPrint('❌ [TEST] Hata: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2001,11 +2000,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Kitap 2 Test
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Kitap 2 satın alımı simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Kitap 2 satın alımı simüle ediliyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
-                                      print('❌ [TEST] Kullanıcı giriş yapmamış!');
+                                      debugPrint('❌ [TEST] Kullanıcı giriş yapmamış!');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Önce giriş yapın!')),
                                       );
@@ -2016,7 +2015,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final bookStore = BookStoreService();
                                     await bookStore.mockPurchase('kitab_kiraah_2');
                                     
-                                    print('✅ [TEST] Kitap 2 satın alındı!');
+                                    debugPrint('✅ [TEST] Kitap 2 satın alındı!');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 2 Aktif!'),
@@ -2024,7 +2023,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } catch (e) {
-                                    print('❌ [TEST] Hata: $e');
+                                    debugPrint('❌ [TEST] Hata: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2047,11 +2046,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // Kitap 3 Test
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Kitap 3 satın alımı simüle ediliyor...');
+                                  debugPrint('🧪 [TEST] Kitap 3 satın alımı simüle ediliyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
-                                      print('❌ [TEST] Kullanıcı giriş yapmamış!');
+                                      debugPrint('❌ [TEST] Kullanıcı giriş yapmamış!');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Önce giriş yapın!')),
                                       );
@@ -2062,7 +2061,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final bookStore = BookStoreService();
                                     await bookStore.mockPurchase('kitab_kiraah_3');
                                     
-                                    print('✅ [TEST] Kitap 3 satın alındı!');
+                                    debugPrint('✅ [TEST] Kitap 3 satın alındı!');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Kitap 3 Aktif!'),
@@ -2070,7 +2069,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } catch (e) {
-                                    print('❌ [TEST] Hata: $e');
+                                    debugPrint('❌ [TEST] Hata: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2093,11 +2092,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               // TÜM SATIN ALIMLARI TEMİZLE
                               ElevatedButton.icon(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Tüm satın alımlar temizleniyor...');
+                                  debugPrint('🧪 [TEST] Tüm satın alımlar temizleniyor...');
                                   try {
                                     final user = FirebaseAuth.instance.currentUser;
                                     if (user == null) {
-                                      print('❌ [TEST] Kullanıcı giriş yapmamış!');
+                                      debugPrint('❌ [TEST] Kullanıcı giriş yapmamış!');
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(content: Text('Önce giriş yapın!')),
                                       );
@@ -2121,7 +2120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     await bookStore.removePurchase('kitab_kiraah_2');
                                     await bookStore.removePurchase('kitab_kiraah_3');
                                     
-                                    print('✅ [TEST] Tüm satın alımlar temizlendi!');
+                                    debugPrint('✅ [TEST] Tüm satın alımlar temizlendi!');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('✅ TEST: Tüm Satın Alımlar Temizlendi!'),
@@ -2129,7 +2128,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     );
                                   } catch (e) {
-                                    print('❌ [TEST] Hata: $e');
+                                    debugPrint('❌ [TEST] Hata: $e');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text('Hata: $e'),
@@ -2158,23 +2157,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧪 [TEST] Manuel çıkış testi başlatılıyor...');
-                                  print('📊 [TEST] Çıkış öncesi durumlar:');
+                                  debugPrint('🧪 [TEST] Manuel çıkış testi başlatılıyor...');
+                                  debugPrint('📊 [TEST] Çıkış öncesi durumlar:');
                                   
                                   final oneTime = OneTimePurchaseService();
                                   final book = BookStoreService();
-                                  print('   - AdsFree: ${oneTime.isLifetimeAdsFree}');
-                                  print('   - Books: ${book.isPurchased("kitab_kiraah_1")}, ${book.isPurchased("kitab_kiraah_2")}, ${book.isPurchased("kitab_kiraah_3")}');
+                                  debugPrint('   - AdsFree: ${oneTime.isLifetimeAdsFree}');
+                                  debugPrint('   - Books: ${book.isPurchased("kitab_kiraah_1")}, ${book.isPurchased("kitab_kiraah_2")}, ${book.isPurchased("kitab_kiraah_3")}');
                                   
                                   await FirebaseAuth.instance.signOut();
-                                  print('🚪 [TEST] Çıkış yapıldı - 2 saniye sonra kontrol edilecek...');
+                                  debugPrint('🚪 [TEST] Çıkış yapıldı - 2 saniye sonra kontrol edilecek...');
                                   
                                   await Future.delayed(Duration(seconds: 2));
                                   
-                                  print('📊 [TEST] Çıkış sonrası durumlar:');
-                                  print('   - AdsFree: ${oneTime.isLifetimeAdsFree}');
-                                  print('   - Books: ${book.isPurchased("kitab_kiraah_1")}, ${book.isPurchased("kitab_kiraah_2")}, ${book.isPurchased("kitab_kiraah_3")}');
-                                  print('🔍 [TEST] Bu değerler FALSE olmalı (güvenlik için)');
+                                  debugPrint('📊 [TEST] Çıkış sonrası durumlar:');
+                                  debugPrint('   - AdsFree: ${oneTime.isLifetimeAdsFree}');
+                                  debugPrint('   - Books: ${book.isPurchased("kitab_kiraah_1")}, ${book.isPurchased("kitab_kiraah_2")}, ${book.isPurchased("kitab_kiraah_3")}');
+                                  debugPrint('🔍 [TEST] Bu değerler FALSE olmalı (güvenlik için)');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange,
@@ -2194,9 +2193,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                      border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -2221,7 +2220,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🔍 Veritabanı analizi başlatılıyor...');
+                                  debugPrint('🔍 Veritabanı analizi başlatılıyor...');
                                   await DatabaseCleanupUtility.printDatabaseStatus();
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -2235,7 +2234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () async {
-                                  print('🧹 Otomatik temizlik başlatılıyor...');
+                                  debugPrint('🧹 Otomatik temizlik başlatılıyor...');
                                   final result = await DatabaseCleanupUtility.performAutoCleanup();
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(

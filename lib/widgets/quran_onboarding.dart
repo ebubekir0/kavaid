@@ -59,7 +59,7 @@ class _QuranOnboardingState extends State<QuranOnboarding> {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -87,7 +87,7 @@ class _QuranOnboardingState extends State<QuranOnboarding> {
                   decoration: BoxDecoration(
                     color: _currentPage == index
                         ? const Color(0xFF4A5729)
-                        : const Color(0xFF8E8E93).withOpacity(0.3),
+                        : const Color(0xFF8E8E93).withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -141,7 +141,7 @@ class _QuranOnboardingState extends State<QuranOnboarding> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: item.color.withOpacity(0.1),
+              color: item.color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(item.icon, size: 60, color: item.color),

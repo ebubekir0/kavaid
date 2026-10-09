@@ -41,7 +41,7 @@ class GameScreen extends StatelessWidget {
           // Dark Overlay for Contrast
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
             ),
           ),
           // Game Content

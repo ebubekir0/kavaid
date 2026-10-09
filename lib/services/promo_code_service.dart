@@ -134,7 +134,7 @@ class PromoCodeService extends ChangeNotifier {
       final doc = await _firestore.collection('users').doc(user.uid).get();
       if (!doc.exists) return false;
 
-      final data = doc.data() as Map<String, dynamic>?;
+      final data = doc.data();
       if (data == null) return false;
       
       final promoPremiumUntil = data['promoPremiumUntil'] as Timestamp?;

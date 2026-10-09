@@ -123,9 +123,9 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2196F3).withOpacity(0.1),
+                      color: const Color(0xFF2196F3).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF2196F3).withOpacity(0.3)),
+                      border: Border.all(color: const Color(0xFF2196F3).withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
@@ -177,9 +177,9 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.08),
+                    color: Colors.green.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     _successText!,
@@ -193,9 +193,9 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.08),
+                    color: Colors.red.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     _errorText!,

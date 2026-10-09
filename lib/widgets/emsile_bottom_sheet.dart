@@ -166,7 +166,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -325,11 +325,11 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
         indicator: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
           gradient: LinearGradient(
-            colors: [_accentBlue, _accentBlue.withOpacity(0.8)],
+            colors: [_accentBlue, _accentBlue.withValues(alpha: 0.8)],
           ),
           boxShadow: [
             BoxShadow(
-              color: _accentBlue.withOpacity(0.3),
+              color: _accentBlue.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -458,7 +458,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
           Expanded(
             child: Container(
               height: 0.5,
-              color: accentColor.withOpacity(0.2),
+              color: accentColor.withValues(alpha: 0.2),
             ),
           ),
         ],
@@ -480,7 +480,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
       decoration: BoxDecoration(
         color: isEven
             ? (isDark
-                ? const Color(0xFF2C2C2E).withOpacity(0.5)
+                ? const Color(0xFF2C2C2E).withValues(alpha: 0.5)
                 : const Color(0xFFF8F9FA))
             : (isDark
                 ? const Color(0xFF1C1C1E)
@@ -488,7 +488,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isDark
-              ? const Color(0xFF38383A).withOpacity(0.5)
+              ? const Color(0xFF38383A).withValues(alpha: 0.5)
               : const Color(0xFFE5E5EA),
           width: 0.5,
         ),
@@ -515,7 +515,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             width: 52,
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
             decoration: BoxDecoration(
-              color: accentColor.withOpacity(isDark ? 0.15 : 0.08),
+              color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -569,7 +569,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       decoration: BoxDecoration(
         color: isDark
-            ? const Color(0xFF2C2C2E).withOpacity(0.5)
+            ? const Color(0xFF2C2C2E).withValues(alpha: 0.5)
             : const Color(0xFFF8F9FA),
         border: Border(
           top: BorderSide(
@@ -618,10 +618,10 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(isDark ? 0.1 : 0.06),
+          color: color.withValues(alpha: isDark ? 0.1 : 0.06),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             width: 0.5,
           ),
         ),

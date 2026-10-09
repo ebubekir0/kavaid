@@ -303,6 +303,12 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
 
+      // Release'de debug log'larını kapat: hem performans hem de log'lara
+      // hassas bilgi (API anahtarı uzunluğu, kullanıcı verisi) düşmemesi için.
+      if (kReleaseMode) {
+        debugPrint = (String? message, {int? wrapWidth}) {};
+      }
+
       // 🚀 ÖNCELİK 1: Fontları arka planda yükle — runApp'i bloke etme (ANR önleme)
       // await KALDIRILDI: ilk frame gecikmesin, font flash kabul edilebilir
       _preloadFonts().catchError((e) => debugPrint('⚠️ Font preload: $e'));
@@ -395,7 +401,7 @@ Future<void> main() async {
       // 🧹 Veritabanı durumu kontrol et (DEBUG)
       if (kDebugMode) {
         Future.delayed(const Duration(seconds: 3), () async {
-          print('\n🔍 Veritabanı durumu kontrol ediliyor...');
+          debugPrint('\n🔍 Veritabanı durumu kontrol ediliyor...');
           await DatabaseCleanupUtility.printDatabaseStatus();
         });
       }
@@ -1122,8 +1128,9 @@ class _MainScreenState extends State<MainScreen> {
                                 _setArabicKeyboardState,
                             isFirstOpen: _isFirstOpen,
                             onKeyboardOpened: () {
-                              if (_isFirstOpen)
+                              if (_isFirstOpen) {
                                 setState(() => _isFirstOpen = false);
+                              }
                             },
                           ),
 

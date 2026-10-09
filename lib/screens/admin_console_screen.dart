@@ -42,7 +42,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
   List<Map<String, dynamic>> _onlineUsersList = [];
   
   bool _chatEnabled = true;
-  String _selectedTab = 'dashboard';
+  final String _selectedTab = 'dashboard';
   late TabController _tabController;
   int _currentTabIndex = 0; // Mevcut sekme index'ini takip et
 
@@ -267,7 +267,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.security,
@@ -523,7 +523,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -598,7 +598,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -612,7 +612,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 24),
@@ -656,7 +656,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -732,7 +732,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -924,7 +924,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
                       margin: const EdgeInsets.only(bottom: 8),
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundColor: actionColor.withOpacity(0.1),
+                          backgroundColor: actionColor.withValues(alpha: 0.1),
                           child: Icon(actionIcon, color: actionColor, size: 20),
                         ),
                         title: Text(actionText),
@@ -983,7 +983,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -1032,7 +1032,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -1070,7 +1070,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
                         await GlobalConfigService().toggleCampaignStatus();
                         if (mounted) setState(() {});
                       },
-                      activeColor: Colors.green,
+                      activeThumbColor: Colors.green,
                     ),
                   ],
                 ),
@@ -1152,7 +1152,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 2),
                 ),
@@ -1519,7 +1519,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -1822,7 +1822,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProv
                           return Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
+                              color: Colors.blue.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(

@@ -269,6 +269,17 @@ Future<void> _enableAndroidHighPerformanceMode() async {
   }
 }
 
+// Android grafik sürücüsünün ürettiği, uygulamayla ilgisi olmayan gürültülü hatalar
+bool _isNoisyAndroidError(FlutterErrorDetails details) {
+  final message = details.toString();
+  return message.contains('gralloc4') ||
+      message.contains('Surface') ||
+      message.contains('FrameEvents') ||
+      message.contains('SMPTE 2094-40') ||
+      message.contains('lockHardwareCanvas') ||
+      message.contains('updateAcquireFence');
+}
+
 Future<void> _enableFullscreenSystemUi() async {
   if (kIsWeb) return;
   await SystemChrome.setEnabledSystemUIMode(
@@ -316,22 +327,10 @@ Future<void> main() async {
           // Bu satır platform kanalı mesaj işleyicisini silerek input dispatch'i bozuyordu
           // → %78 ANR'ının doğrudan nedeni buydu.
           // Gürültülü loglar için sadece FlutterError.onError filtreleme yeterli.
+          // Crashlytics kaydı aşağıda Firebase hazır olunca eklenir; burada
+          // kaydedilirse her hata Crashlytics'e iki kez gidiyordu.
           FlutterError.onError = (details) {
-            final message = details.toString();
-            if (message.contains('gralloc4') ||
-                message.contains('Surface') ||
-                message.contains('FrameEvents') ||
-                message.contains('SMPTE 2094-40') ||
-                message.contains('lockHardwareCanvas') ||
-                message.contains('updateAcquireFence')) {
-              return; // Gürültülü logları yut
-            }
-            // Crashlytics'e bildir, ardından varsayılan sunumu yap (web'de desteklenmiyor)
-            if (!kIsWeb) {
-              try {
-                FirebaseCrashlytics.instance.recordFlutterError(details);
-              } catch (_) {}
-            }
+            if (_isNoisyAndroidError(details)) return; // Gürültülü logları yut
             FlutterError.presentError(details);
           };
         }
@@ -365,19 +364,20 @@ Future<void> main() async {
           // Flutter framework hataları
           final previousOnError = FlutterError.onError;
           FlutterError.onError = (details) {
+            if (!kIsWeb && Platform.isAndroid && _isNoisyAndroidError(details)) {
+              return;
+            }
             try {
               FirebaseCrashlytics.instance.recordFlutterError(details);
             } catch (_) {}
             previousOnError?.call(details);
           };
-          // Framework dışı (async) hatalar
+          // Framework dışı (async) hatalar. Bunlar uygulamayı kapatmaz;
+          // fatal: true işaretlenince Crashlytics crash-free oranını
+          // olduğundan kötü gösteriyordu.
           WidgetsBinding.instance.platformDispatcher.onError = (error, stack) {
             try {
-              FirebaseCrashlytics.instance.recordError(
-                error,
-                stack,
-                fatal: true,
-              );
+              FirebaseCrashlytics.instance.recordError(error, stack);
             } catch (_) {}
             return true; // Hata ele alındı
           };
@@ -401,10 +401,11 @@ Future<void> main() async {
       }
     },
     (error, stack) {
-      // En yakalanmayan hataları Crashlytics'e gönder (web'de desteklenmiyor)
+      // Yakalanmayan zone hatalarını Crashlytics'e gönder (web'de desteklenmiyor).
+      // Uygulamayı kapatmadıkları için fatal olarak işaretlenmez.
       if (!kIsWeb) {
         try {
-          FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+          FirebaseCrashlytics.instance.recordError(error, stack);
         } catch (_) {}
       }
     },
@@ -456,15 +457,17 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     // Premium state AppStartupService/PurchaseManager tarafindan yonetilir;
     // burada sadece degisimleri dinliyoruz.
     // Premium durumu değiştiğinde rebuild için dinle
-    _creditsService.addListener(() {
-      if (mounted) setState(() {});
-    });
+    _creditsService.addListener(_onCreditsChanged);
+  }
+
+  void _onCreditsChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _creditsService.removeListener(() {});
+    _creditsService.removeListener(_onCreditsChanged);
     _usageTimer?.cancel();
     _appUsageService.endSession();
 

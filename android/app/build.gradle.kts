@@ -36,8 +36,9 @@ android {
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = 3220
-        versionName = "3.2.20"
+        // Sürüm pubspec.yaml'daki "version: x.y.z+build" satırından gelir (iOS ile aynı)
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
         
         // Multidex desteği
         multiDexEnabled = true
@@ -179,8 +180,6 @@ flutter {
 
 dependencies {
     implementation("androidx.multidex:multidex:2.0.1")
-    // Google Mobile Ads SDK (explicit) - align with mediation adapter
-    implementation("com.google.android.gms:play-services-ads:24.5.0")
 }
 
 // Google Services plugin'i apply et

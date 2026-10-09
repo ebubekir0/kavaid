@@ -1,7 +1,6 @@
 import Flutter
 import UIKit
 import Firebase
-import GoogleMobileAds
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -37,10 +36,7 @@ import GoogleMobileAds
         }
       }
     }
-    
-    // Initialize Google Mobile Ads
-    MobileAds.shared.start { _ in }
-    
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

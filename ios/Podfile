@@ -31,13 +31,7 @@ target 'Runner' do
   use_frameworks! # This is needed for some packages
   use_modular_headers!
 
-    flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  # AdMobend
-  # AdMob Mediation: Meta Audience Network adapter
-  # Ref: https://developers.google.com/admob/ios/mediation/meta
-  pod 'GoogleMobileAdsMediationFacebook'
-
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
 post_install do |installer|

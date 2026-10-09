@@ -1,0 +1,30 @@
+# Her push ve pull request'te statik analiz ve testleri çalıştırır.
+# (iOS/Android mağaza derlemeleri Codemagic'te kalır: codemagic.yaml)
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.3'
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # Hatalar build'i kırar; uyarı/bilgi seviyesindekiler şimdilik kırmaz.
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Test
+        run: flutter test

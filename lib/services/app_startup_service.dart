@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/safe_purchase_wrapper.dart';
 import 'app_usage_service.dart';
@@ -33,8 +32,6 @@ class AppStartupService extends ChangeNotifier {
   AppStartupService._();
 
   static final AppStartupService instance = AppStartupService._();
-
-  static const String _embeddedDataLoadedV3Key = 'embedded_data_loaded_v3';
 
   StartupPhase _phase = StartupPhase.visualPrep;
   double _progress = 0.0;
@@ -159,8 +156,10 @@ class AppStartupService extends ChangeNotifier {
       isMainDictionaryReady: false,
     );
 
-    if (await _hasUsableMainDictionary()) {
-      await _markMainDictionaryReady();
+    // Sözlük dolu ve uygulamayla gelen veri sürümüyle aynıysa kurulumu atla.
+    // Sürüm farklıysa (veri güncellendiyse) aşağıda yeniden kurulur.
+    if (await _hasUsableMainDictionary(requireCurrentData: true)) {
+      _isMainDictionaryReady = true;
       _setState(
         phase: StartupPhase.checking,
         progress: 0.72,
@@ -192,11 +191,13 @@ class AppStartupService extends ChangeNotifier {
       initService.onProgress = null;
     }
 
+    // Yeniden kurulum yarıda kalsa bile eldeki sözlükle devam edilir;
+    // sürüm işaretlenmediği için bir sonraki açılışta tekrar denenir.
     if (!success || !await _hasUsableMainDictionary()) {
       throw StateError('Ana sozluk veritabani hazirlanamadi.');
     }
 
-    await _markMainDictionaryReady();
+    _isMainDictionaryReady = true;
     _setState(
       phase: StartupPhase.installingDictionary,
       progress: 0.72,
@@ -237,7 +238,9 @@ class AppStartupService extends ChangeNotifier {
     );
   }
 
-  Future<bool> _hasUsableMainDictionary() async {
+  Future<bool> _hasUsableMainDictionary({
+    bool requireCurrentData = false,
+  }) async {
     if (kIsWeb) {
       return true;
     }
@@ -247,17 +250,14 @@ class AppStartupService extends ChangeNotifier {
       final count = await DatabaseService.instance
           .getWordsCount()
           .timeout(const Duration(seconds: 4));
-      return count > 0;
+      if (count == 0) return false;
+      if (!requireCurrentData) return true;
+      return await DatabaseInitializationService.instance
+          .isInstalledDataCurrent();
     } catch (e) {
       debugPrint('_hasUsableMainDictionary timeout/error: $e');
       return false;
     }
-  }
-
-  Future<void> _markMainDictionaryReady() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_embeddedDataLoadedV3Key, true);
-    _isMainDictionaryReady = true;
   }
 
   void _startWarmups() {

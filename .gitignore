@@ -28,3 +28,6 @@ SOZLUK_*.json
 *.p8
 *.mobileprovision
 ios/Runner/GoogleService-Info.plist
+
+# Uygulamayla gelen sözlük verisi (tool/build_dictionary_asset.py üretir)
+!assets/data/sozluk.json.gz

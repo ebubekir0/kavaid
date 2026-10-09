@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/word_model.dart';
-import '../data/embedded_words_data.dart';
+import '../data/embedded_words.dart';
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -502,6 +502,11 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
   static bool _isPrewarming = false;
   static Future<void>? _prewarmFuture;
 
+  // Bellek içi arama için sözlük verisi. Her izolenin kendi kopyası vardır:
+  // arama izolesi başlarken asset'ten çözer; ana izolede yalnızca izole
+  // başlatılamazsa (yedek yol) yüklenir.
+  static List<Map<String, dynamic>>? _words;
+
   static final SearchIsolateWorker _worker = SearchIsolateWorker();
 
   static bool get isSearchCacheReady => kIsWeb ? true : _worker.isReady;
@@ -513,13 +518,15 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 
   static void _buildCache() {
     if (_normalizedHKCache != null) return;
+    final words = _words;
+    if (words == null) return;
     final kList = <String>[];
     final hkList = <String>[];
     final rootList = <String>[];
     final mList = <int, String>{};
 
-    for (int i = 0; i < embeddedWordsData.length; i++) {
-      final map = embeddedWordsData[i];
+    for (int i = 0; i < words.length; i++) {
+      final map = words[i];
       final rawK = map['kelime'] as String? ?? '';
       final rawHK = map['harekeliKelime'] as String? ?? '';
       final rawRoot = map['koku'] as String? ?? '';
@@ -543,13 +550,14 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
   /// Uygulamanin başlangıcında cache'i önceden çak. main.dart veya initState'den çağrın.
   static Future<void> _buildCacheIncrementally({int chunkSize = 700}) async {
     if (_normalizedHKCache != null) return;
+    final words = _words ??= await EmbeddedWords.load();
     final kList = <String>[];
     final hkList = <String>[];
     final rootList = <String>[];
     final mList = <int, String>{};
 
-    for (int i = 0; i < embeddedWordsData.length; i++) {
-      final map = embeddedWordsData[i];
+    for (int i = 0; i < words.length; i++) {
+      final map = words[i];
       final rawK = map['kelime'] as String? ?? '';
       final rawHK = map['harekeliKelime'] as String? ?? '';
       final rawRoot = map['koku'] as String? ?? '';
@@ -606,7 +614,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     return text.startsWith(token) || text.contains(' $token');
   }
 
-  // ─── RAM'de arama (Isolate-safe, embeddedWordsData'yı okur) ──────────────
+  // ─── RAM'de arama (Isolate-safe, bu izoledeki _words'ü okur) ──────────────
   static List<Map<String, dynamic>> _runIsolateSearch(
     Map<String, dynamic> args,
   ) {
@@ -619,6 +627,10 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 
     // Cache yoksa (prewarm henüz bitmedi) oluştur
     _buildCache();
+    final words = _words;
+    if (words == null || _normalizedHKCache == null) {
+      return <Map<String, dynamic>>[];
+    }
     final kCache = _normalizedKelimeCache!;
     final hkCache = _normalizedHKCache!;
     final rootCache = _normalizedRootCache!;
@@ -627,8 +639,8 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     // Sonuçlar: [rank, sec, index]
     final results = <({int rank, int sec, int idx})>[];
 
-    for (int i = 0; i < embeddedWordsData.length; i++) {
-      final map = embeddedWordsData[i];
+    for (int i = 0; i < words.length; i++) {
+      final map = words[i];
       final rawK = map['kelime'] as String? ?? '';
       final rawHK = map['harekeliKelime'] as String? ?? '';
       final rawRoot = map['koku'] as String? ?? '';
@@ -770,7 +782,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     // Map listesine dönüştür (idx üzerinden). UI jank'ini azaltmak için ilk
     // anlamlı sonuç grubuyla sınırlı tutuyoruz; kalanlar genelde düşük skorlu.
     return results.take(120).map((r) {
-      final m = Map<String, dynamic>.from(embeddedWordsData[r.idx]);
+      final m = Map<String, dynamic>.from(words[r.idx]);
       m['rank'] = r.rank;
       return m;
     }).toList();
@@ -1763,40 +1775,79 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 }
 
 class SearchIsolateWorker {
+  static const _cacheReadyMessage = 'cache_ready';
+  static const _cacheErrorMessage = 'cache_error';
+
   Isolate? _isolate;
   SendPort? _sendPort;
-  final _readyCompleter = Completer<void>();
+  // İzole sözlük verisini çözüp arama cache'ini kurunca tamamlanır.
+  final _cacheReadyCompleter = Completer<void>();
+  Future<void>? _startFuture;
   bool _isInitialized = false;
   bool _hasError = false;
 
   bool get isReady => _isInitialized && !_hasError;
 
-  Future<void> start() async {
-    if (_isInitialized || _hasError) return;
+  /// Birden çok kez çağrılabilir; izole yalnızca bir kez başlatılır.
+  /// (Eskiden başlangıçtaki zaman aşımı sonrası ikinci çağrı ikinci bir
+  /// izole açıyor ve arama yanlışlıkla yedek yola düşüyordu.)
+  Future<void> start() => _startFuture ??= _start();
+
+  Future<void> _start() async {
     try {
+      // Sıkıştırılmış veri ana izolede okunur (rootBundle burada çalışır),
+      // çözme ve normalize etme işi arama izolesinde yapılır.
+      final compressed = await EmbeddedWords.loadCompressed();
       final receivePort = ReceivePort();
-      _isolate = await Isolate.spawn(_isolateEntry, receivePort.sendPort)
-          .timeout(const Duration(seconds: 4));
+      final sendPortCompleter = Completer<SendPort>();
+      receivePort.listen((message) {
+        if (message is SendPort) {
+          if (!sendPortCompleter.isCompleted) sendPortCompleter.complete(message);
+        } else if (message == _cacheReadyMessage) {
+          if (!_cacheReadyCompleter.isCompleted) _cacheReadyCompleter.complete();
+          receivePort.close();
+        } else if (message == _cacheErrorMessage) {
+          debugPrint('❌ SearchIsolateWorker: sözlük verisi çözülemedi');
+          _markFailed();
+          receivePort.close();
+        }
+      });
+      _isolate = await Isolate.spawn(_isolateEntry, <Object>[
+        receivePort.sendPort,
+        TransferableTypedData.fromList([compressed]),
+      ]).timeout(const Duration(seconds: 4));
       // ANR: isolate başlamazsa (düşük RAM) sonsuza kadar bekleme.
-      final firstMessage = await receivePort.first.timeout(
+      _sendPort = await sendPortCompleter.future.timeout(
         const Duration(seconds: 4),
       );
-      _sendPort = firstMessage as SendPort;
       _isInitialized = true;
-      _readyCompleter.complete();
     } catch (e) {
       debugPrint('❌ SearchIsolateWorker failed to start: $e');
-      _hasError = true;
-      if (!_readyCompleter.isCompleted) {
-        _readyCompleter.complete();
-      }
+      _markFailed();
     }
+  }
+
+  void _markFailed() {
+    _hasError = true;
+    _sendPort = null;
+    _isolate?.kill(priority: Isolate.immediate);
+    _isolate = null;
+    if (!_cacheReadyCompleter.isCompleted) _cacheReadyCompleter.complete();
   }
 
   Future<List<Map<String, dynamic>>> search(Map<String, dynamic> args) async {
     if (!_isInitialized && !_hasError) {
       // ANR: isolate hazır değilken sonsuza kadar bekleme.
-      await _readyCompleter.future.timeout(const Duration(seconds: 4));
+      try {
+        await start().timeout(const Duration(seconds: 4));
+      } catch (_) {}
+    }
+    if (!_hasError && _sendPort != null && !_cacheReadyCompleter.isCompleted) {
+      // İlk aramalar: izole veriyi çözerken "sonuç yok" göstermek yerine
+      // cache hazır olana kadar bekle (düşük cihazlarda birkaç saniye).
+      try {
+        await _cacheReadyCompleter.future.timeout(const Duration(seconds: 15));
+      } catch (_) {}
     }
     if (_hasError || _sendPort == null) {
       // ANR: Eski yol UI thread'inde senkron _runIsolateSearch çağırıyordu;
@@ -1830,12 +1881,24 @@ class SearchIsolateWorker {
     }
   }
 
-  static void _isolateEntry(SendPort sendPort) {
+  static void _isolateEntry(List<Object> init) {
+    final sendPort = init[0] as SendPort;
+    final compressed = init[1] as TransferableTypedData;
     final receivePort = ReceivePort();
     sendPort.send(receivePort.sendPort);
 
-    // Build cache inside the background isolate!
-    DatabaseService._buildCache();
+    // Sözlüğü bu izolede çöz ve arama cache'ini kur. Gelen aramalar
+    // bu iş bitene kadar kuyrukta bekler.
+    try {
+      DatabaseService._words = EmbeddedWords.decode(
+        compressed.materialize().asUint8List(),
+      );
+      DatabaseService._buildCache();
+      sendPort.send(_cacheReadyMessage);
+    } catch (_) {
+      sendPort.send(_cacheErrorMessage);
+      return;
+    }
 
     receivePort.listen((message) {
       final msg = message as Map<String, dynamic>;

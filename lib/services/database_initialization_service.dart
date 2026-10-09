@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database_service.dart';
-import '../data/embedded_words_data.dart';
+import '../data/embedded_words.dart';
 
 class DatabaseInitializationService {
   static final DatabaseInitializationService instance =
@@ -9,32 +9,25 @@ class DatabaseInitializationService {
 
   DatabaseInitializationService._init();
 
+  /// Yerel SQLite sözlüğünün hangi veri sürümünden kurulduğunu tutar.
+  /// Uygulamayla gelen veri (embeddedWordsVersion) değişince sözlük
+  /// açılışta yeniden kurulur; eskiden sabit bir "v3" bayrağı kullanıldığı
+  /// için güncellenen kelimeler mevcut kullanıcılara hiç ulaşmıyordu.
+  static const String dataVersionKey = 'embedded_words_version';
+
+  // Eski sürümlerin kullandığı anahtarlar (temizlik için)
+  static const List<String> _legacyKeys = [
+    'embedded_data_loaded',
+    'embedded_data_loaded_v3',
+  ];
+
   // Progress callback
   Function(double progress, String message)? onProgress;
 
-  /// Database'in güncel olup olmadığını kontrol et
-  Future<bool> isDatabaseUpToDate() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final isEmbeddedDataLoaded =
-          prefs.getBool('embedded_data_loaded_v3') ?? false;
-
-      // Embedded data yüklenmiş mi kontrol et
-      if (isEmbeddedDataLoaded) {
-        return true;
-      }
-
-      // Lokal database varsa ve boş değilse true dön
-      final dbService = DatabaseService.instance;
-      final count = await dbService.getWordsCount();
-      return count > 0;
-    } catch (e) {
-      debugPrint('Version kontrol hatası: $e');
-      // Hata durumunda lokal database varsa true dön
-      final dbService = DatabaseService.instance;
-      final count = await dbService.getWordsCount();
-      return count > 0;
-    }
+  /// Yerel sözlük, uygulamayla gelen veri sürümüyle aynı mı?
+  Future<bool> isInstalledDataCurrent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(dataVersionKey) == embeddedWordsVersion;
   }
 
   /// Embedded data'yı yükle
@@ -46,20 +39,17 @@ class DatabaseInitializationService {
       final dbService = DatabaseService.instance;
       final existingCount = await dbService.getWordsCount();
 
-      // Eğer veritabanında zaten kelimeler varsa ve embedded data yüklenmişse, skip et
+      // Veritabanı dolu ve uygulamadaki veriyle aynı sürümdeyse atla
       final prefs = await SharedPreferences.getInstance();
-      final isEmbeddedDataLoaded =
-          prefs.getBool('embedded_data_loaded_v3') ?? false;
-
-      if (existingCount > 0 && isEmbeddedDataLoaded) {
-        onProgress?.call(1.0, 'Sözlük hazır. ${existingCount} kelime mevcut.');
+      if (existingCount > 0 && await isInstalledDataCurrent()) {
+        onProgress?.call(1.0, 'Sözlük hazır. $existingCount kelime mevcut.');
         return true;
       }
 
       onProgress?.call(0.1, 'Sözlük ayarlanıyor...');
 
-      // Embedded data'dan kelimeleri al
-      final wordsJson = embeddedWordsData;
+      // Uygulamayla gelen sözlük verisini arka planda çöz
+      final wordsJson = await EmbeddedWords.load();
 
       onProgress?.call(0.3, 'Kelimeler yükleniyor...');
 
@@ -74,9 +64,10 @@ class DatabaseInitializationService {
 
       onProgress?.call(0.9, 'Sözlük ayarlanıyor...');
 
-      // Embedded data yüklendiğini işaretle (v3 = harfi_cer destekli yeni DB)
-      await prefs.setBool('embedded_data_loaded_v3', true);
-      await prefs.setString('database_version', 'embedded_v3_harficer');
+      // Hangi veri sürümünün kurulduğunu işaretle
+      await prefs.setString(dataVersionKey, embeddedWordsVersion);
+      await prefs.setString('database_version', 'embedded_$embeddedWordsVersion');
+      await prefs.remove('embedded_data_loaded_v3');
       await prefs.setString(
         'last_update_date',
         DateTime.now().toIso8601String(),
@@ -123,8 +114,10 @@ class DatabaseInitializationService {
 
       // SharedPreferences'ı temizle (eski ve yeni key'ler)
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('embedded_data_loaded');
-      await prefs.remove('embedded_data_loaded_v3');
+      for (final key in _legacyKeys) {
+        await prefs.remove(key);
+      }
+      await prefs.remove(dataVersionKey);
       await prefs.remove('database_version');
       await prefs.remove('last_update_date');
       debugPrint('✅ SharedPreferences temizlendi');
@@ -155,8 +148,10 @@ class DatabaseInitializationService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('database_version');
     await prefs.remove('last_update_date');
-    await prefs.remove('embedded_data_loaded');
-    await prefs.remove('embedded_data_loaded_v3');
+    await prefs.remove(dataVersionKey);
+    for (final key in _legacyKeys) {
+      await prefs.remove(key);
+    }
 
     final dbService = DatabaseService.instance;
     await dbService.recreateWordsTable([]);

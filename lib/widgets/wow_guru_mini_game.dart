@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
-import '../data/embedded_words_data.dart';
+import '../data/embedded_words.dart';
 
 class WowGuruMiniGame extends StatefulWidget {
   final bool isDarkMode;
@@ -56,9 +56,12 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
     return text.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u06D6-\u06ED]'), '');
   }
 
-  void _loadRandomWord() {
+  // Oyuna uygun kelimeler; sözlükten ilk açılışta bir kez seçilir.
+  static List<Map<String, dynamic>>? _candidateCache;
+
+  Future<void> _loadRandomWord() async {
     // Sadece 3 ile 6 harf arası Arapça kelimeler
-    final candidates = embeddedWordsData.where((w) {
+    final candidates = _candidateCache ??= (await EmbeddedWords.load()).where((w) {
       final harekeli = w['harekeliKelime'] as String? ?? '';
       final anlam = w['anlam'] as String? ?? '';
       if (harekeli.isEmpty || anlam.isEmpty) return false;
@@ -69,6 +72,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
       if (!RegExp(r'[\u0600-\u06FF]').hasMatch(clean)) return false;
       return true;
     }).toList();
+    if (!mounted) return;
 
     if (candidates.isEmpty) {
       setState(() {

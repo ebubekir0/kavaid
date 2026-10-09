@@ -10,6 +10,10 @@ release_output/
 *.so
 .flutter-plugins-dependencies 
 
+# Android/Kotlin derleme kalıntıları (her derlemede yeniden üretilir)
+android/.kotlin/
+android/app/mapping.txt
+
 # Memory dumps and logs
 *.hprof
 *.log

@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'promo_code_service.dart';
 import 'connectivity_service.dart';
+import 'legacy_entitlements.dart';
 
 const _apiKeyAndroid = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE';
 const _apiKeyIOS = 'appl_NZgrRHVUkpanVmNiCcqlEpQlMXo';
@@ -115,7 +116,7 @@ class PurchaseManager extends ChangeNotifier {
   String get lastError => _lastError;
   Set<String> get purchasedBooks => _purchasedBooks;
   DateTime? get subscriptionExpiryDate =>
-      _latestDate(_subscriptionExpiryDate, _promoExpiryDate);
+      latestDate(_subscriptionExpiryDate, _promoExpiryDate);
   DateTime? get lastVerifiedAt => _lastVerifiedAt;
   String get entitlementSource => _entitlementSource;
 
@@ -755,25 +756,10 @@ class PurchaseManager extends ChangeNotifier {
     unawaited(_saveLocalCache());
   }
 
-  static const List<String> _legacyAdsIds = [
-    'remove_ads',
-    'ads_remove',
-    'reklam_kaldir',
-    'reklam_kaldirma',
-    'ads_free',
-    'no_ads',
-    'ad_free',
-    'premium_ads',
-    'adsfree',
-    'noads',
-    'lifetime_ads',
-    'removeads',
-  ];
-
   bool get hasActiveBooks {
     if (_purchasedBooks.isEmpty) return false;
     return _purchasedBooks.any(
-      (id) => !_legacyAdsIds.contains(id.toLowerCase()),
+      (id) => !LegacyEntitlements.adsProductIds.contains(id.toLowerCase()),
     );
   }
 
@@ -787,96 +773,12 @@ class PurchaseManager extends ChangeNotifier {
     }
 
     try {
-      var legacyPremium = false;
-      var legacyAdsFree = false;
-      DateTime? legacyPremiumExpiry;
-      final books = <String>{};
       final legacyDocs = <Map<String, dynamic>>[];
       final docIds = <String>[
         user.uid,
         if ((user.email ?? '').isNotEmpty && user.email != user.uid)
           user.email!,
       ];
-
-      bool checkBoolField(Map<String, dynamic> data, String field) {
-        final val = data[field];
-        if (val == true) return true;
-        if (val is String && val.toLowerCase() == 'true') return true;
-        if (val is int && val == 1) return true;
-        return false;
-      }
-
-      bool isActiveFlag(Object? value) {
-        if (value == true) return true;
-        if (value is int && value == 1) return true;
-        if (value is String) {
-          final normalized = value.toLowerCase().trim();
-          return normalized == 'true' ||
-              normalized == 'active' ||
-              normalized == 'premium' ||
-              normalized == 'paid' ||
-              normalized == 'subscribed' ||
-              normalized == 'valid' ||
-              normalized == 'enabled';
-        }
-        return false;
-      }
-
-      bool checkActiveStringField(Map<String, dynamic> data, String field) {
-        return isActiveFlag(data[field]);
-      }
-
-      DateTime? firstDateField(Map<String, dynamic> data, List<String> fields) {
-        for (final field in fields) {
-          final parsed = _parseFlexibleDate(data[field]);
-          if (parsed != null) return parsed;
-        }
-        return null;
-      }
-
-      bool activeNestedEntitlement(Map<String, dynamic> data, String field) {
-        final value = data[field];
-        if (value is! Map) return false;
-        final nested = Map<String, dynamic>.from(value);
-        final nestedExpiry = firstDateField(nested, const [
-          'expiresAt',
-          'expirationDate',
-          'expiry',
-          'expires',
-          'until',
-          'premiumUntil',
-          'premiumExpiry',
-          'subscriptionExpiry',
-        ]);
-        final hasActiveMarker =
-            isActiveFlag(nested['active']) ||
-            isActiveFlag(nested['isActive']) ||
-            isActiveFlag(nested['enabled']) ||
-            isActiveFlag(nested['status']) ||
-            isActiveFlag(nested['state']);
-        return hasActiveMarker &&
-            (nestedExpiry == null ||
-                nestedExpiry.isAfter(DateTime.now().toUtc()));
-      }
-
-      bool activeNamedNestedEntitlement(
-        Map<String, dynamic> data,
-        String containerField,
-        List<String> entitlementKeys,
-      ) {
-        final container = data[containerField];
-        if (container is! Map) return false;
-        for (final key in entitlementKeys) {
-          final value = container[key];
-          if (value is Map) {
-            final nested = {key: Map<String, dynamic>.from(value)};
-            if (activeNestedEntitlement(nested, key)) return true;
-          } else if (isActiveFlag(value)) {
-            return true;
-          }
-        }
-        return false;
-      }
 
       final now = DateTime.now().toUtc();
 
@@ -902,102 +804,17 @@ class PurchaseManager extends ChangeNotifier {
         }
       }
 
-      for (final data in legacyDocs) {
-        final hasLifetimePremium =
-            checkBoolField(data, 'lifetimePremium') ||
-            checkBoolField(data, 'isLifetimePremium') ||
-            checkBoolField(data, 'premiumForever') ||
-            checkBoolField(data, 'permanentPremium') ||
-            checkBoolField(data, 'lifetimeAdsFree');
+      final legacy = LegacyEntitlements.evaluate(legacyDocs, now: now);
 
-        final hasPremiumFlag =
-            checkBoolField(data, 'isPremium') ||
-            checkBoolField(data, 'is_premium') ||
-            checkBoolField(data, 'premium') ||
-            checkBoolField(data, 'premiumActive') ||
-            checkBoolField(data, 'isPremiumActive') ||
-            checkBoolField(data, 'hasPremium') ||
-            checkBoolField(data, 'premiumMember') ||
-            checkBoolField(data, 'subscriptionActive') ||
-            checkBoolField(data, 'isSubscribed') ||
-            checkBoolField(data, 'subscribed') ||
-            checkActiveStringField(data, 'premiumStatus') ||
-            checkActiveStringField(data, 'subscriptionStatus') ||
-            activeNestedEntitlement(data, 'premium') ||
-            activeNestedEntitlement(data, 'subscription') ||
-            activeNestedEntitlement(data, 'entitlement') ||
-            activeNestedEntitlement(data, 'entitlements') ||
-            activeNamedNestedEntitlement(data, 'entitlements', const [
-              'premium',
-              'pro',
-              'subscription',
-              'kavaid_premium',
-            ]) ||
-            activeNamedNestedEntitlement(data, 'purchases', const [
-              'premium',
-              'pro',
-              'subscription',
-              'kavaid_premium',
-            ]);
-
-        final premiumExpiry = firstDateField(data, const [
-          'premiumExpiry',
-          'premium_expiry',
-          'premiumExpiresAt',
-          'premium_expires_at',
-          'premiumUntil',
-          'premium_until',
-          'subscriptionExpiry',
-          'subscription_expiry',
-          'subscriptionExpiresAt',
-          'subscription_expires_at',
-          'expiresAt',
-        ]);
-
-        if (hasLifetimePremium) {
-          legacyPremium = true;
-          legacyPremiumExpiry = null;
-        } else if (hasPremiumFlag &&
-            (premiumExpiry == null || premiumExpiry.isAfter(now))) {
-          legacyPremium = true;
-          legacyPremiumExpiry = _latestDate(legacyPremiumExpiry, premiumExpiry);
-        } else if (!hasPremiumFlag &&
-            premiumExpiry != null &&
-            premiumExpiry.isAfter(now)) {
-          legacyPremium = true;
-          legacyPremiumExpiry = _latestDate(legacyPremiumExpiry, premiumExpiry);
-        }
-
-        if (checkBoolField(data, 'lifetimeAdsFree') ||
-            checkBoolField(data, 'isAdsRemoved') ||
-            checkBoolField(data, 'adsRemoved') ||
-            checkBoolField(data, 'ads_removed') ||
-            checkBoolField(data, 'removeAds') ||
-            checkBoolField(data, 'is_ads_removed')) {
-          legacyAdsFree = true;
-        }
-
-        if (data['purchasedBooks'] is List) {
-          final docBooks = data['purchasedBooks'] as List<dynamic>;
-          books.addAll(docBooks.map((e) => e.toString()));
-
-          if (docBooks.any(
-            (bookId) => _legacyAdsIds.contains(bookId.toString().toLowerCase()),
-          )) {
-            legacyAdsFree = true;
-          }
-        }
+      if (legacy.purchasedBooks.isNotEmpty) {
+        _purchasedBooks = legacy.purchasedBooks;
       }
 
-      if (books.isNotEmpty) {
-        _purchasedBooks = books;
+      if (legacy.premium) {
+        _subscriptionExpiryDate = legacy.premiumExpiry;
       }
 
-      if (legacyPremium) {
-        _subscriptionExpiryDate = legacyPremiumExpiry;
-      }
-
-      onLegacyFound(legacyPremium, legacyAdsFree);
+      onLegacyFound(legacy.premium, legacy.adsFree);
     } catch (e) {
       debugPrint('[PurchaseManager] Legacy check error: $e');
       onLegacyFound(false, false);
@@ -1569,45 +1386,6 @@ class PurchaseManager extends ChangeNotifier {
       return DateTime.tryParse(value)?.toUtc();
     }
     return null;
-  }
-
-  DateTime? _parseFlexibleDate(Object? value) {
-    if (value == null) return null;
-    if (value is Timestamp) return value.toDate().toUtc();
-    if (value is DateTime) return value.toUtc();
-    if (value is int) {
-      final millis = value.abs() < 10000000000 ? value * 1000 : value;
-      return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
-    }
-    if (value is double) {
-      final raw = value.toInt();
-      final millis = raw.abs() < 10000000000 ? raw * 1000 : raw;
-      return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
-    }
-    if (value is String) {
-      final trimmed = value.trim();
-      final numeric = int.tryParse(trimmed);
-      if (numeric != null) {
-        final millis = numeric.abs() < 10000000000 ? numeric * 1000 : numeric;
-        return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
-      }
-      return DateTime.tryParse(trimmed)?.toUtc();
-    }
-    if (value is Map) {
-      final seconds = value['_seconds'] ?? value['seconds'];
-      final nanos = value['_nanoseconds'] ?? value['nanoseconds'] ?? 0;
-      if (seconds is int) {
-        final millis = seconds * 1000 + ((nanos is int ? nanos : 0) ~/ 1000000);
-        return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true);
-      }
-    }
-    return null;
-  }
-
-  DateTime? _latestDate(DateTime? first, DateTime? second) {
-    if (first == null) return second;
-    if (second == null) return first;
-    return first.isAfter(second) ? first : second;
   }
 
   bool _setEquals(Set<String> a, Set<String> b) {

@@ -35,7 +35,7 @@ class AppStartupService extends ChangeNotifier {
 
   StartupPhase _phase = StartupPhase.visualPrep;
   double _progress = 0.0;
-  String _message = 'Yukleniyor...';
+  String _message = 'Yükleniyor...';
   bool _isMainDictionaryReady = false;
   bool _isWarmupRunning = false;
   String? _errorMessage;
@@ -74,7 +74,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.ready,
         progress: 1.0,
-        message: 'Sozluk hazir.',
+        message: 'Sözlük hazır.',
         isMainDictionaryReady: true,
       );
 
@@ -85,7 +85,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.recoverableError,
         progress: 0.0,
-        message: 'Sozluk yuklenemedi.',
+        message: 'Sözlük yüklenemedi.',
         isMainDictionaryReady: false,
       );
     }
@@ -95,7 +95,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.visualPrep,
       progress: 0.03,
-      message: 'Ekran hazirlaniyor...',
+      message: 'Ekran hazırlanıyor...',
       isMainDictionaryReady: false,
     );
 
@@ -152,7 +152,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.checking,
       progress: 0.12,
-      message: 'Sozluk kontrol ediliyor...',
+      message: 'Sözlük kontrol ediliyor...',
       isMainDictionaryReady: false,
     );
 
@@ -163,7 +163,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.checking,
         progress: 0.72,
-        message: 'Sozluk hazir.',
+        message: 'Sözlük hazır.',
         isMainDictionaryReady: true,
       );
       return;
@@ -172,7 +172,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.installingDictionary,
       progress: 0.18,
-      message: 'Sozluk ayarlaniyor...',
+      message: 'Sözlük ayarlanıyor...',
     );
 
     final initService = DatabaseInitializationService.instance;
@@ -194,14 +194,14 @@ class AppStartupService extends ChangeNotifier {
     // Yeniden kurulum yarıda kalsa bile eldeki sözlükle devam edilir;
     // sürüm işaretlenmediği için bir sonraki açılışta tekrar denenir.
     if (!success || !await _hasUsableMainDictionary()) {
-      throw StateError('Ana sozluk veritabani hazirlanamadi.');
+      throw StateError('Ana sözlük veritabanı hazırlanamadı.');
     }
 
     _isMainDictionaryReady = true;
     _setState(
       phase: StartupPhase.installingDictionary,
       progress: 0.72,
-      message: 'Sozluk hazir.',
+      message: 'Sözlük hazır.',
       isMainDictionaryReady: true,
     );
   }
@@ -212,7 +212,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.warmingSearch,
       progress: 0.76,
-      message: 'Arama hazirlaniyor...',
+      message: 'Arama hazırlanıyor...',
     );
 
     // ANR: arama cache'i kritik yol değil. Isolate düşük cihazda
@@ -234,7 +234,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.warmingSearch,
       progress: 0.96,
-      message: 'Arama hazir.',
+      message: 'Arama hazır.',
     );
   }
 

@@ -119,7 +119,6 @@ class _QuranTextScreenState extends State<QuranTextScreen> {
   @override
   Widget build(BuildContext context) {
     final bgColor = widget.isDarkMode ? const Color(0xFF1C1C1E) : const Color(0xFFF9F9F9);
-    final isPremiumTheme = widget.isDarkMode;
 
     return Scaffold(
       backgroundColor: bgColor,

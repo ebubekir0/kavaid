@@ -36,11 +36,6 @@ class _InteractiveBookScreenState extends State<InteractiveBookScreen> with Widg
   double _fontSize = 19.0; // Default: 19
 
   final String _selectedFont = 'Scheherazade New';
-  final List<String> _arabicFonts = [
-    'Scheherazade New',
-    'Noto Naskh Arabic',
-    'Amiri',
-  ];
   bool _showDiacritics = true; 
   bool _autoReadOnTap = true; 
   bool _isAutoPlaying = false; 

@@ -797,81 +797,6 @@ class _LearningScreenState extends State<LearningScreen> {
     );
   }
 
-  void _showLoginWarning(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Oturum Açın", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-        content: Text(
-          "Bu özelliğe erişmek için lütfen önce kayıt olun veya giriş yapın.",
-          style: GoogleFonts.outfit(),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Tamam", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showPremiumLockDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.lock_rounded, size: 48, color: Color(0xFF1976D2)),
-            const SizedBox(height: 16),
-            Text(
-              "Bu İçerik Premium'a Dahil",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              "Bu dersi okumak için premium üyeliğe geçmelisin.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(fontSize: 15, color: Colors.black54),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Kapat
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1976D2),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                child: Text("Premium'a Geç", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-              ),
-            ),
-             const SizedBox(height: 12),
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Ücretsiz İçeriklere Dön", style: GoogleFonts.outfit(color: Colors.grey)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 
@@ -1088,23 +1013,6 @@ class _ContentDetailSheet extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStat(IconData icon, String text, Color color) {
-    return Row(
-       children: [
-         Icon(icon, size: 20, color: Colors.grey),
-         const SizedBox(width: 6),
-         Text(
-           text,
-           style: GoogleFonts.outfit(
-             fontSize: 14,
-             fontWeight: FontWeight.w500,
-             color: color,
-           ),
-         ),
-       ],
     );
   }
 

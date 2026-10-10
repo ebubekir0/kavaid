@@ -32,7 +32,6 @@ import 'services/app_startup_service.dart';
 // import 'services/sync_service.dart'; // PERFORMANCE: kullanılmıyor, kaldırıldı
 import 'services/database_service.dart';
 import 'package:sqflite/sqflite.dart';
-import 'utils/migrate_usernames.dart';
 import 'models/custom_word_list.dart';
 import 'screens/custom_words_screen.dart';
 import 'screens/translation_screen.dart';
@@ -478,22 +477,6 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     _appUsageService.endSession();
 
     super.dispose();
-  }
-
-  // Tema tercihi yükle
-  Future<void> _loadThemePreference() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      setState(() {
-        _isDarkMode = prefs.getBool(_themeKey) ?? false;
-      });
-    } catch (e) {
-      debugPrint('❌ Tema yükleme hatası: $e');
-      // Hata durumunda varsayılan değerle devam et
-      setState(() {
-        _isDarkMode = false;
-      });
-    }
   }
 
   // Tema tercihi kaydet
@@ -1405,59 +1388,5 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildErrorScreen(String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: 48,
-            color: widget.isDarkMode ? Colors.red[300] : Colors.red[600],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            message,
-            style: TextStyle(
-              fontSize: 16,
-              color: widget.isDarkMode ? Colors.white70 : Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
-// Kullanıcı adı migration'ı - arka planda çalışır
-void _runUsernameMigration() {
-  Future.microtask(() async {
-    try {
-      debugPrint(
-        '🔄 [MIGRATION] Kullanıcı adı migration kontrolü başlatılıyor...',
-      );
-
-      // SharedPreferences'ta migration'ın daha önce çalışıp çalışmadığını kontrol et
-      final prefs = await SharedPreferences.getInstance();
-      final migrationCompleted =
-          prefs.getBool('username_migration_completed_v2') ?? false;
-
-      if (!migrationCompleted) {
-        debugPrint('📋 [MIGRATION] Migration gerekli, başlatılıyor...');
-
-        // Migration'ı çalıştır
-        await MigrateUsernames.migrateAllUsers();
-
-        // Migration'ın tamamlandığını işaretle
-        await prefs.setBool('username_migration_completed_v2', true);
-        debugPrint(
-          '✅ [MIGRATION] Migration başarıyla tamamlandı ve işaretlendi',
-        );
-      } else {
-        debugPrint('ℹ️ [MIGRATION] Migration zaten tamamlanmış, atlanıyor');
-      }
-    } catch (e) {
-      debugPrint('❌ [MIGRATION] Migration hatası: $e');
-    }
-  });
-}

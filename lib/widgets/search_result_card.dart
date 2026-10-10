@@ -10,11 +10,8 @@ import '../services/turkce_analytics_service.dart';
 import '../services/auth_service.dart';
 import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import '../services/custom_word_service.dart'; // Import for custom lists
 import '../services/emsile_database_service.dart';
 import 'ai_chat_sheet.dart';
@@ -111,7 +108,6 @@ class _SearchResultCardState extends State<SearchResultCard>
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
   Animation<double>? _expandAnimation;
-  final bool _animationInitialized = false;
   Future<Map<String, dynamic>?>? _emsileLookupFuture;
   String? _emsileLookupMazi;
   Timer? _savedStatusTimer;
@@ -422,75 +418,6 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  Future<void> _shareWordCard() async {
-    try {
-      // Analytics event gönder
-      await TurkceAnalyticsService.kelimePaylasildi(widget.word.kelime);
-
-      if (_screenshotController == null) {
-        setState(() {
-          _screenshotController = ScreenshotController();
-        });
-        await WidgetsBinding.instance.endOfFrame;
-      }
-
-      // Kartı genişlet (detayları göster)
-      if (!_isExpanded) {
-        _initializeAnimation();
-        setState(() {
-          _isExpanded = true;
-        });
-        await _animationController!.forward();
-        // UI'nin güncellenmesi için bekle
-        await Future.delayed(const Duration(milliseconds: 300));
-      }
-
-      // Screenshot al — controller build() sırasında lazy oluşturulmuş olacak
-      final image = await _screenshotController!.capture();
-      if (image == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Paylaşım için görüntü alınamadı'),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-        return;
-      }
-
-      // Geçici dosya oluştur
-      final directory = await getTemporaryDirectory();
-      final imagePath = '${directory.path}/kavaid_${widget.word.kelime}.png';
-      final imageFile = File(imagePath);
-      await imageFile.writeAsBytes(image);
-
-      // Paylaş
-      await Share.shareXFiles(
-        [XFile(imagePath)],
-        text:
-            'Kavaid - Arapça-Türkçe Sözlük\n\n'
-            '${widget.word.harekeliKelime ?? widget.word.kelime}\n'
-            '${widget.word.anlam ?? ""}',
-      );
-
-      // Geçici dosyayı temizle
-      try {
-        await imageFile.delete();
-      } catch (_) {}
-    } catch (e) {
-      debugPrint('Paylaşım hatası: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paylaşım başarısız oldu'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    }
-  }
-
   Widget _maybeWrapForScreenshot(Widget child) {
     final controller = _screenshotController;
     if (controller == null) return child;
@@ -687,54 +614,6 @@ class _SearchResultCardState extends State<SearchResultCard>
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHarfiCerList(bool isDarkMode) {
-    final harfiCerler = widget.word.harfiCerler;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: harfiCerler.map((hc) {
-        final harf = hc['harf'] ?? '';
-        final hmAnlam = hc['anlamlar'] ?? '';
-        if (harf.isEmpty) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: harf,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF007AFF),
-                    fontWeight: FontWeight.w700,
-                    fontFamily: 'ScheherazadeNew',
-                  ),
-                ),
-                const TextSpan(text: ' '),
-                if (hmAnlam.isNotEmpty)
-                  TextSpan(
-                    text: hmAnlam,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDarkMode
-                          ? const Color(0xFF8E8E93)
-                          : const Color(0xFF6D6D70),
-                      height: 1.3,
-                    ),
-                  ),
-              ],
-            ),
-            maxLines: _isExpanded ? null : 1,
-            overflow: _isExpanded
-                ? TextOverflow.visible
-                : TextOverflow.ellipsis,
-          ),
-        );
-      }).toList(),
     );
   }
 
@@ -1594,85 +1473,6 @@ class _SearchResultCardState extends State<SearchResultCard>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildInfoBox(String title, String content, bool isDarkMode) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        gradient: isDarkMode
-            ? null
-            : const LinearGradient(
-                colors: [Color(0xFFF8F9FA), Color(0xFFF2F2F7)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-        color: isDarkMode ? const Color(0xFF2C2C2E) : null,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isDarkMode
-              ? const Color(0xFF48484A).withValues(alpha: 0.3)
-              : const Color(0xFFD0D0D0),
-          width: 0.7,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isDarkMode
-                ? Colors.black.withValues(alpha: 0.2)
-                : Colors.black.withValues(alpha: 0.03),
-            blurRadius: isDarkMode ? 4 : 5,
-            offset: Offset(0, isDarkMode ? 2 : 1),
-            spreadRadius: isDarkMode ? 0 : 0.2,
-          ),
-          if (!isDarkMode) ...[
-            BoxShadow(
-              color: Colors.white.withValues(alpha: 0.8),
-              blurRadius: 1,
-              offset: const Offset(0, -0.5),
-              spreadRadius: 0,
-            ),
-          ],
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: 'ScheherazadeNew',
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              color: isDarkMode
-                  ? const Color(0xFF007AFF)
-                  : const Color(0xFF6D6D70),
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            content,
-            style: TextStyle(
-              fontFamily: 'ScheherazadeNew',
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: isDarkMode
-                  ? const Color(0xFFE5E5EA)
-                  : const Color(0xFF1C1C1E),
-              fontFeatures: const [
-                ui.FontFeature.enable('liga'),
-                ui.FontFeature.enable('calt'),
-              ],
-            ),
-            textDirection: TextDirection.rtl,
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-          ),
-        ],
-      ),
     );
   }
 

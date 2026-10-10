@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 
 import '../models/custom_word.dart';
@@ -9,7 +8,6 @@ import '../services/custom_word_service.dart';
 import '../widgets/search_result_card.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
-import '../services/community_chat_service.dart';
 import '../services/purchase_manager.dart';
 import '../services/language_service.dart';
 import 'subscription_screen.dart';
@@ -665,129 +663,6 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
     );
   }
 
-  /// Paylaşma onay dialogu
-  void _showShareConfirmDialog(CustomWordList list, int wordCount, bool isDark) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(
-          LanguageService().isEnglish 
-              ? 'Share in Community' 
-              : (LanguageService().isArabic ? 'مشاركة في المجتمع' : 'Toplulukta Paylaş'),
-          style: TextStyle(
-            color: isDark ? Colors.white : Colors.black,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        content: Text(
-          LanguageService().isEnglish 
-              ? 'Share "${list.name}" list in community?' 
-              : (LanguageService().isArabic ? 'هل تريد مشاركة قائمة "${list.name}" في المجتمع؟' : '"${list.name}" listesi toplulukta paylaşılsın mı?'),
-          style: TextStyle(
-            color: isDark ? Colors.white70 : Colors.black87,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(
-              LanguageService().isEnglish ? 'Cancel' : (LanguageService().isArabic ? 'إلغاء' : 'İptal'),
-              style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _shareListToCommunity(list, wordCount);
-            },
-            child: Text(
-              LanguageService().isEnglish ? 'Share' : (LanguageService().isArabic ? 'مشاركة' : 'Paylaş'),
-              style: const TextStyle(color: Color(0xFF007AFF), fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Kelime listesini toplulukta paylaş
-  Future<void> _shareListToCommunity(CustomWordList list, int wordCount) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            LanguageService().isEnglish 
-                ? 'You must log in to share' 
-                : (LanguageService().isArabic ? 'يجب تسجيل الدخول للمشاركة' : 'Paylaşmak için giriş yapmalısınız'),
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    // Liste boşsa paylaşma
-    if (wordCount == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            LanguageService().isEnglish 
-                ? 'Empty list cannot be shared' 
-                : (LanguageService().isArabic ? 'لا يمكن مشاركة قائمة فارغة' : 'Boş liste paylaşılamaz'),
-          ),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    // Kelimeleri al
-    final words = await _service.getWordsByList(list.id);
-    
-    // Kelime verilerini hazırla (tüm datayı al)
-    final wordMaps = words.map((w) => {
-      'arabic': w.arabic,
-      'turkish': w.turkish,
-      'harekeliKelime': w.harekeliKelime,
-      'wordData': w.wordData,
-    }).toList();
-
-    // Toplulukta paylaş
-    final chatService = CommunityChatService();
-    
-    // Kelime listesi verisini hazırla (Firestore'da ayrı alanda saklanacak)
-    final sharedData = {
-      'name': list.name,
-      'words': wordMaps,
-      'wordCount': words.length,
-      'version': 'V2',
-    };
-    
-    // Kısa mesaj metni (eski sürümler sadece bunu görecek - italik görünecek)
-    final shareMessage = 'Sizinle bir kelime listesi paylaştı. Görmek için uygulamayı güncelleyin.';
-    
-    final success = await chatService.sendMessage(shareMessage, sharedWordList: sharedData);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(success
-              ? '✅ "${list.name}" toplulukta paylaşıldı!'
-              : 'Paylaşım başarısız'),
-          backgroundColor: success ? Colors.green : Colors.red,
-        ),
-      );
-    }
-  }
-
-  /// Kelimeleri encode et
-  String _encodeWords(List<Map<String, dynamic>> words) {
-    return words.map((w) => '${w['arabic']}::${w['turkish']}').join('|||');
-  }
-
   Future<void> _showDeleteDialog(CustomWordList list, bool isDark) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -894,36 +769,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
       _words = words;
       _isLoading = false;
     });
-  }
-
-  Future<void> _showAddInfo() async {
-    await showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor:
-              widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
-          title: Text(
-            'Bilgi',
-            style: TextStyle(
-              color: widget.isDarkMode ? Colors.white : Colors.black,
-            ),
-          ),
-          content: Text(
-            'Bu listeye kelime eklemek için "Sözlük" bölümünü kullanabilirsiniz.\n\nSözlükte aradığınız kelimenin kartındaki + butonuna basarak bu listeye ekleyebilirsiniz.',
-            style: TextStyle(
-              color: widget.isDarkMode ? Colors.white70 : Colors.black87,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Tamam'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> _removeWord(CustomWord word) async {
@@ -1119,40 +964,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
         );
       },
     );
-  }
-
-  Future<void> _showDeleteWordDialog(CustomWord word, bool isDarkMode) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
-        title: Text(
-            LanguageService().isEnglish 
-                ? 'Delete Word' 
-                : (LanguageService().isArabic ? 'حذف كلمة' : 'Kelimeyi Sil'), 
-            style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
-        content: Text(
-            LanguageService().isEnglish 
-                ? 'Delete "${word.arabic}"?' 
-                : (LanguageService().isArabic ? 'هل تريد حذف "${word.arabic}"؟' : '"${word.arabic}" silinsin mi?'), 
-            style: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black87)),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, false), 
-              child: Text(LanguageService().isEnglish ? 'Cancel' : (LanguageService().isArabic ? 'إلغاء' : 'İptal'))),
-          TextButton(
-              onPressed: () => Navigator.pop(ctx, true), 
-              child: Text(
-                  LanguageService().isEnglish ? 'Delete' : (LanguageService().isArabic ? 'حذف' : 'Sil'), 
-                  style: const TextStyle(color: Colors.red))),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      await _service.deleteWord(word.id);
-      _loadWords();
-    }
   }
 
   Widget _buildCardView(bool isDarkMode) {
@@ -1663,7 +1474,6 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
   Widget _buildMeaningWithHarfiCer(WordModel word, Color textColor) {
     final anlam = word.localizedAnlam ?? '';
     final harfiCerler = word.harfiCerler;
-    final harfColor = const Color(0xFF007AFF);
 
     if (harfiCerler.isEmpty) {
       return Text(

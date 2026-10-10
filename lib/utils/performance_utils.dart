@@ -83,15 +83,8 @@ class PerformanceUtils {
       if (deviceInfo != null) {
         
         // Cihaz bilgilerini parse et
-        final totalRamMB = deviceInfo['totalRamMB'] as int? ?? 0;
         final availableRamMB = deviceInfo['availableRamMB'] as int? ?? 0;
-        final glEsVersion = deviceInfo['glEsVersion'] as double? ?? 0.0;
-        final apiLevel = deviceInfo['apiLevel'] as int? ?? 0;
-        final cpuCores = deviceInfo['cpuCores'] as int? ?? 0;
         final performanceCategory = deviceInfo['performanceCategory'] as String? ?? 'unknown';
-        final manufacturer = deviceInfo['manufacturer'] as String? ?? '';
-        final model = deviceInfo['model'] as String? ?? '';
-        final device = deviceInfo['device'] as String? ?? '';
         
         // Özel cihaz bilgileri
         _isXiaomiDevice = deviceInfo['isXiaomiDevice'] as bool? ?? false;

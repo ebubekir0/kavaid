@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Parses text containing <blue>...</blue> tags and returns a list of TextSpans.
-/// The text inside <blue> tags will be rendered in blue with a subtle background.
+/// Parses text containing `<blue>...</blue>` tags and returns a list of TextSpans.
+/// The text inside `<blue>` tags will be rendered in blue with a subtle background.
 /// Regular text will use the provided [defaultStyle].
 List<TextSpan> parseBlueTagSpans(String text, TextStyle defaultStyle) {
   final List<TextSpan> spans = [];
@@ -47,7 +47,7 @@ List<TextSpan> parseBlueTagSpans(String text, TextStyle defaultStyle) {
   return spans;
 }
 
-/// Builds a RichText widget that renders <blue>...</blue> tags in blue.
+/// Builds a RichText widget that renders `<blue>...</blue>` tags in blue.
 /// [maxLines] and [overflow] control truncation behavior.
 Widget buildBlueTagText(
   String text, {
@@ -63,7 +63,7 @@ Widget buildBlueTagText(
   );
 }
 
-/// Strips <blue> and </blue> tags from text (for plain text usage like sharing).
+/// Strips `<blue>` and `</blue>` tags from text (for plain text usage like sharing).
 String stripBlueTags(String text) {
   return text.replaceAll(RegExp(r'</?blue>'), '');
 }

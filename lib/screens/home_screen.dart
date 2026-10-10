@@ -89,8 +89,6 @@ class _HomeScreenState extends State<HomeScreen>
   OverlayEntry? _tapHintOverlay;
   bool _didAutoOpenKeyboard = false; // Bir kez klavye açıldı mı?
   String _lastSearchText = ''; // Son arama metnini takip et
-  final String _normalSearchText = ''; // Normal sözlükteki son arama
-  final String _quranSearchText = ''; // Kuran sözlüğündeki son arama
   bool _hasInternet = true; // İnternet bağlantısı var mı?
   bool _scrollDebounce = false; // Scroll başlangıcını throttle et
   bool _prewarmPending =
@@ -111,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen>
   bool _speechEnabled = false;
   bool _isListening = false;
 
-  final int _aiSearchClickCount = 0;
   final AdMobService _adMobService = AdMobService();
   final ReviewService _reviewService = ReviewService();
   final ConnectivityService _connectivityService = ConnectivityService();
@@ -321,12 +318,6 @@ class _HomeScreenState extends State<HomeScreen>
     await _reviewService.requestReview();
   }
 
-  void _forceOpenKeyboard() {
-    if (!mounted) return;
-    // Sadece focus ver, sistem klavyeyi kendisi açar
-    // SystemChannels kullanımı kaldırıldı - klavye dilini sıfırlıyordu
-  }
-
   // Focus ile klavye açma - Doğal yöntem
   void _openKeyboardWithFocus() {
     if (!mounted) return;
@@ -363,105 +354,12 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (_) {}
   }
 
-  Future<void> _markTapHintShown() async {
-    if (_debugAlwaysShowHint) {
-      // Debug modunda kalıcı işaretleme yapma ki her aramada gösterilebilsin
-      return;
-    }
-    _hasShownTapHint = true;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool(_tapHintKey, true);
-    } catch (_) {}
-  }
-
   void _removeTapHintOverlay() {
     _tapHintTimer?.cancel();
     _tapHintOverlay?.remove();
     _tapHintOverlay = null;
   }
 
-  void _showTapHintOverlayIfNeeded() {
-    // Debug modda ipucu overlay kapalı, release modda açık
-    if (kDebugMode) return;
-
-    if (!mounted) return;
-    if (!_debugAlwaysShowHint && _hasShownTapHint) return;
-    // Sadece sözlük (arama listesi) görünümünde göster
-    if (!_isSearching) return;
-    if (_selectedWord != null) return;
-    if (_searchResults.isEmpty) return;
-    if (_tapHintOverlay != null) return;
-
-    // Post-frame'de ekle ki Overlay boyutları hazır olsun
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted ||
-          ((!_debugAlwaysShowHint && _hasShownTapHint) ||
-              _tapHintOverlay != null)) {
-        return;
-      }
-
-      final isDark = widget.isDarkMode;
-      _tapHintOverlay = OverlayEntry(
-        builder: (context) {
-          final double topOffset = MediaQuery.of(context).padding.top + 56;
-          return Positioned(
-            top: topOffset + 8,
-            left: 16,
-            right: 16,
-            child: GestureDetector(
-              onTap: () {
-                _removeTapHintOverlay();
-              },
-              child: Material(
-                color: Colors.transparent,
-                child: AnimatedOpacity(
-                  opacity: 1.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF007AFF),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0x1A000000), // black @ 0.1
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    child: Text(
-                      LanguageService().isEnglish
-                          ? 'Tap on a word to see more details'
-                          : (LanguageService().isArabic
-                                ? 'انقر على الكلمة لرؤية المزيد من التفاصيل'
-                                : 'Kelimeye dokunarak daha fazla detay görebilirsin'),
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                        height: 1.3,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-
-      Overlay.of(context).insert(_tapHintOverlay!);
-      _markTapHintShown();
-    });
-  }
-
-  @override
   void _onQuranModeChanged() {
     if (!mounted) return;
     final newMode = quranModeNotifier.value;
@@ -3586,18 +3484,11 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildAiSearchButtonContent() {
-    return const SizedBox.shrink(); // AI butonu tamamen kaldırıldı
-  }
 }
 
 class _MatchHeaderItem {
   final String title;
   const _MatchHeaderItem(this.title);
-}
-
-class _AiButtonItem {
-  const _AiButtonItem();
 }
 
 List<Object> _buildGroupedSearchResults(List<WordModel> words, String query) {

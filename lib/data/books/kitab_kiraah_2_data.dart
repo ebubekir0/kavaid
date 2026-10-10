@@ -145,8 +145,6 @@ Map<String, dynamic> _lessonTemplate({required int no, required String title}) =
   }
 };
 
-const String _dash = ' — ';
-
 const Map<String, dynamic> kitabKiraah2Lesson1 = {
   'ders_bilgisi': {
     'ders_no': 1,

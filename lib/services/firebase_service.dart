@@ -501,23 +501,6 @@ class FirebaseService {
     return meaningList.any((meaning) => meaning.startsWith(query) && meaning != query);
   }
   
-  /// Anlam içinde geçme kontrolü - "katıl" aradığında "iştirak, katılım" olan kelimeler
-  static bool _hasMeaningContains(String meanings, String query) {
-    if (meanings.isEmpty || query.isEmpty) return false;
-    
-    final meaningList = meanings
-        .split(RegExp(r'[,;.\n]'))
-        .map((m) => m.trim())
-        .where((m) => m.isNotEmpty)
-        .toList();
-    
-    return meaningList.any((meaning) => 
-        meaning.contains(query) && 
-        !meaning.startsWith(query) && 
-        meaning != query
-    );
-  }
-
   // Anlam eşleşmesi kontrolü - tüm anlamları kontrol eder (genel)
   bool _checkMeaningMatch(String meanings, String query) {
     if (meanings.isEmpty || query.isEmpty) return false;

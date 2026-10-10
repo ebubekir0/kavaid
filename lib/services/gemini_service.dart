@@ -698,7 +698,6 @@ fiilCekimler (object): Fiilse çekimler.
         final candidate = data['candidates'][0];
 
         // finishReason kontrolü - kesilmiş yanıtları da parse etmeye çalış
-        final finishReason = candidate['finishReason'];
 
         if (candidate['content'] == null) {
           debugPrint('❌ Content null');
@@ -1204,10 +1203,6 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
   String _buildPromptWithWord(String promptTemplate, String word) {
     // Prompt içindeki {KELIME} placeholder'ını gerçek kelime ile değiştir
     return promptTemplate.replaceAll('{KELIME}', word);
-  }
-
-  String _buildPrompt(String word) {
-    return _defaultPrompt.replaceAll('{KELIME}', word);
   }
 
   // Eşik kontrolü ve sözlük güncelleme tetikleme

@@ -129,7 +129,6 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
     final pm = Provider.of<PurchaseManager>(context, listen: false);
     final purchased = _bookStore.isPurchased(widget.bookId) || pm.purchasedBooks.contains(widget.bookId);
     
-    final bool isPreview = widget.preview;
 
     return Scaffold(
       appBar: AppBar(
@@ -484,12 +483,6 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
         },
       ),
     );
-  }
-
-  void _showAuthSheet(BuildContext context, bool isDarkMode) {
-    // Auth sheet logic here... simplified or copied if needed. 
-    // Since this is legacy screen, I will rely on existing AuthService.
-    // The original code had a full implementation here.
   }
 
   @override

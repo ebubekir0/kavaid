@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StringUtils {
-  /// <blue>[عَلَى]</blue> gibi harfi cer taglerini mavi+büyük olarak render eder.
+  /// `<blue>[عَلَى]</blue>` gibi harfi cer taglerini mavi+büyük olarak render eder.
   static List<TextSpan> parseMeaningWithBlue(
     String text, {
     required bool isDarkMode,

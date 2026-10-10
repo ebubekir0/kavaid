@@ -43,7 +43,6 @@ class _EmsileViewState extends State<EmsileView> {
   Map<int, String?> get _openConj => _globalOpenIds;
 
   // Sabit 300 \u00fccretsiz kart ID limiti
-  static const int _freeCardLimit = 300;
 
   // siga listesinde hangi index hangi çekimi açar
   static const Map<int, String> _sigaToConj = {
@@ -80,7 +79,6 @@ class _EmsileViewState extends State<EmsileView> {
 
   // Holistic Getters
   Color get _bg        => _appThemes[_selectedThemeIdx]['bg']!;
-  Color get _rowBg     => _appThemes[_selectedThemeIdx]['rowBg']!;
   Color get _detailBg  => _appThemes[_selectedThemeIdx]['detailBg']!;
   Color get _divColor  => _appThemes[_selectedThemeIdx]['div']!;
   Color get _sigaBg    => _appThemes[_selectedThemeIdx]['sigaBg']!;
@@ -91,7 +89,6 @@ class _EmsileViewState extends State<EmsileView> {
   Color get _anlamClr  => _appThemes[_selectedThemeIdx]['anlam']!;
   Color get _labelClr  => _appThemes[_selectedThemeIdx]['label']!;
   Color get _accent    => _appThemes[_selectedThemeIdx]['accent']!;
-  Color get _btnBg     => _appThemes[_selectedThemeIdx]['btnBg']!;
   Color get _btnOpen   => _appThemes[_selectedThemeIdx]['accent']!;
 
   // Dynamic Card Colors

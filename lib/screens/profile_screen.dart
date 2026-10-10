@@ -88,7 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // İstek: Dışardan giriş ekranını doğrudan açma
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && widget.autoOpenLoginSheet && !_authService.isSignedIn) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
         EmailAuthSheet.show(context, initialIsLogin: true, onSuccess: () {
           if (mounted) {
             setState(() {});
@@ -100,13 +99,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
   
-  // Değerlendirme ekranını aç
-  Future<void> _openInAppReview() async {
-    await _reviewService.requestReview();
-    // Butonun kaybolması için UI'ı güncelle
-    setState(() {}); 
-  }
-
   Future<void> _loadPurchaseData() async {
     // OneTimePurchaseService henüz başlatılmamışsa başlat
     try {
@@ -2282,17 +2274,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showLoginRequiredSnackBar() {
-    if (!mounted) return;
-    
-    // Auth sheet'i aç - kullanıcı öyle istedi
-    EmailAuthSheet.show(
-      context, 
-      initialIsLogin: false, // Kayıt ol sekmesi açılsın
-      message: "Önce kayıt olup giriş yapmalısınız."
-    );
-  }
-
   void _showDeleteAccountConfirmation(BuildContext context, bool isDarkMode) {
     showDialog(
       context: context,
@@ -2391,186 +2372,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _showLoginRequiredBottomSheet() {
-    if (!mounted) return;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.black,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: const [
-                Icon(Icons.lock_outline, color: Colors.white, size: 20),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'LÜTFEN ÖNCE KAYIT OLUP GİRİŞ YAPIN',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _showPurchaseDialog() {
-    // Güçlü klavye kapatma - dialog açılmadan önce
-    FocusManager.instance.primaryFocus?.unfocus();
-    SystemChannels.textInput.invokeMethod('TextInput.hide');
-
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Dışarı tıklayarak kapatmayı engelle
-      builder: (context) => SafeArea(
-        // 🔧 ANDROID 15 FIX: Dialog safe area padding
-        child: PopScope(
-          onPopInvokedWithResult: (didPop, result) {
-            // Güçlü klavye kapatma - geri tuşu
-            FocusManager.instance.primaryFocus?.unfocus();
-            SystemChannels.textInput.invokeMethod('TextInput.hide');
-          },
-          child: AlertDialog(
-          title: const Text('Reklamları Kaldır'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Bu hesap için ömür boyu tüm reklamları kaldırın ve kesintisiz deneyim yaşayın.'),
-              const SizedBox(height: 12),
-              // Yasal linkler. Apple EULA'sı yalnızca iOS'ta geçerli;
-              // Android'de apple.com linki yanlış yönlendirme olurdu.
-              Wrap(
-                alignment: WrapAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      launchUrl(Uri.parse('https://kavaid.app/privacy'));
-                    },
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    child: const Text('Gizlilik Politikası', style: TextStyle(fontSize: 11, color: Color(0xFF007AFF))),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      final apple = kIsWeb ||
-                          defaultTargetPlatform == TargetPlatform.iOS;
-                      launchUrl(Uri.parse(apple
-                          ? 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'
-                          : 'https://kavaid.app/terms'));
-                    },
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap),
-                    child: const Text('Kullanım Koşulları (EULA)', style: TextStyle(fontSize: 11, color: Color(0xFF007AFF))),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    Navigator.of(context).pop();
-                    try {
-                      await PurchaseManager().restorePurchases();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Satın alımlar başarıyla kontrol edildi/geri yüklendi.')),
-                        );
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Geri yükleme hatası: $e')),
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(Icons.restore, size: 16),
-                  label: const Text('Satın Alımları Geri Yükle', style: TextStyle(fontSize: 12)),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                // Güçlü klavye kapatma
-                FocusManager.instance.primaryFocus?.unfocus();
-                SystemChannels.textInput.invokeMethod('TextInput.hide');
-                Navigator.of(context).pop();
-                // Çoklu kontrol
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                });
-              },
-              child: const Text('İptal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                // Uygulama içi işlem flag'ini set et - reklam engellemek için
-                AdMobService().setInAppActionFlag('satın_alma');
-                
-                try {
-                  // Güçlü klavye kapatma
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  SystemChannels.textInput.invokeMethod('TextInput.hide');
-                  Navigator.of(context).pop();
-                  // Çoklu kontrol
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                  });
-                  await _purchaseService.buyRemoveAds();
-                  
-                  // Satın alma işlemi tamamlandıktan 1 dakika sonra flag'i temizle
-                  Future.delayed(const Duration(minutes: 1), () {
-                    AdMobService().clearInAppActionFlag();
-                    debugPrint('🔓 Satın alma işlemi sonrası 1 dakika flag temizlendi');
-                  });
-                  
-                } catch (e) {
-                  // Hata durumunda flag'i temizle
-                  AdMobService().clearInAppActionFlag();
-                  rethrow;
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF007AFF),
-                foregroundColor: Colors.white,
-              ),
-              child: Text(_purchaseService.removeAdsPrice),
-            ),
-          ],
-          ),
-        ),
-      ),
-    );
-  }
 
 
-
-
-  Widget _buildFeatureRow(IconData icon, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: Color(0xFF007AFF)),
-          const SizedBox(width: 8),
-          Text(text, style: TextStyle(fontSize: 14)),
-        ],
-      ),
-    );
-  }
 
   // İnternet bağlantısını kontrol et
   Future<bool> _checkInternetConnection() async {

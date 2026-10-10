@@ -77,8 +77,6 @@ class _FPSCounterWidgetState extends State<FPSCounterWidget>
   @override
   Widget build(BuildContext context) {
     final fpsColor = _getFPSColor();
-    final performanceCategory = PerformanceUtils.deviceCategory;
-    final dropRate = PerformanceUtils.dropRate;
     
     return Positioned(
       top: MediaQuery.of(context).padding.top + 10,

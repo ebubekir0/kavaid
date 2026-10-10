@@ -59,9 +59,13 @@ class _CampaignScreenState extends State<CampaignScreen> {
         String errorMsg = 'Geçersiz veya kullanılmış kod.';
         if (result == 'already_used') {
           errorMsg = 'Bu kodu daha önce kullandınız.';
-        } else if (result == 'expired') errorMsg = 'Bu kodun süresi dolmuş.';
-        else if (result == 'used') errorMsg = 'Bu kodun kullanım limiti dolmuş.';
-        else if (result == 'login_required') errorMsg = 'Lütfen önce giriş yapın.';
+        } else if (result == 'expired') {
+          errorMsg = 'Bu kodun süresi dolmuş.';
+        } else if (result == 'used') {
+          errorMsg = 'Bu kodun kullanım limiti dolmuş.';
+        } else if (result == 'login_required') {
+          errorMsg = 'Lütfen önce giriş yapın.';
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

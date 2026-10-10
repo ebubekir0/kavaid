@@ -1,8 +1,6 @@
 // Embedded fallback data for kitab_kiraah_3
 // If asset loading fails, BookLessonsService can use this data.
 
-const String _dash = ' — ';
-
 const Map<String, dynamic> kitabKiraah3Index = {
   'bookId': 'kitab_kiraah_3',
   'metinler': [

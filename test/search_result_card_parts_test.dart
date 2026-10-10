@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:kavaid/models/word_model.dart';
+import 'package:kavaid/widgets/search_result_card_parts.dart';
+
+const _kitap = WordModel(
+  kelime: 'كتاب',
+  harekeliKelime: 'كِتَابٌ',
+  koku: 'كتب',
+  anlam: 'kitap, mektup',
+  dilbilgiselOzellikler: {'tur': 'İsim', 'cogulForm': 'كُتُبٌ'},
+  ornekCumleler: [
+    {
+      'arapcaCumle': 'قَرَأْتُ كِتَابًا مُفِيدًا جِدًّا فِي الْمَكْتَبَةِ الْكَبِيرَةِ أَمْسِ',
+      'turkceCeviri': 'Dün büyük kütüphanede çok faydalı bir kitap okudum.',
+    },
+  ],
+);
+
+Widget _wrap(Widget child) => MaterialApp(
+  home: Scaffold(body: SizedBox(width: 360, child: child)),
+);
+
+void main() {
+  group('WordHeadline', () {
+    testWidgets('kök etiketsiz, kelimeden küçük ve soluk gösterilir', (tester) async {
+      await tester.pumpWidget(
+        _wrap(const WordHeadline(word: _kitap, isDarkMode: false)),
+      );
+
+      expect(find.text('kök'), findsNothing);
+      final word = tester.widget<Text>(find.text('كِتَابٌ'));
+      final root = tester.widget<Text>(find.byKey(const ValueKey('word-root')));
+      expect(root.data, 'كتب');
+      expect(root.style!.fontSize, lessThan(word.style!.fontSize!));
+      expect(root.style!.color!.a, lessThan(word.style!.color!.a));
+      expect(find.text('İsim'), findsOneWidget);
+    });
+
+    testWidgets('kökü olmayan kelimede kök alanı çizilmez', (tester) async {
+      const word = WordModel(kelime: 'في', harekeliKelime: 'فِي');
+      await tester.pumpWidget(_wrap(const WordHeadline(word: word, isDarkMode: false)));
+
+      expect(find.byKey(const ValueKey('word-root')), findsNothing);
+    });
+  });
+
+  group('highlightSegments', () {
+    test('Türkçe karakterden ve büyük harften bağımsız vurgular', () {
+      expect(highlightSegments('güzel, hoş', 'guzel'), [
+        ('güzel', true),
+        (', hoş', false),
+      ]);
+      expect(highlightSegments('Işık, nur', 'ışık'), [
+        ('Işık', true),
+        (', nur', false),
+      ]);
+    });
+
+    test('sorgu yoksa metni olduğu gibi döner', () {
+      expect(highlightSegments('kitap', null), [('kitap', false)]);
+      expect(highlightSegments('kitap', ''), [('kitap', false)]);
+    });
+  });
+
+  testWidgets('örnek cümle kesilmeden tam gösterilir', (tester) async {
+    await tester.pumpWidget(
+      _wrap(const ExampleSentences(word: _kitap, isDarkMode: false)),
+    );
+
+    final sentence = tester.widget<Text>(
+      find.textContaining('قَرَأْتُ'),
+    );
+    expect(sentence.maxLines, isNull);
+    expect(sentence.overflow, isNot(TextOverflow.ellipsis));
+  });
+
+  testWidgets('çoğul ve fiil çekimleri gösterilir', (tester) async {
+    const verb = WordModel(
+      kelime: 'كتب',
+      harekeliKelime: 'كَتَبَ',
+      fiilCekimler: {
+        'maziForm': 'كَتَبَ',
+        'muzariForm': 'يَكْتُبُ',
+        'mastarForm': 'كِتَابَةٌ',
+        'emirForm': 'اُكْتُبْ',
+      },
+    );
+    await tester.pumpWidget(
+      _wrap(
+        const Column(
+          children: [
+            PluralBox(word: _kitap, isDarkMode: false),
+            ConjugationRow(word: verb, isDarkMode: false),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('Çoğul'), findsOneWidget);
+    expect(find.text('كُتُبٌ'), findsOneWidget);
+    for (final label in ['Mazi', 'Müzari', 'Mastar', 'Emir']) {
+      expect(find.text(label), findsOneWidget);
+    }
+  });
+}

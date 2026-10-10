@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../utils/dictionary_mode_notifier.dart';
-import 'dart:ui' as ui;
 import '../models/word_model.dart';
 import '../services/credits_service.dart';
 import '../services/admob_service.dart';
@@ -10,47 +9,11 @@ import '../services/turkce_analytics_service.dart';
 import '../services/auth_service.dart';
 import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import '../services/custom_word_service.dart'; // Import for custom lists
 import '../services/emsile_database_service.dart';
 import 'ai_chat_sheet.dart';
-
-// PERFORMANCE: Font'ları cache'le — GoogleFonts yerine yerleşik fontFamily kullan
-// GoogleFonts.scheherazadeNew() internetten indirme deniyordu, yerel font zaten assets/fonts/ içinde
-class _FontCache {
-  static TextStyle? _arabicStyle;
-  static TextStyle? _exampleArabicStyle;
-
-  static TextStyle getArabicStyle() {
-    _arabicStyle ??= const TextStyle(
-      fontFamily: 'ScheherazadeNew',
-      fontSize: 20,
-      fontWeight: FontWeight.w700,
-      height: 1.4,
-      fontFeatures: [
-        ui.FontFeature.enable('liga'),
-        ui.FontFeature.enable('calt'),
-      ],
-    );
-    return _arabicStyle!;
-  }
-
-  static TextStyle getExampleArabicStyle() {
-    _exampleArabicStyle ??= const TextStyle(
-      fontFamily: 'ScheherazadeNew',
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-      color: Colors.black,
-      height: 1.4,
-      fontFeatures: [
-        ui.FontFeature.enable('liga'),
-        ui.FontFeature.enable('calt'),
-      ],
-    );
-    return _exampleArabicStyle!;
-  }
-}
+import 'search_result_card_parts.dart';
 
 // Global expanded card controller sınıfı ve ilgili mantık kaldırıldı.
 // Artık bir kart açıldığında diğeri kapanmayacak.
@@ -272,152 +235,6 @@ class _SearchResultCardState extends State<SearchResultCard>
     await _ttsService.speak(textToSpeak);
   }
 
-  // Arama kelimesini vurgulamak için RichText oluştur
-  Widget _buildHighlightedText(String text, bool isDarkMode) {
-    List<InlineSpan> spans = [];
-    final textColor = isDarkMode
-        ? const Color(0xFF8E8E93)
-        : const Color(0xFF6D6D70);
-    const fontSize = 14.5;
-
-    // Eğer kelime aranmadıysa veya boş ise sadece ana anlam
-    if (widget.searchQuery == null || widget.searchQuery!.isEmpty) {
-      spans.add(
-        TextSpan(
-          text: text,
-          style: TextStyle(
-            fontSize: fontSize,
-            color: textColor,
-            height: 1.3,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      );
-    } else {
-      // Vurgulama
-      final searchTerm = widget.searchQuery!.toLowerCase().trim();
-      final lowerText = text.toLowerCase();
-      int start = 0;
-
-      while (start < text.length) {
-        int index = lowerText.indexOf(searchTerm, start);
-        if (index == -1) {
-          spans.add(
-            TextSpan(
-              text: text.substring(start),
-              style: TextStyle(
-                fontSize: fontSize,
-                color: textColor,
-                height: 1.3,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          );
-          break;
-        }
-        if (index > start) {
-          spans.add(
-            TextSpan(
-              text: text.substring(start, index),
-              style: TextStyle(
-                fontSize: fontSize,
-                color: textColor,
-                height: 1.3,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          );
-        }
-        spans.add(
-          TextSpan(
-            text: text.substring(index, index + searchTerm.length),
-            style: TextStyle(
-              fontSize: fontSize,
-              color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
-              height: 1.3,
-              fontWeight: FontWeight.w700,
-              backgroundColor: isDarkMode
-                  ? const Color(0x40007AFF) // 0xFF007AFF @ 0.25
-                  : const Color(0x1A007AFF), // 0xFF007AFF @ 0.10
-            ),
-          ),
-        );
-        start = index + searchTerm.length;
-      }
-    }
-
-    // Harfi cerleri aynı büyüklükte satır içinden devam ettir - Arapça için gösterme
-    if (widget.word.harfiCerler.isNotEmpty && !LanguageService().isArabic) {
-      if (!_isExpanded) {
-        // Kapalıysa sadece harfler aralarında boşlukla eklenecek (virgül yok)
-        final harfsStr = widget.word.harfiCerler
-            .map((hc) => hc['harf'])
-            .where((h) => h != null && h.isNotEmpty)
-            .join(' ');
-        if (harfsStr.isNotEmpty) {
-          spans.add(
-            TextSpan(
-              text: text.isEmpty ? harfsStr : ' $harfsStr',
-              style: const TextStyle(
-                fontSize: fontSize,
-                color: Color(0xFF007AFF),
-                fontWeight: FontWeight.w700,
-                fontFamily: 'ScheherazadeNew',
-                height: 1.3,
-              ),
-            ),
-          );
-        }
-      } else {
-        // Açıksa hepsi satır içi akacak, aralara virgül eklenecek
-        for (int i = 0; i < widget.word.harfiCerler.length; i++) {
-          final hc = widget.word.harfiCerler[i];
-          final harf = hc['harf'] ?? '';
-          final anlam = hc['anlamlar'] ?? '';
-
-          final isFirst = i == 0;
-          final prefixText = (isFirst && text.isNotEmpty)
-              ? ', '
-              : (isFirst ? '' : ', ');
-
-          if (harf.isNotEmpty) {
-            spans.add(
-              TextSpan(
-                text: '$prefixText$harf ',
-                style: const TextStyle(
-                  fontSize: fontSize,
-                  color: Color(0xFF007AFF),
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'ScheherazadeNew',
-                  height: 1.3,
-                ),
-              ),
-            );
-          }
-          if (anlam.isNotEmpty) {
-            spans.add(
-              TextSpan(
-                text: anlam,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  color: textColor,
-                  height: 1.3,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-            );
-          }
-        }
-      }
-    }
-
-    return RichText(
-      text: TextSpan(children: spans),
-      maxLines: _isExpanded ? null : 3,
-      overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-    );
-  }
-
   Widget _maybeWrapForScreenshot(Widget child) {
     final controller = _screenshotController;
     if (controller == null) return child;
@@ -487,133 +304,60 @@ class _SearchResultCardState extends State<SearchResultCard>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Üst Satır: Arapça Kelime, Tür Bilgisi (Chips) ve Sağda Butonlar
+            // Üst satır: kelime, yanında kök ve tür; kenarda butonlar
             Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Arapça için: Simgeler solda, kelime sağda (en sağda)
+                // Arapça arayüzde butonlar solda, kelime sağda
                 if (LanguageService().isArabic) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.showExpandButton)
-                        _buildExpandButton(isDarkMode),
-                      if (_shouldShowAiTeacherButton)
-                        _buildAiTeacherButton(isDarkMode),
-                      _buildSpeakButton(isDarkMode),
-                      if (widget.showAddButton || widget.showRemoveButton)
-                        _buildActionButton(isDarkMode),
-                    ],
-                  ),
+                  _buildActionButtons(isDarkMode),
                   Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        // Kelime türü chip'i
-                        Flexible(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: _buildWordInfoChips(isDarkMode),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // PERFORMANCE: Cache'lenmiş font stili
-                        Flexible(
-                          child: Container(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                widget.word.harekeliKelime?.isNotEmpty == true
-                                    ? widget.word.harekeliKelime!
-                                    : widget.word.kelime,
-                                style: _FontCache.getArabicStyle().copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : const Color(0xFF1C1C1E),
-                                ),
-                                textDirection: TextDirection.rtl,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Kök rozeti — kelimenin hemen yanında
-                        Flexible(child: _buildRootChip(isDarkMode)),
-                      ],
+                    child: WordHeadline(
+                      word: widget.word,
+                      isDarkMode: isDarkMode,
+                      rightToLeft: true,
                     ),
                   ),
                 ] else ...[
-                  // Türkçe/İngilizce için: Kelime solda, simgeler sağda
                   Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // PERFORMANCE: Cache'lenmiş font stili
-                        Flexible(
-                          child: Container(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                widget.word.harekeliKelime?.isNotEmpty == true
-                                    ? widget.word.harekeliKelime!
-                                    : widget.word.kelime,
-                                style: _FontCache.getArabicStyle().copyWith(
-                                  color: isDarkMode
-                                      ? Colors.white
-                                      : const Color(0xFF1C1C1E),
-                                ),
-                                textDirection: TextDirection.rtl,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        // Kök rozeti — kelimenin hemen yanında
-                        Flexible(child: _buildRootChip(isDarkMode)),
-                        const SizedBox(width: 8),
-                        // Kelime türü chip'i
-                        Flexible(
-                          child: Wrap(
-                            spacing: 6,
-                            runSpacing: 4,
-                            children: _buildWordInfoChips(isDarkMode),
-                          ),
-                        ),
-                      ],
+                    child: WordHeadline(
+                      word: widget.word,
+                      isDarkMode: isDarkMode,
                     ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (widget.showExpandButton)
-                        _buildExpandButton(isDarkMode),
-                      if (_shouldShowAiTeacherButton)
-                        _buildAiTeacherButton(isDarkMode),
-                      _buildSpeakButton(isDarkMode),
-                      if (widget.showAddButton || widget.showRemoveButton)
-                        _buildActionButton(isDarkMode),
-                    ],
-                  ),
+                  _buildActionButtons(isDarkMode),
                 ],
               ],
             ),
 
-            // Türkçe anlam ve Harficerler - Tam Genişlikte (Full Width)
+            // Türkçe anlam ve harfi cerler (tam genişlikte)
             if (widget.word.sadeAnlam?.isNotEmpty == true ||
                 widget.word.harfiCerler.isNotEmpty) ...[
               const SizedBox(height: 6),
-              _buildHighlightedText(widget.word.sadeAnlam ?? '', isDarkMode),
+              MeaningText(
+                word: widget.word,
+                isDarkMode: isDarkMode,
+                expanded: _isExpanded,
+                searchQuery: widget.searchQuery,
+              ),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  /// Genişlet, AI asistanı, seslendir ve kaydet butonları.
+  Widget _buildActionButtons(bool isDarkMode) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.showExpandButton) _buildExpandButton(isDarkMode),
+        if (_shouldShowAiTeacherButton) _buildAiTeacherButton(isDarkMode),
+        _buildSpeakButton(isDarkMode),
+        if (widget.showAddButton || widget.showRemoveButton)
+          _buildActionButton(isDarkMode),
+      ],
     );
   }
 
@@ -796,114 +540,6 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  List<Widget> _buildWordInfoChips(bool isDarkMode) {
-    final chips = <Widget>[];
-
-    // Kelime türü chip'i: Sadece Türkçe için göster
-    if (!LanguageService().isTurkish) return chips;
-
-    String? typeText;
-    if (widget.word.dilbilgiselOzellikler?.containsKey('tur') == true) {
-      typeText = widget.word.dilbilgiselOzellikler!['tur']?.toString();
-    } else if (widget.word.tip?.isNotEmpty == true) {
-      typeText = widget.word.tip;
-    }
-
-    if (typeText != null && typeText.trim().isNotEmpty) {
-      chips.add(
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-          decoration: BoxDecoration(
-            color: isDarkMode
-                ? const Color(0xFF007AFF).withValues(alpha: 0.2)
-                : const Color(0xFF007AFF).withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isDarkMode
-                  ? const Color(0xFF007AFF).withValues(alpha: 0.3)
-                  : const Color(0xFF007AFF).withValues(alpha: 0.2),
-              width: 0.5,
-            ),
-          ),
-          child: Text(
-            typeText,
-            style: GoogleFonts.inter(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w600,
-              color: isDarkMode
-                  ? const Color(0xFF007AFF)
-                  : const Color(0xFF007AFF).withValues(alpha: 0.9),
-              letterSpacing: 0.2,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return chips;
-  }
-
-  /// Ana kartta kelimenin yanında gösterilen kompakt kök (koku) rozeti.
-  Widget _buildRootChip(bool isDarkMode) {
-    final root = widget.word.koku?.trim();
-    if (root == null || root.isEmpty) return const SizedBox.shrink();
-
-    final blue = const Color(0xFF007AFF);
-    final label = LanguageService().isEnglish
-        ? 'root'
-        : (LanguageService().isArabic ? 'جذر' : 'kök');
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: blue.withValues(alpha: isDarkMode ? 0.14 : 0.08),
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: blue.withValues(alpha: isDarkMode ? 0.28 : 0.18),
-          width: 0.5,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.inter(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w600,
-              color: blue.withValues(alpha: 0.85),
-              letterSpacing: 0.2,
-            ),
-          ),
-          const SizedBox(width: 4),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                root,
-                maxLines: 1,
-                softWrap: false,
-                style: TextStyle(
-                  fontFamily: 'ScheherazadeNew',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
-                  height: 1.25,
-                  fontFeatures: const [
-                    ui.FontFeature.enable('liga'),
-                    ui.FontFeature.enable('calt'),
-                  ],
-                ),
-                textDirection: TextDirection.rtl,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildExpandedContent(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
@@ -926,292 +562,25 @@ class _SearchResultCardState extends State<SearchResultCard>
           ],
 
           // Kök ana kartta kelimenin yanında; çoğul alt kartta
-          _buildPluralRow(isDarkMode),
+          PluralBox(word: widget.word, isDarkMode: isDarkMode),
 
           // Fiil çekimleri (yan yana, sadece varsa göster)
-          _buildConjugationRow(isDarkMode),
+          ConjugationRow(word: widget.word, isDarkMode: isDarkMode),
 
           // Emsile (fiil çekimleri tablosu) butonu - Arapça için gösterme
           if (!LanguageService().isArabic) _buildEmsileButton(isDarkMode),
 
           // Örnek cümleler - Arapça için gösterme
-          if (!LanguageService().isArabic) _buildExampleSentences(isDarkMode),
+          if (!LanguageService().isArabic)
+            ExampleSentences(
+              word: widget.word,
+              isDarkMode: isDarkMode,
+              footer: _shouldShowAiTeacherButton
+                  ? _buildMoreAiExamplesButton(isDarkMode)
+                  : null,
+            ),
         ],
       ),
-    );
-  }
-
-  Widget _buildPluralRow(bool isDarkMode) {
-    final hasPlural =
-        widget.word.dilbilgiselOzellikler?.containsKey('cogulForm') == true &&
-        widget.word.dilbilgiselOzellikler!['cogulForm']
-                ?.toString()
-                .trim()
-                .isNotEmpty ==
-            true;
-
-    // Kök (koku) artık alt kartta değil, ana kartta kelimenin yanında.
-    if (!hasPlural) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        children: [
-          if (hasPlural) ...[
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDarkMode
-                        ? [
-                            const Color(0xFF2C2C2E),
-                            const Color(0xFF2C2C2E).withValues(alpha: 0.8),
-                          ]
-                        : [const Color(0xFFF8F9FA), const Color(0xFFF2F3F5)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isDarkMode
-                        ? const Color(0xFF48484A).withValues(alpha: 0.5)
-                        : const Color(0xFFD0D0D0),
-                    width: 0.8,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isDarkMode
-                              ? const Color(0xFF8E8E93).withValues(alpha: 0.2)
-                              : const Color(0xFF007AFF).withValues(alpha: 0.08),
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(9),
-                            bottomRight: Radius.circular(6),
-                          ),
-                        ),
-                        child: Text(
-                          LanguageService().isEnglish
-                              ? 'Plural'
-                              : (LanguageService().isArabic ? 'جمع' : 'Çoğul'),
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: isDarkMode
-                                ? const Color(0xFF8E8E93)
-                                : const Color(0xFF007AFF).withValues(alpha: 0.8),
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 26, 8, 8),
-                      child: Center(
-                        child: Text(
-                          widget.word.dilbilgiselOzellikler!['cogulForm']
-                              .toString(),
-                          style: TextStyle(
-                            fontFamily: 'ScheherazadeNew',
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: isDarkMode
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
-                            height: 1.2,
-                            fontFeatures: const [
-                              ui.FontFeature.enable('liga'),
-                              ui.FontFeature.enable('calt'),
-                            ],
-                          ),
-                          textDirection: TextDirection.rtl,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExampleSentences(bool isDarkMode) {
-    if (widget.word.ornekCumleler?.isNotEmpty != true) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 4),
-        Container(
-          decoration: BoxDecoration(
-            gradient: isDarkMode
-                ? null
-                : const LinearGradient(
-                    colors: [Color(0xFFF8F9FA), Color(0xFFF2F2F7)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-            color: isDarkMode ? const Color(0xFF2C2C2E) : null,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isDarkMode
-                  ? const Color(0xFF48484A).withValues(alpha: 0.5)
-                  : const Color(0xFFD0D0D0),
-              width: 0.8,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDarkMode
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.04),
-                blurRadius: isDarkMode ? 4 : 6,
-                offset: Offset(0, isDarkMode ? 2 : 2),
-                spreadRadius: isDarkMode ? 0 : 0.3,
-              ),
-              if (!isDarkMode) ...[
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: 0.8),
-                  blurRadius: 1,
-                  offset: const Offset(0, -1),
-                  spreadRadius: 0,
-                ),
-              ],
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: isDarkMode
-                      ? const Color(0xFF007AFF).withValues(alpha: 0.15)
-                      : const Color(0xFF007AFF).withValues(alpha: 0.08),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(7),
-                    topRight: Radius.circular(7),
-                  ),
-                ),
-                child: Text(
-                  LanguageService().isEnglish
-                      ? 'Example Sentences'
-                      : 'Örnek Cümleler',
-                  style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF007AFF),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  children: [
-                    ...widget.word.ornekCumleler!.take(2).map((example) {
-                      final examples = widget.word.ornekCumleler!
-                          .take(2)
-                          .toList();
-                      final isLast = example == examples.last;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (example['arapcaCumle'] != null ||
-                              example['arapcaCümle'] != null ||
-                              example['arapca'] != null) ...[
-                            SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                (example['arapcaCumle'] ??
-                                        example['arapcaCümle'] ??
-                                        example['arapca'] ??
-                                        '')
-                                    .toString(),
-                                style: _FontCache.getExampleArabicStyle()
-                                    .copyWith(
-                                      color: isDarkMode
-                                          ? const Color(0xFFE5E5EA)
-                                          : const Color(0xFF1C1C1E),
-                                    ),
-                                textDirection: TextDirection.rtl,
-                                textAlign: TextAlign.left,
-                                overflow: TextOverflow.ellipsis,
-                                softWrap: false,
-                                maxLines: 1,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                          ],
-                          Text(
-                            example['turkceAnlam']?.toString() ??
-                                example['turkceCeviri']?.toString() ??
-                                example['turkce']?.toString() ??
-                                example.toString(),
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: isDarkMode
-                                  ? const Color(0xFF8E8E93)
-                                  : const Color(0xFF6D6D70),
-                              height: 1.4,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                          if (!isLast) ...[
-                            const SizedBox(height: 12),
-                            Container(
-                              height: 1,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.transparent,
-                                    isDarkMode
-                                        ? const Color(
-                                            0xFF48484A,
-                                          ).withValues(alpha: 0.3)
-                                        : const Color(
-                                            0xFFE5E5EA,
-                                          ).withValues(alpha: 0.5),
-                                    Colors.transparent,
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ],
-                      );
-                    }),
-                    if (_shouldShowAiTeacherButton) ...[
-                      const SizedBox(height: 12),
-                      _buildMoreAiExamplesButton(isDarkMode),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -1263,7 +632,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                     "$maziForm|${DateTime.now().millisecondsSinceEpoch}";
                 dictionaryModeNotifier.value = DictionaryMode.emsile;
               },
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(
@@ -1271,18 +640,8 @@ class _SearchResultCardState extends State<SearchResultCard>
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: isDarkMode
-                        ? [
-                            emsileBlue.withValues(alpha: 0.15),
-                            emsileBlue.withValues(alpha: 0.08),
-                          ]
-                        : [
-                            emsileBlue.withValues(alpha: 0.10),
-                            emsileBlue.withValues(alpha: 0.05),
-                          ],
-                  ),
-                  borderRadius: BorderRadius.circular(10),
+                  color: emsileBlue.withValues(alpha: isDarkMode ? 0.12 : 0.07),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: isDarkMode
                         ? emsileBlue.withValues(alpha: 0.4)
@@ -1317,162 +676,6 @@ class _SearchResultCardState extends State<SearchResultCard>
           ),
         );
       },
-    );
-  }
-
-  Widget _buildConjugationRow(bool isDarkMode) {
-    if (widget.word.fiilCekimler?.isNotEmpty != true) {
-      return const SizedBox.shrink();
-    }
-
-    final conjugations = <String, String>{};
-    final fiilCekimler = widget.word.fiilCekimler!;
-
-    if (fiilCekimler.containsKey('maziForm') &&
-        fiilCekimler['maziForm']?.toString().trim().isNotEmpty == true) {
-      conjugations[LanguageService().isEnglish
-              ? 'Past'
-              : (LanguageService().isArabic ? 'ماضي' : 'Mazi')] =
-          fiilCekimler['maziForm'].toString();
-    }
-    if (fiilCekimler.containsKey('muzariForm') &&
-        fiilCekimler['muzariForm']?.toString().trim().isNotEmpty == true) {
-      conjugations[LanguageService().isEnglish
-              ? 'Present'
-              : (LanguageService().isArabic ? 'مضارع' : 'Müzari')] =
-          fiilCekimler['muzariForm'].toString();
-    }
-    if (fiilCekimler.containsKey('mastarForm') &&
-        fiilCekimler['mastarForm']?.toString().trim().isNotEmpty == true) {
-      conjugations[LanguageService().isEnglish
-              ? 'Infinitive'
-              : (LanguageService().isArabic ? 'مصدر' : 'Mastar')] =
-          fiilCekimler['mastarForm'].toString();
-    }
-    if (fiilCekimler.containsKey('emirForm') &&
-        fiilCekimler['emirForm']?.toString().trim().isNotEmpty == true) {
-      conjugations[LanguageService().isEnglish
-              ? 'Imperative'
-              : (LanguageService().isArabic ? 'أمر' : 'Emir')] =
-          fiilCekimler['emirForm'].toString();
-    }
-
-    if (conjugations.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Directionality(
-        textDirection: LanguageService().isArabic
-            ? TextDirection.rtl
-            : TextDirection.ltr,
-        child: Row(
-          children: conjugations.entries.map((entry) {
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _buildConjugationChip(
-                  entry.key,
-                  entry.value,
-                  isDarkMode,
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildConjugationChip(String title, String text, bool isDarkMode) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Başlık
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: isDarkMode
-                ? const Color(0xFF007AFF).withValues(alpha: 0.15)
-                : const Color(0xFF007AFF).withValues(alpha: 0.08),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
-          ),
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF007AFF),
-                letterSpacing: 0.5,
-              ),
-            ),
-          ),
-        ),
-        // Arapça metin için kutu
-        Container(
-          width: double.infinity,
-          height: 48,
-          decoration: BoxDecoration(
-            gradient: isDarkMode
-                ? null
-                : const LinearGradient(
-                    colors: [Color(0xFFF8F9FA), Color(0xFFF2F2F7)],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                  ),
-            color: isDarkMode ? const Color(0xFF2C2C2E) : null,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(8),
-              bottomRight: Radius.circular(8),
-              topLeft: Radius.circular(8),
-              topRight: Radius.circular(8),
-            ),
-            border: Border.all(
-              color: isDarkMode
-                  ? const Color(0xFF48484A).withValues(alpha: 0.5)
-                  : const Color(0xFFD0D0D0),
-              width: 1.0,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: isDarkMode
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.black.withValues(alpha: 0.04),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontFamily: 'ScheherazadeNew',
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: isDarkMode
-                    ? const Color(0xFFE5E5EA)
-                    : const Color(0xFF1C1C1E),
-                height: 1.4,
-                fontFeatures: const [
-                  ui.FontFeature.enable('liga'),
-                  ui.FontFeature.enable('calt'),
-                ],
-              ),
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
-            ),
-          ),
-        ),
-      ],
     );
   }
 

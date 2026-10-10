@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../models/ai_teacher_model.dart';
 import '../models/word_model.dart';
@@ -9,7 +10,6 @@ import 'database_service.dart';
 import 'dart:math' as math;
 import 'package:kavaid/services/global_config_service.dart';
 import 'package:kavaid/services/connectivity_service.dart';
-import 'package:kavaid/services/firebase_service.dart';
 
 class GeminiApiKeyInvalidException implements Exception {
   const GeminiApiKeyInvalidException();
@@ -1205,88 +1205,65 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
     return promptTemplate.replaceAll('{KELIME}', word);
   }
 
-  // Eşik kontrolü ve sözlük güncelleme tetikleme
+  // Firebase'e daha önce gönderilmiş AI kelimelerinin anahtarları.
+  static const String _uploadedAiWordsKey = 'ai_words_uploaded_v1';
+
+  /// AI ile bulunan ve henüz paylaşılmamış kelimeler eşiği geçince
+  /// Firebase'deki ortak sözlüğe gönderilir.
+  ///
+  /// Eskiden bu adımda Firebase'deki TÜM sözlük indirilip yerel tablo
+  /// baştan kuruluyor ve bekleyen kelimeler siliniyordu: her ~10 AI
+  /// aramasında onlarca MB veri ana thread'de çekiliyor, üstelik silinen AI
+  /// kelimeleri aramada bir daha çıkmıyordu (arama yalnızca gömülü sözlüğe
+  /// ve bekleyen tabloya bakar). Artık kelimeler cihazda kalır, yalnızca
+  /// gönderilmemiş olanlar yüklenir.
   Future<void> _checkAndTriggerSync(DatabaseService databaseService) async {
     try {
-      final pendingCount = await databaseService.getPendingAiWordsCount();
-      final configService = GlobalConfigService();
-      final threshold = configService.aiBatchSyncThreshold;
+      final prefs = await SharedPreferences.getInstance();
+      final uploaded =
+          (prefs.getStringList(_uploadedAiWordsKey) ?? const <String>[])
+              .toSet();
+      String keyOf(WordModel w) => (w.harekeliKelime?.isNotEmpty == true
+              ? w.harekeliKelime!
+              : w.kelime)
+          .trim();
+
+      final pendingWords = await databaseService.getPendingAiWords();
+      final toUpload = pendingWords
+          .where((w) => keyOf(w).isNotEmpty && !uploaded.contains(keyOf(w)))
+          .toList();
+      final threshold = GlobalConfigService().aiBatchSyncThreshold;
 
       debugPrint(
-        '🔄 Bekleyen AI kelime sayısı: $pendingCount, Eşik: $threshold',
+        '🔄 Gönderilmemiş AI kelime sayısı: ${toUpload.length}, Eşik: $threshold',
       );
+      if (toUpload.length < threshold) return;
 
-      if (pendingCount >= threshold) {
-        debugPrint('🔥 AI kelime eşiği aşıldı: $pendingCount kelime bekliyor');
-        debugPrint('📚 Firebase senkronizasyonu başlatılıyor...');
-
-        // 1. Bekleyen kelimeleri al
-        final pendingWords = await databaseService.getPendingAiWords();
-        debugPrint('📦 $pendingCount kelime kontrol edilecek');
-
-        // 2. Her kelimeyi HAREKELİ kelime ile kontrol edip Firebase'e kaydet
-        int savedCount = 0;
-        int skippedCount = 0;
-
-        for (final word in pendingWords) {
-          try {
-            final harekeliKelime = word.harekeliKelime ?? word.kelime;
-
-            if (harekeliKelime.isEmpty) {
-              debugPrint('⚠️ Harekeli kelime boş, atlanıyor: ${word.kelime}');
-              skippedCount++;
-              continue;
-            }
-
-            debugPrint('🔍 Kontrol ediliyor (harekeli): $harekeliKelime');
-
-            // Firebase'e kaydet (içinde zaten harekeli kontrol var)
-            await _saveToFirebase({
-              'kelime': word.kelime,
-              'harekeliKelime': harekeliKelime,
-              'anlam': word.anlam,
-              'koku': word.koku,
-              'dilbilgiselOzellikler': word.dilbilgiselOzellikler ?? {},
-              'ornekCumleler': word.ornekCumleler ?? [],
-              'fiilCekimler': word.fiilCekimler ?? {},
-            });
-            savedCount++;
-          } catch (e) {
-            debugPrint(
-              '❌ Kelime Firebase\'e kaydedilemedi: ${word.harekeliKelime ?? word.kelime} - $e',
-            );
-            skippedCount++;
-          }
-        }
-
-        debugPrint('✅ Firebase\'e kaydedilen: $savedCount kelime');
-        debugPrint('⚠️ Atlanan/Mevcut: $skippedCount kelime');
-
-        // 3. Firebase'den güncel TÜM kelimeleri indir
-        debugPrint('🌐 Firebase\'den güncel sözlük indiriliyor...');
-        final firebaseService = FirebaseService();
-        final allFirebaseWords = await firebaseService
-            .getAllWordsFromFirebase();
-        debugPrint(
-          '📥 Firebase\'den ${allFirebaseWords.length} kelime indirildi',
-        );
-
-        // 4. Lokal veritabanını güncelle
-        if (allFirebaseWords.isNotEmpty) {
-          await databaseService.recreateWordsTable(allFirebaseWords);
+      var savedCount = 0;
+      for (final word in toUpload) {
+        final harekeliKelime = keyOf(word);
+        try {
+          // Firebase'e kaydet (içinde zaten harekeli kontrol var)
+          await _saveToFirebase({
+            'kelime': word.kelime,
+            'harekeliKelime': harekeliKelime,
+            'anlam': word.anlam,
+            'koku': word.koku,
+            'dilbilgiselOzellikler': word.dilbilgiselOzellikler ?? {},
+            'ornekCumleler': word.ornekCumleler ?? [],
+            'fiilCekimler': word.fiilCekimler ?? {},
+          });
+          uploaded.add(harekeliKelime);
+          savedCount++;
+        } catch (e) {
           debugPrint(
-            '✅ Lokal veritabanı ${allFirebaseWords.length} kelime ile güncellendi',
+            '❌ Kelime Firebase\'e kaydedilemedi: $harekeliKelime - $e',
           );
         }
-
-        // 5. Pending tablosunu temizle
-        await databaseService.clearPendingAiWords();
-        debugPrint('🗑️ Pending tablosu temizlendi');
-
-        debugPrint('🎉 Firebase senkronizasyonu tamamlandı!');
-        debugPrint('   - Firebase\'e gönderilen: $savedCount kelime');
-        debugPrint('   - Lokal veritabanı: ${allFirebaseWords.length} kelime');
       }
+
+      await prefs.setStringList(_uploadedAiWordsKey, uploaded.toList());
+      debugPrint('✅ Firebase\'e gönderilen AI kelimesi: $savedCount');
     } catch (e) {
       debugPrint('❌ Firebase senkronizasyon hatası: $e');
     }

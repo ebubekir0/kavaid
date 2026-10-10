@@ -6,6 +6,7 @@ import '../models/word_model.dart';
 import '../models/quran_word_model.dart';
 import '../services/gemini_service.dart';
 import '../services/database_service.dart'; // YEREL VERİTABANI SERVİSİ
+import '../services/search_ranking.dart';
 import '../services/database_initialization_service.dart';
 import '../services/credits_service.dart';
 import '../services/book_store_service.dart';
@@ -82,6 +83,11 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isSearchInProgress = false; // Arama işlemi devam ediyor mu
   int _searchGeneration = 0;
   List<WordModel> _searchResults = []; // Arama sonuçları
+  // Son aramadaki kelimelerin eşleşme türleri (gruplama için). AI sonucu gibi
+  // aramadan gelmeyen kelimelerde kayıt yoktur, bunlar tam eşleşme sayılır.
+  final Expando<WordMatchType> _matchTypes = Expando('matchType');
+  List<WordModel>? _groupedSource;
+  List<Object> _groupedCache = const [];
   Timer? _debounceTimer;
   Timer? _interstitialTimer;
   StreamSubscription? _searchSubscription;
@@ -130,7 +136,18 @@ class _HomeScreenState extends State<HomeScreen>
   bool get wantKeepAlive =>
       true; // Keep alive açık: sekmeler arası geçişte state korunsun
 
-  bool _containsArabic(String s) => RegExp(r'[\u0600-\u06FF]').hasMatch(s);
+  bool _containsArabic(String s) => containsArabic(s);
+
+  /// Arama sonu\u00E7lar\u0131n\u0131n ekranda g\u00F6sterilecek gruplanm\u0131\u015F hali. Sonu\u00E7 listesi
+  /// de\u011Fi\u015Fmedik\u00E7e \u00F6nbellekten d\u00F6ner (eskiden her build'de yeniden
+  /// hesaplan\u0131yordu).
+  List<Object> _groupedSearchResults() {
+    if (!identical(_groupedSource, _searchResults)) {
+      _groupedSource = _searchResults;
+      _groupedCache = groupSearchResults(_searchResults, (w) => _matchTypes[w]);
+    }
+    return _groupedCache;
+  }
 
   @override
   void initState() {
@@ -753,14 +770,14 @@ class _HomeScreenState extends State<HomeScreen>
       return;
     }
 
-    // Ana sözlükte Türkçe aramalarda ilk 2 harfte aramayı engelle.
+    // Ana sözlükte tek harfli Türkçe aramayı engelle (2 harfliler tam kelime aranır).
     final isArabic = _containsArabic(cleanText);
     final isShortTurkishInMain =
         !_isQuranMode &&
         !_isEmsileMode &&
         !isArabic &&
         cleanText.isNotEmpty &&
-        cleanText.length <= 2;
+        cleanText.length < 2;
 
     if (cleanText.isEmpty || isShortTurkishInMain) {
       // Timer varsa iptal et — bir önceki arama gelmeden temizlendi
@@ -924,10 +941,11 @@ class _HomeScreenState extends State<HomeScreen>
     final searchGeneration = ++_searchGeneration;
     final searchMode = dictionaryModeNotifier.value;
 
-    // Ana sözlükte Türkçe aramalarda ilk 2 harfte aramayı engelle.
+    // Ana sözlükte tek harfli Türkçe aramayı engelle; 2 harfliler ("su", "ev")
+    // motor tarafında yalnızca tam kelime olarak eşleşir.
     final isArabic = _containsArabic(cleanQuery);
     final isShortTurkishInMain =
-        !_isQuranMode && !_isEmsileMode && !isArabic && cleanQuery.length <= 2;
+        !_isQuranMode && !_isEmsileMode && !isArabic && cleanQuery.length < 2;
 
     if (isShortTurkishInMain) {
       if (mounted) {
@@ -1012,7 +1030,12 @@ class _HomeScreenState extends State<HomeScreen>
           });
         }
       } else {
-        final results = await _dbService.searchWords(cleanQuery);
+        final ranked = await _dbService.searchWordsRanked(cleanQuery);
+        final results = <WordModel>[];
+        for (final r in ranked) {
+          _matchTypes[r.word] = r.matchType;
+          results.add(r.word);
+        }
 
         if (mounted) {
           final currentText = _searchController.text.trim();
@@ -2845,11 +2868,9 @@ class _HomeScreenState extends State<HomeScreen>
 
       // ===== NORMAL SÖZLÜK ARAMA SONUÇLARI =====
       if (_searchResults.isNotEmpty) {
-        // Eşleşme tipine göre gruplanmış sonuç listesi oluştur
-        final groupedResults = _buildGroupedSearchResults(
-          _searchResults,
-          _searchController.text.trim(),
-        );
+        // Eşleşme tipine göre gruplanmış sonuç listesi (sonuç değişmedikçe
+        // yeniden hesaplanmaz)
+        final groupedResults = _groupedSearchResults();
         if (_shouldShowReviewPrompt) {
           slivers.add(SliverToBoxAdapter(child: _buildReviewPromptCard()));
         }
@@ -2863,7 +2884,7 @@ class _HomeScreenState extends State<HomeScreen>
                     return const SizedBox.shrink();
                   }
                   final item = groupedResults[index];
-                  if (item is _MatchHeaderItem) {
+                  if (item is SearchGroupHeader) {
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
 
@@ -3484,111 +3505,4 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-}
-
-class _MatchHeaderItem {
-  final String title;
-  const _MatchHeaderItem(this.title);
-}
-
-List<Object> _buildGroupedSearchResults(List<WordModel> words, String query) {
-  if (words.isEmpty || query.trim().isEmpty) {
-    return words.cast<Object>();
-  }
-
-  final trimmedQuery = query.trim();
-  final hasArabic = RegExp(r'[\u0600-\u06FF]').hasMatch(trimmedQuery);
-  final normalizedQuery = hasArabic
-      ? _removeArabicDiacriticsForUi(trimmedQuery)
-      : trimmedQuery.toLowerCase();
-
-  final exact = <WordModel>[];
-  final root = <WordModel>[];
-  final prefix = <WordModel>[];
-  final others = <WordModel>[];
-
-  for (final w in words) {
-    if (hasArabic) {
-      final normKelime = _removeArabicDiacriticsForUi(w.kelime);
-      final normHar = _removeArabicDiacriticsForUi(w.harekeliKelime ?? '');
-
-      if (normKelime == normalizedQuery || normHar == normalizedQuery) {
-        exact.add(w);
-        continue;
-      }
-      final bool prefixMatch =
-          normKelime.startsWith(normalizedQuery) ||
-          normHar.startsWith(normalizedQuery);
-      if (prefixMatch) {
-        prefix.add(w);
-        continue;
-      }
-
-      final koku = (w.koku ?? '').trim();
-      final normKoku = _removeArabicDiacriticsForUi(koku);
-      final bool rootMatch =
-          normalizedQuery.length >= 2 && normKoku == normalizedQuery;
-      if (rootMatch) {
-        root.add(w);
-      } else {
-        others.add(w);
-      }
-    } else {
-      // TÜRKÇE/LATİN SORGU: anlamın TÜMÜNDE eşleşme kontrolü
-      final anlam = (w.sadeAnlam ?? '').toLowerCase();
-
-      if (anlam == normalizedQuery) {
-        // Tam anlam eşleşmesi
-        exact.add(w);
-      } else if (anlam.startsWith(normalizedQuery) ||
-          anlam.contains(',$normalizedQuery') ||
-          anlam.contains(', $normalizedQuery') ||
-          anlam.contains(' $normalizedQuery') ||
-          anlam.contains('$normalizedQuery ') ||
-          anlam.contains(normalizedQuery)) {
-        // Başta veya anlamın herhangi bir yerinde geçen tüm eşleşmeleri prefix grubunda göster
-        prefix.add(w);
-      } else {
-        // Eşleşmeyenler (Türkçe aramada ekranda gösterilmeyecek)
-        others.add(w);
-      }
-    }
-  }
-
-  final result = <Object>[];
-  if (exact.isNotEmpty) {
-    result.addAll(exact);
-  }
-
-  if (prefix.isNotEmpty) {
-    result.addAll(prefix);
-  }
-
-  // AI butonu kaldırıldı
-
-  root.sort((a, b) => _rootTypeRank(a).compareTo(_rootTypeRank(b)));
-  if (root.isNotEmpty) {
-    result.add(const _MatchHeaderItem('Kök eşleşme'));
-    result.addAll(root);
-  }
-
-  return result;
-}
-
-String _removeArabicDiacriticsForUi(String text) {
-  return text.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]'), '');
-}
-
-int _rootTypeRank(WordModel word) {
-  String? typeText;
-  if (word.dilbilgiselOzellikler?.containsKey('tur') == true) {
-    typeText = word.dilbilgiselOzellikler!['tur']?.toString();
-  } else if (word.tip?.isNotEmpty == true) {
-    typeText = word.tip;
-  }
-
-  final t = (typeText ?? '').toLowerCase().trim();
-  if (t.contains('isim')) return 0;
-  if (t.contains('fiil')) return 2;
-  return 1;
 }

@@ -8,6 +8,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/word_model.dart';
 import '../data/embedded_words.dart';
+import 'search_ranking.dart';
+
+export 'search_ranking.dart' show RankedWord, WordMatchType;
 
 class DatabaseService {
   static final DatabaseService instance = DatabaseService._init();
@@ -320,6 +323,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       _wordToDbMap(word),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    _pendingWordsCache = null;
   }
 
   Future<int> getPendingAiWordsCount() async {
@@ -330,45 +334,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  // ─── Statik Regex — tek seferde derlenir ─────────────────────────────────
-  static final RegExp _diacriticsRx = RegExp(
-    r'[\u064B-\u065F\u0670\u0640\u0653-\u0655]',
-  );
-  static final RegExp _arabicRx = RegExp(r'[\u0600-\u06FF]');
-  static final RegExp _hamzaRx = RegExp('[\u0623\u0625\u0622\u0621\u0671]');
-  static final RegExp _nonLatinAlphanumericRx = RegExp(r'[^a-z0-9\s,;]');
-  static final RegExp _whitespaceRx = RegExp(r'\s+');
-  static final RegExp _meaningSplitRx = RegExp(r'[,،;]');
+  // Normalizasyon kuralları search_ranking.dart'ta; arama izolesi ve ana
+  // izole aynı kuralları kullanır.
+  static String _fullNormalize(String text) => normalizeArabic(text);
 
-  // ─── Hemze normalizasyonu: أ إ آ ء → ا ───────────────────────────────────
-  static String _normalizeHamza(String text) {
-    return text
-        .replaceAll(_hamzaRx, '\u0627')
-        .replaceAll('\u0624', '\u0648')
-        .replaceAll('\u0626', '\u064A')
-        .replaceAll('\u0649', '\u064A');
-  }
+  static String _normalizeLatinSearch(String text) => foldLatin(text);
 
-  // ─── Tam normalize (harekeleri + hemze) ──────────────────────────────────
-  static String _fullNormalize(String text) {
-    if (text.isEmpty) return text;
-    return _normalizeHamza(text.replaceAll(_diacriticsRx, ''));
-  }
-
-  static String _normalizeLatinSearch(String text) {
-    if (text.isEmpty) return '';
-    return text
-        .toLowerCase()
-        .replaceAll('\u00E7', 'c')
-        .replaceAll('\u011F', 'g')
-        .replaceAll('\u0131', 'i')
-        .replaceAll('\u0307', '')
-        .replaceAll('\u00F6', 'o')
-        .replaceAll('\u015F', 's')
-        .replaceAll('\u00FC', 'u')
-        .replaceAll(_nonLatinAlphanumericRx, ' ')
-        .replaceAll(_whitespaceRx, ' ')
-        .trim();
+  /// Anlamın harfi cer bölümü (|| sonrası) hariç ana kısmı.
+  static String _mainMeaning(String? anlam) {
+    if (anlam == null || anlam.isEmpty) return '';
+    final pipe = anlam.indexOf('||');
+    return pipe >= 0 ? anlam.substring(0, pipe) : anlam;
   }
 
   // ─── Önceden normalize edilmiş harekeliKelime cache'i ────────────────────────────
@@ -468,269 +444,191 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     return _prewarmFuture;
   }
 
-  static bool _hasWholeToken(String text, String token) {
-    if (text.isEmpty || token.isEmpty) return false;
-    return text == token ||
-        text.startsWith('$token ') ||
-        text.endsWith(' $token') ||
-        text.contains(' $token ');
-  }
-
-  static bool _hasTokenStartingWith(String text, String token) {
-    if (text.isEmpty || token.isEmpty) return false;
-    return text.startsWith(token) || text.contains(' $token');
-  }
-
   // ─── RAM'de arama (Isolate-safe, bu izoledeki _words'ü okur) ──────────────
   static List<Map<String, dynamic>> _runIsolateSearch(
     Map<String, dynamic> args,
   ) {
-    final query = args['query'] as String;
-    final normQuery = args['normQuery'] as String; // tam normalize
-    final turkQuery = args['turkQuery'] as String; // lowercase turkish
-    final isArabic = args['isArabic'] as bool;
-    final arabicGuess = args['arabicGuess'] as String;
-    final latinGuessOn = args['latinGuessOn'] as bool;
+    final query = SearchQuery.fromMap(args);
 
     // Cache yoksa (prewarm henüz bitmedi) oluştur
     _buildCache();
     final words = _words;
-    if (words == null || _normalizedHKCache == null) {
+    if (words == null || _normalizedHKCache == null || query.isEmpty) {
       return <Map<String, dynamic>>[];
     }
     final kCache = _normalizedKelimeCache!;
     final hkCache = _normalizedHKCache!;
     final rootCache = _normalizedRootCache!;
     final mCache = _meaningCache!;
+    final guess = query.arabicGuess;
 
-    // Sonuçlar: [rank, sec, index]
-    final results = <({int rank, int sec, int idx})>[];
+    final results = <({int rank, int sec, int idx, WordMatchType type})>[];
 
     for (int i = 0; i < words.length; i++) {
-      final map = words[i];
-      final rawK = map['kelime'] as String? ?? '';
-      final rawHK = map['harekeliKelime'] as String? ?? '';
-      final rawRoot = map['koku'] as String? ?? '';
       final nK = kCache[i];
-      final nHK = hkCache[i]; // önceden normalize edilmiş
+      final nHK = hkCache[i];
       final nRoot = rootCache[i];
+      final meanings = mCache[i] ?? '';
 
-      int rank = 9999;
-      int sec = 0;
-
-      if (isArabic) {
-        // ── Arapça arama: SADECE harekeliKelime kullanılır ────────────────────
-        if (rawHK.isEmpty && rawK.isEmpty && rawRoot.isEmpty) continue;
-
-        if (rawHK == query || rawK == query || rawRoot == query) {
-          rank = 0;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        } else if (nHK == normQuery || nK == normQuery) {
-          rank = 1;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        } else if (nRoot == normQuery) {
-          rank = 2;
-          sec = nRoot.length;
-        } else if (nHK.startsWith(normQuery) || nK.startsWith(normQuery)) {
-          rank = 3;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        } else if (_hasWholeToken(nHK, normQuery) ||
-            _hasWholeToken(nK, normQuery)) {
-          rank = 4;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        } else if (_hasTokenStartingWith(nHK, normQuery) ||
-            _hasTokenStartingWith(nK, normQuery)) {
-          rank = 5;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        } else if (nHK.contains(normQuery) || nK.contains(normQuery)) {
-          rank = 6;
-          sec = nHK.isNotEmpty ? nHK.length : nK.length;
-        }
-      } else {
-        // ── Türkçe arama ──────────────────────────────────────────
-        final meanings =
-            mCache[i] ?? ""; // önceden dönüştürülmüş lowercase anlam
-
-        // ⚡ Hızlı ön-filtre: anlam içinde geçmiyorsa direkt atla
-        // Bu 55k yerine sadece eşleşen yüzlerce entry için detaylı analiz yapar
-        final hasMeaning = meanings.isNotEmpty;
-        final quickHit = hasMeaning && meanings.contains(turkQuery);
-        final quickLatin =
-            latinGuessOn &&
-            arabicGuess.isNotEmpty &&
-            (nHK.contains(arabicGuess) ||
-                nK.contains(arabicGuess) ||
-                nRoot.contains(arabicGuess));
-
-        if (!quickHit && !quickLatin) continue; // ← büyük performans kazancı
-
-        if (!hasMeaning) {
-          if (latinGuessOn && arabicGuess.isNotEmpty) {
-            if (nHK.startsWith(arabicGuess) || nK.startsWith(arabicGuess)) {
-              rank = 90;
-              sec = nHK.isNotEmpty ? nHK.length : nK.length;
-            } else if (nRoot == arabicGuess) {
-              rank = 91;
-              sec = nRoot.length;
-            } else if (nHK.contains(arabicGuess) || nK.contains(arabicGuess)) {
-              rank = 92;
-              sec = nHK.isNotEmpty ? nHK.length : nK.length;
-            }
-          }
-        } else {
-          final parts = meanings.split(_meaningSplitRx);
-          int? bestRank;
-          int bestSec = 99;
-
-          for (int j = 0; j < parts.length; j++) {
-            final m = parts[j].trim();
-            if (m.isEmpty || !m.contains(turkQuery)) {
-              continue; // hızlı eleman skiple
-            }
-            int r = 9999;
-            if (m == turkQuery) {
-              r = 0 + j;
-            } else if (m.startsWith('$turkQuery ') ||
-                m.startsWith('$turkQuery,') ||
-                m.startsWith('$turkQuery;')) {
-              r = 5 + j;
-            } else if (m.startsWith(turkQuery)) {
-              r = 10 + j;
-            } else {
-              final wb =
-                  m.contains(' $turkQuery ') ||
-                  m.contains(' $turkQuery,') ||
-                  m.contains(' $turkQuery;') ||
-                  m.endsWith(' $turkQuery');
-              if (wb) {
-                r = 20 + j;
-              } else {
-                r = 30 + j;
-              }
-            }
-            if (r < (bestRank ?? 9999)) {
-              bestRank = r;
-              bestSec = j;
-            }
-          }
-
-          if (bestRank != null) {
-            rank = bestRank;
-            sec = bestSec;
-          } else if (latinGuessOn && arabicGuess.isNotEmpty) {
-            if (nHK.startsWith(arabicGuess) || nK.startsWith(arabicGuess)) {
-              rank = 90;
-              sec = nHK.isNotEmpty ? nHK.length : nK.length;
-            } else if (nRoot == arabicGuess) {
-              rank = 91;
-              sec = nRoot.length;
-            } else if (nHK.contains(arabicGuess) || nK.contains(arabicGuess)) {
-              rank = 92;
-              sec = nHK.isNotEmpty ? nHK.length : nK.length;
-            }
-          }
-        }
+      // ⚡ Hızlı ön-filtre: Türkçe aramada anlamında sorgu geçmeyen (ve Latin
+      // tahminine de uymayan) kayıtlar detaylı puanlamaya hiç girmez.
+      if (!query.isArabic &&
+          !meanings.contains(query.latin) &&
+          !(guess.isNotEmpty &&
+              (nHK.contains(guess) ||
+                  nK.contains(guess) ||
+                  nRoot.contains(guess)))) {
+        continue;
       }
 
-      if (rank < 9999) {
-        if (isArabic && rank >= 6 && results.length >= 360) {
-          continue;
-        }
-        results.add((rank: rank, sec: sec, idx: i));
-      }
+      final map = words[i];
+      final r = rankEntry(
+        query: query,
+        kelime: map['kelime'] as String? ?? '',
+        harekeli: map['harekeliKelime'] as String? ?? '',
+        koku: map['koku'] as String? ?? '',
+        nKelime: nK,
+        nHarekeli: nHK,
+        nKoku: nRoot,
+        meanings: meanings,
+        rawMeaning: query.isArabic ? '' : _mainMeaning(map['anlam'] as String?),
+      );
+      if (r == null) continue;
+      if (query.isArabic && r.rank >= 6 && results.length >= 360) continue;
+      results.add((rank: r.rank, sec: r.sec, idx: i, type: r.type));
     }
 
-    // Sırala: önce rank, sonra secondary
+    // Önce puan, sonra ikincil ölçüt; eşitlikte sözlük sırası (kararlı sonuç).
     results.sort((a, b) {
-      final r = a.rank.compareTo(b.rank);
-      if (r != 0) return r;
-      return a.sec.compareTo(b.sec);
+      final byRank = a.rank.compareTo(b.rank);
+      if (byRank != 0) return byRank;
+      final bySec = a.sec.compareTo(b.sec);
+      return bySec != 0 ? bySec : a.idx.compareTo(b.idx);
     });
 
-    // Map listesine dönüştür (idx üzerinden). UI jank'ini azaltmak için ilk
-    // anlamlı sonuç grubuyla sınırlı tutuyoruz; kalanlar genelde düşük skorlu.
+    // UI jank'ini azaltmak için ilk 120 sonuçla sınırlı tutuluyor.
     return results.take(120).map((r) {
       final m = Map<String, dynamic>.from(words[r.idx]);
       m['rank'] = r.rank;
+      m['sec'] = r.sec;
+      m['matchType'] = r.type.index;
       return m;
     }).toList();
   }
 
-  Future<List<WordModel>> searchWords(
-    String query, {
-    bool exactMatch = false,
-  }) async {
-    if (kIsWeb) return [];
-    if (query.isEmpty) return [];
+  // Kullanıcının AI ile bulduğu kelimeler (pending_ai_words). Küçük bir tablo;
+  // her tuş vuruşunda SQLite'a gitmemek için bellekte tutulur.
+  static List<Map<String, dynamic>>? _pendingWordsCache;
 
-    final isArabic = _arabicRx.hasMatch(query);
-    final normQuery = _fullNormalize(query);
-    final turkQuery = _normalizeLatinSearch(query.trim());
-    if (!isArabic && turkQuery.isEmpty) return [];
-    final arabicGuess = isArabic ? '' : _latinToArabicGuess(query);
-    final latinGuessOn =
-        !isArabic && arabicGuess.isNotEmpty && query.trim().length <= 5;
+  Future<List<Map<String, dynamic>>> _loadPendingWords() async {
+    final cached = _pendingWordsCache;
+    if (cached != null) return cached;
+    final db = await instance.database;
+    if (db == null) return const [];
+    return _pendingWordsCache = await db.query('pending_ai_words');
+  }
+
+  static final RegExp _whitespaceRx = RegExp(r'\s+');
+
+  /// Sözlükte arar; sonuçları eşleşme türleriyle birlikte, en iyi eşleşme
+  /// başta olacak şekilde döndürür. Türkçe karakter (guzel/güzel) ve Arapça
+  /// yazım farkları (hemze, ة/ه, uzatma çizgisi) sonucu değiştirmez.
+  Future<List<RankedWord>> searchWordsRanked(String input) async {
+    if (kIsWeb) return [];
+    final raw = input.trim();
+    if (raw.isEmpty) return [];
+    final query = SearchQuery.parse(
+      raw,
+      arabicGuess: containsArabic(raw) ? '' : _latinToArabicGuess(raw),
+    );
+    if (query.isEmpty) return [];
 
     // UI frame'inin render edilmesine fırsat ver, sonra aramayı yap.
     await Future.delayed(Duration.zero);
 
-    // PERFORMANCE: Ana thread'de senkron arama — ÖNCEden kurulmuş cache ile
-    // compute() KULLANILMIYOR çünkü her çağrıda yeni Isolate açıp 55K cache'i
-    // sıfırdan kuruyordu (~500ms+ overhead). prewarmCache() bir kez çalıştırılıyor
-    // ve cache bellekte kalıyor — arama ~10-30ms sürüyor.
-    final searchArgs = {
-      'query': query,
-      'normQuery': normQuery,
-      'turkQuery': turkQuery,
-      'isArabic': isArabic,
-      'arabicGuess': arabicGuess,
-      'latinGuessOn': latinGuessOn,
-    };
-    final List<Map<String, dynamic>> rawResults = kIsWeb
-        ? _runIsolateSearch(searchArgs)
-        : await _worker.search(searchArgs);
+    final candidates =
+        <
+          ({
+            Map<String, dynamic> map,
+            int rank,
+            int sec,
+            int order,
+            WordMatchType type,
+          })
+        >[];
 
-    // pending_ai_words tablosundan da ekle (SQLite - küçük tablo, hızlı)
+    // Ana arama: arka plan izolesinde, önceden normalize edilmiş sözlükte.
+    final mainResults = await _worker.search(query.toMap());
+    for (var i = 0; i < mainResults.length; i++) {
+      final m = mainResults[i];
+      candidates.add((
+        map: m,
+        rank: m['rank'] as int,
+        sec: m['sec'] as int,
+        order: i,
+        type: WordMatchType.values[m['matchType'] as int],
+      ));
+    }
+
+    // AI ile bulunan kelimeler aynı kurallarla puanlanıp sonuçlara katılır.
     try {
-      final db = await instance.database;
-      if (db != null) {
-        if (isArabic) {
-          final pt = '%$normQuery%';
-          final pending = await db.rawQuery(
-            'SELECT *, 0 as rank FROM pending_ai_words WHERE kelime LIKE ? OR harekeliKelime LIKE ? LIMIT 50',
-            [pt, pt],
-          );
-          rawResults.addAll(pending);
-        } else {
-          final pt = '%$turkQuery%';
-          final pending = await db.rawQuery(
-            'SELECT *, 0 as rank FROM pending_ai_words WHERE LOWER(anlam) LIKE ? LIMIT 50',
-            [pt],
-          );
-          rawResults.addAll(pending);
-        }
+      final pending = await _loadPendingWords();
+      for (var i = 0; i < pending.length; i++) {
+        final p = pending[i];
+        final kelime = p['kelime'] as String? ?? '';
+        final harekeli = p['harekeliKelime'] as String? ?? '';
+        final koku = p['koku'] as String? ?? '';
+        final mainMeaning = _mainMeaning(p['anlam'] as String?);
+        final r = rankEntry(
+          query: query,
+          kelime: kelime,
+          harekeli: harekeli,
+          koku: koku,
+          nKelime: normalizeArabic(kelime),
+          nHarekeli: normalizeArabic(harekeli),
+          nKoku: normalizeArabic(koku),
+          meanings: foldLatin(mainMeaning),
+          rawMeaning: mainMeaning,
+        );
+        if (r == null) continue;
+        candidates.add((
+          map: p,
+          rank: r.rank,
+          sec: r.sec,
+          order: mainResults.length + i,
+          type: r.type,
+        ));
       }
     } catch (_) {}
 
-    // Modüle dönüştür + uzun kelime ifadeleri filtrele + dedupe
+    candidates.sort((a, b) {
+      final byRank = a.rank.compareTo(b.rank);
+      if (byRank != 0) return byRank;
+      final bySec = a.sec.compareTo(b.sec);
+      return bySec != 0 ? bySec : a.order.compareTo(b.order);
+    });
+
+    // Uzun ifadeleri (örnek cümleler) çıkar ve aynı kelimeyi tekrar gösterme
     final seen = <String>{};
-    final results = <WordModel>[];
-    for (final map in rawResults) {
-      final hk = (map['harekeliKelime'] as String? ?? '').trim();
-      // 3'ten fazla kelime içeren ifadeleri (örnek cümleler) listeden çıkar
+    final results = <RankedWord>[];
+    for (final c in candidates) {
+      final hk = (c.map['harekeliKelime'] as String? ?? '').trim();
       if (hk.isNotEmpty &&
-          hk.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).length > 2) {
+          hk.split(_whitespaceRx).where((p) => p.isNotEmpty).length > 2) {
         continue;
       }
-      // Dedupe: aynı harekeli kelimeyi ikinci kez gösterme
-      final dedupeKey = hk.isNotEmpty ? hk : (map['kelime'] as String? ?? '');
+      final dedupeKey = hk.isNotEmpty ? hk : (c.map['kelime'] as String? ?? '');
       if (dedupeKey.isNotEmpty && !seen.add(dedupeKey)) continue;
 
-      results.add(_dbMapToWord(map));
+      results.add(RankedWord(_dbMapToWord(c.map), c.type));
     }
 
     return results;
   }
+
+  /// [searchWordsRanked] sonucundaki kelimeler (eşleşme türü olmadan).
+  Future<List<WordModel>> searchWords(String query) async =>
+      (await searchWordsRanked(query)).map((r) => r.word).toList();
 
   Future<List<WordModel>> getPendingAiWords() async {
     if (kIsWeb) return [];
@@ -745,6 +643,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     final db = await instance.database;
     if (db == null) return;
     await db.delete('pending_ai_words');
+    _pendingWordsCache = null;
   }
 
   Future<void> recreateWordsTable(List<WordModel> words) async {

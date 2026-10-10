@@ -31,5 +31,35 @@ void main() {
     test('eşleşmeyen sorgu boş liste döner', () async {
       expect(await DatabaseService.instance.searchWords('xyzxyz'), isEmpty);
     });
+
+    test('Türkçe karaktersiz yazım aynı sonuçları verir', () async {
+      final withChars = await DatabaseService.instance.searchWords('güzel');
+      final without = await DatabaseService.instance.searchWords('guzel');
+
+      expect(without, isNotEmpty);
+      expect(
+        without.map((w) => w.harekeliKelime).take(10),
+        withChars.map((w) => w.harekeliKelime).take(10),
+      );
+    });
+
+    test('Arapça yazım farkları (hemze, ة/ه, uzatma çizgisi) sonucu bulur', () async {
+      Future<String?> first(String q) async =>
+          (await DatabaseService.instance.searchWords(q)).firstOrNull?.harekeliKelime;
+
+      expect(await first('اسلام'), 'إِسْلَامٌ');
+      expect(await first('مدرسه'), 'مَدْرَسَةٌ');
+      expect(await first('كـتـاب'), await first('كتاب'));
+    });
+
+    test('kısa ve sık kelimelerde temel karşılık ilk sırada gelir', () async {
+      Future<String?> first(String q) async =>
+          (await DatabaseService.instance.searchWords(q)).firstOrNull?.harekeliKelime;
+
+      expect(await first('su'), 'مَاءٍ');
+      expect(await first('ev'), 'بَيْتٌ');
+      expect(await first('kitap'), 'كِتَابٌ');
+      expect(await first('كتب'), 'كَتَبَ');
+    });
   });
 }

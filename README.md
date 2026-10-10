@@ -144,10 +144,10 @@ flutter run -d chrome
 - **Sıralama**: Eşleşme skoruna göre
 
 ### 📱 Flutter Paketleri:
-- `firebase_core`: Firebase temel konfigürasyon
-- `firebase_database`: Realtime Database entegrasyonu
+- `firebase_core`, `cloud_firestore`, `firebase_database`, `firebase_auth`: Firebase
+- `purchases_flutter` (RevenueCat): Abonelik ve satın almalar
+- `sqflite`: Yerel sözlük veritabanı
 - `http`: Gemini API istekleri
-- `flutter_spinkit`: Yükleme animasyonları
 - `json_annotation` & `json_serializable`: JSON serializasyon
 
 ## 📁 Proje Yapısı
@@ -155,24 +155,43 @@ flutter run -d chrome
 ```
 kavaid/
 ├── lib/
-│   ├── models/
-│   │   └── word_model.dart          # Kelime veri modeli
-│   ├── services/
-│   │   ├── firebase_service.dart    # Firebase işlemleri
-│   │   ├── gemini_service.dart      # Gemini AI entegrasyonu
-│   │   └── firebase_options.dart    # Firebase konfigürasyonu
-│   ├── screens/
-│   │   └── home_screen.dart         # Ana ekran
-│   ├── widgets/
-│   │   ├── word_card.dart           # Kelime sonuç kartı
-│   │   ├── suggestion_card.dart     # Öneri kartı
-│   │   └── recent_words_section.dart # Son kelimeler bölümü
-│   └── main.dart                    # Ana uygulama dosyası
+│   ├── data/
+│   │   ├── embedded_words.dart       # Gömülü sözlüğü asset'ten yükler
+│   │   └── embedded_words_meta.dart  # Veri sürümü (otomatik üretilir)
+│   ├── models/                       # Veri modelleri
+│   ├── services/                     # Firebase, Gemini, satın alma, veritabanı...
+│   ├── screens/                      # Ekranlar
+│   ├── widgets/                      # Ortak bileşenler
+│   └── main.dart                     # Uygulama girişi
 ├── assets/
-│   ├── fonts/                       # Arapça fontlar
-│   └── images/                      # Görseller
-└── pubspec.yaml                     # Bağımlılıklar
+│   ├── data/sozluk.json.gz           # Gömülü sözlük (54.971 kelime)
+│   ├── books/, audio/                # Okuma kitapları ve sesleri
+│   ├── fonts/                        # Arapça fontlar
+│   └── images/                       # Görseller
+├── test/                             # Birim testleri (flutter test)
+├── tool/                             # Veri hazırlama betikleri
+├── docs/                             # Yayın, IAP, güvenlik rehberleri (eski notlar: docs/arsiv)
+└── pubspec.yaml                      # Bağımlılıklar
 ```
+
+### 📚 Gömülü sözlüğü güncelleme
+
+```bash
+python tool/build_dictionary_asset.py SON_GUNCEL_VERITABANI_V2.json
+```
+
+Bu komut `assets/data/sozluk.json.gz` ve `lib/data/embedded_words_meta.dart`
+dosyalarını üretir. Veri sürümü içerikten hesaplanır; sürüm değişince uygulama
+açılışta kullanıcının yerel sözlüğünü otomatik olarak yeniden kurar.
+
+### ✅ Test ve analiz
+
+```bash
+flutter analyze
+flutter test
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) bunları her push ve pull request'te çalıştırır.
 
 ## 🐛 Sorun Giderme
 

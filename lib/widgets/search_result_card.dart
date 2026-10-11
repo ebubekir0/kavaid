@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/dictionary_mode_notifier.dart';
 import '../models/word_model.dart';
-import '../services/credits_service.dart';
 import '../services/admob_service.dart';
 import '../utils/performance_utils.dart';
 import '../services/tts_service.dart';
@@ -56,7 +55,6 @@ class _SearchResultCardState extends State<SearchResultCard>
   // PERFORMANCE: Single ticker
   final CustomWordService _customWordService =
       CustomWordService(); // Service instance
-  final CreditsService _creditsService = CreditsService();
   final TTSService _ttsService = TTSService();
   final AdMobService _adMobService = AdMobService();
   // PERFORMANCE: ScreenshotController lazy oluşturulacak — sadece paylaşım yapıldığında
@@ -66,7 +64,6 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   // Kayıt durumu
   bool _isSaved = false;
-  List<String> _savedListIds = []; // Hangi listelerde kayıtlı
 
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
@@ -117,7 +114,6 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
     if (!mounted) return;
     setState(() {
-      _savedListIds = listIds;
       _isSaved = listIds.isNotEmpty;
     });
   }

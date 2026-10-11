@@ -7,6 +7,10 @@ import '../models/quran_word_model.dart';
 import '../services/gemini_service.dart';
 import '../services/database_service.dart'; // YEREL VERİTABANI SERVİSİ
 import '../services/search_ranking.dart';
+import '../services/daily_word.dart';
+import '../services/tts_service.dart';
+import '../data/embedded_words_meta.dart';
+import '../widgets/home_dashboard.dart';
 import '../services/database_initialization_service.dart';
 import '../services/credits_service.dart';
 import '../services/book_store_service.dart';
@@ -89,6 +93,9 @@ class _HomeScreenState extends State<HomeScreen>
   List<WordModel>? _groupedSource;
   List<Object> _groupedCache = const [];
   Timer? _debounceTimer;
+  // Ana sayfadaki günün kelimesi ve hangi güne ait olduğu
+  DailyWord? _dailyWord;
+  DateTime _dailyWordDate = DateTime.now();
   Timer? _interstitialTimer;
   StreamSubscription? _searchSubscription;
   Timer? _tapHintTimer;
@@ -201,6 +208,9 @@ class _HomeScreenState extends State<HomeScreen>
 
     // İpucu flag'ini yükle
     _loadTapHintFlag();
+
+    // Ana sayfadaki günün kelimesi (küçük bir asset; açılışı geciktirmez)
+    unawaited(_loadDailyWord());
 
     // Focus listener - artık Arapça klavyeyi KAPATMA
     // Sekme geçişlerinde vs. klavye kapanmasın diye bu kısım kaldırıldı
@@ -733,6 +743,41 @@ class _HomeScreenState extends State<HomeScreen>
       if (_isQuranMode) {
         _startQuranUsageTimer();
       }
+      // Gece yarısı geçtiyse yeni günün kelimesi
+      final now = DateTime.now();
+      if (_dailyWordDate.day != now.day ||
+          _dailyWordDate.month != now.month ||
+          _dailyWordDate.year != now.year) {
+        unawaited(_loadDailyWord());
+      }
+    }
+  }
+
+  Future<void> _loadDailyWord() async {
+    final now = DateTime.now();
+    final word = await DailyWords.today(now: now);
+    if (!mounted || word == null) return;
+    setState(() {
+      _dailyWord = word;
+      _dailyWordDate = now;
+    });
+  }
+
+  /// Ana sayfadaki bir öneriye ya da günün kelimesine dokunulduğunda o metni
+  /// arama kutusuna yazıp hemen arar (300 ms'lik yazma beklemesi olmadan).
+  void _runSuggestedSearch(String query) {
+    _dismissKeyboard();
+    _searchController.text = query;
+    _searchController.selection = TextSelection.collapsed(offset: query.length);
+    _debounceTimer?.cancel();
+    _performSearch(query);
+  }
+
+  Future<void> _speakArabicText(String text) async {
+    try {
+      await TTSService().speak(text);
+    } catch (_) {
+      // Ses yoksa sessizce geç
     }
   }
 
@@ -3233,218 +3278,42 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       );
     } else {
-      // Boş durum - Normal Sözlük Bilgilendirme
+      // Ana sayfa: günün kelimesi, tek dokunuşla denenen aramalar, sözlük özeti
       slivers.add(
         SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 25, 20, 10),
-            child: Column(
-              children: [
-                // 🎁 KAMPANYA BANNER'I - Hesap bazlı: kampanya aktif + promo kullanmamış hesaplar
-                if (LanguageService().isTurkish)
-                  ListenableBuilder(
-                    listenable: GlobalConfigService(),
-                    builder: (context, _) {
-                      final globalConfig = GlobalConfigService();
-                      if (!globalConfig.campaignEnabled) {
-                        return const SizedBox.shrink();
-                      }
-
-                      // PurchaseManager'daki hazır state'i kullan (Gecikmesiz/Flashsız)
-                      if (_creditsService.hasUsedPromo) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return CampaignBanner(isDarkMode: widget.isDarkMode);
-                    },
-                  ),
-                Container(
-                  padding: const EdgeInsets.all(22),
-                  decoration: BoxDecoration(
-                    color: widget.isDarkMode
-                        ? Colors.white.withValues(alpha: 0.03)
-                        : Colors.black.withValues(alpha: 0.02),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: widget.isDarkMode
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : Colors.black.withValues(alpha: 0.05),
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      if (LanguageService().isTurkish)
-                        Text(
-                          'Kavaid Arapça Sözlük',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: widget.isDarkMode
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
-                            letterSpacing: -0.5,
-                            fontFamily: 'Inter', // Uygulamanın ana fontu
-                          ),
-                        ),
-                      if (LanguageService().isTurkish)
-                        const SizedBox(height: 12),
-                      if (LanguageService().isTurkish)
-                        Text(
-                          'Yeni nesil yapay zeka destekli ilk Arapça sözlük',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            height: 1.4,
-                            color: widget.isDarkMode
-                                ? const Color(0xFFBBBBBB)
-                                : const Color(0xFF444446),
-                          ),
-                        ),
-                      if (LanguageService().isEnglish)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'The first AI-powered Arabic dictionary',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
-                              color: widget.isDarkMode
-                                  ? const Color(0xFFBBBBBB)
-                                  : const Color(0xFF444446),
-                            ),
-                          ),
-                        ),
-                      if (LanguageService().isArabic)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'أول قاموس عربي مدعوم بالذكاء الاصطناعي',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
-                              color: widget.isDarkMode
-                                  ? const Color(0xFFBBBBBB)
-                                  : const Color(0xFF444446),
-                            ),
-                          ),
-                        ),
-                      if (LanguageService().isEnglish ||
-                          LanguageService().isArabic)
-                        const SizedBox(height: 12),
-                      if (LanguageService().isTurkish)
-                        const SizedBox(height: 28),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.search_rounded,
-                          'Sınırsız Kelime',
-                          'Yapay zeka ile sınırsız kelime arayın.',
-                          widget.isDarkMode,
-                        ),
-                      if (LanguageService().isTurkish)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Divider(height: 1, thickness: 0.5),
-                        ),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.menu_book_rounded,
-                          'Gramer Yapıları',
-                          'Kelimelerin gramer yapılarını öğrenin.',
-                          widget.isDarkMode,
-                        ),
-                      if (LanguageService().isTurkish)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Divider(height: 1, thickness: 0.5),
-                        ),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.style_rounded,
-                          'Kişisel Listeler',
-                          'Kendi kelime listelerinizi ve kartlarınızı oluşturun.',
-                          widget.isDarkMode,
-                        ),
-                    ],
-                  ),
-                ),
-                if (LanguageService().isTurkish &&
-                    !(_creditsService.isPremium ||
-                        _creditsService.isLifetimeAdsFree))
-                  const SizedBox(height: 20),
-                if (LanguageService().isTurkish &&
-                    !(_creditsService.isPremium ||
-                        _creditsService.isLifetimeAdsFree))
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SubscriptionScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Sınırsız erişim için Premium\'a yükselt',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: Colors.white70,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
+          child: HomeDashboard(
+            isDarkMode: widget.isDarkMode,
+            dailyWord: _dailyWord,
+            today: _dailyWordDate,
+            wordCount: embeddedWordsCount,
+            onSearch: _runSuggestedSearch,
+            onSpeak: _speakArabicText,
+            useShadows: PerformanceUtils.enableShadows,
+            animate: !PerformanceUtils.isLowEndDevice,
+            bottomPadding: widget.bottomPadding,
+            // 🎁 Kampanya banner'ı - hesap bazlı: kampanya aktif + promo kullanmamış hesaplar
+            campaignBanner: ListenableBuilder(
+              listenable: GlobalConfigService(),
+              builder: (context, _) {
+                if (!GlobalConfigService().campaignEnabled ||
+                    _creditsService.hasUsedPromo) {
+                  return const SizedBox.shrink();
+                }
+                // PurchaseManager'daki hazır state'i kullan (gecikmesiz/flashsız)
+                return CampaignBanner(isDarkMode: widget.isDarkMode);
+              },
             ),
+            showPremium:
+                !(_creditsService.isPremium ||
+                    _creditsService.isLifetimeAdsFree),
+            onPremiumTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SubscriptionScreen(),
+                ),
+              );
+            },
           ),
         ),
       );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../utils/dictionary_mode_notifier.dart';
 import '../models/word_model.dart';
+import '../services/credits_service.dart';
 import '../services/admob_service.dart';
 import '../utils/performance_utils.dart';
 import '../services/tts_service.dart';
@@ -55,6 +56,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   // PERFORMANCE: Single ticker
   final CustomWordService _customWordService =
       CustomWordService(); // Service instance
+  final CreditsService _creditsService = CreditsService();
   final TTSService _ttsService = TTSService();
   final AdMobService _adMobService = AdMobService();
   // PERFORMANCE: ScreenshotController lazy oluşturulacak — sadece paylaşım yapıldığında
@@ -64,6 +66,7 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   // Kayıt durumu
   bool _isSaved = false;
+  List<String> _savedListIds = []; // Hangi listelerde kayıtlı
 
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
@@ -114,6 +117,7 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
     if (!mounted) return;
     setState(() {
+      _savedListIds = listIds;
       _isSaved = listIds.isNotEmpty;
     });
   }
@@ -302,32 +306,23 @@ class _SearchResultCardState extends State<SearchResultCard>
           children: [
             // Üst satır: kelime, yanında kök ve tür; kenarda butonlar
             Row(
-              // Butonlar üstte kalır: tür etiketi alt satıra insse bile butonların
-              // konumu kartlar arasında değişmez. Başlık 28 px, butonlar 32 px
-              // olduğu için başlığa 2 px üst boşluk verilir.
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 // Arapça arayüzde butonlar solda, kelime sağda
                 if (LanguageService().isArabic) ...[
                   _buildActionButtons(isDarkMode),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: WordHeadline(
-                        word: widget.word,
-                        isDarkMode: isDarkMode,
-                        rightToLeft: true,
-                      ),
+                    child: WordHeadline(
+                      word: widget.word,
+                      isDarkMode: isDarkMode,
+                      rightToLeft: true,
                     ),
                   ),
                 ] else ...[
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: WordHeadline(
-                        word: widget.word,
-                        isDarkMode: isDarkMode,
-                      ),
+                    child: WordHeadline(
+                      word: widget.word,
+                      isDarkMode: isDarkMode,
                     ),
                   ),
                   _buildActionButtons(isDarkMode),
@@ -352,33 +347,100 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  /// Başlıktaki butonlar: asistan, seslendir, kaydet, genişlet. Hepsi aynı
-  /// boyutta ve aynı (rounded) ikon ailesinden; yalnızca asistan butonu tonlu
-  /// zemin taşır. Genişletme oku en sağda durur, böylece kartlar alt alta
-  /// dizildiğinde oklar tek bir sütun oluşturur.
+  /// Genişlet, AI asistanı, seslendir ve kaydet butonları.
   Widget _buildActionButtons(bool isDarkMode) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (_shouldShowAiTeacherButton)
-          AiTileButton(onTap: _showAiChatSheet, isDarkMode: isDarkMode),
-        CardIconButton(
-          icon: Icons.volume_up_rounded,
-          label: 'Seslendir',
-          onTap: _speakArabic,
-          isDarkMode: isDarkMode,
-        ),
+        if (widget.showExpandButton) _buildExpandButton(isDarkMode),
+        if (_shouldShowAiTeacherButton) _buildAiTeacherButton(isDarkMode),
+        _buildSpeakButton(isDarkMode),
         if (widget.showAddButton || widget.showRemoveButton)
           _buildActionButton(isDarkMode),
-        if (widget.showExpandButton)
-          CardIconButton(
-            icon: Icons.expand_more_rounded,
-            label: _isExpanded ? 'Kartı daralt' : 'Kartı genişlet',
-            onTap: _toggleExpanded,
-            isDarkMode: isDarkMode,
-            turns: _isExpanded ? 0.5 : 0,
-          ),
       ],
+    );
+  }
+
+  Widget _buildExpandButton(bool isDarkMode) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _toggleExpanded,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          child: AnimatedRotation(
+            turns: _isExpanded ? 0.5 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              color: isDarkMode
+                  ? const Color(0xFF8E8E93)
+                  : const Color(0xFF6D6D70),
+              size: 22,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSpeakButton(bool isDarkMode) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _speakArabic,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.volume_up,
+            color: isDarkMode
+                ? const Color(0xFF8E8E93)
+                : const Color(0xFF6D6D70),
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Header'daki AI asistanı ikonu: diğer ikonlarla aynı boyutta, yalnızca
+  /// yumuşak mavi bir zemin ve mavi simgeyle ayrışır.
+  Widget _buildAiTeacherButton(bool isDarkMode) {
+    return Tooltip(
+      message: 'Asistana sor',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: _showAiChatSheet,
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: const Color(0xFF007AFF).withValues(
+                  alpha: isDarkMode ? 0.22 : 0.10,
+                ),
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Color(0xFF007AFF),
+                size: 14,
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -411,7 +473,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                 ? const Color(0xFF48484A)
                 : const Color(0xFFD1D1D6),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
 
           // Kök ana kartta kelimenin yanında; çoğul alt kartta
           PluralBox(word: widget.word, isDarkMode: isDarkMode),
@@ -424,14 +486,26 @@ class _SearchResultCardState extends State<SearchResultCard>
 
           // Örnek cümleler - Arapça için gösterme
           if (!LanguageService().isArabic)
-            ExampleSentences(word: widget.word, isDarkMode: isDarkMode),
-
-          // Yapay zekâ alanı: kartın en altında, tek parça
-          if (_shouldShowAiTeacherButton)
-            AiAssistStrip(
+            ExampleSentences(
               word: widget.word,
               isDarkMode: isDarkMode,
-              onAsk: (message) => _showAiChatSheet(openingMessage: message),
+            ),
+
+          // AI asistanı: tek satır, sade
+          if (_shouldShowAiTeacherButton)
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: AiAssistPills(
+                isDarkMode: isDarkMode,
+                showMoreExamples:
+                    !LanguageService().isArabic &&
+                    widget.word.ornekCumleler?.isNotEmpty == true,
+                onAsk: () => _showAiChatSheet(),
+                onMoreExamples: () => _showAiChatSheet(
+                  openingMessage:
+                      'Bu kelimeyle seviyeme uygun 5 yeni örnek ver: kolaydan zora doğru.',
+                ),
+              ),
             ),
         ],
       ),
@@ -540,14 +614,26 @@ class _SearchResultCardState extends State<SearchResultCard>
     // Listelerim ekranında (isRemove=true) kelime zaten kayıtlı olduğu için dolu görünecek
     final isSavedState = isRemove ? true : _isSaved;
 
-    return CardIconButton(
-      icon: isSavedState
-          ? Icons.bookmark_rounded
-          : Icons.bookmark_border_rounded,
-      label: isSavedState ? 'Kayıtlı, listeden çıkar' : 'Listeye kaydet',
-      onTap: isRemove ? widget.onRemove : _handleBookmarkTap,
-      isDarkMode: isDarkMode,
-      color: isSavedState ? const Color(0xFF007AFF) : null,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isRemove ? widget.onRemove : _handleBookmarkTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          child: Icon(
+            isSavedState ? Icons.bookmark : Icons.bookmark_border,
+            color: isSavedState
+                ? const Color(0xFF007AFF)
+                : (isDarkMode
+                      ? const Color(0xFF8E8E93)
+                      : const Color(0xFF6D6D70)),
+            size: 20,
+          ),
+        ),
+      ),
     );
   }
 

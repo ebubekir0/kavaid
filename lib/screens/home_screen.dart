@@ -7,10 +7,6 @@ import '../models/quran_word_model.dart';
 import '../services/gemini_service.dart';
 import '../services/database_service.dart'; // YEREL VERİTABANI SERVİSİ
 import '../services/search_ranking.dart';
-import '../services/daily_word.dart';
-import '../services/tts_service.dart';
-import '../data/embedded_words_meta.dart';
-import '../widgets/home_dashboard.dart';
 import '../services/database_initialization_service.dart';
 import '../services/credits_service.dart';
 import '../services/book_store_service.dart';
@@ -40,6 +36,7 @@ import 'subscription_screen.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../services/language_service.dart';
 import '../widgets/campaign_banner.dart';
+import '../widgets/home_empty_state.dart';
 import '../services/global_config_service.dart';
 
 // Arka planda arama sonuçlarını sıralama fonksiyonu kaldırıldı
@@ -93,9 +90,6 @@ class _HomeScreenState extends State<HomeScreen>
   List<WordModel>? _groupedSource;
   List<Object> _groupedCache = const [];
   Timer? _debounceTimer;
-  // Ana sayfadaki günün kelimesi ve hangi güne ait olduğu
-  DailyWord? _dailyWord;
-  DateTime _dailyWordDate = DateTime.now();
   Timer? _interstitialTimer;
   StreamSubscription? _searchSubscription;
   Timer? _tapHintTimer;
@@ -208,9 +202,6 @@ class _HomeScreenState extends State<HomeScreen>
 
     // İpucu flag'ini yükle
     _loadTapHintFlag();
-
-    // Ana sayfadaki günün kelimesi (küçük bir asset; açılışı geciktirmez)
-    unawaited(_loadDailyWord());
 
     // Focus listener - artık Arapça klavyeyi KAPATMA
     // Sekme geçişlerinde vs. klavye kapanmasın diye bu kısım kaldırıldı
@@ -743,41 +734,6 @@ class _HomeScreenState extends State<HomeScreen>
       if (_isQuranMode) {
         _startQuranUsageTimer();
       }
-      // Gece yarısı geçtiyse yeni günün kelimesi
-      final now = DateTime.now();
-      if (_dailyWordDate.day != now.day ||
-          _dailyWordDate.month != now.month ||
-          _dailyWordDate.year != now.year) {
-        unawaited(_loadDailyWord());
-      }
-    }
-  }
-
-  Future<void> _loadDailyWord() async {
-    final now = DateTime.now();
-    final word = await DailyWords.today(now: now);
-    if (!mounted || word == null) return;
-    setState(() {
-      _dailyWord = word;
-      _dailyWordDate = now;
-    });
-  }
-
-  /// Ana sayfadaki bir öneriye ya da günün kelimesine dokunulduğunda o metni
-  /// arama kutusuna yazıp hemen arar (300 ms'lik yazma beklemesi olmadan).
-  void _runSuggestedSearch(String query) {
-    _dismissKeyboard();
-    _searchController.text = query;
-    _searchController.selection = TextSelection.collapsed(offset: query.length);
-    _debounceTimer?.cancel();
-    _performSearch(query);
-  }
-
-  Future<void> _speakArabicText(String text) async {
-    try {
-      await TTSService().speak(text);
-    } catch (_) {
-      // Ses yoksa sessizce geç
     }
   }
 
@@ -3278,42 +3234,54 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       );
     } else {
-      // Ana sayfa: günün kelimesi, tek dokunuşla denenen aramalar, sözlük özeti
+      // Boş durum - Normal Sözlük Bilgilendirme
       slivers.add(
         SliverToBoxAdapter(
-          child: HomeDashboard(
-            isDarkMode: widget.isDarkMode,
-            dailyWord: _dailyWord,
-            today: _dailyWordDate,
-            wordCount: embeddedWordsCount,
-            onSearch: _runSuggestedSearch,
-            onSpeak: _speakArabicText,
-            useShadows: PerformanceUtils.enableShadows,
-            animate: !PerformanceUtils.isLowEndDevice,
-            bottomPadding: widget.bottomPadding,
-            // 🎁 Kampanya banner'ı - hesap bazlı: kampanya aktif + promo kullanmamış hesaplar
-            campaignBanner: ListenableBuilder(
-              listenable: GlobalConfigService(),
-              builder: (context, _) {
-                if (!GlobalConfigService().campaignEnabled ||
-                    _creditsService.hasUsedPromo) {
-                  return const SizedBox.shrink();
-                }
-                // PurchaseManager'daki hazır state'i kullan (gecikmesiz/flashsız)
-                return CampaignBanner(isDarkMode: widget.isDarkMode);
-              },
-            ),
-            showPremium:
-                !(_creditsService.isPremium ||
-                    _creditsService.isLifetimeAdsFree),
-            onPremiumTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SubscriptionScreen(),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 25, 20, 10),
+            child: Column(
+              children: [
+                // 🎁 KAMPANYA BANNER'I - Hesap bazlı: kampanya aktif + promo kullanmamış hesaplar
+                if (LanguageService().isTurkish)
+                  ListenableBuilder(
+                    listenable: GlobalConfigService(),
+                    builder: (context, _) {
+                      final globalConfig = GlobalConfigService();
+                      if (!globalConfig.campaignEnabled) {
+                        return const SizedBox.shrink();
+                      }
+
+                      // PurchaseManager'daki hazır state'i kullan (Gecikmesiz/Flashsız)
+                      if (_creditsService.hasUsedPromo) {
+                        return const SizedBox.shrink();
+                      }
+
+                      return CampaignBanner(isDarkMode: widget.isDarkMode);
+                    },
+                  ),
+                HomeEmptyState(
+                  isDarkMode: widget.isDarkMode,
+                  onSearch: (text) {
+                    _searchController.text = text;
+                    _searchController.selection = TextSelection.collapsed(
+                      offset: text.length,
+                    );
+                  },
+                  onPremiumTap:
+                      (_creditsService.isPremium ||
+                          _creditsService.isLifetimeAdsFree)
+                      ? null
+                      : () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SubscriptionScreen(),
+                            ),
+                          );
+                        },
                 ),
-              );
-            },
+              ],
+            ),
           ),
         ),
       );

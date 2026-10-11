@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kavaid/data/embedded_words.dart';
-import 'package:kavaid/services/daily_word.dart';
-import 'package:kavaid/utils/arabic_text.dart';
 import 'package:kavaid/services/database_service.dart';
 
 void main() {
@@ -53,24 +51,6 @@ void main() {
       expect(await first('مدرسه'), 'مَدْرَسَةٌ');
       expect(await first('كـتـاب'), await first('كتاب'));
     });
-
-    test('günün kelimesi aranınca sözlükte aynı kelime ilk sırada çıkar', () async {
-      // Ana sayfadaki "Sözlükte aç" düğmesi kelimeyi bu aramayla açar
-      final words = await DailyWords.load();
-      final wrong = <String>[];
-
-      for (final w in words) {
-        final results = await DatabaseService.instance.searchWords(w.arabic);
-        final first = results.isEmpty
-            ? ''
-            : stripArabicMarks(results.first.harekeliKelime ?? results.first.kelime);
-        if (first != stripArabicMarks(w.arabic)) {
-          wrong.add('${w.arabic} -> ${results.isEmpty ? "sonuç yok" : results.first.harekeliKelime}');
-        }
-      }
-
-      expect(wrong, isEmpty, reason: wrong.take(10).join('\n'));
-    }, timeout: const Timeout(Duration(minutes: 3)));
 
     test('kısa ve sık kelimelerde temel karşılık ilk sırada gelir', () async {
       Future<String?> first(String q) async =>

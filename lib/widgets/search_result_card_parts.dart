@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import '../models/word_model.dart';
 import '../services/language_service.dart';
 import '../services/search_ranking.dart' show foldTurkishChar;
-import '../utils/arabic_text.dart';
 
 const _blue = Color(0xFF007AFF);
 const _arabicFeatures = [
@@ -30,22 +29,20 @@ class ArabicTextStyles {
     fontFeatures: _arabicFeatures,
   );
 
-  /// Kelimenin yanındaki kök: kelimeden azıcık küçük, soluk renkte.
+  /// Kelimenin yanındaki kök: kelimeden biraz küçük, soluk renkte.
   static const root = TextStyle(
     fontFamily: 'ScheherazadeNew',
     fontSize: 18,
     fontWeight: FontWeight.w600,
     height: 1.4,
-    fontFeatures: _arabicFeatures,
   );
 
-  /// Örnek cümle. Arap yazısı Latin metinden küçük görünür; bu yüzden Türkçe
-  /// çevirisinden (14 pt) belirgin şekilde büyük tutulur.
+  /// Örnek cümle.
   static const example = TextStyle(
     fontFamily: 'ScheherazadeNew',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
-    height: 1.55,
+    height: 1.6,
     fontFeatures: _arabicFeatures,
   );
 
@@ -99,15 +96,21 @@ class _SectionLabel extends StatelessWidget {
   }
 }
 
-/// Kartın başlık satırı: harekeli kelime, hemen yanında kelimeden azıcık küçük
-/// ve soluk renkte kökü (etiket/kutu olmadan), ardından kelime türü.
-///
-/// Kelime ve kök kendi boyutunda yan yana durur; yer yoksa birlikte küçülürler.
-/// Tür etiketi onların yanına sığıyorsa yanında, sığmıyorsa ("İsim Tamlaması"
-/// gibi uzun etiketler dar telefonda) alt satırda durur; hiçbir zaman
-/// küçülmez ya da kesilmez. (Eskiden her parça sabit oranda yer alıyor ve ayrı
-/// ayrı küçülüyordu: dar telefonlarda kök kartlara göre farklı boyutta
-/// çiziliyor, tür etiketi "Mazî F…" diye kesiliyordu.)
+/// Kökü ekranda temiz göstermek için: harekeleri/uzatma çizgisini siler ve
+/// Farsça klavyeden gelen ی ve ک harflerini Arapça karşılıklarına çevirir
+/// (ی son harfte noktasız çizildiği için kökte yanlış "nokta" farkı oluşuyordu).
+String cleanRoot(String? root) {
+  if (root == null) return '';
+  return root
+      .replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0640\u0653-\u0655.,;:·•]'), '')
+      .replaceAll('\u06CC', '\u064A')
+      .replaceAll('\u06A9', '\u0643')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
+
+/// Kartın başlık satırı: harekeli kelime, hemen yanında kelimeden biraz
+/// küçük ve soluk renkte kökü (etiket/kutu olmadan), ardından kelime türü.
 class WordHeadline extends StatelessWidget {
   const WordHeadline({
     super.key,
@@ -128,81 +131,90 @@ class WordHeadline extends StatelessWidget {
     final title = word.harekeliKelime?.isNotEmpty == true
         ? word.harekeliKelime!
         : word.kelime;
-    final root = formatRoot(word.koku);
-    final type = _typeLabel();
+    final root = cleanRoot(word.koku);
+    final typeChip = _buildTypeChip();
 
-    final titleAndRoot = FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: rightToLeft ? Alignment.centerRight : Alignment.centerLeft,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        textDirection: rightToLeft ? TextDirection.rtl : TextDirection.ltr,
-        // Farklı punto boyutlarındaki kelime ve kök aynı taban çizgisine oturur.
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(
-            title,
-            style: ArabicTextStyles.word.copyWith(color: wordColor),
-            textDirection: TextDirection.rtl,
-            softWrap: false,
-          ),
-          if (root.isNotEmpty) ...[
-            const SizedBox(width: 8),
-            Semantics(
-              label: 'kök $root',
-              child: Text(
-                root,
-                key: const ValueKey('word-root'),
-                style: ArabicTextStyles.root.copyWith(
-                  color: wordColor.withValues(alpha: isDarkMode ? 0.55 : 0.5),
-                ),
-                textDirection: TextDirection.rtl,
-                maxLines: 1,
-                softWrap: false,
-              ),
-            ),
-          ],
-        ],
+    final titleWidget = Flexible(
+      flex: 3,
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerRight,
+        child: Text(
+          title,
+          style: ArabicTextStyles.word.copyWith(color: wordColor),
+          textDirection: TextDirection.rtl,
+          softWrap: false,
+        ),
       ),
     );
 
-    return Wrap(
-      textDirection: rightToLeft ? TextDirection.rtl : TextDirection.ltr,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 10,
-      runSpacing: 2,
-      children: [
-        titleAndRoot,
-        if (type != null) _TypeChip(label: type, isDarkMode: isDarkMode),
-      ],
+    final rootWidget = root.isEmpty
+        ? null
+        : Flexible(
+            flex: 2,
+            child: Semantics(
+              label: 'kök $root',
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: rightToLeft
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: Text(
+                  root,
+                  key: const ValueKey('word-root'),
+                  style: ArabicTextStyles.root.copyWith(
+                    color: wordColor.withValues(alpha: isDarkMode ? 0.5 : 0.45),
+                  ),
+                  textDirection: TextDirection.rtl,
+                  maxLines: 1,
+                  softWrap: false,
+                ),
+              ),
+            ),
+          );
+
+    final children = rightToLeft
+        ? <Widget>[
+            if (typeChip != null) ...[
+              Flexible(flex: 2, child: typeChip),
+              const SizedBox(width: 8),
+            ],
+            if (rootWidget != null) ...[rootWidget, const SizedBox(width: 6)],
+            titleWidget,
+          ]
+        : <Widget>[
+            titleWidget,
+            if (rootWidget != null) ...[const SizedBox(width: 6), rootWidget],
+            if (typeChip != null) ...[
+              const SizedBox(width: 8),
+              Flexible(flex: 2, child: typeChip),
+            ],
+          ];
+
+    // Kelime, kök ve tür aynı taban çizgisine oturur (farklı punto boyutlarında
+    // ortalamak kökü yukarıda gösteriyordu).
+    return Row(
+      mainAxisAlignment: rightToLeft
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: children,
     );
   }
 
-  /// Kelime türü (yalnızca Türkçe arayüzde gösterilir).
-  String? _typeLabel() {
+  /// Kelime türü etiketi (yalnızca Türkçe arayüzde).
+  Widget? _buildTypeChip() {
     if (!LanguageService().isTurkish) return null;
 
-    String? type;
+    String? typeText;
     if (word.dilbilgiselOzellikler?.containsKey('tur') == true) {
-      type = word.dilbilgiselOzellikler!['tur']?.toString();
+      typeText = word.dilbilgiselOzellikler!['tur']?.toString();
     } else if (word.tip?.isNotEmpty == true) {
-      type = word.tip;
+      typeText = word.tip;
     }
-    final trimmed = type?.trim() ?? '';
-    return trimmed.isEmpty ? null : trimmed;
-  }
-}
+    if (typeText == null || typeText.trim().isEmpty) return null;
 
-/// Kelime türü etiketi ("İsim", "Mazî Fiil"...).
-class _TypeChip extends StatelessWidget {
-  const _TypeChip({required this.label, required this.isDarkMode});
-
-  final String label;
-  final bool isDarkMode;
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
@@ -210,8 +222,9 @@ class _TypeChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
-        label,
+        typeText,
         maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 10,
           fontWeight: FontWeight.w600,
@@ -302,10 +315,8 @@ class MeaningText extends StatelessWidget {
       }
     }
 
-    // Text.rich: RichText'in aksine sistem yazı boyutu ayarını uygular ve
-    // temadan font ailesini alır.
-    return Text.rich(
-      TextSpan(children: spans),
+    return RichText(
+      text: TextSpan(children: spans),
       maxLines: expanded ? null : 3,
       overflow: expanded ? TextOverflow.visible : TextOverflow.ellipsis,
     );
@@ -457,9 +468,8 @@ class ConjugationRow extends StatelessWidget {
   }
 }
 
-/// Örnek cümleler (en fazla iki). Arapça cümle sağdan sola, tamamı görünür ve
-/// sağa yaslıdır; Türkçe çevirisi de aynı kenara yaslanır, böylece çift tek
-/// parça gibi okunur. Sağ kenardaki ince çizgi her cümle çiftini ayırır.
+/// Örnek cümleler (en fazla iki). Arapça cümle sağa yaslı ve tamamı
+/// görünür; altında Türkçe çevirisi.
 class ExampleSentences extends StatelessWidget {
   const ExampleSentences({
     super.key,
@@ -475,9 +485,17 @@ class ExampleSentences extends StatelessWidget {
     final examples = word.ornekCumleler?.take(2).toList() ?? const [];
     if (examples.isEmpty) return const SizedBox.shrink();
 
+    final divider = Container(
+      height: 1,
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      color: isDarkMode
+          ? const Color(0xFF48484A).withValues(alpha: 0.5)
+          : const Color(0xFFE3E3E8),
+    );
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.fromLTRB(12, 9, 12, 12),
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       decoration: _sectionDecoration(isDarkMode),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -485,350 +503,111 @@ class ExampleSentences extends StatelessWidget {
           _SectionLabel(
             LanguageService().isEnglish ? 'Example Sentences' : 'Örnek Cümleler',
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
           for (var i = 0; i < examples.length; i++) ...[
-            if (i > 0) const SizedBox(height: 14),
-            _ExamplePair(example: examples[i], isDarkMode: isDarkMode),
+            if (i > 0) divider,
+            ..._buildExample(examples[i]),
           ],
         ],
       ),
     );
   }
-}
 
-class _ExamplePair extends StatelessWidget {
-  const _ExamplePair({required this.example, required this.isDarkMode});
-
-  final Map<String, dynamic> example;
-  final bool isDarkMode;
-
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> _buildExample(Map<String, dynamic> example) {
     final arabic =
         (example['arapcaCumle'] ?? example['arapcaCümle'] ?? example['arapca'])
-            ?.toString()
-            .trim() ??
-        '';
+            ?.toString();
     final turkish =
         example['turkceAnlam']?.toString() ??
         example['turkceCeviri']?.toString() ??
         example['turkce']?.toString() ??
         example.toString();
 
-    return Container(
-      padding: const EdgeInsets.only(right: 10),
-      decoration: BoxDecoration(
-        border: Border(
-          right: BorderSide(
-            color: _blue.withValues(alpha: isDarkMode ? 0.65 : 0.45),
-            width: 2.5,
+    return [
+      if (arabic != null && arabic.isNotEmpty) ...[
+        Text(
+          arabic,
+          style: ArabicTextStyles.example.copyWith(
+            color: isDarkMode
+                ? const Color(0xFFE5E5EA)
+                : const Color(0xFF1C1C1E),
           ),
+          textDirection: TextDirection.rtl,
+          textAlign: TextAlign.right,
+        ),
+        const SizedBox(height: 2),
+      ],
+      Text(
+        turkish,
+        textAlign: TextAlign.right,
+        style: TextStyle(
+          fontSize: 13.5,
+          fontWeight: FontWeight.w500,
+          color: _secondaryText(isDarkMode),
+          height: 1.4,
+          letterSpacing: 0.1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (arabic.isNotEmpty) ...[
-            Text(
-              arabic,
-              style: ArabicTextStyles.example.copyWith(
-                color: isDarkMode
-                    ? const Color(0xFFE5E5EA)
-                    : const Color(0xFF1C1C1E),
-              ),
-              // start + rtl = sağa yaslı
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.start,
-            ),
-            const SizedBox(height: 3),
-          ],
-          // Türkçe çeviri soldan sağa okunur ama Arapça cümleyle aynı kenara
-          // (sağa) yaslanır.
-          Text(
-            turkish,
-            textAlign: TextAlign.right,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: _secondaryText(isDarkMode),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
-    );
+    ];
   }
 }
 
-/// Kart başlığındaki ikon butonu: 32×32 dokunma alanı, 21 px simge. Tüm
-/// butonlar aynı (rounded) ikon ailesinden ve aynı boyutta olsun diye ortak.
-class CardIconButton extends StatelessWidget {
-  const CardIconButton({
+/// Genişleyen kartın altındaki AI asistanı satırı: iki küçük, yumuşak
+/// mavi hap. Büyük dolu butonlar yerine kartın dilini taşır.
+class AiAssistPills extends StatelessWidget {
+  const AiAssistPills({
     super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    required this.isDarkMode,
-    this.color,
-    this.turns = 0,
-  });
-
-  final IconData icon;
-
-  /// Ekran okuyucu için buton adı.
-  final String label;
-  final VoidCallback? onTap;
-  final bool isDarkMode;
-
-  /// Verilmezse ikincil metin rengi kullanılır (ör. kayıtlıyken mavi).
-  final Color? color;
-
-  /// Simgenin dönüş miktarı (genişleme oku için, 0.5 = yarım tur).
-  final double turns;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: label,
-      excludeSemantics: true,
-      onTap: onTap,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const CircleBorder(),
-          child: SizedBox(
-            width: 32,
-            height: 32,
-            child: Center(
-              child: AnimatedRotation(
-                turns: turns,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  icon,
-                  size: 21,
-                  color: color ?? _secondaryText(isDarkMode),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Yapay zekâ asistanının görsel kimliği: mavi tonlu yuvarlatılmış kare içinde
-/// parıltı simgesi. Sohbet ekranının başlığında ve mesaj avatarında da aynı
-/// işaret kullanılır; kartta da aynısı olsun diye ortak.
-class AiMark extends StatelessWidget {
-  const AiMark({super.key, required this.isDarkMode, this.size = 28});
-
-  final bool isDarkMode;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: _blue.withValues(alpha: isDarkMode ? 0.22 : 0.11),
-        borderRadius: BorderRadius.circular(size * 0.32),
-      ),
-      child: Icon(
-        Icons.auto_awesome_rounded,
-        size: size * 0.58,
-        color: isDarkMode ? const Color(0xFF4DA3FF) : _blue,
-      ),
-    );
-  }
-}
-
-/// Kart başlığındaki "Asistana sor" butonu. Diğer ikonlar gibi 32×32 dokunma
-/// alanına sahiptir, ama yalnızca bu buton tonlu zemin taşır: yapay zekâ
-/// girişi olduğu ilk bakışta anlaşılır, yanındaki gri ikonlara da yabancı durmaz.
-class AiTileButton extends StatelessWidget {
-  const AiTileButton({super.key, required this.onTap, required this.isDarkMode});
-
-  final VoidCallback onTap;
-  final bool isDarkMode;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Asistana sor',
-      excludeSemantics: true,
-      onTap: onTap,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          customBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: SizedBox(
-            width: 32,
-            height: 32,
-            child: Center(child: AiMark(isDarkMode: isDarkMode, size: 26)),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Genişleyen kartın en altındaki tek yapay zekâ alanı: asistanın kimliği,
-/// serbest soru girişi ve üç hazır soru. (Eskiden kartın üstünde ve örnek
-/// cümlelerin içinde iki ayrı tam genişlikte mavi buton vardı; kartın geri
-/// kalanıyla uyumsuz, "sonradan eklenmiş" görünüyorlardı.)
-class AiAssistStrip extends StatelessWidget {
-  const AiAssistStrip({
-    super.key,
-    required this.word,
     required this.isDarkMode,
     required this.onAsk,
+    required this.onMoreExamples,
+    this.showMoreExamples = true,
   });
 
-  final WordModel word;
   final bool isDarkMode;
-
-  /// [message] null ise boş sohbet açılır, doluysa o soruyla başlar.
-  final void Function(String? message) onAsk;
-
-  /// Hazır sorular: (etiket, asistana giden mesaj). İki tane olması bilinçli:
-  /// 360 px genişlikte tek satıra sığar; "nasıl kullanılır" gibi diğer sorular
-  /// zaten üstteki serbest soru satırından sorulabilir.
-  static const prompts = <(String, String)>[
-    (
-      'Daha fazla örnek',
-      'Bu kelimeyle seviyeme uygun 5 yeni örnek ver: kolaydan zora doğru.',
-    ),
-    (
-      'Benzer kelimeler',
-      'Bu kelimeye benzeyen kelimeler neler ve aralarındaki fark nedir? Kısaca anlat.',
-    ),
-  ];
+  final VoidCallback onAsk;
+  final VoidCallback onMoreExamples;
+  final bool showMoreExamples;
 
   @override
   Widget build(BuildContext context) {
-    final head = (word.harekeliKelime?.isNotEmpty == true
-            ? word.harekeliKelime!
-            : word.kelime)
-        .trim();
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: _sectionDecoration(isDarkMode),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          InkWell(
-            onTap: () => onAsk(null),
-            borderRadius: BorderRadius.circular(8),
-            child: Row(
-              children: [
-                AiMark(isDarkMode: isDarkMode),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Asistana sor',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: _primaryText(isDarkMode),
-                        ),
-                      ),
-                      Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                              text: head,
-                              // Arapça kısım Latin metnin yedek fontuna düşmesin
-                              style: const TextStyle(
-                                fontFamily: 'ScheherazadeNew',
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const TextSpan(text: ' hakkında soru sor'),
-                          ],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: _secondaryText(isDarkMode),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  size: 20,
-                  color: _secondaryText(isDarkMode),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final (label, message) in prompts)
-                _PromptChip(
-                  label: label,
-                  isDarkMode: isDarkMode,
-                  onTap: () => onAsk(message),
-                ),
-            ],
-          ),
-        ],
-      ),
+    final lang = LanguageService();
+    final ask = lang.isEnglish
+        ? 'Ask assistant'
+        : (lang.isArabic ? 'اسأل المساعد' : 'Asistana sor');
+    final more = lang.isEnglish ? 'More examples' : 'Daha fazla örnek';
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _pill(ask, onAsk),
+        if (showMoreExamples) _pill(more, onMoreExamples),
+      ],
     );
   }
-}
 
-class _PromptChip extends StatelessWidget {
-  const _PromptChip({
-    required this.label,
-    required this.isDarkMode,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool isDarkMode;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final fg = isDarkMode ? const Color(0xFF4DA3FF) : _blue;
+  Widget _pill(String label, VoidCallback onTap) {
     return Material(
-      color: _blue.withValues(alpha: isDarkMode ? 0.14 : 0.06),
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: _blue.withValues(alpha: isDarkMode ? 0.4 : 0.28),
-        ),
-      ),
+      color: _blue.withValues(alpha: isDarkMode ? 0.16 : 0.08),
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        customBorder: const StadiumBorder(),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-              color: fg,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.auto_awesome_rounded, size: 14, color: _blue),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode ? const Color(0xFF4DA3FF) : _blue,
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kavaid/models/word_model.dart';
+import 'package:kavaid/widgets/home_empty_state.dart';
 import 'package:kavaid/widgets/search_result_card_parts.dart';
 
 const _kitap = WordModel(
@@ -36,57 +36,6 @@ void main() {
       expect(root.style!.fontSize, lessThan(word.style!.fontSize!));
       expect(root.style!.color!.a, lessThan(word.style!.color!.a));
       expect(find.text('İsim'), findsOneWidget);
-    });
-
-    testWidgets('harfleri boşluklu kök bitişik gösterilir', (tester) async {
-      const word = WordModel(
-        kelime: 'ضب',
-        harekeliKelime: 'ضَبٌّ',
-        koku: 'ض ب ب',
-        dilbilgiselOzellikler: {'tur': 'İsim'},
-      );
-      await tester.pumpWidget(_wrap(const WordHeadline(word: word, isDarkMode: false)));
-
-      expect(tester.widget<Text>(find.byKey(const ValueKey('word-root'))).data, 'ضبب');
-    });
-
-    testWidgets('kök kelimeyle aynı satırda, kendi boyutunda durur', (tester) async {
-      await tester.pumpWidget(_wrap(const WordHeadline(word: _kitap, isDarkMode: false)));
-
-      final root = tester.widget<Text>(find.byKey(const ValueKey('word-root')));
-      expect(root.style!.fontSize, 18);
-      final wordRect = tester.getRect(find.text('كِتَابٌ'));
-      final rootRect = tester.getRect(find.byKey(const ValueKey('word-root')));
-      // aynı satırda, kelimenin hemen yanında
-      expect((wordRect.center.dy - rootRect.center.dy).abs(), lessThan(wordRect.height));
-      expect(rootRect.left, greaterThanOrEqualTo(wordRect.right));
-      expect(rootRect.left - wordRect.right, lessThan(20));
-    });
-
-    testWidgets('dar ekranda tür etiketi küçülmez, alt satıra iner', (tester) async {
-      const word = WordModel(
-        kelime: 'قوس المطر',
-        harekeliKelime: 'قَوْسُ الْمَطَرِ',
-        koku: 'قوس مطر',
-        dilbilgiselOzellikler: {'tur': 'İsim Tamlaması'},
-      );
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: SizedBox(
-              width: 210,
-              child: WordHeadline(word: word, isDarkMode: false),
-            ),
-          ),
-        ),
-      );
-
-      final chip = tester.widget<Text>(find.text('İsim Tamlaması'));
-      expect(chip.style!.fontSize, 10); // küçülmedi
-      expect(chip.overflow, isNot(TextOverflow.ellipsis)); // kesilmedi
-      final wordRect = tester.getRect(find.text('قَوْسُ الْمَطَرِ'));
-      final chipRect = tester.getRect(find.text('İsim Tamlaması'));
-      expect(chipRect.top, greaterThanOrEqualTo(wordRect.bottom - 1)); // alt satırda
     });
 
     testWidgets('kökü olmayan kelimede kök alanı çizilmez', (tester) async {
@@ -127,38 +76,6 @@ void main() {
     expect(sentence.overflow, isNot(TextOverflow.ellipsis));
   });
 
-  testWidgets('örnek cümleler sağdan sola: Arapça ve Türkçe sağa yaslı', (tester) async {
-    await tester.pumpWidget(
-      _wrap(const ExampleSentences(word: _kitap, isDarkMode: false)),
-    );
-
-    final arabic = tester.widget<Text>(find.textContaining('قَرَأْتُ'));
-    final turkish = tester.widget<Text>(find.textContaining('Dün büyük'));
-
-    expect(arabic.textDirection, TextDirection.rtl);
-    expect(arabic.textAlign, TextAlign.start); // rtl'de start = sağ
-    expect(turkish.textAlign, TextAlign.right);
-
-    // İkisi de kutunun sağ kenarında biter
-    final box = tester.getRect(find.byType(ExampleSentences));
-    final arabicRect = tester.getRect(find.textContaining('قَرَأْتُ'));
-    final turkishRect = tester.getRect(find.textContaining('Dün büyük'));
-    expect(arabicRect.right, closeTo(turkishRect.right, 0.5));
-    expect(box.right - arabicRect.right, lessThan(30));
-  });
-
-  testWidgets('örnek cümlede Arapça yazı, Türkçeden belirgin büyüktür', (tester) async {
-    await tester.pumpWidget(
-      _wrap(const ExampleSentences(word: _kitap, isDarkMode: false)),
-    );
-
-    final arabic = tester.widget<Text>(find.textContaining('قَرَأْتُ'));
-    final turkish = tester.widget<Text>(find.textContaining('Dün büyük'));
-
-    expect(arabic.style!.fontSize, 20);
-    expect(turkish.style!.fontSize, 14);
-  });
-
   testWidgets('çoğul ve fiil çekimleri gösterilir', (tester) async {
     const verb = WordModel(
       kelime: 'كتب',
@@ -188,104 +105,69 @@ void main() {
     }
   });
 
-  group('AiAssistStrip', () {
-    testWidgets('serbest soru satırı boş sohbet açar', (tester) async {
-      final asked = <String?>[];
-      await tester.pumpWidget(
-        _wrap(AiAssistStrip(word: _kitap, isDarkMode: false, onAsk: asked.add)),
-      );
-
-      await tester.tap(find.text('Asistana sor'));
-
-      expect(asked, [null]);
-    });
-
-    testWidgets('hazır sorular kendi mesajlarıyla sohbet açar', (tester) async {
-      final asked = <String?>[];
-      await tester.pumpWidget(
-        _wrap(AiAssistStrip(word: _kitap, isDarkMode: false, onAsk: asked.add)),
-      );
-
-      await tester.tap(find.text('Daha fazla örnek'));
-      await tester.tap(find.text('Benzer kelimeler'));
-
-      expect(asked, hasLength(2));
-      expect(asked[0], contains('5 yeni örnek'));
-      expect(asked[1], contains('benzeyen kelimeler'));
-    });
-
-    testWidgets('kelime hakkında olduğunu gösterir', (tester) async {
-      await tester.pumpWidget(
-        _wrap(AiAssistStrip(word: _kitap, isDarkMode: false, onAsk: (_) {})),
-      );
-
-      expect(find.textContaining('hakkında soru sor', findRichText: true), findsOneWidget);
-    });
-
-    testWidgets('360 px genişlikte iki hazır soru tek satıra sığar', (tester) async {
-      // Test ortamının varsayılan fontu her harfi kare çizer; gerçek yazı
-      // genişliği için uygulamanın fontu yüklenir.
-      await tester.runAsync(() async {
-        final loader = FontLoader('Inter')
-          ..addFont(rootBundle.load('assets/fonts/Inter-Regular.ttf'))
-          ..addFont(rootBundle.load('assets/fonts/Inter-VariableFont_opsz,wght.ttf'));
-        await loader.load();
-      });
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: ThemeData(fontFamily: 'Inter'),
-          home: Scaffold(
-            body: SizedBox(
-              width: 296,
-              child: AiAssistStrip(word: _kitap, isDarkMode: false, onAsk: (_) {}),
-            ),
-          ),
-        ),
-      );
-
-      final first = tester.getRect(find.text('Daha fazla örnek'));
-      final second = tester.getRect(find.text('Benzer kelimeler'));
-      expect((first.center.dy - second.center.dy).abs(), lessThan(2));
+  group('cleanRoot', () {
+    test('harekeleri, noktalama ve Farsça harfleri temizler', () {
+      expect(cleanRoot('كَتَب.'), 'كتب');
+      expect(cleanRoot('فید'), 'فيد');
+      expect(cleanRoot('قوس  مطر'), 'قوس مطر');
+      expect(cleanRoot(null), '');
     });
   });
 
-  group('kart butonları', () {
-    testWidgets('AiTileButton dokunmayı iletir ve ekran okuyucuya adını söyler', (tester) async {
-      var taps = 0;
-      final semantics = tester.ensureSemantics();
-      await tester.pumpWidget(
-        _wrap(AiTileButton(onTap: () => taps++, isDarkMode: false)),
-      );
+  testWidgets('AI hapları iki eylemi tetikler', (tester) async {
+    var asked = 0;
+    var more = 0;
+    await tester.pumpWidget(
+      _wrap(
+        AiAssistPills(
+          isDarkMode: false,
+          onAsk: () => asked++,
+          onMoreExamples: () => more++,
+        ),
+      ),
+    );
 
-      await tester.tap(find.byType(AiTileButton));
+    await tester.tap(find.text('Asistana sor'));
+    await tester.tap(find.text('Daha fazla örnek'));
 
-      expect(taps, 1);
-      expect(find.bySemanticsLabel('Asistana sor'), findsOneWidget);
-      semantics.dispose();
-    });
+    expect([asked, more], [1, 1]);
+  });
 
-    testWidgets('CardIconButton 32 px dokunma alanı sunar ve adı okunur', (tester) async {
-      var taps = 0;
-      final semantics = tester.ensureSemantics();
+  testWidgets('örnek cümlenin Türkçesi de sağa yaslı', (tester) async {
+    await tester.pumpWidget(
+      _wrap(const ExampleSentences(word: _kitap, isDarkMode: false)),
+    );
+
+    final turkish = tester.widget<Text>(find.textContaining('Dün büyük'));
+    expect(turkish.textAlign, TextAlign.right);
+  });
+
+  group('HomeEmptyState', () {
+    testWidgets('günün kelimesine dokunmak aramayı tetikler', (tester) async {
+      String? searched;
       await tester.pumpWidget(
         _wrap(
-          Center(
-            child: CardIconButton(
-              icon: Icons.volume_up_rounded,
-              label: 'Seslendir',
-              onTap: () => taps++,
-              isDarkMode: false,
-            ),
+          HomeEmptyState(
+            isDarkMode: false,
+            onSearch: (t) => searched = t,
+            today: DateTime(2026, 1, 1),
           ),
         ),
       );
 
-      await tester.tap(find.byType(CardIconButton));
+      await tester.tap(find.byKey(const ValueKey('word-of-day')));
 
-      expect(taps, 1);
-      expect(tester.getSize(find.byType(CardIconButton)), const Size(32, 32));
-      expect(find.bySemanticsLabel('Seslendir'), findsOneWidget);
-      semantics.dispose();
+      expect(searched, HomeEmptyState.wordOfDay(DateTime(2026, 1, 1)).$1);
+      expect(find.byKey(const ValueKey('premium-link')), findsNothing);
+    });
+
+    test('günün kelimesi gün içinde sabit, günden güne değişir', () {
+      final a = HomeEmptyState.wordOfDay(DateTime(2026, 3, 5, 8));
+      final b = HomeEmptyState.wordOfDay(DateTime(2026, 3, 5, 23));
+      final c = HomeEmptyState.wordOfDay(DateTime(2026, 3, 6));
+
+      expect(a, b);
+      expect(a, isNot(c));
     });
   });
 }

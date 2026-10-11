@@ -1,0 +1,3232 @@
+[
+{
+"ar":"تُفَّاحٌ",
+"kok":"تفح",
+"tur":"İsim",
+"anlam":"elma, elma ağacı",
+"ornek":{
+"ar":"أُحِبُّ أَكْلَ التُّفَّاحِ.",
+"tr":"Elma yemeyi severim."
+}
+},
+{
+"ar":"هَاتِفٌ",
+"kok":"هتف",
+"tur":"İsim",
+"anlam":"telefon, arayan kimse",
+"ornek":{
+"ar":"اِشْتَرَيْتُ هَاتِفًا جَدِيدًا.",
+"tr":"Yeni bir telefon satın aldım."
+}
+},
+{
+"ar":"مَشْهُورٌ",
+"kok":"شهر",
+"tur":"Sıfat",
+"anlam":"ünlü, meşhur",
+"ornek":{
+"ar":"هُوَ كَاتِبٌ مَشْهُورٌ فِي بِلَادِهِ.",
+"tr":"O, ülkesinde meşhur bir yazardır."
+}
+},
+{
+"ar":"غَنَمٌ",
+"kok":"غنم",
+"tur":"İsim",
+"anlam":"koyun, davar",
+"ornek":{
+"ar":"يَرْعَى الرَّاعِي الْغَنَمَ فِي الْمَرْعَى.",
+"tr":"Çoban koyunları otlakta otlatıyor."
+}
+},
+{
+"ar":"دَرَّاجَةٌ",
+"kok":"درج",
+"tur":"İsim",
+"anlam":"bisiklet, motosiklet",
+"ornek":{
+"ar":"أَرْكَبُ الدَّرَّاجَةَ كُلَّ صَبَاحٍ.",
+"tr":"Her sabah bisiklete binerim."
+}
+},
+{
+"ar":"ثَلْجٌ",
+"kok":"ثلج",
+"tur":"İsim",
+"anlam":"kar, donmuş su",
+"ornek":{
+"ar":"نَزَلَ الثَّلْجُ بِغَزَارَةٍ لَيْلَةَ أَمْسِ.",
+"tr":"Dün gece yoğun kar yağdı."
+}
+},
+{
+"ar":"قَوِيٌّ",
+"kok":"قوي",
+"tur":"Sıfat",
+"anlam":"güçlü, kuvvetli",
+"ornek":{
+"ar":"جِسْمُ الْمُصَارِعِ قَوِيٌّ.",
+"tr":"Güreşçinin vücudu kuvvetlidir."
+}
+},
+{
+"ar":"وَجَدَ",
+"kok":"وجد",
+"tur":"Mazî Fiil",
+"anlam":"buldu, rastladı",
+"ornek":{
+"ar":"وَجَدَ الطَّالِبُ الْكِتَابَ فِي الْمَكْتَبَةِ.",
+"tr":"Öğrenci kitabı kütüphanede buldu."
+}
+},
+{
+"ar":"شَايٌ",
+"kok":"شاي",
+"tur":"İsim",
+"anlam":"çay, çay bitkisi",
+"ornek":{
+"ar":"أَشْرَبُ الشَّايَ كُلَّ صَبَاحٍ.",
+"tr":"Her sabah çay içerim."
+}
+},
+{
+"ar":"رَكَضَ",
+"kok":"ركض",
+"tur":"Fiil",
+"anlam":"koştu, kaçtı",
+"ornek":{
+"ar":"رَكَضَ الْوَلَدُ بِسُرْعَةٍ.",
+"tr":"Çocuk hızla koştu."
+}
+},
+{
+"ar":"لُعْبَةٌ",
+"kok":"لعب",
+"tur":"İsim",
+"anlam":"oyun, oyuncak",
+"ornek":{
+"ar":"اشْتَرَى الطِّفْلُ لُعْبَةً جَدِيدَةً.",
+"tr":"Çocuk yeni bir oyuncak aldı."
+}
+},
+{
+"ar":"حَفِظَ",
+"kok":"حفظ",
+"tur":"Mazî Fiil",
+"anlam":"korudu, muhafaza etti",
+"ornek":{
+"ar":"حَفِظَ الطَّالِبُ الدَّرْسَ.",
+"tr":"Öğrenci dersi ezberledi."
+}
+},
+{
+"ar":"قَرْيَةٌ",
+"kok":"قرو",
+"tur":"İsim",
+"anlam":"köy, kasaba",
+"ornek":{
+"ar":"زُرْتُ قَرْيَةً جَمِيلَةً فِي الرِّيفِ.",
+"tr":"Kırsalda güzel bir köy ziyaret ettim."
+}
+},
+{
+"ar":"خَرَجَ",
+"kok":"خرج",
+"tur":"Mazî Fiil",
+"anlam":"çıktı, dışarı çıktı",
+"ornek":{
+"ar":"خَرَجَ الطَّالِبُ مِنَ الْفَصْلِ.",
+"tr":"Öğrenci sınıftan çıktı."
+}
+},
+{
+"ar":"صَبَاحٌ",
+"kok":"صبح",
+"tur":"İsim",
+"anlam":"sabah, günün ilk saatleri",
+"ornek":{
+"ar":"أَسْتَيْقِظُ فِي الصَّبَاحِ الْبَاكِرِ.",
+"tr":"Erken sabah uyanırım."
+}
+},
+{
+"ar":"مِفْتَاحٌ",
+"kok":"فتح",
+"tur":"İsim",
+"anlam":"anahtar, açacak",
+"ornek":{
+"ar":"أَضَعْتُ مِفْتَاحَ سَيَّارَتِي.",
+"tr":"Arabamın anahtarını kaybettim."
+}
+},
+{
+"ar":"تِجَارَةٌ",
+"kok":"تجر",
+"tur":"Mastar",
+"anlam":"ticaret, alım satım işi",
+"ornek":{
+"ar":"تُعَدُّ التِّجَارَةُ عَمُودَ الِاقْتِصَادِ.",
+"tr":"Ticaret, ekonominin direği sayılır."
+}
+},
+{
+"ar":"عَسَلٌ",
+"kok":"عسل",
+"tur":"İsim",
+"anlam":"bal, tatlılık",
+"ornek":{
+"ar":"الْعَسَلُ شِفَاءٌ لِلنَّاسِ.",
+"tr":"Bal insanlar için şifadır."
+}
+},
+{
+"ar":"كَبَّرَ",
+"kok":"كبر",
+"tur":"Mazî Fiil",
+"anlam":"büyüttü, yüceltti",
+"ornek":{
+"ar":"كَبَّرَ الْمُؤَذِّنُ لِلصَّلَاةِ.",
+"tr":"Müezzin namaz için tekbir getirdi."
+}
+},
+{
+"ar":"قَرِيبٌ",
+"kok":"قرب",
+"tur":"Sıfat",
+"anlam":"yakın, hısım",
+"ornek":{
+"ar":"الْبَيْتُ قَرِيبٌ مِنَ الْمَسْجِدِ.",
+"tr":"Ev camiye yakındır."
+}
+},
+{
+"ar":"فَجْرٌ",
+"kok":"فجر",
+"tur":"İsim",
+"anlam":"tan vakti, şafak",
+"ornek":{
+"ar":"أَذَانُ الْفَجْرِ جَمِيلٌ.",
+"tr":"Fecir ezanı güzeldir."
+}
+},
+{
+"ar":"رَسُولٌ",
+"kok":"رسل",
+"tur":"İsim",
+"anlam":"elçi, peygamber",
+"ornek":{
+"ar":"كَانَ مُحَمَّدٌ رَسُولَ اللَّهِ.",
+"tr":"Muhammed Allah'ın resulü idi."
+}
+},
+{
+"ar":"رَقِيقٌ",
+"kok":"رقق",
+"tur":"Sıfat",
+"anlam":"ince, nazik",
+"ornek":{
+"ar":"هَذَا الْقُمَاشُ رَقِيقٌ جِدًّا.",
+"tr":"Bu kumaş çok incedir."
+}
+},
+{
+"ar":"ذَهَبٌ",
+"kok":"ذهب",
+"tur":"İsim",
+"anlam":"altın, kıymetli maden",
+"ornek":{
+"ar":"هَذَا خَاتَمٌ مِنْ ذَهَبٍ.",
+"tr":"Bu altın bir yüzüktür."
+}
+},
+{
+"ar":"ضَعِيفٌ",
+"kok":"ضعف",
+"tur":"Sıfat",
+"anlam":"zayıf, güçsüz",
+"ornek":{
+"ar":"هُوَ رَجُلٌ ضَعِيفٌ فِي الْجِسْمِ.",
+"tr":"O, bedenen zayıf bir adamdır."
+}
+},
+{
+"ar":"نَجَحَ",
+"kok":"نجح",
+"tur":"Mazî Fiil",
+"anlam":"başardı, muvaffak oldu",
+"ornek":{
+"ar":"نَجَحَ الطَّالِبُ فِي الاِمْتِحَانِ بِتَفَوُّقٍ.",
+"tr":"Öğrenci sınavda üstün başarıyla başarılı oldu."
+}
+},
+{
+"ar":"مَسْجِدٌ",
+"kok":"سجد",
+"tur":"İsim",
+"anlam":"secde edilen yer, cami",
+"ornek":{
+"ar":"ذَهَبْتُ إِلَى الْمَسْجِدِ لِأُصَلِّيَ.",
+"tr":"Namaz kılmak için mescide gittim."
+}
+},
+{
+"ar":"حَدِيدٌ",
+"kok":"حدد",
+"tur":"İsim",
+"anlam":"demir, sertlik",
+"ornek":{
+"ar":"الْحَدِيدُ مَعْدِنٌ قَوِيٌّ.",
+"tr":"Demir güçlü bir metaldir."
+}
+},
+{
+"ar":"سُكَّرٌ",
+"kok":"سكر",
+"tur":"İsim",
+"anlam":"şeker, tatlı madde",
+"ornek":{
+"ar":"أَضَفْتُ السُّكَّرَ إِلَى الشَّايِ.",
+"tr":"Çaya şeker ekledim."
+}
+},
+{
+"ar":"سُوقٌ",
+"kok":"سوق",
+"tur":"İsim",
+"anlam":"çarşı, pazar",
+"ornek":{
+"ar":"ذَهَبْتُ إِلَى السُّوقِ لِشِرَاءِ الْخُضْرَوَاتِ.",
+"tr":"Sebze almak için pazara gittim."
+}
+},
+{
+"ar":"شَابٌّ",
+"kok":"شبب",
+"tur":"İsim",
+"anlam":"genç, delikanlı",
+"ornek":{
+"ar":"الشَّابُّ يَعْمَلُ بِجِدٍّ.",
+"tr":"Genç çok çalışıyor."
+}
+},
+{
+"ar":"مَتْجَرٌ",
+"kok":"تجر",
+"tur":"İsim",
+"anlam":"dükkan, mağaza",
+"ornek":{
+"ar":"ذَهَبْتُ إِلَى الْمَتْجَرِ لِشِرَاءِ الْخُبْزِ.",
+"tr":"Ekmek almak için dükkana gittim."
+}
+},
+{
+"ar":"وَزِيرٌ",
+"kok":"وزر",
+"tur":"İsim",
+"anlam":"bakan, vezir",
+"ornek":{
+"ar":"الْوَزِيرُ اجْتَمَعَ بِالْوَفْدِ الْأَجْنَبِيِّ.",
+"tr":"Bakan yabancı heyetle görüştü."
+}
+},
+{
+"ar":"نَهَارٌ",
+"kok":"نهر",
+"tur":"İsim",
+"anlam":"gündüz, gün ışığı",
+"ornek":{
+"ar":"نَعْمَلُ فِي النَّهَارِ وَنَسْتَرِيحُ فِي اللَّيْلِ.",
+"tr":"Gündüz çalışır, gece dinleniriz."
+}
+},
+{
+"ar":"مِلْحٌ",
+"kok":"ملح",
+"tur":"İsim",
+"anlam":"tuz, lezzet",
+"ornek":{
+"ar":"أَضَفْتُ قَلِيلًا مِنَ الْمِلْحِ إِلَى الطَّعَامِ.",
+"tr":"Yemeğe biraz tuz ekledim."
+}
+},
+{
+"ar":"نَجَاحٌ",
+"kok":"نجح",
+"tur":"Mastar",
+"anlam":"başarı, muvaffakiyet",
+"ornek":{
+"ar":"حَقَّقَ نَجَاحًا كَبِيرًا فِي دِرَاسَتِهِ.",
+"tr":"Eğitiminde büyük bir başarı elde etti."
+}
+},
+{
+"ar":"جِسْمٌ",
+"kok":"جسم",
+"tur":"İsim",
+"anlam":"beden, vücut",
+"ornek":{
+"ar":"جِسْمُ الْإِنْسَانِ مُعَقَّدٌ.",
+"tr":"İnsan vücudu karmaşıktır."
+}
+},
+{
+"ar":"نَزَّلَ",
+"kok":"نزل",
+"tur":"Mazî Fiil",
+"anlam":"indirdi, aşağıya doğru gönderdi",
+"ornek":{
+"ar":"نَزَّلَ اللَّهُ الْقُرْآنَ.",
+"tr":"Allah Kur'an'ı indirdi."
+}
+},
+{
+"ar":"بَارِدٌ",
+"kok":"برد",
+"tur":"Sıfat",
+"anlam":"soğuk, serin",
+"ornek":{
+"ar":"الْجَوُّ بَارِدٌ الْيَوْمَ.",
+"tr":"Hava bugün soğuk."
+}
+},
+{
+"ar":"قِصَّةٌ",
+"kok":"قصص",
+"tur":"İsim",
+"anlam":"hikaye, öykü",
+"ornek":{
+"ar":"قَرَأْتُ قِصَّةً جَمِيلَةً عَنِ الْحُبِّ.",
+"tr":"Aşk hakkında güzel bir hikaye okudum."
+}
+},
+{
+"ar":"عَادِلٌ",
+"kok":"عدل",
+"tur":"İsim",
+"anlam":"adaletli, hakkaniyetli",
+"ornek":{
+"ar":"هُوَ رَجُلٌ عَادِلٌ فِي قَضَايَاهُ.",
+"tr":"O, davalarında adil bir adamdır."
+}
+},
+{
+"ar":"شُجَاعٌ",
+"kok":"شجع",
+"tur":"Sıfat",
+"anlam":"cesur, yiğit",
+"ornek":{
+"ar":"كَانَ الْجُنْدِيُّ شُجَاعًا فِي الْمَعْرَكَةِ.",
+"tr":"Asker savaşta cesurdu."
+}
+},
+{
+"ar":"دَوْلَةٌ",
+"kok":"دول",
+"tur":"İsim",
+"anlam":"devlet, ülke",
+"ornek":{
+"ar":"تَسْعَى الدَّوْلَةُ لِتَحْقِيقِ التَّنْمِيَةِ.",
+"tr":"Devlet kalkınmayı gerçekleştirmeye çalışıyor."
+}
+},
+{
+"ar":"رَقَبَةٌ",
+"kok":"رقب",
+"tur":"İsim",
+"anlam":"boyun, köle",
+"ornek":{
+"ar":"تُعْتَبَرُ الرَّقَبَةُ جُزْءًا مُهِمًّا مِنَ الْجِسْمِ.",
+"tr":"Boyun, vücudun önemli bir parçası olarak kabul edilir."
+}
+},
+{
+"ar":"فَكَّرَ",
+"kok":"فكر",
+"tur":"Mazî Fiil",
+"anlam":"düşündü, fikir yürüttü",
+"ornek":{
+"ar":"فَكَّرَ فِي الْمُسْتَقْبَلِ كَثِيرًا.",
+"tr":"Geleceği çok düşündü."
+}
+},
+{
+"ar":"عَيْنٌ",
+"kok":"عين",
+"tur":"İsim",
+"anlam":"göz, pınar",
+"ornek":{
+"ar":"فَتَحَ الطِّفْلُ عَيْنَيْهِ.",
+"tr":"Çocuk gözlerini açtı."
+}
+},
+{
+"ar":"كَرِيمٌ",
+"kok":"كرم",
+"tur":"Sıfat",
+"anlam":"cömert, eli açık",
+"ornek":{
+"ar":"هُوَ رَجُلٌ كَرِيمٌ جِدًّا.",
+"tr":"O çok cömert bir adamdır."
+}
+},
+{
+"ar":"قِطَارٌ",
+"kok":"قطر",
+"tur":"İsim",
+"anlam":"tren, dizi",
+"ornek":{
+"ar":"وَصَلَ الْقِطَارُ إِلَى الْمَحَطَّةِ.",
+"tr":"Tren istasyona ulaştı."
+}
+},
+{
+"ar":"سَافَرَ",
+"kok":"سفر",
+"tur":"Mazî Fiil",
+"anlam":"yolculuk etti, seyahat etti",
+"ornek":{
+"ar":"سَافَرَ الرَّجُلُ إِلَى الْمَدِينَةِ.",
+"tr":"Adam şehre seyahat etti."
+}
+},
+{
+"ar":"مَكْتَبَةٌ",
+"kok":"كتب",
+"tur":"İsim",
+"anlam":"kütüphane, kitaplık",
+"ornek":{
+"ar":"ذَهَبْتُ إِلَى الْمَكْتَبَةِ لِأَسْتَعِيرَ كِتَابًا.",
+"tr":"Kitap ödünç almak için kütüphaneye gittim."
+}
+},
+{
+"ar":"عَلَّمَ",
+"kok":"علم",
+"tur":"Mazî Fiil",
+"anlam":"öğretti, bildirdi",
+"ornek":{
+"ar":"عَلَّمَ الْمُعَلِّمُ الطُّلَّابَ الدَّرْسَ.",
+"tr":"Öğretmen öğrencilere dersi öğretti."
+}
+},
+{
+"ar":"طَبِيبٌ",
+"kok":"طبب",
+"tur":"İsim",
+"anlam":"hekim, doktor",
+"ornek":{
+"ar":"ذَهَبَ الْمَرِيضُ إِلَى الطَّبِيبِ.",
+"tr":"Hasta hekime gitti."
+}
+},
+{
+"ar":"شَجَرَةٌ",
+"kok":"شجر",
+"tur":"İsim",
+"anlam":"ağaç, bitki",
+"ornek":{
+"ar":"هَذِهِ شَجَرَةٌ كَبِيرَةٌ.",
+"tr":"Bu büyük bir ağaçtır."
+}
+},
+{
+"ar":"نِظَامٌ",
+"kok":"نظم",
+"tur":"İsim",
+"anlam":"düzen, sistem",
+"ornek":{
+"ar":"يَعْمَلُ الْجَمِيعُ وَفْقَ نِظَامٍ مُحَدَّدٍ.",
+"tr":"Herkes belirli bir sisteme göre çalışır."
+}
+},
+{
+"ar":"مُرْتَفِعٌ",
+"kok":"رفع",
+"tur":"İsim",
+"anlam":"yüksek, yüce",
+"ornek":{
+"ar":"الْجَبَلُ مُرْتَفِعٌ جِدًّا.",
+"tr":"Dağ çok yüksektir."
+}
+},
+{
+"ar":"وَرِقَةٌ",
+"kok":"ورق",
+"tur":"İsim",
+"anlam":"yaprak, kağıt",
+"ornek":{
+"ar":"سَقَطَتْ وَرِقَةٌ مِنَ الشَّجَرَةِ.",
+"tr":"Ağaçtan bir yaprak düştü."
+}
+},
+{
+"ar":"عُشْبٌ",
+"kok":"عشب",
+"tur":"İsim",
+"anlam":"ot, çayır",
+"ornek":{
+"ar":"يَنْمُو الْعُشْبُ فِي الْحَدِيقَةِ.",
+"tr":"Bahçede ot büyüyor."
+}
+},
+{
+"ar":"مَوْزٌ",
+"kok":"موز",
+"tur":"İsim",
+"anlam":"muz, muz meyvesi",
+"ornek":{
+"ar":"أُحِبُّ أَكْلَ الْمَوْزِ فِي الصَّبَاحِ.",
+"tr":"Sabahları muz yemeyi severim."
+}
+},
+{
+"ar":"جَمِيلٌ",
+"kok":"جمل",
+"tur":"Sıfat",
+"anlam":"güzel, hoş",
+"ornek":{
+"ar":"هَذَا مَنْظَرٌ جَمِيلٌ جِدًّا.",
+"tr":"Bu çok güzel bir manzara."
+}
+},
+{
+"ar":"زَارَ",
+"kok":"زور",
+"tur":"Mazî Fiil",
+"anlam":"ziyaret etti, uğradı",
+"ornek":{
+"ar":"زَارَ الطَّالِبُ الْمَكْتَبَةَ لِلْبَحْثِ.",
+"tr":"Öğrenci araştırma yapmak için kütüphaneye uğradı."
+}
+},
+{
+"ar":"بَدَأَ",
+"kok":"بدأ",
+"tur":"Mazî Fiil",
+"anlam":"başladı, meydana geldi",
+"ornek":{
+"ar":"بَدَأَ الْعَمَلُ فِي الصَّبَاحِ الْبَاكِرِ.",
+"tr":"İş sabah erken saatlerde başladı."
+}
+},
+{
+"ar":"حَدِيقَةٌ",
+"kok":"حدق",
+"tur":"İsim",
+"anlam":"bahçe, park",
+"ornek":{
+"ar":"تَجَوَّلْنَا فِي الْحَدِيقَةِ الْجَمِيلَةِ.",
+"tr":"Güzel bahçede dolaştık."
+}
+},
+{
+"ar":"قَرَأَ",
+"kok":"قرأ",
+"tur":"Mazî Fiil",
+"anlam":"okudu, inceledi",
+"ornek":{
+"ar":"قَرَأَ الطَّالِبُ الْكِتَابَ.",
+"tr":"Öğrenci kitabı okudu."
+}
+},
+{
+"ar":"دَقِيقَةٌ",
+"kok":"دقق",
+"tur":"İsim",
+"anlam":"dakika, hassas",
+"ornek":{
+"ar":"اِنْتَظِرْنِي دَقِيقَةً وَاحِدَةً.",
+"tr":"Beni bir dakika bekle."
+}
+},
+{
+"ar":"صِحَّةٌ",
+"kok":"صحح",
+"tur":"İsim",
+"anlam":"sağlık, doğruluk",
+"ornek":{
+"ar":"الصِّحَّةُ تَاجٌ عَلَى رُؤُوسِ الْأَصِحَّاءِ.",
+"tr":"Sağlık, sağlıklı insanların başındaki taçtır."
+}
+},
+{
+"ar":"ثَقِيلٌ",
+"kok":"ثقل",
+"tur":"Sıfat",
+"anlam":"ağır, sıkıntılı",
+"ornek":{
+"ar":"هَذَا الصُّنْدُوقُ ثَقِيلٌ جِدًّا.",
+"tr":"Bu kutu çok ağırdır."
+}
+},
+{
+"ar":"تُرَابٌ",
+"kok":"ترب",
+"tur":"İsim",
+"anlam":"toprak, toz",
+"ornek":{
+"ar":"يُغَطِّي التُّرَابُ الطُّرُقَ بَعْدَ الْعَاصِفَةِ.",
+"tr":"Fırtınadan sonra yolları toprak kaplar."
+}
+},
+{
+"ar":"عَجُوزٌ",
+"kok":"عجز",
+"tur":"İsim",
+"anlam":"yaşlı kadın, ihtiyar",
+"ornek":{
+"ar":"جَلَسَتِ الْعَجُوزُ تَحْتَ الشَّجَرَةِ.",
+"tr":"Yaşlı kadın ağacın altında oturdu."
+}
+},
+{
+"ar":"طَازَجٌ",
+"kok":"طزج",
+"tur":"Sıfat",
+"anlam":"taze, yeni",
+"ornek":{
+"ar":"هَذِهِ الْفَوَاكِهُ طَازَجَةٌ جِدًّا.",
+"tr":"Bu meyveler çok taze."
+}
+},
+{
+"ar":"قُوَّةٌ",
+"kok":"قوي",
+"tur":"İsim",
+"anlam":"güç, kuvvet",
+"ornek":{
+"ar":"لَهُ قُوَّةٌ عَظِيمَةٌ.",
+"tr":"Onun büyük bir gücü var."
+}
+},
+{
+"ar":"نَبِيٌّ",
+"kok":"نبو",
+"tur":"İsim",
+"anlam":"haberci, peygamber",
+"ornek":{
+"ar":"كَانَ مُحَمَّدٌ آخِرَ الْأَنْبِيَاءِ.",
+"tr":"Muhammed son peygamberdi."
+}
+},
+{
+"ar":"جَزِيرَةٌ",
+"kok":"جزر",
+"tur":"İsim",
+"anlam":"ada, yarımada",
+"ornek":{
+"ar":"هَذِهِ جَزِيرَةٌ جَمِيلَةٌ.",
+"tr":"Bu güzel bir adadır."
+}
+},
+{
+"ar":"كَتِفٌ",
+"kok":"كتف",
+"tur":"İsim",
+"anlam":"omuz, kürek kemiği",
+"ornek":{
+"ar":"حَمَلَ الْحَقِيبَةَ عَلَى كَتِفِهِ.",
+"tr":"Çantayı omzuna taşıdı."
+}
+},
+{
+"ar":"أَسَدٌ",
+"kok":"أسد",
+"tur":"İsim",
+"anlam":"aslan, cesur kimse",
+"ornek":{
+"ar":"رَأَيْتُ أَسَدًا فِي الْحَدِيقَةِ.",
+"tr":"Bahçede bir aslan gördüm."
+}
+},
+{
+"ar":"رَقَصَ",
+"kok":"رقص",
+"tur":"Mazî Fiil",
+"anlam":"dans etti, oynadı",
+"ornek":{
+"ar":"رَقَصَ الْوَلَدُ فَرَحًا.",
+"tr":"Çocuk sevinçle dans etti."
+}
+},
+{
+"ar":"نَتِيجَةٌ",
+"kok":"نتج",
+"tur":"İsim",
+"anlam":"sonuç, netice",
+"ornek":{
+"ar":"كَانَتِ النَّتِيجَةُ مُرْضِيَةً.",
+"tr":"Sonuç tatmin ediciydi."
+}
+},
+{
+"ar":"مَوْسِمٌ",
+"kok":"وسم",
+"tur":"İsim",
+"anlam":"mevsim, dönem",
+"ornek":{
+"ar":"هَذَا مَوْسِمُ الْحَصَادِ.",
+"tr":"Bu hasat mevsimidir."
+}
+},
+{
+"ar":"صَدْرٌ",
+"kok":"صدر",
+"tur":"İsim",
+"anlam":"göğüs, bağır",
+"ornek":{
+"ar":"وَضَعَ يَدَهُ عَلَى صَدْرِهِ.",
+"tr":"Elini göğsüne koydu."
+}
+},
+{
+"ar":"فَمٌ",
+"kok":"فوه",
+"tur":"İsim",
+"anlam":"ağız, konuşma organı",
+"ornek":{
+"ar":"فَتَحَ الطِّفْلُ فَمَهُ لِيَأْكُلَ.",
+"tr":"Çocuk yemek yemek için ağzını açtı."
+}
+},
+{
+"ar":"رَئِيسٌ",
+"kok":"رأس",
+"tur":"İsim",
+"anlam":"başkan, reis",
+"ornek":{
+"ar":"اِجْتَمَعَ الرَّئِيسُ بِالْوَزِيرِ.",
+"tr":"Başkan bakanla görüştü."
+}
+},
+{
+"ar":"مَصْنَعٌ",
+"kok":"صنع",
+"tur":"İsim",
+"anlam":"fabrika, üretim yeri",
+"ornek":{
+"ar":"يَعْمَلُ أَبِي فِي مَصْنَعٍ كَبِيرٍ.",
+"tr":"Babam büyük bir fabrikada çalışıyor."
+}
+},
+{
+"ar":"حَمَامَةٌ",
+"kok":"حمم",
+"tur":"İsim",
+"anlam":"güvercin, kumru",
+"ornek":{
+"ar":"رَأَيْتُ حَمَامَةً بَيْضَاءَ.",
+"tr":"Beyaz bir güvercin gördüm."
+}
+},
+{
+"ar":"هَرَبَ",
+"kok":"هرب",
+"tur":"Mazî Fiil",
+"anlam":"kaçtı, firar etti",
+"ornek":{
+"ar":"هَرَبَ اللِّصُّ مِنَ السِّجْنِ.",
+"tr":"Hırsız hapishaneden kaçtı."
+}
+},
+{
+"ar":"أَحْمَرُ",
+"kok":"حمر",
+"tur":"Sıfat",
+"anlam":"kırmızı, kızıl",
+"ornek":{
+"ar":"اللَّوْنُ الْأَحْمَرُ جَمِيلٌ.",
+"tr":"Kırmızı renk güzeldir."
+}
+},
+{
+"ar":"بَقَرَةٌ",
+"kok":"بقر",
+"tur":"İsim",
+"anlam":"inek, sığır",
+"ornek":{
+"ar":"هَذِهِ بَقَرَةٌ كَبِيرَةٌ.",
+"tr":"Bu büyük bir inektir."
+}
+},
+{
+"ar":"فُرْصَةٌ",
+"kok":"فرص",
+"tur":"İsim",
+"anlam":"fırsat, imkan",
+"ornek":{
+"ar":"اِنْتَهِزِ الْفُرْصَةَ.",
+"tr":"Fırsatı değerlendir."
+}
+},
+{
+"ar":"لَعِبَ",
+"kok":"لعب",
+"tur":"Mazî Fiil",
+"anlam":"oynadı, eğlendi",
+"ornek":{
+"ar":"لَعِبَ الْأَطْفَالُ فِي الْحَدِيقَةِ.",
+"tr":"Çocuklar bahçede oynadı."
+}
+},
+{
+"ar":"سَأَلَ",
+"kok":"سأل",
+"tur":"Mazî Fiil",
+"anlam":"sordu, talep etti",
+"ornek":{
+"ar":"سَأَلَ الطَّالِبُ الْمُعَلِّمَ عَنِ الدَّرْسِ.",
+"tr":"Öğrenci öğretmene ders hakkında sordu."
+}
+},
+{
+"ar":"طَوِيلٌ",
+"kok":"طول",
+"tur":"Sıfat",
+"anlam":"uzun, boylu",
+"ornek":{
+"ar":"هَذَا الرَّجُلُ طَوِيلٌ جِدًّا.",
+"tr":"Bu adam çok uzundur."
+}
+},
+{
+"ar":"بَابٌ",
+"kok":"بوب",
+"tur":"İsim",
+"anlam":"kapı, giriş",
+"ornek":{
+"ar":"فَتَحَ الْوَلَدُ الْبَابَ.",
+"tr":"Çocuk kapıyı açtı."
+}
+},
+{
+"ar":"لَبَنٌ",
+"kok":"لبن",
+"tur":"İsim",
+"anlam":"süt, beyaz sıvı",
+"ornek":{
+"ar":"شَرِبْتُ لَبَنًا طَازَجًا.",
+"tr":"Taze süt içtim."
+}
+},
+{
+"ar":"حَاوَلَ",
+"kok":"حول",
+"tur":"Mazî Fiil",
+"anlam":"denedi, çabaladı",
+"ornek":{
+"ar":"حَاوَلَ الطَّالِبُ فَهْمَ الدَّرْسِ.",
+"tr":"Öğrenci dersi anlamaya çalıştı."
+}
+},
+{
+"ar":"شَمْسٌ",
+"kok":"شمس",
+"tur":"İsim",
+"anlam":"Güneş, gündüz vakti",
+"ornek":{
+"ar":"تَشْرُقُ الشَّمْسُ كُلَّ صَبَاحٍ.",
+"tr":"Güneş her sabah doğar."
+}
+},
+{
+"ar":"مَدِينَةٌ",
+"kok":"مدن",
+"tur":"İsim",
+"anlam":"şehir, kent",
+"ornek":{
+"ar":"هَذِهِ مَدِينَةٌ جَمِيلَةٌ.",
+"tr":"Bu güzel bir şehirdir."
+}
+},
+{
+"ar":"قَدِيمٌ",
+"kok":"قدم",
+"tur":"Sıfat",
+"anlam":"eski, kadim",
+"ornek":{
+"ar":"هَذَا كِتَابٌ قَدِيمٌ جِدًّا.",
+"tr":"Bu çok eski bir kitaptır."
+}
+},
+{
+"ar":"زَوْجٌ",
+"kok":"زوج",
+"tur":"İsim",
+"anlam":"eş, koca",
+"ornek":{
+"ar":"هُوَ زَوْجُهَا.",
+"tr":"O, onun eşidir."
+}
+},
+{
+"ar":"أَزْرَقُ",
+"kok":"زرق",
+"tur":"Sıfat",
+"anlam":"mavi, gök rengi",
+"ornek":{
+"ar":"السَّمَاءُ زَرْقَاءُ الْيَوْمَ.",
+"tr":"Bugün gökyüzü mavi."
+}
+},
+{
+"ar":"نَافِذَةٌ",
+"kok":"نفذ",
+"tur":"İsim",
+"anlam":"pencere, açıklık",
+"ornek":{
+"ar":"فَتَحْتُ النَّافِذَةَ لِتَدْخُلَ الشَّمْسُ.",
+"tr":"Güneşin girmesi için pencereyi açtım."
+}
+},
+{
+"ar":"بَطِيءٌ",
+"kok":"بطأ",
+"tur":"Sıfat",
+"anlam":"yavaş, ağır hareket eden",
+"ornek":{
+"ar":"هُوَ بَطِيءٌ فِي عَمَلِهِ.",
+"tr":"O, işinde yavaştır."
+}
+},
+{
+"ar":"مَعْرُوفٌ",
+"kok":"عرف",
+"tur":"İsim",
+"anlam":"bilinen, tanınan",
+"ornek":{
+"ar":"هُوَ رَجُلٌ مَعْرُوفٌ بِكَرَمِهِ.",
+"tr":"O, cömertliğiyle tanınan bir adamdır."
+}
+},
+{
+"ar":"مَدْرَسَةٌ",
+"kok":"درس",
+"tur":"İsim",
+"anlam":"okul, eğitim kurumu",
+"ornek":{
+"ar":"ذَهَبْتُ إِلَى الْمَدْرَسَةِ صَبَاحًا.",
+"tr":"Sabah okula gittim."
+}
+},
+{
+"ar":"زَهْرَةٌ",
+"kok":"زهر",
+"tur":"İsim",
+"anlam":"çiçek, bitki çiçeği",
+"ornek":{
+"ar":"زَهْرَةُ الْبَنَفْسَجِ جَمِيلَةٌ جِدًّا.",
+"tr":"Menekşe çiçeği çok güzeldir."
+}
+},
+{
+"ar":"قَلَمٌ",
+"kok":"قلم",
+"tur":"İsim",
+"anlam":"yazı aracı, kalem",
+"ornek":{
+"ar":"اِشْتَرَيْتُ قَلَمًا جَدِيدًا.",
+"tr":"Yeni bir kalem satın aldım."
+}
+},
+{
+"ar":"نَامَ",
+"kok":"نوم",
+"tur":"Mazî Fiil",
+"anlam":"uyudu, uykuya daldı",
+"ornek":{
+"ar":"أُرِيدُ أَنْ أَنَامَ الآنَ.",
+"tr":"Şimdi uyumak istiyorum."
+}
+},
+{
+"ar":"ظِلٌّ",
+"kok":"ظلل",
+"tur":"İsim",
+"anlam":"gölge, koruma",
+"ornek":{
+"ar":"جَلَسْتُ فِي الظِّلِّ.",
+"tr":"Gölgede oturdum."
+}
+},
+{
+"ar":"سُؤَالٌ",
+"kok":"سأل",
+"tur":"Mastar",
+"anlam":"soru, mesele",
+"ornek":{
+"ar":"طَرَحَ سُؤَالًا مُهِمًّا.",
+"tr":"Önemli bir soru sordu."
+}
+},
+{
+"ar":"فِيلٌ",
+"kok":"فيل",
+"tur":"İsim",
+"anlam":"fil, satrançta fil taşı",
+"ornek":{
+"ar":"الْفِيلُ حَيَوَانٌ ضَخْمٌ.",
+"tr":"Fil büyük bir hayvandır."
+}
+},
+{
+"ar":"بَحْرٌ",
+"kok":"بحر",
+"tur":"İsim",
+"anlam":"deniz, büyük nehir",
+"ornek":{
+"ar":"الْبَحْرُ وَاسِعٌ وَعَمِيقٌ.",
+"tr":"Deniz geniş ve derindir."
+}
+},
+{
+"ar":"تَعِبَ",
+"kok":"تعب",
+"tur":"Mazî Fiil",
+"anlam":"yoruldu, zahmet çekti",
+"ornek":{
+"ar":"تَعِبَ الطَّالِبُ بَعْدَ الدِّرَاسَةِ الطَّوِيلَةِ.",
+"tr":"Öğrenci uzun dersten sonra yoruldu."
+}
+},
+{
+"ar":"بَقِيَ",
+"kok":"بقي",
+"tur":"Mazî Fiil",
+"anlam":"kaldı, baki kaldı",
+"ornek":{
+"ar":"بَقِيَ الطَّالِبُ فِي الْفَصْلِ.",
+"tr":"Öğrenci sınıfta kaldı."
+}
+},
+{
+"ar":"قَلْبٌ",
+"kok":"قلب",
+"tur":"İsim",
+"anlam":"kalp, yürek",
+"ornek":{
+"ar":"قَلْبُ الْمُؤْمِنِ طَاهِرٌ.",
+"tr":"Müminin kalbi temizdir."
+}
+},
+{
+"ar":"رِسَالَةٌ",
+"kok":"رسل",
+"tur":"İsim",
+"anlam":"mektup, mesaj",
+"ornek":{
+"ar":"كَتَبْتُ رِسَالَةً إِلَى صَدِيقِي.",
+"tr":"Arkadaşıma bir mektup yazdım."
+}
+},
+{
+"ar":"قَهْوَةٌ",
+"kok":"قهو",
+"tur":"İsim",
+"anlam":"kahve, kahve çekirdeği",
+"ornek":{
+"ar":"أَشْرَبُ الْقَهْوَةَ فِي الصَّبَاحِ.",
+"tr":"Sabahları kahve içerim."
+}
+},
+{
+"ar":"سَيَّارَةٌ",
+"kok":"سير",
+"tur":"İsim",
+"anlam":"otomobil, binek aracı",
+"ornek":{
+"ar":"اشْتَرَيْتُ سَيَّارَةً جَدِيدَةً.",
+"tr":"Yeni bir araba satın aldım."
+}
+},
+{
+"ar":"طَاوِلَةٌ",
+"kok":"طول",
+"tur":"İsim",
+"anlam":"masa, sehpa",
+"ornek":{
+"ar":"وَضَعْتُ الْكِتَابَ عَلَى الطَّاوِلَةِ.",
+"tr":"Kitabı masanın üzerine koydum."
+}
+},
+{
+"ar":"أَحَبَّ",
+"kok":"حبب",
+"tur":"Mazî Fiil",
+"anlam":"sevdi, hoşlandı",
+"ornek":{
+"ar":"أَحَبَّ الرَّجُلُ وَطَنَهُ كَثِيرًا.",
+"tr":"Adam vatanını çok sevdi."
+}
+},
+{
+"ar":"سَمِعَ",
+"kok":"سمع",
+"tur":"Mazî Fiil",
+"anlam":"işitti, duydu",
+"ornek":{
+"ar":"سَمِعَ الطَّالِبُ الدَّرْسَ بِانْتِبَاهٍ.",
+"tr":"Öğrenci dersi dikkatle dinledi."
+}
+},
+{
+"ar":"أُذُنٌ",
+"kok":"أذن",
+"tur":"İsim",
+"anlam":"kulak, işitme organı",
+"ornek":{
+"ar":"لَهُ أُذُنٌ كَبِيرَةٌ.",
+"tr":"Onun büyük bir kulağı var."
+}
+},
+{
+"ar":"حُلْوٌ",
+"kok":"حلو",
+"tur":"Sıfat",
+"anlam":"tatlı, hoş",
+"ornek":{
+"ar":"هَذَا الطَّعَامُ حُلْوٌ جِدًّا.",
+"tr":"Bu yemek çok tatlı."
+}
+},
+{
+"ar":"أَمَانَةٌ",
+"kok":"أمن",
+"tur":"İsim",
+"anlam":"emanet, güven",
+"ornek":{
+"ar":"الْأَمَانَةُ صِفَةٌ حَمِيدَةٌ.",
+"tr":"Dürüstlük övgüye değer bir özelliktir."
+}
+},
+{
+"ar":"كَثِيرٌ",
+"kok":"كثر",
+"tur":"Sıfat",
+"anlam":"çok, bol",
+"ornek":{
+"ar":"لَدَيْنَا كُتُبٌ كَثِيرَةٌ.",
+"tr":"Çok kitabımız var."
+}
+},
+{
+"ar":"شَرِكَةٌ",
+"kok":"شرك",
+"tur":"İsim",
+"anlam":"ortaklık, şirket",
+"ornek":{
+"ar":"تَأَسَّسَتْ الشَّرِكَةُ فِي عَامِ أَلْفَيْنِ وَعَشَرَةٍ.",
+"tr":"Şirket 2010 yılında kuruldu."
+}
+},
+{
+"ar":"جَامِعَةٌ",
+"kok":"جمع",
+"tur":"İsim",
+"anlam":"üniversite, toplayıcı",
+"ornek":{
+"ar":"دَرَسَ فِي جَامِعَةِ دِمَشْقَ.",
+"tr":"Şam Üniversitesi'nde okudu."
+}
+},
+{
+"ar":"سَقَطَ",
+"kok":"سقط",
+"tur":"Mazî Fiil",
+"anlam":"düştü, devrildi",
+"ornek":{
+"ar":"سَقَطَ الْمَطَرُ بِغَزَارَةٍ.",
+"tr":"Yağmur şiddetli yağdı."
+}
+},
+{
+"ar":"صَامَ",
+"kok":"صوم",
+"tur":"Mazî Fiil",
+"anlam":"oruç tuttu, perhiz yaptı",
+"ornek":{
+"ar":"صَامَ الْمُسْلِمُونَ شَهْرَ رَمَضَانَ.",
+"tr":"Müslümanlar Ramazan ayında oruç tuttular."
+}
+},
+{
+"ar":"نَحْلَةٌ",
+"kok":"نحل",
+"tur":"İsim",
+"anlam":"bal arısı, arı",
+"ornek":{
+"ar":"تَطِيرُ النَّحْلَةُ بَيْنَ الْأَزْهَارِ.",
+"tr":"Arı çiçekler arasında uçar."
+}
+},
+{
+"ar":"مَيْدَانٌ",
+"kok":"ميد",
+"tur":"İsim",
+"anlam":"alan, meydan",
+"ornek":{
+"ar":"تَجَمَّعَ النَّاسُ فِي الْمَيْدَانِ الْكَبِيرِ.",
+"tr":"İnsanlar büyük meydanda toplandı."
+}
+},
+{
+"ar":"صَدِيقٌ",
+"kok":"صدق",
+"tur":"İsim",
+"anlam":"dost, arkadaş",
+"ornek":{
+"ar":"لَدَيَّ صَدِيقٌ مُخْلِصٌ.",
+"tr":"Sadık bir arkadaşım var."
+}
+},
+{
+"ar":"بَلَدٌ",
+"kok":"بلد",
+"tur":"İsim",
+"anlam":"şehir, belde",
+"ornek":{
+"ar":"هَذَا بَلَدٌ جَمِيلٌ جِدًّا.",
+"tr":"Burası çok güzel bir ülke."
+}
+},
+{
+"ar":"مَطَارٌ",
+"kok":"طير",
+"tur":"İsim",
+"anlam":"havaalanı, havalimanı",
+"ornek":{
+"ar":"وَصَلْتُ إِلَى الْمَطَارِ فِي الْوَقْتِ الْمُحَدَّدِ.",
+"tr":"Belirlenen zamanda havaalanına ulaştım."
+}
+},
+{
+"ar":"وَجْهٌ",
+"kok":"وجه",
+"tur":"İsim",
+"anlam":"yüz, çehre",
+"ornek":{
+"ar":"نَظَرْتُ إِلَى وَجْهِهِ.",
+"tr":"Yüzüne baktım."
+}
+},
+{
+"ar":"لِسَانٌ",
+"kok":"لسن",
+"tur":"İsim",
+"anlam":"dil, lisan",
+"ornek":{
+"ar":"لَهُ لِسَانٌ فَصِيحٌ.",
+"tr":"Onun fasih bir dili var."
+}
+},
+{
+"ar":"كُرَةٌ",
+"kok":"كور",
+"tur":"İsim",
+"anlam":"top, küre",
+"ornek":{
+"ar":"لَعِبَ الْوَلَدُ بِالْكُرَةِ.",
+"tr":"Çocuk topla oynadı."
+}
+},
+{
+"ar":"نَهْرٌ",
+"kok":"نهر",
+"tur":"İsim",
+"anlam":"nehir, ırmak",
+"ornek":{
+"ar":"يَجْرِي النَّهْرُ فِي الْوَادِي.",
+"tr":"Nehir vadide akıyor."
+}
+},
+{
+"ar":"قَصِيرٌ",
+"kok":"قصر",
+"tur":"Sıfat",
+"anlam":"kısa, boyu kısa olan",
+"ornek":{
+"ar":"هَذَا الرَّجُلُ قَصِيرُ الْقَامَةِ.",
+"tr":"Bu adam kısa boyludur."
+}
+},
+{
+"ar":"زَيْتٌ",
+"kok":"زيت",
+"tur":"İsim",
+"anlam":"zeytinyağı, zeytin ağacı ürünü",
+"ornek":{
+"ar":"هَذَا زَيْتٌ طَازَجٌ.",
+"tr":"Bu taze bir yağdır."
+}
+},
+{
+"ar":"مَوْجٌ",
+"kok":"موج",
+"tur":"İsim",
+"anlam":"dalga, deniz dalgası",
+"ornek":{
+"ar":"تَرْتَفِعُ الْأَمْوَاجُ فِي الْبَحْرِ.",
+"tr":"Denizde dalgalar yükseliyor."
+}
+},
+{
+"ar":"أَجَابَ",
+"kok":"جوب",
+"tur":"Mazî Fiil",
+"anlam":"cevap verdi, yanıtladı",
+"ornek":{
+"ar":"أَجَابَ الطَّالِبُ عَلَى السُّؤَالِ.",
+"tr":"Öğrenci soruyu cevapladı."
+}
+},
+{
+"ar":"أَبْيَضُ",
+"kok":"بيض",
+"tur":"Sıfat",
+"anlam":"beyaz, ak",
+"ornek":{
+"ar":"اللَّوْنُ الْأَبْيَضُ جَمِيلٌ.",
+"tr":"Beyaz renk güzeldir."
+}
+},
+{
+"ar":"فَاكِهَةٌ",
+"kok":"فكه",
+"tur":"İsim",
+"anlam":"meyve, yemiş",
+"ornek":{
+"ar":"أُحِبُّ أَكْلَ الْفَاكِهَةِ الطَّازَجَةِ.",
+"tr":"Taze meyve yemeyi severim."
+}
+},
+{
+"ar":"مَالِحٌ",
+"kok":"ملح",
+"tur":"Sıfat",
+"anlam":"tuzlu, tuz içeren",
+"ornek":{
+"ar":"هَذَا الطَّعَامُ مَالِحٌ جِدًّا.",
+"tr":"Bu yemek çok tuzlu."
+}
+},
+{
+"ar":"كَرِهَ",
+"kok":"كره",
+"tur":"Mazî Fiil",
+"anlam":"hoşlanmadı, nefret etti",
+"ornek":{
+"ar":"كَرِهَ الرَّجُلُ الْكَذِبَ.",
+"tr":"Adam yalandan nefret etti."
+}
+},
+{
+"ar":"عَرِيضٌ",
+"kok":"عرض",
+"tur":"Sıfat",
+"anlam":"geniş, enli",
+"ornek":{
+"ar":"هَذَا الشَّارِعُ عَرِيضٌ جِدًّا.",
+"tr":"Bu cadde çok geniştir."
+}
+},
+{
+"ar":"فَرِيقٌ",
+"kok":"فرق",
+"tur":"İsim",
+"anlam":"takım, grup",
+"ornek":{
+"ar":"فَازَ الْفَرِيقُ بِالْمُبَارَاةِ.",
+"tr":"Takım maçı kazandı."
+}
+},
+{
+"ar":"يَوْمٌ",
+"kok":"يوم",
+"tur":"İsim",
+"anlam":"gün, gündüz",
+"ornek":{
+"ar":"هَذَا يَوْمٌ جَمِيلٌ.",
+"tr":"Bu güzel bir gün."
+}
+},
+{
+"ar":"شَرٌّ",
+"kok":"شرر",
+"tur":"İsim",
+"anlam":"kötülük, şer",
+"ornek":{
+"ar":"اِجْتَنِبِ الشَّرَّ وَاتَّبِعِ الْخَيْرَ.",
+"tr":"Kötülükten kaçın ve iyiliği takip et."
+}
+},
+{
+"ar":"سَهْلٌ",
+"kok":"سهل",
+"tur":"Sıfat",
+"anlam":"kolay, basit",
+"ornek":{
+"ar":"هَذَا الْعَمَلُ سَهْلٌ جِدًّا.",
+"tr":"Bu iş çok kolaydır."
+}
+},
+{
+"ar":"سَرِيعٌ",
+"kok":"سرع",
+"tur":"Sıfat",
+"anlam":"hızlı, çabuk",
+"ornek":{
+"ar":"الْقِطَارُ سَرِيعٌ جِدًّا.",
+"tr":"Tren çok hızlıdır."
+}
+},
+{
+"ar":"لَوْنٌ",
+"kok":"لون",
+"tur":"İsim",
+"anlam":"renk, boya",
+"ornek":{
+"ar":"أُحِبُّ هَذَا اللَّوْنَ الْأَزْرَقَ.",
+"tr":"Bu mavi rengi seviyorum."
+}
+},
+{
+"ar":"نَارٌ",
+"kok":"نور",
+"tur":"İsim",
+"anlam":"ateş, cehennem",
+"ornek":{
+"ar":"اِشْتَعَلَتِ النَّارُ فِي الْغَابَةِ.",
+"tr":"Ormanda ateş çıktı."
+}
+},
+{
+"ar":"حَفْلَةٌ",
+"kok":"حفل",
+"tur":"İsim",
+"anlam":"tören, kutlama",
+"ornek":{
+"ar":"أَقَمْنَا حَفْلَةَ عِيدِ الْمِيلَادِ.",
+"tr":"Doğum günü partisi düzenledik."
+}
+},
+{
+"ar":"رَحْمَةٌ",
+"kok":"رحم",
+"tur":"İsim",
+"anlam":"merhamet, acıma",
+"ornek":{
+"ar":"نَزَلَتْ رَحْمَةُ اللَّهِ عَلَى الْعِبَادِ.",
+"tr":"Allah'ın rahmeti kulların üzerine indi."
+}
+},
+{
+"ar":"جَمَلٌ",
+"kok":"جمل",
+"tur":"İsim",
+"anlam":"deve, erkek deve",
+"ornek":{
+"ar":"يُعْرَفُ الْجَمَلُ بِصَبْرِهِ فِي الصَّحْرَاءِ.",
+"tr":"Deve, çöldeki sabrıyla bilinir."
+}
+},
+{
+"ar":"صَلَّى",
+"kok":"صلي",
+"tur":"Mazî Fiil",
+"anlam":"dua etti, namaz kıldı",
+"ornek":{
+"ar":"صَلَّى الْمُسْلِمُونَ فِي الْمَسْجِدِ.",
+"tr":"Müslümanlar camide namaz kıldı."
+}
+},
+{
+"ar":"لَيْلٌ",
+"kok":"ليل",
+"tur":"İsim",
+"anlam":"gece, karanlık",
+"ornek":{
+"ar":"نَامَ الطِّفْلُ فِي اللَّيْلِ.",
+"tr":"Çocuk gece uyudu."
+}
+},
+{
+"ar":"خَفِيفٌ",
+"kok":"خفف",
+"tur":"Sıfat",
+"anlam":"hafif, ağırlığı az",
+"ornek":{
+"ar":"هَذَا الْكِتَابُ خَفِيفٌ.",
+"tr":"Bu kitap hafiftir."
+}
+},
+{
+"ar":"عَاشَ",
+"kok":"عيش",
+"tur":"Mazî Fiil",
+"anlam":"yaşadı, hayatta kaldı",
+"ornek":{
+"ar":"عَاشَ الرَّجُلُ حَيَاةً طَوِيلَةً.",
+"tr":"Adam uzun bir hayat yaşadı."
+}
+},
+{
+"ar":"لَبِسَ",
+"kok":"لبس",
+"tur":"Mazî Fiil",
+"anlam":"giyindi, kuşandı",
+"ornek":{
+"ar":"لَبِسَ الرَّجُلُ ثَوْبًا جَدِيدًا.",
+"tr":"Adam yeni bir elbise giydi."
+}
+},
+{
+"ar":"طَرِيقٌ",
+"kok":"طرق",
+"tur":"İsim",
+"anlam":"yol, yöntem",
+"ornek":{
+"ar":"هَذَا طَرِيقٌ طَوِيلٌ.",
+"tr":"Bu uzun bir yoldur."
+}
+},
+{
+"ar":"تَعَلَّمَ",
+"kok":"علم",
+"tur":"Mazî Fiil",
+"anlam":"öğrendi, bilgi edindi",
+"ornek":{
+"ar":"تَعَلَّمَ الطَّالِبُ الدَّرْسَ بِسُرْعَةٍ.",
+"tr":"Öğrenci dersi hızlıca öğrendi."
+}
+},
+{
+"ar":"تَذَكَّرَ",
+"kok":"ذكر",
+"tur":"Mazî Fiil",
+"anlam":"hatırladı, anımsadı",
+"ornek":{
+"ar":"تَذَكَّرَ الطَّالِبُ الدَّرْسَ جَيِّدًا.",
+"tr":"Öğrenci dersi iyi hatırladı."
+}
+},
+{
+"ar":"وَطَنٌ",
+"kok":"وطن",
+"tur":"İsim",
+"anlam":"vatan, yurt",
+"ornek":{
+"ar":"حُبُّ الْوَطَنِ مِنَ الْإِيمَانِ.",
+"tr":"Vatan sevgisi imandandır."
+}
+},
+{
+"ar":"خُطَّةٌ",
+"kok":"خطط",
+"tur":"İsim",
+"anlam":"plan, tasarı",
+"ornek":{
+"ar":"وَضَعْنَا خُطَّةً جَدِيدَةً لِلْعَمَلِ.",
+"tr":"İş için yeni bir plan yaptık."
+}
+},
+{
+"ar":"فَارِغٌ",
+"kok":"فرغ",
+"tur":"İsim",
+"anlam":"boş, işsiz",
+"ornek":{
+"ar":"الْكُوبُ فَارِغٌ مِنَ الْمَاءِ.",
+"tr":"Bardak sudan boş."
+}
+},
+{
+"ar":"ضَيْفٌ",
+"kok":"ضيف",
+"tur":"İsim",
+"anlam":"misafir, konuk",
+"ornek":{
+"ar":"جَاءَ الضَّيْفُ إِلَى الْبَيْتِ.",
+"tr":"Misafir eve geldi."
+}
+},
+{
+"ar":"حَمَّلَ",
+"kok":"حمل",
+"tur":"Mazî Fiil",
+"anlam":"yükledi, taşıttı",
+"ornek":{
+"ar":"حَمَّلَ الرَّجُلُ الْبِضَاعَةَ عَلَى الشَّاحِنَةِ.",
+"tr":"Adam malları kamyona yükledi."
+}
+},
+{
+"ar":"نَبَاتٌ",
+"kok":"نبت",
+"tur":"İsim",
+"anlam":"bitki, nebat",
+"ornek":{
+"ar":"النَّبَاتُ يُنَقِّي الْهَوَاءَ.",
+"tr":"Bitki havayı temizler."
+}
+},
+{
+"ar":"ذِئْبٌ",
+"kok":"ذأب",
+"tur":"İsim",
+"anlam":"kurt, yırtıcı hayvan",
+"ornek":{
+"ar":"رَأَيْتُ ذِئْبًا فِي الْغَابَةِ.",
+"tr":"Ormanda bir kurt gördüm."
+}
+},
+{
+"ar":"فَازَ",
+"kok":"فوز",
+"tur":"Mazî Fiil",
+"anlam":"kazandı, başardı",
+"ornek":{
+"ar":"فَازَ الْفَرِيقُ بِالْمُبَارَاةِ بِجَدَارَةٍ.",
+"tr":"Takım maçı hak ederek kazandı."
+}
+},
+{
+"ar":"سَعَادَةٌ",
+"kok":"سعد",
+"tur":"İsim",
+"anlam":"mutluluk, saadet",
+"ornek":{
+"ar":"السَّعَادَةُ فِي الْقَنَاعَةِ.",
+"tr":"Mutluluk kanaattedir."
+}
+},
+{
+"ar":"ظَهْرٌ",
+"kok":"ظهر",
+"tur":"İsim",
+"anlam":"sırt, arka",
+"ornek":{
+"ar":"يُؤْلِمُنِي ظَهْرِي.",
+"tr":"Sırtım ağrıyor."
+}
+},
+{
+"ar":"مُنْخَفِضٌ",
+"kok":"خفض",
+"tur":"İsim",
+"anlam":"alçak, düşük",
+"ornek":{
+"ar":"كَانَ السِّعْرُ مُنْخَفِضًا جِدًّا.",
+"tr":"Fiyat çok düşüktü."
+}
+},
+{
+"ar":"خَرِيطَةٌ",
+"kok":"خرط",
+"tur":"İsim",
+"anlam":"harita, plan",
+"ornek":{
+"ar":"اِسْتَخْدَمْتُ الْخَرِيطَةَ لِأَجِدَ الطَّرِيقَ.",
+"tr":"Yolu bulmak için haritayı kullandım."
+}
+},
+{
+"ar":"بَعِيدٌ",
+"kok":"بعد",
+"tur":"Sıfat",
+"anlam":"uzak, ırak",
+"ornek":{
+"ar":"الْبَيْتُ بَعِيدٌ عَنِ الْمَدِينَةِ.",
+"tr":"Ev şehirden uzaktır."
+}
+},
+{
+"ar":"أُمٌّ",
+"kok":"أمم",
+"tur":"İsim",
+"anlam":"anne, ana",
+"ornek":{
+"ar":"أُمِّي تُحِبُّنِي كَثِيرًا.",
+"tr":"Annem beni çok seviyor."
+}
+},
+{
+"ar":"قَمَرٌ",
+"kok":"قمر",
+"tur":"İsim",
+"anlam":"Ay, gök cismi",
+"ornek":{
+"ar":"يَظْهَرُ الْقَمَرُ فِي اللَّيْلِ.",
+"tr":"Ay gece görünür."
+}
+},
+{
+"ar":"أُخْتٌ",
+"kok":"أخو",
+"tur":"İsim",
+"anlam":"kız kardeş, hemşire",
+"ornek":{
+"ar":"أُخْتِي الْكُبْرَى طَبِيبَةٌ مَاهِرَةٌ.",
+"tr":"Büyük ablam yetenekli bir doktordur."
+}
+},
+{
+"ar":"كَبِيرٌ",
+"kok":"كبر",
+"tur":"Sıfat",
+"anlam":"büyük, ulu",
+"ornek":{
+"ar":"هَذَا بَيْتٌ كَبِيرٌ جِدًّا.",
+"tr":"Bu çok büyük bir evdir."
+}
+},
+{
+"ar":"مَسَاءٌ",
+"kok":"مسى",
+"tur":"İsim",
+"anlam":"akşam, akşam vakti",
+"ornek":{
+"ar":"نَلْتَقِي فِي الْمَسَاءِ.",
+"tr":"Akşam buluşuruz."
+}
+},
+{
+"ar":"حَيَاةٌ",
+"kok":"حيا",
+"tur":"İsim",
+"anlam":"hayat, yaşam",
+"ornek":{
+"ar":"الْحَيَاةُ جَمِيلَةٌ بِالْإِيمَانِ.",
+"tr":"Hayat imanla güzeldir."
+}
+},
+{
+"ar":"مَاءٌ",
+"kok":"موه",
+"tur":"İsim",
+"anlam":"su, sıvı",
+"ornek":{
+"ar":"شَرِبْتُ مَاءً بَارِدًا.",
+"tr":"Soğuk su içtim."
+}
+},
+{
+"ar":"سَمَاءٌ",
+"kok":"سمو",
+"tur":"İsim",
+"anlam":"gök, sema",
+"ornek":{
+"ar":"نَظَرْتُ إِلَى السَّمَاءِ الصَّافِيَةِ.",
+"tr":"Berrak gökyüzüne baktım."
+}
+},
+{
+"ar":"تَمْرٌ",
+"kok":"تمر",
+"tur":"İsim",
+"anlam":"hurma, hurma ağacı",
+"ornek":{
+"ar":"أَكَلْتُ تَمْرًا لَذِيذًا.",
+"tr":"Lezzetli bir hurma yedim."
+}
+},
+{
+"ar":"مَشَى",
+"kok":"مشي",
+"tur":"Mazî Fiil",
+"anlam":"yürüdü, gitti",
+"ornek":{
+"ar":"مَشَى الرَّجُلُ فِي الشَّارِعِ.",
+"tr":"Adam sokakta yürüdü."
+}
+},
+{
+"ar":"أَخْضَرُ",
+"kok":"خضر",
+"tur":"Sıfat",
+"anlam":"yeşil, yeşil renkli",
+"ornek":{
+"ar":"اللَّوْنُ الْأَخْضَرُ جَمِيلٌ.",
+"tr":"Yeşil renk güzeldir."
+}
+},
+{
+"ar":"رَعْدٌ",
+"kok":"رعد",
+"tur":"İsim",
+"anlam":"gök gürültüsü, gürleme",
+"ornek":{
+"ar":"سَمِعْتُ صَوْتَ الرَّعْدِ قَبْلَ الْمَطَرِ.",
+"tr":"Yağmurdan önce gök gürültüsü sesi duydum."
+}
+},
+{
+"ar":"أَنْفٌ",
+"kok":"انف",
+"tur":"İsim",
+"anlam":"burun, koku alma organı",
+"ornek":{
+"ar":"لِلْإِنْسَانِ أَنْفٌ وَاحِدٌ.",
+"tr":"İnsanın bir burnu vardır."
+}
+},
+{
+"ar":"مُهِمٌّ",
+"kok":"همم",
+"tur":"Sıfat",
+"anlam":"önemli, mühim",
+"ornek":{
+"ar":"هَذَا أَمْرٌ مُهِمٌّ جِدًّا.",
+"tr":"Bu çok önemli bir mesele."
+}
+},
+{
+"ar":"وَقَفَ",
+"kok":"وقف",
+"tur":"Mazî Fiil",
+"anlam":"durdu, dikildi",
+"ornek":{
+"ar":"وَقَفَ الرَّجُلُ أَمَامَ الْبَابِ.",
+"tr":"Adam kapının önünde durdu."
+}
+},
+{
+"ar":"حَزَنٌ",
+"kok":"حزن",
+"tur":"İsim",
+"anlam":"üzüntü, keder",
+"ornek":{
+"ar":"شَعَرَ بِحَزَنٍ عَمِيقٍ.",
+"tr":"Derin bir üzüntü hissetti."
+}
+},
+{
+"ar":"بَكَى",
+"kok":"بكي",
+"tur":"Mazî Fiil",
+"anlam":"ağladı, gözyaşı döktü",
+"ornek":{
+"ar":"بَكَى الطِّفْلُ بِصَوْتٍ عَالٍ.",
+"tr":"Çocuk yüksek sesle ağladı."
+}
+},
+{
+"ar":"كَلِمَةٌ",
+"kok":"كلم",
+"tur":"İsim",
+"anlam":"kelime, söz",
+"ornek":{
+"ar":"هَذِهِ كَلِمَةٌ جَمِيلَةٌ.",
+"tr":"Bu güzel bir kelimedir."
+}
+},
+{
+"ar":"وَاسِعٌ",
+"kok":"وسع",
+"tur":"Sıfat",
+"anlam":"geniş, engin",
+"ornek":{
+"ar":"هَذَا بَيْتٌ وَاسِعٌ.",
+"tr":"Bu geniş bir evdir."
+}
+},
+{
+"ar":"ضَوْءٌ",
+"kok":"ضوأ",
+"tur":"İsim",
+"anlam":"ışık, aydınlık",
+"ornek":{
+"ar":"يَنْتَشِرُ الضَّوْءُ فِي الْغُرْفَةِ.",
+"tr":"Işık odaya yayılıyor."
+}
+},
+{
+"ar":"هَدَفٌ",
+"kok":"هدف",
+"tur":"İsim",
+"anlam":"hedef, amaç",
+"ornek":{
+"ar":"وَضَعَ هَدَفًا لِنَفْسِهِ.",
+"tr":"Kendine bir hedef koydu."
+}
+},
+{
+"ar":"شِتَاءٌ",
+"kok":"شتو",
+"tur":"İsim",
+"anlam":"kış, kış mevsimi",
+"ornek":{
+"ar":"فِي الشِّتَاءِ يَكُونُ الْجَوُّ بَارِدًا.",
+"tr":"Kışın hava soğuk olur."
+}
+},
+{
+"ar":"فِكْرَةٌ",
+"kok":"فكر",
+"tur":"İsim",
+"anlam":"düşünce, fikir",
+"ornek":{
+"ar":"لَدَيَّ فِكْرَةٌ جَيِّدَةٌ.",
+"tr":"İyi bir fikrim var."
+}
+},
+{
+"ar":"قَالَ",
+"kok":"قول",
+"tur":"Mazî Fiil",
+"anlam":"dedi, söyledi",
+"ornek":{
+"ar":"قَالَ الرَّجُلُ الْحَقِيقَةَ.",
+"tr":"Adam gerçeği söyledi."
+}
+},
+{
+"ar":"شَرِبَ",
+"kok":"شرب",
+"tur":"Mazî Fiil",
+"anlam":"içti, yudumladı",
+"ornek":{
+"ar":"شَرِبَ الطِّفْلُ الْحَلِيبَ.",
+"tr":"Çocuk süt içti."
+}
+},
+{
+"ar":"شَارِعٌ",
+"kok":"شرع",
+"tur":"İsim",
+"anlam":"cadde, sokak",
+"ornek":{
+"ar":"يَمْشِي النَّاسُ فِي الشَّارِعِ.",
+"tr":"İnsanlar sokakta yürüyor."
+}
+},
+{
+"ar":"سَرِيرٌ",
+"kok":"سرر",
+"tur":"İsim",
+"anlam":"yatak, karyola",
+"ornek":{
+"ar":"وَضَعْتُ الْكِتَابَ عَلَى السَّرِيرِ.",
+"tr":"Kitabı yatağın üzerine koydum."
+}
+},
+{
+"ar":"أَسْوَدُ",
+"kok":"سود",
+"tur":"Sıfat",
+"anlam":"siyah, kara",
+"ornek":{
+"ar":"اللَّوْنُ الْأَسْوَدُ جَمِيلٌ.",
+"tr":"Kara renk güzeldir."
+}
+},
+{
+"ar":"شَاطِئٌ",
+"kok":"شطأ",
+"tur":"İsim",
+"anlam":"sahil, kıyı",
+"ornek":{
+"ar":"ذَهَبْنَا إِلَى الشَّاطِئِ لِلِاسْتِمْتَاعِ بِالشَّمْسِ.",
+"tr":"Güneşin tadını çıkarmak için sahile gittik."
+}
+},
+{
+"ar":"طَائِرَةٌ",
+"kok":"طير",
+"tur":"İsim",
+"anlam":"uçak, havada uçan",
+"ornek":{
+"ar":"سَافَرْتُ بِالطَّائِرَةِ إِلَى مِصْرَ.",
+"tr":"Mısır'a uçakla seyahat ettim."
+}
+},
+{
+"ar":"حُرِّيَّةٌ",
+"kok":"حرر",
+"tur":"İsim",
+"anlam":"özgürlük, hürriyet",
+"ornek":{
+"ar":"الْحُرِّيَّةُ حَقٌّ أَسَاسِيٌّ لِكُلِّ إِنْسَانٍ.",
+"tr":"Özgürlük her insan için temel bir haktır."
+}
+},
+{
+"ar":"سَفَرٌ",
+"kok":"سفر",
+"tur":"Mastar",
+"anlam":"yolculuk, seyahat",
+"ornek":{
+"ar":"كَانَ سَفَرُهُ طَوِيلًا وَمُتْعِبًا.",
+"tr":"Yolculuğu uzun ve yorucuydu."
+}
+},
+{
+"ar":"جَدِيدٌ",
+"kok":"جدد",
+"tur":"Sıfat",
+"anlam":"yeni, taze",
+"ornek":{
+"ar":"هَذَا كِتَابٌ جَدِيدٌ.",
+"tr":"Bu yeni bir kitaptır."
+}
+},
+{
+"ar":"شَكْلٌ",
+"kok":"شكل",
+"tur":"İsim",
+"anlam":"biçim, şekil",
+"ornek":{
+"ar":"غَيَّرَ شَكْلَ الْبَيْتِ.",
+"tr":"Evin şeklini değiştirdi."
+}
+},
+{
+"ar":"سِرٌّ",
+"kok":"سرر",
+"tur":"İsim",
+"anlam":"gizli şey, sır",
+"ornek":{
+"ar":"كَشَفَ السِّرَّ لِصَدِيقِهِ.",
+"tr":"Sırrı arkadaşına açıkladı."
+}
+},
+{
+"ar":"ثِقَةٌ",
+"kok":"وثق",
+"tur":"Mastar",
+"anlam":"güven, itimat",
+"ornek":{
+"ar":"لَدَيَّ ثِقَةٌ كَامِلَةٌ بِهِ.",
+"tr":"Ona tam güvenim var."
+}
+},
+{
+"ar":"رَبِيعٌ",
+"kok":"ربع",
+"tur":"İsim",
+"anlam":"ilkbahar, bahar mevsimi",
+"ornek":{
+"ar":"يَأْتِي الرَّبِيعُ بَعْدَ الشِّتَاءِ.",
+"tr":"Bahar kıştan sonra gelir."
+}
+},
+{
+"ar":"أَخَذَ",
+"kok":"اخذ",
+"tur":"Mazî Fiil",
+"anlam":"aldı, tuttu",
+"ornek":{
+"ar":"أَخَذَ الْكِتَابَ مِنَ الْمَكْتَبَةِ.",
+"tr":"Kitabı kütüphaneden aldı."
+}
+},
+{
+"ar":"مَرِيضٌ",
+"kok":"مرض",
+"tur":"İsim",
+"anlam":"hasta, rahatsız",
+"ornek":{
+"ar":"الرَّجُلُ مَرِيضٌ جِدًّا.",
+"tr":"Adam çok hasta."
+}
+},
+{
+"ar":"لَحْمٌ",
+"kok":"لحم",
+"tur":"İsim",
+"anlam":"et, kas",
+"ornek":{
+"ar":"أَكَلْتُ لَحْمًا طَازَجًا.",
+"tr":"Taze et yedim."
+}
+},
+{
+"ar":"صَدْقٌ",
+"kok":"صدق",
+"tur":"Mastar",
+"anlam":"doğruluk, gerçeklik",
+"ornek":{
+"ar":"الصِّدْقُ نَجَاةٌ.",
+"tr":"Doğruluk kurtuluştur."
+}
+},
+{
+"ar":"بُرْجٌ",
+"kok":"برج",
+"tur":"İsim",
+"anlam":"burç, kule",
+"ornek":{
+"ar":"صَعِدْنَا إِلَى أَعْلَى الْبُرْجِ لِنَرَى الْمَدِينَةَ.",
+"tr":"Şehri görmek için kulenin tepesine çıktık."
+}
+},
+{
+"ar":"سَعِيدٌ",
+"kok":"سعد",
+"tur":"Sıfat",
+"anlam":"mutlu, sevinçli",
+"ornek":{
+"ar":"هُوَ رَجُلٌ سَعِيدٌ بِحَيَاتِهِ.",
+"tr":"O, hayatından mutlu bir adamdır."
+}
+},
+{
+"ar":"اِسْمٌ",
+"kok":"سمو",
+"tur":"İsim",
+"anlam":"ad, isim",
+"ornek":{
+"ar":"مَا اِسْمُكَ؟",
+"tr":"Adın ne?"
+}
+},
+{
+"ar":"رِيَاضَةٌ",
+"kok":"روض",
+"tur":"Mastar",
+"anlam":"spor, egzersiz",
+"ornek":{
+"ar":"أُحِبُّ رِيَاضَةَ كُرَةِ الْقَدَمِ.",
+"tr":"Futbol sporunu seviyorum."
+}
+},
+{
+"ar":"عَاصِفَةٌ",
+"kok":"عصف",
+"tur":"İsim",
+"anlam":"fırtına, şiddetli rüzgar",
+"ornek":{
+"ar":"هَبَّتْ عَاصِفَةٌ قَوِيَّةٌ عَلَى الْمَدِينَةِ.",
+"tr":"Şehre şiddetli bir fırtına esti."
+}
+},
+{
+"ar":"شَهْرٌ",
+"kok":"شهر",
+"tur":"İsim",
+"anlam":"ay, kameri ay",
+"ornek":{
+"ar":"هَذَا الشَّهْرُ مُبَارَكٌ.",
+"tr":"Bu ay mübarektir."
+}
+},
+{
+"ar":"مَلِكٌ",
+"kok":"ملك",
+"tur":"İsim",
+"anlam":"hükümdar, kral",
+"ornek":{
+"ar":"الْمَلِكُ عَادِلٌ فِي حُكْمِهِ.",
+"tr":"Kral, yönetiminde adildir."
+}
+},
+{
+"ar":"أَخٌ",
+"kok":"أخو",
+"tur":"İsim",
+"anlam":"erkek kardeş, abi",
+"ornek":{
+"ar":"هَذَا أَخِي الْكَبِيرُ.",
+"tr":"Bu benim büyük erkek kardeşim."
+}
+},
+{
+"ar":"بَيْتٌ",
+"kok":"بيت",
+"tur":"İsim",
+"anlam":"ev, konut",
+"ornek":{
+"ar":"هَذَا بَيْتٌ جَمِيلٌ.",
+"tr":"Bu güzel bir evdir."
+}
+},
+{
+"ar":"ضَيِّقٌ",
+"kok":"ضيق",
+"tur":"Sıfat",
+"anlam":"dar, sıkışık",
+"ornek":{
+"ar":"هَذَا الشَّارِعُ ضَيِّقٌ جِدًّا.",
+"tr":"Bu cadde çok dardır."
+}
+},
+{
+"ar":"كِتَابٌ",
+"kok":"كتب",
+"tur":"İsim",
+"anlam":"kitap, mektup",
+"ornek":{
+"ar":"قَرَأْتُ كِتَابًا مُفِيدًا.",
+"tr":"Faydalı bir kitap okudum."
+}
+},
+{
+"ar":"غَابَةٌ",
+"kok":"غوب",
+"tur":"İsim",
+"anlam":"orman, sık ağaçlık",
+"ornek":{
+"ar":"تُغَطِّي الْغَابَاتُ مِسَاحَاتٍ وَاسِعَةً مِنَ الْأَرْضِ.",
+"tr":"Ormanlar yeryüzünün geniş alanlarını kaplar."
+}
+},
+{
+"ar":"عَدْلٌ",
+"kok":"عدل",
+"tur":"Mastar",
+"anlam":"adalet, doğruluk",
+"ornek":{
+"ar":"الْعَدْلُ أَسَاسُ الْمُلْكِ.",
+"tr":"Adalet mülkün temelidir."
+}
+},
+{
+"ar":"مُمْتَلِئٌ",
+"kok":"ملا",
+"tur":"İsim",
+"anlam":"dolu, dolmuş",
+"ornek":{
+"ar":"الْكُوبُ مُمْتَلِئٌ بِالْمَاءِ.",
+"tr":"Bardak su ile dolu."
+}
+},
+{
+"ar":"رَجَعَ",
+"kok":"رجع",
+"tur":"Mazî Fiil",
+"anlam":"döndü, geri geldi",
+"ornek":{
+"ar":"رَجَعَ الطَّالِبُ إِلَى بَيْتِهِ بَعْدَ الدِّرَاسَةِ.",
+"tr":"Öğrenci dersten sonra evine döndü."
+}
+},
+{
+"ar":"حَزِينٌ",
+"kok":"حزن",
+"tur":"Sıfat",
+"anlam":"üzgün, kederli",
+"ornek":{
+"ar":"كَانَ الرَّجُلُ حَزِينًا جِدًّا بَعْدَ فَقْدِهِ.",
+"tr":"Adam kaybından sonra çok üzgündü."
+}
+},
+{
+"ar":"نَقَصَ",
+"kok":"نقص",
+"tur":"Mazî Fiil",
+"anlam":"eksildi, azaldı",
+"ornek":{
+"ar":"نَقَصَ الْمَالُ.",
+"tr":"Mal eksildi."
+}
+},
+{
+"ar":"دَفَعَ",
+"kok":"دفع",
+"tur":"Mazî Fiil",
+"anlam":"itti, ödedi",
+"ornek":{
+"ar":"دَفَعَ الرَّجُلُ الْفَاتُورَةَ.",
+"tr":"Adam faturayı ödedi."
+}
+},
+{
+"ar":"رَبِحَ",
+"kok":"ربح",
+"tur":"Mazî Fiil",
+"anlam":"kazandı, kâr etti",
+"ornek":{
+"ar":"رَبِحَ التَّاجِرُ فِي صَفْقَتِهِ.",
+"tr":"Tüccar anlaşmasında kar etti."
+}
+},
+{
+"ar":"ثَمَرَةٌ",
+"kok":"ثمر",
+"tur":"İsim",
+"anlam":"meyve, ürün",
+"ornek":{
+"ar":"أَكَلْتُ ثَمَرَةً لَذِيذَةً.",
+"tr":"Lezzetli bir meyve yedim."
+}
+},
+{
+"ar":"سَكَنَ",
+"kok":"سكن",
+"tur":"Mazî Fiil",
+"anlam":"ikamet etti, oturdu",
+"ornek":{
+"ar":"سَكَنَ الرَّجُلُ فِي الْبَيْتِ الْجَدِيدِ.",
+"tr":"Adam yeni evde oturdu."
+}
+},
+{
+"ar":"مَحَطَّةٌ",
+"kok":"حطط",
+"tur":"İsim",
+"anlam":"istasyon, durak",
+"ornek":{
+"ar":"وَصَلْتُ إِلَى الْمَحَطَّةِ مُتَأَخِّرًا.",
+"tr":"İstasyona geç vardım."
+}
+},
+{
+"ar":"حَقِيبَةٌ",
+"kok":"حقب",
+"tur":"İsim",
+"anlam":"çanta, bavul",
+"ornek":{
+"ar":"وَضَعْتُ الْكُتُبَ فِي الْحَقِيبَةِ.",
+"tr":"Kitapları çantaya koydum."
+}
+},
+{
+"ar":"تَلٌّ",
+"kok":"تلل",
+"tur":"İsim",
+"anlam":"tepe, höyük",
+"ornek":{
+"ar":"صَعِدْنَا إِلَى التَّلِّ لِنَرَى الْمَنْظَرَ.",
+"tr":"Manzarayı görmek için tepeye çıktık."
+}
+},
+{
+"ar":"شَرَابٌ",
+"kok":"شرب",
+"tur":"İsim",
+"anlam":"içecek, şerbet",
+"ornek":{
+"ar":"هَذَا شَرَابٌ لَذِيذٌ.",
+"tr":"Bu lezzetli bir içecektir."
+}
+},
+{
+"ar":"سَفِينَةٌ",
+"kok":"سفن",
+"tur":"İsim",
+"anlam":"gemi, tekne",
+"ornek":{
+"ar":"أَبْحَرَتِ السَّفِينَةُ فِي الْمَسَاءِ.",
+"tr":"Gemi akşam yola çıktı."
+}
+},
+{
+"ar":"ثَعْلَبٌ",
+"kok":"ثعلب",
+"tur":"İsim",
+"anlam":"tilki, kurnaz kimse",
+"ornek":{
+"ar":"رَأَيْتُ ثَعْلَبًا فِي الْغَابَةِ.",
+"tr":"Ormanda bir tilki gördüm."
+}
+},
+{
+"ar":"مَطْعَمٌ",
+"kok":"طعم",
+"tur":"İsim",
+"anlam":"lokanta, restoran",
+"ornek":{
+"ar":"ذَهَبْنَا إِلَى مَطْعَمٍ جَدِيدٍ لِتَنَاوُلِ الْعَشَاءِ.",
+"tr":"Akşam yemeği yemek için yeni bir restorana gittik."
+}
+},
+{
+"ar":"مَشْغُولٌ",
+"kok":"شغل",
+"tur":"İsim",
+"anlam":"meşgul, işi başından aşkın",
+"ornek":{
+"ar":"أَنَا مَشْغُولٌ بِالْعَمَلِ الْيَوْمَ.",
+"tr":"Bugün işle meşgulüm."
+}
+},
+{
+"ar":"بَاعَ",
+"kok":"بيع",
+"tur":"Mazî Fiil",
+"anlam":"sattı, elden çıkardı",
+"ornek":{
+"ar":"بَاعَ التَّاجِرُ الْبِضَاعَةَ بِسِعْرٍ مُنَاسِبٍ.",
+"tr":"Tüccar malı uygun fiyata sattı."
+}
+},
+{
+"ar":"نَفْسٌ",
+"kok":"نفس",
+"tur":"İsim",
+"anlam":"can, ruh",
+"ornek":{
+"ar":"كُلُّ نَفْسٍ ذَائِقَةُ الْمَوْتِ.",
+"tr":"Her nefis ölümü tadacaktır."
+}
+},
+{
+"ar":"كَهْفٌ",
+"kok":"كهف",
+"tur":"İsim",
+"anlam":"mağara, in",
+"ornek":{
+"ar":"عَاشَ الرَّاهِبُ فِي كَهْفٍ بَعِيدٍ.",
+"tr":"Keşiş uzak bir mağarada yaşadı."
+}
+},
+{
+"ar":"لُغَةٌ",
+"kok":"لغو",
+"tur":"İsim",
+"anlam":"dil, lisan",
+"ornek":{
+"ar":"اللُّغَةُ الْعَرَبِيَّةُ جَمِيلَةٌ.",
+"tr":"Arap dili güzeldir."
+}
+},
+{
+"ar":"سَبَبٌ",
+"kok":"سبب",
+"tur":"İsim",
+"anlam":"sebep, neden",
+"ornek":{
+"ar":"مَا سَبَبُ تَأَخُّرِكَ؟",
+"tr":"Gecikmenizin nedeni nedir?"
+}
+},
+{
+"ar":"اِلْتَقَى",
+"kok":"لقي",
+"tur":"Mazî Fiil",
+"anlam":"buluştu, karşılaştı",
+"ornek":{
+"ar":"اِلْتَقَى الْأَصْدِقَاءُ فِي الْمَدِينَةِ.",
+"tr":"Arkadaşlar şehirde buluştu."
+}
+},
+{
+"ar":"رِيحٌ",
+"kok":"روح",
+"tur":"İsim",
+"anlam":"rüzgar, esinti",
+"ornek":{
+"ar":"هَبَّتْ رِيحٌ قَوِيَّةٌ.",
+"tr":"Şiddetli bir rüzgar esti."
+}
+},
+{
+"ar":"قَامَ",
+"kok":"قوم",
+"tur":"Mazî Fiil",
+"anlam":"ayağa kalktı, durdu",
+"ornek":{
+"ar":"قَامَ الطَّالِبُ مِنْ مَقْعَدِهِ.",
+"tr":"Öğrenci yerinden kalktı."
+}
+},
+{
+"ar":"اِنْتَهَى",
+"kok":"نهي",
+"tur":"Mazî Fiil",
+"anlam":"sona erdi, bitti",
+"ornek":{
+"ar":"اِنْتَهَى الْعَمَلُ فِي الْمَسَاءِ.",
+"tr":"İş akşam sona erdi."
+}
+},
+{
+"ar":"كَلْبٌ",
+"kok":"كلب",
+"tur":"İsim",
+"anlam":"köpek, sadık hayvan",
+"ornek":{
+"ar":"الْكَلْبُ وَفِيٌّ لِصَاحِبِهِ.",
+"tr":"Köpek sahibine sadıktır."
+}
+},
+{
+"ar":"ذَكِيٌّ",
+"kok":"ذكو",
+"tur":"Sıfat",
+"anlam":"zeki, akıllı",
+"ornek":{
+"ar":"هُوَ طَالِبٌ ذَكِيٌّ جِدًّا.",
+"tr":"O çok zeki bir öğrencidir."
+}
+},
+{
+"ar":"خَشِنٌ",
+"kok":"خشن",
+"tur":"Sıfat",
+"anlam":"sert, kaba",
+"ornek":{
+"ar":"هَذَا الْقُمَاشُ خَشِنٌ جِدًّا.",
+"tr":"Bu kumaş çok kaba."
+}
+},
+{
+"ar":"بَنَى",
+"kok":"بنى",
+"tur":"Mazî Fiil",
+"anlam":"inşa etti, kurdu",
+"ornek":{
+"ar":"بَنَى الرَّجُلُ بَيْتًا جَدِيدًا.",
+"tr":"Adam yeni bir ev inşa etti."
+}
+},
+{
+"ar":"رَخِيصٌ",
+"kok":"رخص",
+"tur":"Sıfat",
+"anlam":"ucuz, düşük değerli",
+"ornek":{
+"ar":"هَذَا الْكِتَابُ رَخِيصٌ جِدًّا.",
+"tr":"Bu kitap çok ucuz."
+}
+},
+{
+"ar":"قَلِيلٌ",
+"kok":"قلل",
+"tur":"Sıfat",
+"anlam":"az, az miktarda",
+"ornek":{
+"ar":"لَدَيْنَا وَقْتٌ قَلِيلٌ.",
+"tr":"Az vaktimiz var."
+}
+},
+{
+"ar":"رَسَمَ",
+"kok":"رسم",
+"tur":"Mazî Fiil",
+"anlam":"çizdi, resmetti",
+"ornek":{
+"ar":"رَسَمَ الْفَنَّانُ صُورَةً جَمِيلَةً.",
+"tr":"Sanatçı güzel bir resim çizdi."
+}
+},
+{
+"ar":"أَرْضٌ",
+"kok":"ارض",
+"tur":"İsim",
+"anlam":"yer, toprak",
+"ornek":{
+"ar":"الْأَرْضُ تَدُورُ حَوْلَ الشَّمْسِ.",
+"tr":"Yer güneşin etrafında döner."
+}
+},
+{
+"ar":"عُصْفُورٌ",
+"kok":"عصفر",
+"tur":"İsim",
+"anlam":"serçe, kuş",
+"ornek":{
+"ar":"رَأَيْتُ عُصْفُورًا صَغِيرًا عَلَى الشَّجَرَةِ.",
+"tr":"Ağacın üzerinde küçük bir serçe gördüm."
+}
+},
+{
+"ar":"شَرَحَ",
+"kok":"شرح",
+"tur":"Mazî Fiil",
+"anlam":"açıkladı, izah etti",
+"ornek":{
+"ar":"شَرَحَ الْمُعَلِّمُ الدَّرْسَ لِلطُّلَّابِ بِوُضُوحٍ.",
+"tr":"Öğretmen dersi öğrencilere açıkça anlattı."
+}
+},
+{
+"ar":"تَرَكَ",
+"kok":"ترك",
+"tur":"Mazî Fiil",
+"anlam":"terk etti, bıraktı",
+"ornek":{
+"ar":"تَرَكَ الرَّجُلُ بَيْتَهُ وَذَهَبَ إِلَى الْعَمَلِ.",
+"tr":"Adam evini terk etti ve işe gitti."
+}
+},
+{
+"ar":"نَسِيَ",
+"kok":"نسي",
+"tur":"Mazî Fiil",
+"anlam":"unuttu, hatırından çıkardı",
+"ornek":{
+"ar":"نَسِيَ الطَّالِبُ كُتُبَهُ فِي الْبَيْتِ.",
+"tr":"Öğrenci kitaplarını evde unuttu."
+}
+},
+{
+"ar":"نَاعِمٌ",
+"kok":"نعم",
+"tur":"Sıfat",
+"anlam":"yumuşak, narin",
+"ornek":{
+"ar":"هَذَا الْقُمَاشُ نَاعِمٌ جِدًّا.",
+"tr":"Bu kumaş çok yumuşak."
+}
+},
+{
+"ar":"اِسْتَرَاحَ",
+"kok":"روح",
+"tur":"Mazî Fiil",
+"anlam":"dinlendi, istirahat etti",
+"ornek":{
+"ar":"اِسْتَرَاحَ الرَّجُلُ بَعْدَ عَمَلٍ شَاقٍّ.",
+"tr":"Adam zorlu bir işten sonra rahatladı."
+}
+},
+{
+"ar":"جِسْرٌ",
+"kok":"جسر",
+"tur":"İsim",
+"anlam":"köprü, geçit",
+"ornek":{
+"ar":"عَبَرْنَا الْجِسْرَ إِلَى الضَّفَّةِ الْأُخْرَى.",
+"tr":"Köprüyü geçerek diğer yakaya ulaştık."
+}
+},
+{
+"ar":"دَرَسَ",
+"kok":"درس",
+"tur":"Mazî Fiil",
+"anlam":"ders çalıştı, inceledi",
+"ornek":{
+"ar":"دَرَسَ الطَّالِبُ الدَّرْسَ بِاجْتِهَادٍ.",
+"tr":"Öğrenci dersi gayretle çalıştı."
+}
+},
+{
+"ar":"خَسِرَ",
+"kok":"خسر",
+"tur":"Mazî Fiil",
+"anlam":"zarara uğradı, kaybetti",
+"ornek":{
+"ar":"خَسِرَ التَّاجِرُ مَالَهُ.",
+"tr":"Tüccar malını kaybetti."
+}
+},
+{
+"ar":"ضَاعَ",
+"kok":"ضيع",
+"tur":"Mazî Fiil",
+"anlam":"kayboldu, yitirildi",
+"ornek":{
+"ar":"ضَاعَ مِفْتَاحُ السَّيَّارَةِ فِي الْحَدِيقَةِ.",
+"tr":"Arabanın anahtarı bahçede kayboldu."
+}
+},
+{
+"ar":"رَأَى",
+"kok":"رأي",
+"tur":"Mazî Fiil",
+"anlam":"gördü, fark etti",
+"ornek":{
+"ar":"رَأَيْتُ الْقَمَرَ فِي السَّمَاءِ.",
+"tr":"Gökyüzünde ayı gördüm."
+}
+},
+{
+"ar":"مُغْلَقٌ",
+"kok":"غلق",
+"tur":"İsim",
+"anlam":"kapalı, kilitli",
+"ornek":{
+"ar":"الْبَابُ مُغْلَقٌ بِإِحْكَامٍ.",
+"tr":"Kapı sıkıca kapalı."
+}
+},
+{
+"ar":"قِطَّةٌ",
+"kok":"قطط",
+"tur":"İsim",
+"anlam":"dişi kedi, kedi",
+"ornek":{
+"ar":"لَدَيْنَا قِطَّتَانِ جَمِيلَتَانِ.",
+"tr":"İki güzel kedimiz var."
+}
+},
+{
+"ar":"دَخَلَ",
+"kok":"دخل",
+"tur":"Mazî Fiil",
+"anlam":"girdi, dahil oldu",
+"ornek":{
+"ar":"دَخَلَ الطَّالِبُ الْفَصْلَ.",
+"tr":"Öğrenci sınıfa girdi."
+}
+},
+{
+"ar":"فَقِيرٌ",
+"kok":"فقر",
+"tur":"Sıfat",
+"anlam":"yoksul, fakir",
+"ornek":{
+"ar":"كَانَ الرَّجُلُ فَقِيرًا جِدًّا.",
+"tr":"Adam çok fakirdi."
+}
+},
+{
+"ar":"رَمْلٌ",
+"kok":"رمل",
+"tur":"İsim",
+"anlam":"kum, çöl kumu",
+"ornek":{
+"ar":"يُغَطِّي الرَّمْلُ الصَّحْرَاءَ.",
+"tr":"Kum, çölü kaplar."
+}
+},
+{
+"ar":"مَفْتُوحٌ",
+"kok":"فتح",
+"tur":"İsim",
+"anlam":"açık, kilidi açılmış",
+"ornek":{
+"ar":"الْبَابُ مَفْتُوحٌ.",
+"tr":"Kapı açık."
+}
+},
+{
+"ar":"حُرٌّ",
+"kok":"حرر",
+"tur":"Sıfat",
+"anlam":"özgür, hür",
+"ornek":{
+"ar":"الإِنْسَانُ حُرٌّ بِطَبِيعَتِهِ.",
+"tr":"İnsan doğası gereği özgürdür."
+}
+},
+{
+"ar":"قَانُونٌ",
+"kok":"قنن",
+"tur":"İsim",
+"anlam":"yasa, kanun",
+"ornek":{
+"ar":"هَذَا قَانُونٌ جَدِيدٌ.",
+"tr":"Bu yeni bir kanundur."
+}
+},
+{
+"ar":"حُكُومَةٌ",
+"kok":"حكم",
+"tur":"İsim",
+"anlam":"hükümet, yönetim",
+"ornek":{
+"ar":"شَكَّلَتِ الْحُكُومَةُ الْجَدِيدَةُ.",
+"tr":"Yeni hükümet kuruldu."
+}
+},
+{
+"ar":"سَيِّدٌ",
+"kok":"سود",
+"tur":"İsim",
+"anlam":"efendi, bey",
+"ornek":{
+"ar":"السَّيِّدُ يُرْشِدُ الْعُمَّالَ.",
+"tr":"Efendi işçilere rehberlik ediyor."
+}
+},
+{
+"ar":"دَوَاءٌ",
+"kok":"دوي",
+"tur":"İsim",
+"anlam":"ilaç, deva",
+"ornek":{
+"ar":"هَذَا الدَّوَاءُ فَعَّالٌ لِلصُّدَاعِ.",
+"tr":"Bu ilaç baş ağrısı için etkilidir."
+}
+},
+{
+"ar":"كُرْسِيٌّ",
+"kok":"كرس",
+"tur":"İsim",
+"anlam":"sandalye, koltuk",
+"ornek":{
+"ar":"جَلَسَ الطَّالِبُ عَلَى الْكُرْسِيِّ.",
+"tr":"Öğrenci sandalyeye oturdu."
+}
+},
+{
+"ar":"خَطِيرٌ",
+"kok":"خطر",
+"tur":"Sıfat",
+"anlam":"tehlikeli, mühim",
+"ornek":{
+"ar":"هَذَا الْأَمْرُ خَطِيرٌ جِدًّا.",
+"tr":"Bu mesele çok tehlikelidir."
+}
+},
+{
+"ar":"صَعِدَ",
+"kok":"صعد",
+"tur":"Mazî Fiil",
+"anlam":"yukarı çıktı, yükseldi",
+"ornek":{
+"ar":"صَعِدَ الرَّجُلُ الْجَبَلَ بِسُهُولَةٍ.",
+"tr":"Adam kolayca dağa çıktı."
+}
+},
+{
+"ar":"هَدِيَّةٌ",
+"kok":"هدي",
+"tur":"İsim",
+"anlam":"hediye, armağan",
+"ornek":{
+"ar":"قَدَّمْتُ هَدِيَّةً لِصَدِيقِي.",
+"tr":"Arkadaşıma bir hediye takdim ettim."
+}
+},
+{
+"ar":"ضَحِكَ",
+"kok":"ضحك",
+"tur":"Mazî Fiil",
+"anlam":"güldü, neşelendi",
+"ornek":{
+"ar":"ضَحِكَ الطِّفْلُ بِصَوْتٍ عَالٍ.",
+"tr":"Çocuk yüksek sesle güldü."
+}
+},
+{
+"ar":"قَطَّعَ",
+"kok":"قطع",
+"tur":"Mazî Fiil",
+"anlam":"parçalara ayırdı, kesti",
+"ornek":{
+"ar":"قَطَّعَ اللَّحْمَ إِلَى قِطَعٍ صَغِيرَةٍ.",
+"tr":"Eti küçük parçalara ayırdı."
+}
+},
+{
+"ar":"حَجَرٌ",
+"kok":"حجر",
+"tur":"İsim",
+"anlam":"taş, kaya",
+"ornek":{
+"ar":"وَجَدْتُ حَجَرًا كَبِيرًا فِي الطَّرِيقِ.",
+"tr":"Yolda büyük bir taş buldum."
+}
+},
+{
+"ar":"لَحْظَةٌ",
+"kok":"لحظ",
+"tur":"İsim",
+"anlam":"an, kısa süre",
+"ornek":{
+"ar":"اِنْتَظِرْنِي لَحْظَةً.",
+"tr":"Beni bir an bekle."
+}
+},
+{
+"ar":"أُسْبُوعٌ",
+"kok":"سبع",
+"tur":"İsim",
+"anlam":"hafta, yedi günlük süre",
+"ornek":{
+"ar":"سَأَسَافِرُ فِي الْأُسْبُوعِ الْقَادِمِ.",
+"tr":"Gelecek hafta seyahat edeceğim."
+}
+},
+{
+"ar":"غَنَّى",
+"kok":"غنى",
+"tur":"Mazî Fiil",
+"anlam":"şarkı söyledi, nağme yaptı",
+"ornek":{
+"ar":"غَنَّى الطَّائِرُ فَوْقَ الشَّجَرَةِ.",
+"tr":"Kuş ağacın üstünde şarkı söyledi."
+}
+},
+{
+"ar":"صَغِيرٌ",
+"kok":"صغر",
+"tur":"Sıfat",
+"anlam":"küçük, ufak",
+"ornek":{
+"ar":"هَذَا بَيْتٌ صَغِيرٌ جِدًّا.",
+"tr":"Bu çok küçük bir evdir."
+}
+},
+{
+"ar":"تَجْرِبَةٌ",
+"kok":"جرب",
+"tur":"Mastar",
+"anlam":"deneyim, tecrübe",
+"ornek":{
+"ar":"لَدَيْهِ تَجْرِبَةٌ كَبِيرَةٌ فِي هَذَا الْمَجَالِ.",
+"tr":"Bu alanda büyük bir deneyimi var."
+}
+},
+{
+"ar":"خَرِيفٌ",
+"kok":"خرف",
+"tur":"İsim",
+"anlam":"sonbahar, güz",
+"ornek":{
+"ar":"تَتَسَاقَطُ الْأَوْرَاقُ فِي الْخَرِيفِ.",
+"tr":"Yapraklar sonbaharda dökülür."
+}
+},
+{
+"ar":"رِحْلَةٌ",
+"kok":"رحل",
+"tur":"İsim",
+"anlam":"yolculuk, seyahat",
+"ornek":{
+"ar":"كَانَتْ رِحْلَةٌ مُمْتِعَةٌ إِلَى الْجَبَلِ.",
+"tr":"Dağa keyifli bir yolculuktu."
+}
+},
+{
+"ar":"غَنِيٌّ",
+"kok":"غنى",
+"tur":"Sıfat",
+"anlam":"zengin, varlıklı",
+"ornek":{
+"ar":"الرَّجُلُ الْغَنِيُّ يُسَاعِدُ الْفُقَرَاءَ.",
+"tr":"Zengin adam fakirlere yardım eder."
+}
+},
+{
+"ar":"فَرَحٌ",
+"kok":"فرح",
+"tur":"Mastar",
+"anlam":"sevinç, neşe",
+"ornek":{
+"ar":"شَعَرْتُ بِفَرَحٍ كَبِيرٍ.",
+"tr":"Büyük bir sevinç hissettim."
+}
+},
+{
+"ar":"شَفَةٌ",
+"kok":"شفه",
+"tur":"İsim",
+"anlam":"dudak, ağız kenarı",
+"ornek":{
+"ar":"لَهَا شَفَةٌ جَمِيلَةٌ.",
+"tr":"Onun güzel bir dudağı var."
+}
+},
+{
+"ar":"شَعَرَ",
+"kok":"شعر",
+"tur":"Mazî Fiil",
+"anlam":"hissetti, duyumsadı",
+"ornek":{
+"ar":"شَعَرَ بِالْفَرَحِ الشَّدِيدِ.",
+"tr":"Büyük bir sevinç hissetti."
+}
+},
+{
+"ar":"اِمْرَأَةٌ",
+"kok":"مرأ",
+"tur":"İsim",
+"anlam":"kadın, hanım",
+"ornek":{
+"ar":"هَذِهِ اِمْرَأَةٌ جَمِيلَةٌ.",
+"tr":"Bu güzel bir kadındır."
+}
+},
+{
+"ar":"سَلِيمٌ",
+"kok":"سلم",
+"tur":"Sıfat",
+"anlam":"sağlam, sağlıklı",
+"ornek":{
+"ar":"قَلْبُهُ سَلِيمٌ مِنْ الْحِقْدِ.",
+"tr":"Kalbi kinden arınmıştır."
+}
+},
+{
+"ar":"بُحَيْرَةٌ",
+"kok":"بحر",
+"tur":"İsim",
+"anlam":"küçük göl, gölcük",
+"ornek":{
+"ar":"تُوجَدُ بُحَيْرَةٌ جَمِيلَةٌ فِي الْقَرْيَةِ.",
+"tr":"Köyde güzel bir göl bulunmaktadır."
+}
+},
+{
+"ar":"صُورَةٌ",
+"kok":"صور",
+"tur":"İsim",
+"anlam":"resim, fotoğraf",
+"ornek":{
+"ar":"هَذِهِ صُورَةٌ جَمِيلَةٌ لِلْغُرُوبِ.",
+"tr":"Bu, gün batımının güzel bir fotoğrafı."
+}
+},
+{
+"ar":"حِصَانٌ",
+"kok":"حصن",
+"tur":"İsim",
+"anlam":"at, aygır",
+"ornek":{
+"ar":"يَرْكَبُ الْوَلَدُ الْحِصَانَ.",
+"tr":"Çocuk ata biniyor."
+}
+},
+{
+"ar":"عَامٌّ",
+"kok":"عمم",
+"tur":"Sıfat",
+"anlam":"genel, umumi",
+"ornek":{
+"ar":"هَذَا أَمْرٌ عَامٌّ لِلْجَمِيعِ.",
+"tr":"Bu, herkes için genel bir konudur."
+}
+},
+{
+"ar":"اِبْنٌ",
+"kok":"بنو",
+"tur":"İsim",
+"anlam":"oğul, erkek evlat",
+"ornek":{
+"ar":"هَذَا اِبْنِي الصَّغِيرُ.",
+"tr":"Bu benim küçük oğlum."
+}
+},
+{
+"ar":"نِعْمَةٌ",
+"kok":"نعم",
+"tur":"İsim",
+"anlam":"nimet, lütuf",
+"ornek":{
+"ar":"شَكَرْتُ اللَّهَ عَلَى نِعْمَةِ الصِّحَّةِ.",
+"tr":"Sağlık nimetinden dolayı Allah'a şükrettim."
+}
+},
+{
+"ar":"أَصْفَرُ",
+"kok":"صفر",
+"tur":"Sıfat",
+"anlam":"sarı, solgun",
+"ornek":{
+"ar":"اللَّوْنُ الْأَصْفَرُ جَمِيلٌ.",
+"tr":"Sarı renk güzeldir."
+}
+},
+{
+"ar":"اِسْتَخْدَمَ",
+"kok":"خدم",
+"tur":"Mazî Fiil",
+"anlam":"kullandı, istihdam etti",
+"ornek":{
+"ar":"اِسْتَخْدَمَ الْقَلَمَ لِكِتَابَةِ الرِّسَالَةِ.",
+"tr":"Mektubu yazmak için kalemi kullandı."
+}
+},
+{
+"ar":"أَكَلَ",
+"kok":"اكل",
+"tur":"Mazî Fiil",
+"anlam":"yedi, tüketti",
+"ornek":{
+"ar":"أَكَلَ الطَّالِبُ التُّفَّاحَةَ.",
+"tr":"Öğrenci elmayı yedi."
+}
+},
+{
+"ar":"سَاعَدَ",
+"kok":"ساعد",
+"tur":"Mazî Fiil",
+"anlam":"yardım etti, destek oldu",
+"ornek":{
+"ar":"سَاعَدَ الرَّجُلُ صَدِيقَهُ فِي حَمْلِ الْأَثْقَالِ.",
+"tr":"Adam arkadaşına ağırlıkları taşımada yardım etti."
+}
+},
+{
+"ar":"قَرَّرَ",
+"kok":"قرر",
+"tur":"Mazî Fiil",
+"anlam":"karar verdi, hükmetti",
+"ornek":{
+"ar":"قَرَّرَ الطَّالِبُ أَنْ يَدْرُسَ بِجِدٍّ.",
+"tr":"Öğrenci çok çalışmaya karar verdi."
+}
+},
+{
+"ar":"نَظِيفٌ",
+"kok":"نظف",
+"tur":"Sıfat",
+"anlam":"temiz, pak",
+"ornek":{
+"ar":"هَذَا الْبَيْتُ نَظِيفٌ جِدًّا.",
+"tr":"Bu ev çok temizdir."
+}
+},
+{
+"ar":"كَسَّرَ",
+"kok":"كسر",
+"tur":"Mazî Fiil",
+"anlam":"parçaladı, kırdı",
+"ornek":{
+"ar":"كَسَّرَ الْوَلَدُ اللُّعْبَةَ.",
+"tr":"Çocuk oyuncağı kırdı."
+}
+},
+{
+"ar":"زَادَ",
+"kok":"زيد",
+"tur":"Mazî Fiil",
+"anlam":"arttı, çoğaldı",
+"ornek":{
+"ar":"زَادَ الْمَطَرُ فِي اللَّيْلِ.",
+"tr":"Yağmur gece arttı."
+}
+},
+{
+"ar":"جَوَابٌ",
+"kok":"جوب",
+"tur":"İsim",
+"anlam":"cevap, yanıt",
+"ornek":{
+"ar":"لَمْ أَجِدْ جَوَابًا لِسُؤَالِي.",
+"tr":"Soruma bir cevap bulamadım."
+}
+},
+{
+"ar":"صَحْرَاءُ",
+"kok":"صحر",
+"tur":"İsim",
+"anlam":"çöl, ıssız yer",
+"ornek":{
+"ar":"اَلصَّحْرَاءُ وَاسِعَةٌ جِدًّا.",
+"tr":"Çöl çok geniştir."
+}
+},
+{
+"ar":"أَعْطَى",
+"kok":"عطي",
+"tur":"Mazî Fiil",
+"anlam":"verdi, bağışladı",
+"ornek":{
+"ar":"أَعْطَى الْمُعَلِّمُ الطَّالِبَ كِتَابًا.",
+"tr":"Öğretmen öğrenciye bir kitap verdi."
+}
+},
+{
+"ar":"أَغْلَقَ",
+"kok":"غلق",
+"tur":"Mazî Fiil",
+"anlam":"kapattı, kilitledi",
+"ornek":{
+"ar":"أَغْلَقَ الْبَابَ بِالْمِفْتَاحِ.",
+"tr":"Kapıyı anahtarla kapattı."
+}
+},
+{
+"ar":"رُكْبَةٌ",
+"kok":"ركب",
+"tur":"İsim",
+"anlam":"diz, diz kapağı",
+"ornek":{
+"ar":"تُؤْلِمُنِي رُكْبَتِي الْيُمْنَى.",
+"tr":"Sağ dizim ağrıyor."
+}
+},
+{
+"ar":"حِمَارٌ",
+"kok":"حمر",
+"tur":"İsim",
+"anlam":"eşek, merkep",
+"ornek":{
+"ar":"يُسْتَخْدَمُ الْحِمَارُ لِلنَّقْلِ فِي الْقُرَى.",
+"tr":"Eşekler köylerde taşıma için kullanılır."
+}
+}
+]

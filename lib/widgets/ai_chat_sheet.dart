@@ -199,7 +199,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Asistan',
+                  'AI Asistan',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -244,8 +244,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
       return '$head hakkında sor';
     }
     return _service.isPremium
-        ? 'Sözlük asistanı'
-        : 'Sözlük asistanı · ${_service.remainingUses} hak';
+        ? 'Arapça sözlük yardımcın'
+        : 'Arapça sözlük yardımcın · ${_service.remainingUses} hak';
   }
 
   Future<void> _confirmReset() async {
@@ -596,7 +596,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 color: text,
               ),
               decoration: InputDecoration(
-                hintText: 'Sorunu yaz...',
+                hintText: 'AI Asistan\'a sor...',
                 hintStyle: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,

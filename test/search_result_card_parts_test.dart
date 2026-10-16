@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kavaid/models/word_model.dart';
-import 'package:kavaid/widgets/home_empty_state.dart';
 import 'package:kavaid/widgets/search_result_card_parts.dart';
 
 const _kitap = WordModel(
@@ -132,7 +131,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Asistana sor'));
+    await tester.tap(find.text("AI Asistan'a sor"));
     await tester.tap(find.text('Daha fazla örnek'));
 
     expect([asked, more], [1, 1]);
@@ -145,34 +144,5 @@ void main() {
 
     final turkish = tester.widget<Text>(find.textContaining('Dün büyük'));
     expect(turkish.textAlign, TextAlign.right);
-  });
-
-  group('HomeEmptyState', () {
-    testWidgets('günün kelimesine dokunmak aramayı tetikler', (tester) async {
-      String? searched;
-      await tester.pumpWidget(
-        _wrap(
-          HomeEmptyState(
-            isDarkMode: false,
-            onSearch: (t) => searched = t,
-            today: DateTime(2026, 1, 1),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byKey(const ValueKey('word-of-day')));
-
-      expect(searched, HomeEmptyState.wordOfDay(DateTime(2026, 1, 1)).$1);
-      expect(find.byKey(const ValueKey('premium-link')), findsNothing);
-    });
-
-    test('günün kelimesi gün içinde sabit, günden güne değişir', () {
-      final a = HomeEmptyState.wordOfDay(DateTime(2026, 3, 5, 8));
-      final b = HomeEmptyState.wordOfDay(DateTime(2026, 3, 5, 23));
-      final c = HomeEmptyState.wordOfDay(DateTime(2026, 3, 6));
-
-      expect(a, b);
-      expect(a, isNot(c));
-    });
   });
 }

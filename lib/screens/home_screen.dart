@@ -36,7 +36,7 @@ import 'subscription_screen.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../services/language_service.dart';
 import '../widgets/campaign_banner.dart';
-import '../widgets/home_empty_state.dart';
+import '../widgets/ai_intro_banner.dart';
 import '../services/global_config_service.dart';
 
 // Arka planda arama sonuçlarını sıralama fonksiyonu kaldırıldı
@@ -89,6 +89,9 @@ class _HomeScreenState extends State<HomeScreen>
   final Expando<WordMatchType> _matchTypes = Expando('matchType');
   List<WordModel>? _groupedSource;
   List<Object> _groupedCache = const [];
+  // AI asistanını tanıtan tek seferlik bilgi kartı
+  static const _aiIntroSeenKey = 'ai_intro_seen_v1';
+  bool _showAiIntro = false;
   Timer? _debounceTimer;
   Timer? _interstitialTimer;
   StreamSubscription? _searchSubscription;
@@ -139,6 +142,22 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool _containsArabic(String s) => containsArabic(s);
 
+  Future<void> _loadAiIntro() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final seen = prefs.getBool(_aiIntroSeenKey) ?? false;
+      if (!seen && mounted) setState(() => _showAiIntro = true);
+    } catch (_) {}
+  }
+
+  Future<void> _dismissAiIntro() async {
+    setState(() => _showAiIntro = false);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_aiIntroSeenKey, true);
+    } catch (_) {}
+  }
+
   /// Arama sonu\u00E7lar\u0131n\u0131n ekranda g\u00F6sterilecek gruplanm\u0131\u015F hali. Sonu\u00E7 listesi
   /// de\u011Fi\u015Fmedik\u00E7e \u00F6nbellekten d\u00F6ner (eskiden her build'de yeniden
   /// hesaplan\u0131yordu).
@@ -153,6 +172,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+    _loadAiIntro();
 
     _searchController.addListener(_onSearchChanged);
 
@@ -2872,6 +2892,16 @@ class _HomeScreenState extends State<HomeScreen>
         // Eşleşme tipine göre gruplanmış sonuç listesi (sonuç değişmedikçe
         // yeniden hesaplanmaz)
         final groupedResults = _groupedSearchResults();
+        if (_showAiIntro) {
+          slivers.add(
+            SliverToBoxAdapter(
+              child: AiIntroBanner(
+                isDarkMode: widget.isDarkMode,
+                onDismiss: _dismissAiIntro,
+              ),
+            ),
+          );
+        }
         if (_shouldShowReviewPrompt) {
           slivers.add(SliverToBoxAdapter(child: _buildReviewPromptCard()));
         }
@@ -3259,27 +3289,191 @@ class _HomeScreenState extends State<HomeScreen>
                       return CampaignBanner(isDarkMode: widget.isDarkMode);
                     },
                   ),
-                HomeEmptyState(
-                  isDarkMode: widget.isDarkMode,
-                  onSearch: (text) {
-                    _searchController.text = text;
-                    _searchController.selection = TextSelection.collapsed(
-                      offset: text.length,
-                    );
-                  },
-                  onPremiumTap:
-                      (_creditsService.isPremium ||
-                          _creditsService.isLifetimeAdsFree)
-                      ? null
-                      : () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SubscriptionScreen(),
+                Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    color: widget.isDarkMode
+                        ? Colors.white.withValues(alpha: 0.03)
+                        : Colors.black.withValues(alpha: 0.02),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: widget.isDarkMode
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.black.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      if (LanguageService().isTurkish)
+                        Text(
+                          'Kavaid Arapça Sözlük',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: widget.isDarkMode
+                                ? Colors.white
+                                : const Color(0xFF1C1C1E),
+                            letterSpacing: -0.5,
+                            fontFamily: 'Inter', // Uygulamanın ana fontu
+                          ),
+                        ),
+                      if (LanguageService().isTurkish)
+                        const SizedBox(height: 12),
+                      if (LanguageService().isTurkish)
+                        Text(
+                          'Yeni nesil yapay zeka destekli ilk Arapça sözlük',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            height: 1.4,
+                            color: widget.isDarkMode
+                                ? const Color(0xFFBBBBBB)
+                                : const Color(0xFF444446),
+                          ),
+                        ),
+                      if (LanguageService().isEnglish)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'The first AI-powered Arabic dictionary',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                              color: widget.isDarkMode
+                                  ? const Color(0xFFBBBBBB)
+                                  : const Color(0xFF444446),
                             ),
-                          );
-                        },
+                          ),
+                        ),
+                      if (LanguageService().isArabic)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Text(
+                            'أول قاموس عربي مدعوم بالذكاء الاصطناعي',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              height: 1.4,
+                              color: widget.isDarkMode
+                                  ? const Color(0xFFBBBBBB)
+                                  : const Color(0xFF444446),
+                            ),
+                          ),
+                        ),
+                      if (LanguageService().isEnglish ||
+                          LanguageService().isArabic)
+                        const SizedBox(height: 12),
+                      if (LanguageService().isTurkish)
+                        const SizedBox(height: 28),
+                      if (LanguageService().isTurkish)
+                        _buildInfoRow(
+                          Icons.search_rounded,
+                          'Sınırsız Kelime',
+                          'Yapay zeka ile sınırsız kelime arayın.',
+                          widget.isDarkMode,
+                        ),
+                      if (LanguageService().isTurkish)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Divider(height: 1, thickness: 0.5),
+                        ),
+                      if (LanguageService().isTurkish)
+                        _buildInfoRow(
+                          Icons.menu_book_rounded,
+                          'Gramer Yapıları',
+                          'Kelimelerin gramer yapılarını öğrenin.',
+                          widget.isDarkMode,
+                        ),
+                      if (LanguageService().isTurkish)
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          child: Divider(height: 1, thickness: 0.5),
+                        ),
+                      if (LanguageService().isTurkish)
+                        _buildInfoRow(
+                          Icons.style_rounded,
+                          'Kişisel Listeler',
+                          'Kendi kelime listelerinizi ve kartlarınızı oluşturun.',
+                          widget.isDarkMode,
+                        ),
+                    ],
+                  ),
                 ),
+                if (LanguageService().isTurkish &&
+                    !(_creditsService.isPremium ||
+                        _creditsService.isLifetimeAdsFree))
+                  const SizedBox(height: 20),
+                if (LanguageService().isTurkish &&
+                    !(_creditsService.isPremium ||
+                        _creditsService.isLifetimeAdsFree))
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.workspace_premium_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              'Sınırsız erişim için Premium\'a yükselt',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right_rounded,
+                            color: Colors.white70,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

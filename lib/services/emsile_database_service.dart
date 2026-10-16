@@ -317,6 +317,18 @@ class EmsileDatabaseService {
     return _parseResults(results);
   }
 
+  /// Kimliğine göre tek fiil kaydı (kayıtlı listeler için).
+  Future<Map<String, dynamic>?> getById(int id) async {
+    final db = await instance.database;
+    final results = await db.rawQuery(
+      'SELECT * FROM emsile WHERE id = ? LIMIT 1',
+      [id],
+    );
+    if (results.isEmpty) return null;
+    final parsed = _parseResults(results);
+    return parsed.isNotEmpty ? parsed.first : null;
+  }
+
   /// Mazi formuna göre emsile kaydı ara (sözlük entegrasyonu için)
   Future<Map<String, dynamic>?> searchByMazi(String maziForm) async {
     final db = await instance.database;

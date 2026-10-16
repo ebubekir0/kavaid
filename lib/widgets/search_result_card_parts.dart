@@ -577,7 +577,7 @@ class AiAssistPills extends StatelessWidget {
     final lang = LanguageService();
     final ask = lang.isEnglish
         ? 'Ask assistant'
-        : (lang.isArabic ? 'اسأل المساعد' : 'Asistana sor');
+        : (lang.isArabic ? 'اسأل المساعد' : 'AI Asistan\'a sor');
     final more = lang.isEnglish ? 'More examples' : 'Daha fazla örnek';
     return Wrap(
       spacing: 8,

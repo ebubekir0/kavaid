@@ -53,6 +53,41 @@ class QuranWordModel {
     );
   }
 
+  /// Listeye kaydetmek için düz haritaya çevirir.
+  Map<String, dynamic> toMap() => {
+    'kelime': kelime,
+    'kok': kok,
+    'anlamlar': anlamlar,
+    'ayetler': [
+      for (final a in ayetOrnekleri)
+        {'sureAyet': a.sureAyet, 'arapcaMetin': a.arapcaMetin, 'meal': a.meal},
+    ],
+  };
+
+  factory QuranWordModel.fromMap(Map<String, dynamic> map) {
+    final kelime = map['kelime']?.toString() ?? '';
+    final kok = map['kok']?.toString() ?? '';
+    final anlamlar = map['anlamlar']?.toString() ?? '';
+    final ayetler = <QuranAyetOrnek>[
+      for (final a in (map['ayetler'] as List<dynamic>? ?? const []))
+        if (a is Map)
+          QuranAyetOrnek(
+            sureAyet: a['sureAyet']?.toString() ?? '',
+            arapcaMetin: a['arapcaMetin']?.toString() ?? '',
+            meal: a['meal']?.toString() ?? '',
+          ),
+    ];
+    return QuranWordModel(
+      kelime: kelime,
+      kok: kok,
+      anlamlar: anlamlar,
+      ayetOrnekleri: ayetler,
+      normalizedKelime: _stripArabicDiacritics(kelime),
+      normalizedKok: _stripArabicDiacritics(kok),
+      normalizedAnlamlar: anlamlar.toLowerCase(),
+    );
+  }
+
   /// Anlamları virgülle ayrılmış liste olarak döndür
   List<String> get anlamListesi {
     return anlamlar

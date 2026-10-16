@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:google_fonts/google_fonts.dart';
+import '../models/custom_word.dart';
+import 'save_button.dart';
 
 /// Emsile Ekran\u0131
 /// - Kapal\u0131 sat\u0131r: RTL  [G\u0130TMEK ............. \u0630\u064e\u0647\u064e\u0628\u064e  \u064a\u064e\u0630\u0652\u0647\u064e\u0628\u0640\u064f  \u203a]
@@ -17,6 +19,10 @@ class EmsileView extends StatefulWidget {
   final bool hasMore;
   final bool isSearchMode;
 
+  /// Verilirse kaydet düğmesi "listede" görünür ve bu çağrıyı yapar
+  /// (kayıtlı listeler ekranında).
+  final VoidCallback? onRemove;
+
   const EmsileView({
     super.key,
     required this.isDarkMode,
@@ -28,6 +34,7 @@ class EmsileView extends StatefulWidget {
     this.onLoadFreeTap,
     this.hasMore = false,
     this.isSearchMode = false,
+    this.onRemove,
   });
 
   @override
@@ -372,6 +379,13 @@ class _EmsileViewState extends State<EmsileView> {
                         child: Icon(Icons.keyboard_arrow_down_rounded,
                             color: _ccArrow, size: 24),
                       ),
+                  if (!locked)
+                    SaveButton(
+                      target: SaveTarget.fromEmsile(verb),
+                      isDarkMode: widget.isDarkMode,
+                      onRemove: widget.onRemove,
+                      checkDelay: Duration(milliseconds: 700 + (verbId & 0x7f)),
+                    ),
                   const SizedBox(width: 8),
                   
                   // 2. Sol: Anlam (Sayı prefixi yok)

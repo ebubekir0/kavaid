@@ -5,6 +5,8 @@ import 'dart:async';
 import '../models/custom_word.dart';
 import '../models/custom_word_list.dart';
 import '../services/custom_word_service.dart';
+import '../widgets/quran_word_card.dart';
+import '../widgets/saved_emsile_item.dart';
 import '../widgets/search_result_card.dart';
 import '../models/word_model.dart';
 import '../services/tts_service.dart';
@@ -940,6 +942,32 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
       },
       itemBuilder: (context, index) {
         final word = _words[index];
+
+        // Kur'an sözlüğü ve emsile kayıtları kendi kartlarıyla gösterilir
+        if (word.kind == 'quran') {
+          final quran = word.toQuranWord();
+          if (quran != null) {
+            return Container(
+              key: ValueKey('saved_${word.id}'),
+              child: QuranSearchResultCard(
+                word: quran,
+                searchQuery: '',
+                onRemove: () => _removeWord(word),
+              ),
+            );
+          }
+        }
+        if (word.kind == 'emsile') {
+          return Container(
+            key: ValueKey('saved_${word.id}'),
+            child: SavedEmsileItem(
+              word: word,
+              isDarkMode: isDarkMode,
+              onRemove: () => _removeWord(word),
+            ),
+          );
+        }
+
         // CustomWord'den tam WordModel oluştur (tüm bilgilerle)
         final wordModel = word.toWordModel();
         // Harekeli kelime varsa onu kullan

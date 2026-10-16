@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../models/custom_word.dart';
 import '../models/quran_word_model.dart';
 import 'dart:ui' as ui;
 import 'package:google_fonts/google_fonts.dart';
+import 'save_button.dart';
 
 /// Kuran sözlüğü arama sonucu kartı
 class QuranSearchResultCard extends StatefulWidget {
@@ -9,11 +11,16 @@ class QuranSearchResultCard extends StatefulWidget {
   final VoidCallback? onTap;
   final String searchQuery;
 
+  /// Verilirse kaydet düğmesi "listede" görünür ve bu çağrıyı yapar
+  /// (kayıtlı listeler ekranında).
+  final VoidCallback? onRemove;
+
   const QuranSearchResultCard({
     super.key,
     required this.word,
     this.onTap,
     required this.searchQuery,
+    this.onRemove,
   });
 
   @override
@@ -124,6 +131,14 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
                       ),
                     ),
                     const SizedBox(width: 8),
+                    SaveButton(
+                      target: SaveTarget.fromQuran(word),
+                      isDarkMode: isDarkMode,
+                      onRemove: widget.onRemove,
+                      checkDelay: Duration(
+                        milliseconds: 700 + (word.kelime.hashCode & 0x7f),
+                      ),
+                    ),
                     // Aç/Kapat Butonu
                     Container(
                       width: 28,

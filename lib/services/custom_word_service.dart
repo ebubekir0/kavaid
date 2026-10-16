@@ -239,6 +239,38 @@ class CustomWordService {
     await prefs.setString(key, json.encode(pending));
   }
 
+  /// Gönderilmeyi bekleyen işlem var mı?
+  Future<bool> _hasPendingOperations() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = _authService.currentUser?.uid ?? 'guest';
+    final data = prefs.getString('${_pendingSyncKey}_$userId');
+    if (data == null) return false;
+    try {
+      return (json.decode(data) as List).isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Firestore'da, bu listede bu öğeye karşılık gelen belgeleri siler.
+  Future<void> _deleteRemoteMatches({
+    required String listId,
+    required String arabic,
+    String? harekeli,
+  }) async {
+    final snapshot = await _firestore
+        .collection('$_userPath/$_wordsCollection')
+        .where('listId', isEqualTo: listId)
+        .where('arabic', isEqualTo: arabic)
+        .get();
+    for (final doc in snapshot.docs) {
+      final stored = CustomWord.fromMap(doc.data());
+      if (stored.isSameItem(arabic, harekeli)) {
+        await doc.reference.delete();
+      }
+    }
+  }
+
   /// Bekleyen işlemleri Firestore'a senkronize et
   Future<void> _syncPendingChangesToFirestore() async {
     if (!_isUserLoggedIn || _userPath == null) return;
@@ -317,14 +349,17 @@ class CustomWordService {
                 .delete();
             break;
           case 'remove_word_from_list':
-            final snapshot = await _firestore
+            await _deleteRemoteMatches(
+              listId: data['listId'] as String,
+              arabic: data['arabic'] as String,
+              harekeli: data['harekeli'] as String?,
+            );
+            break;
+          case 'update_word':
+            await _firestore
                 .collection('$_userPath/$_wordsCollection')
-                .where('listId', isEqualTo: data['listId'])
-                .where('arabic', isEqualTo: data['arabic'])
-                .get();
-            for (final doc in snapshot.docs) {
-              await doc.reference.delete();
-            }
+                .doc(data['id'])
+                .update({'arabic': data['arabic'], 'turkish': data['turkish']});
             break;
         }
         successfulOps.add(i);
@@ -355,6 +390,18 @@ class CustomWordService {
 
     final hasConnection = await _hasInternetConnection();
     if (!hasConnection) return;
+
+    // Önce cihazda bekleyen değişiklikleri gönder. Aksi halde aşağıda yerel
+    // kayıt Firestore'daki eski haliyle ezilir ve çevrimdışı eklenen/silinen
+    // kelimeler kaybolurdu (bekleyen işlemler yalnızca bağlantı değişince
+    // gönderiliyordu, açılışta değil).
+    await _syncPendingChangesToFirestore();
+    if (await _hasPendingOperations()) {
+      debugPrint(
+        '⏳ [CustomWordService] Bekleyen işlemler var, yerel veri korunuyor',
+      );
+      return;
+    }
 
     try {
       // Listeleri indir
@@ -647,6 +694,7 @@ class CustomWordService {
         name: newName,
         createdAt: lists[index].createdAt,
         isDefault: lists[index].isDefault,
+        isShared: lists[index].isShared,
       );
       await _saveLocalLists(lists);
     }
@@ -708,16 +756,16 @@ class CustomWordService {
     _notifyListeners();
   }
 
-  /// Kelimenin hangi listelerde olduğunu döndürür
-  Future<List<String>> getListsWithWord(String arabicWord) async {
+  /// Öğenin (sözlük kelimesi, Kur'an kelimesi, emsile fiili) hangi listelerde
+  /// kayıtlı olduğunu döndürür.
+  Future<List<String>> getListsWithTarget(SaveTarget target) async {
     if (!_isUserLoggedIn) return [];
-
-    // Yerelden kontrol et
     final words = await _getLocalWords();
-    return words
-        .where((w) => w.arabic == arabicWord && w.listId != null)
-        .map((w) => w.listId!)
-        .toList();
+    return [
+      for (final w in words)
+        if (w.listId != null && w.isSameItem(target.arabic, target.harekeli))
+          w.listId!,
+    ];
   }
 
   // ============================================================
@@ -740,19 +788,29 @@ class CustomWordService {
   }
 
   /// WordModel ile kelime ekle
-  Future<bool> addWordFromModel(WordModel wordModel, String listId) async {
+  Future<bool> addWordFromModel(WordModel wordModel, String listId) =>
+      addTarget(SaveTarget.fromWordModel(wordModel), listId);
+
+  /// Öğeyi (sözlük, Kur'an veya emsile) listeye ekler. Zaten varsa false.
+  Future<bool> addTarget(SaveTarget target, String listId) async {
     if (!_isUserLoggedIn) return false;
 
-    // Yerelden duplicate check
     final words = await _getLocalWords();
     final exists = words.any(
-      (w) => w.listId == listId && w.arabic == wordModel.kelime,
+      (w) => w.listId == listId && w.isSameItem(target.arabic, target.harekeli),
     );
     if (exists) return false;
 
-    final newWord = CustomWord.fromWordModel(wordModel, _uuid.v4(), listId);
+    final newWord = CustomWord(
+      id: _uuid.v4(),
+      arabic: target.arabic,
+      turkish: target.turkish,
+      harekeliKelime: target.harekeli,
+      wordData: target.wordData,
+      createdAt: DateTime.now(),
+      listId: listId,
+    );
 
-    // Yerele kaydet
     words.insert(0, newWord);
     await _saveLocalWords(words);
 
@@ -816,38 +874,36 @@ class CustomWordService {
     return true;
   }
 
-  /// Kelimeyi listeden kaldır
-  Future<void> removeWordFromList(String arabicWord, String listId) async {
+  /// Öğeyi listeden kaldırır.
+  Future<void> removeTargetFromList(SaveTarget target, String listId) async {
     if (!_isUserLoggedIn) return;
 
     // Yerelden kaldır
     final words = await _getLocalWords();
-    words.removeWhere((w) => w.listId == listId && w.arabic == arabicWord);
+    words.removeWhere(
+      (w) => w.listId == listId && w.isSameItem(target.arabic, target.harekeli),
+    );
     await _saveLocalWords(words);
 
     // Arka planda Firestore'dan kaldır
+    final pendingData = {
+      'listId': listId,
+      'arabic': target.arabic,
+      'harekeli': target.harekeli,
+    };
     final hasConnection = await _hasInternetConnection();
     if (hasConnection && _userPath != null) {
       try {
-        final snapshot = await _firestore
-            .collection('$_userPath/$_wordsCollection')
-            .where('listId', isEqualTo: listId)
-            .where('arabic', isEqualTo: arabicWord)
-            .get();
-        for (final doc in snapshot.docs) {
-          await doc.reference.delete();
-        }
+        await _deleteRemoteMatches(
+          listId: listId,
+          arabic: target.arabic,
+          harekeli: target.harekeli,
+        );
       } catch (e) {
-        await _addPendingOperation('remove_word_from_list', {
-          'listId': listId,
-          'arabic': arabicWord,
-        });
+        await _addPendingOperation('remove_word_from_list', pendingData);
       }
     } else {
-      await _addPendingOperation('remove_word_from_list', {
-        'listId': listId,
-        'arabic': arabicWord,
-      });
+      await _addPendingOperation('remove_word_from_list', pendingData);
     }
 
     _notifyListeners();
@@ -913,8 +969,18 @@ class CustomWordService {
             .doc(id)
             .update({'arabic': newArabic, 'turkish': newTurkish});
       } catch (e) {
-        // Pending operation eklenebilir
+        await _addPendingOperation('update_word', {
+          'id': id,
+          'arabic': newArabic,
+          'turkish': newTurkish,
+        });
       }
+    } else {
+      await _addPendingOperation('update_word', {
+        'id': id,
+        'arabic': newArabic,
+        'turkish': newTurkish,
+      });
     }
 
     _notifyListeners();

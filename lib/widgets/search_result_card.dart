@@ -6,13 +6,13 @@ import '../services/admob_service.dart';
 import '../utils/performance_utils.dart';
 import '../services/tts_service.dart';
 import '../services/turkce_analytics_service.dart';
-import '../services/auth_service.dart';
 import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:async';
-import '../services/custom_word_service.dart'; // Import for custom lists
+import '../models/custom_word.dart';
 import '../services/emsile_database_service.dart';
 import 'ai_chat_sheet.dart';
+import 'save_button.dart';
 import 'search_result_card_parts.dart';
 
 // Global expanded card controller sınıfı ve ilgili mantık kaldırıldı.
@@ -54,8 +54,6 @@ class _SearchResultCardState extends State<SearchResultCard>
   static const bool _aiTeacherFeatureEnabled = true;
 
   // PERFORMANCE: Single ticker
-  final CustomWordService _customWordService =
-      CustomWordService(); // Service instance
   final CreditsService _creditsService = CreditsService();
   final TTSService _ttsService = TTSService();
   final AdMobService _adMobService = AdMobService();
@@ -64,41 +62,17 @@ class _SearchResultCardState extends State<SearchResultCard>
   bool _isExpanded = false;
   bool _hasEverExpanded = false; // İlk defa açılma durumu için
 
-  // Kayıt durumu
-  bool _isSaved = false;
-  List<String> _savedListIds = []; // Hangi listelerde kayıtlı
-
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
   Animation<double>? _expandAnimation;
   Future<Map<String, dynamic>?>? _emsileLookupFuture;
   String? _emsileLookupMazi;
-  Timer? _savedStatusTimer;
-
-  StreamSubscription<void>? _wordChangeSubscription;
 
   // AI asistanı: kelime kartından bağımsız. Önceden kaydet/çıkar butonlarına
   // bağlıydı, bu yüzden kitap metinleri ve özel kelime listelerinde hiç
   // görünmüyordu.
   bool get _shouldShowAiTeacherButton =>
       _aiTeacherFeatureEnabled && widget.showAiTeacherButton;
-
-  @override
-  void initState() {
-    super.initState();
-    // Animasyonu hemen başlatma - sadece gerektiğinde init et
-    // Sadece sözlük görünümündeyse (showRemoveButton false ise) kayıt durumunu kontrol et
-    if (!widget.showRemoveButton) {
-      final savedStatusDelay = 700 + (widget.word.kelime.hashCode & 0x7f);
-      _savedStatusTimer = Timer(Duration(milliseconds: savedStatusDelay), () {
-        if (mounted) _checkSavedStatus();
-      });
-      // Değişiklikleri dinle
-      _wordChangeSubscription = _customWordService.onWordsChanged.listen((_) {
-        if (mounted) _checkSavedStatus();
-      });
-    }
-  }
 
   @override
   void didUpdateWidget(covariant SearchResultCard oldWidget) {
@@ -110,22 +84,8 @@ class _SearchResultCardState extends State<SearchResultCard>
     }
   }
 
-  Future<void> _checkSavedStatus() async {
-    if (!mounted) return;
-    final listIds = await _customWordService.getListsWithWord(
-      widget.word.kelime,
-    );
-    if (!mounted) return;
-    setState(() {
-      _savedListIds = listIds;
-      _isSaved = listIds.isNotEmpty;
-    });
-  }
-
   @override
   void dispose() {
-    _savedStatusTimer?.cancel();
-    _wordChangeSubscription?.cancel();
     _animationController?.dispose();
     super.dispose();
   }
@@ -347,16 +307,28 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  /// Genişlet, AI asistanı, seslendir ve kaydet butonları.
+  /// Genişlet, seslendir, kaydet ve (en sonda) AI asistanı butonları.
   Widget _buildActionButtons(bool isDarkMode) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.showExpandButton) _buildExpandButton(isDarkMode),
-        if (_shouldShowAiTeacherButton) _buildAiTeacherButton(isDarkMode),
         _buildSpeakButton(isDarkMode),
         if (widget.showAddButton || widget.showRemoveButton)
-          _buildActionButton(isDarkMode),
+          SaveButton(
+            target: SaveTarget.fromWordModel(widget.word),
+            isDarkMode: isDarkMode,
+            onRemove: widget.showRemoveButton ? widget.onRemove : null,
+            // Uzun listelerde ilk çizimi yavaşlatmamak için kayıt sorgusu
+            // kelimeye göre hafifçe dağıtılır.
+            checkDelay: Duration(
+              milliseconds: 700 + (widget.word.kelime.hashCode & 0x7f),
+            ),
+          ),
+        if (_shouldShowAiTeacherButton) ...[
+          const SizedBox(width: 4),
+          _buildAiTeacherButton(isDarkMode),
+        ],
       ],
     );
   }
@@ -409,34 +381,25 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  /// Header'daki AI asistanı ikonu: diğer ikonlarla aynı boyutta, yalnızca
-  /// yumuşak mavi bir zemin ve mavi simgeyle ayrışır.
+  /// Header'daki AI asistanı düğmesi: satırın en sonunda, yumuşak mavi
+  /// yuvarlatılmış kare zeminde sade bir simge.
   Widget _buildAiTeacherButton(bool isDarkMode) {
     return Tooltip(
-      message: 'Asistana sor',
+      message: 'AI Asistan',
       child: Material(
-        color: Colors.transparent,
+        color: const Color(0xFF007AFF).withValues(alpha: isDarkMode ? 0.18 : 0.09),
+        borderRadius: BorderRadius.circular(9),
         child: InkWell(
+          key: const ValueKey('ai-button'),
           onTap: _showAiChatSheet,
-          customBorder: const CircleBorder(),
-          child: Container(
-            width: 28,
+          borderRadius: BorderRadius.circular(9),
+          child: const SizedBox(
+            width: 32,
             height: 28,
-            alignment: Alignment.center,
-            child: Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF007AFF).withValues(
-                  alpha: isDarkMode ? 0.22 : 0.10,
-                ),
-              ),
-              child: const Icon(
-                Icons.auto_awesome_rounded,
-                color: Color(0xFF007AFF),
-                size: 14,
-              ),
+            child: Icon(
+              Icons.auto_awesome_rounded,
+              color: Color(0xFF007AFF),
+              size: 16,
             ),
           ),
         ),
@@ -607,234 +570,4 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  Widget _buildActionButton(bool isDarkMode) {
-    final isRemove = widget.showRemoveButton;
-
-    // Her iki durumda da aynı bookmark butonu
-    // Listelerim ekranında (isRemove=true) kelime zaten kayıtlı olduğu için dolu görünecek
-    final isSavedState = isRemove ? true : _isSaved;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: isRemove ? widget.onRemove : _handleBookmarkTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          width: 28,
-          height: 28,
-          alignment: Alignment.center,
-          child: Icon(
-            isSavedState ? Icons.bookmark : Icons.bookmark_border,
-            color: isSavedState
-                ? const Color(0xFF007AFF)
-                : (isDarkMode
-                      ? const Color(0xFF8E8E93)
-                      : const Color(0xFF6D6D70)),
-            size: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showLoginRequiredSnackBar() {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          LanguageService().isEnglish
-              ? 'Please log in or sign up first'
-              : 'Lütfen önce kayıt olup giriş yapın.',
-          style: const TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black87,
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.fixed,
-      ),
-    );
-  }
-
-  /// Bookmark butonuna tıklandığında: tek liste varsa toggle, birden fazla varsa dialog aç
-  Future<void> _handleBookmarkTap() async {
-    if (!mounted) return;
-
-    // Giriş kontrolü
-    final auth = AuthService();
-    if (!auth.isSignedIn) {
-      _showLoginRequiredSnackBar();
-      return;
-    }
-
-    // Varsayılan liste her zaman var olsun
-    await _customWordService.getOrCreateDefaultList();
-    var lists = await _customWordService.getLists();
-
-    if (lists.length == 1) {
-      // Tek liste varsa: direkt toggle
-      await _toggleSingleList(lists.first.id);
-    } else {
-      // Birden fazla liste varsa: dialog aç
-      await _showAddToListDialog();
-    }
-  }
-
-  /// Tek listede toggle işlemi
-  Future<void> _toggleSingleList(String listId) async {
-    if (!mounted) return;
-
-    if (_isSaved) {
-      // Listeden çıkar
-      await _customWordService.removeWordFromList(widget.word.kelime, listId);
-    } else {
-      // Listeye ekle
-      await _customWordService.addWordFromModel(widget.word, listId);
-    }
-
-    // Durumu güncelle
-    if (mounted) {
-      await _checkSavedStatus();
-    }
-  }
-
-  Future<void> _showAddToListDialog() async {
-    if (!mounted) return;
-
-    var lists = await _customWordService.getLists();
-    // Mevcut kelimenin hangi listelerde olduğunu tekrar kontrol et
-    final currentSavedLists = await _customWordService.getListsWithWord(
-      widget.word.kelime,
-    );
-
-    if (!mounted) return;
-
-    if (lists.isEmpty) {
-      final defaultList = await _customWordService.getOrCreateDefaultList();
-      lists.add(defaultList);
-    }
-
-    // Her liste için kelime sayısını al ve sırala (çoktan aza)
-    final wordCounts = <String, int>{};
-    for (final list in lists) {
-      final words = await _customWordService.getWordsByList(list.id);
-      wordCounts[list.id] = words.length;
-    }
-
-    lists.sort((a, b) {
-      final countA = wordCounts[a.id] ?? 0;
-      final countB = wordCounts[b.id] ?? 0;
-      if (countA != countB) {
-        return countB.compareTo(countA); // Çok olan üstte
-      }
-      return a.createdAt.compareTo(b.createdAt); // Aynıysa eski üstte
-    });
-
-    if (!mounted) return;
-
-    // Geçici seçim durumu (UI anlık güncellensin diye)
-    // Dialog içinde setState kullanabilmek için StatefulBuilder gerekiyor
-
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) {
-        final isDarkMode = Theme.of(ctx).brightness == Brightness.dark;
-
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(ctx).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Listeye Ekle',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Flexible(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: lists.length,
-                      itemBuilder: (context, index) {
-                        final list = lists[index];
-                        final isSelected = currentSavedLists.contains(list.id);
-
-                        return ListTile(
-                          title: Text(
-                            list.name,
-                            style: TextStyle(
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ),
-                          leading: Icon(
-                            isSelected
-                                ? Icons.check_circle
-                                : Icons.circle_outlined,
-                            color: isSelected
-                                ? const Color(0xFF007AFF)
-                                : (isDarkMode ? Colors.grey : Colors.black54),
-                          ),
-                          onTap: () async {
-                            if (isSelected) {
-                              // Listeden çıkar
-                              await _customWordService.removeWordFromList(
-                                widget.word.kelime,
-                                list.id,
-                              );
-                              currentSavedLists.remove(list.id);
-                            } else {
-                              // Listeye ekle
-                              await _customWordService.addWordFromModel(
-                                widget.word,
-                                list.id,
-                              );
-                              currentSavedLists.add(list.id);
-                            }
-
-                            // Sheet UI güncelle
-                            setSheetState(() {});
-
-                            // Ana ekran durumu güncelle
-                            if (mounted) {
-                              await _checkSavedStatus();
-                            }
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-    // Dialog kapandığında son durumu kontrol et
-    if (mounted) {
-      await _checkSavedStatus();
-    }
-  }
 }

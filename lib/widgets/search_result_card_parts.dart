@@ -32,7 +32,7 @@ class ArabicTextStyles {
   /// Kelimenin yanındaki kök: kelimeden biraz küçük, soluk renkte.
   static const root = TextStyle(
     fontFamily: 'ScheherazadeNew',
-    fontSize: 18,
+    fontSize: 19,
     fontWeight: FontWeight.w600,
     height: 1.4,
   );
@@ -163,7 +163,11 @@ class WordHeadline extends StatelessWidget {
                   root,
                   key: const ValueKey('word-root'),
                   style: ArabicTextStyles.root.copyWith(
-                    color: wordColor.withValues(alpha: isDarkMode ? 0.5 : 0.45),
+                    // Opak renk: yarı saydam renkte fontun üst üste binen
+                    // hatları koyu "nokta"lar gibi görünüyordu.
+                    color: isDarkMode
+                        ? const Color(0xFF8A8A8F)
+                        : const Color(0xFF9A9AA0),
                   ),
                   textDirection: TextDirection.rtl,
                   maxLines: 1,
@@ -176,7 +180,7 @@ class WordHeadline extends StatelessWidget {
     final children = rightToLeft
         ? <Widget>[
             if (typeChip != null) ...[
-              Flexible(flex: 2, child: typeChip),
+              typeChip,
               const SizedBox(width: 8),
             ],
             if (rootWidget != null) ...[rootWidget, const SizedBox(width: 6)],
@@ -187,7 +191,7 @@ class WordHeadline extends StatelessWidget {
             if (rootWidget != null) ...[const SizedBox(width: 6), rootWidget],
             if (typeChip != null) ...[
               const SizedBox(width: 8),
-              Flexible(flex: 2, child: typeChip),
+              typeChip,
             ],
           ];
 

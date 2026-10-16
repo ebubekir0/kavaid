@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/word_model.dart';
 import '../screens/subscription_screen.dart';
@@ -33,9 +36,14 @@ class _AiChatSheetState extends State<AiChatSheet> {
   final ScrollController _scrollController = ScrollController();
   final TTSService _tts = TTSService();
 
+  static const _recentKey = 'ai_recent_questions_v1';
+  static const _recentMax = 5;
+  List<String> _recent = const [];
+
   @override
   void initState() {
     super.initState();
+    _loadRecent();
     _service.addListener(_onServiceChanged);
     _service.open(word: widget.word);
     final opening = widget.openingMessage;
@@ -44,6 +52,28 @@ class _AiChatSheetState extends State<AiChatSheet> {
         if (mounted) _submit(opening);
       });
     }
+  }
+
+  Future<void> _loadRecent() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList(_recentKey) ?? const <String>[];
+      if (mounted) setState(() => _recent = list);
+    } catch (_) {}
+  }
+
+  /// Kullanıcının yazdığı soruyu "son sorulanlar" listesinin başına ekler
+  /// (aynı soru tekrarlanmaz, en fazla [_recentMax] tutulur).
+  Future<void> _rememberQuestion(String question) async {
+    final list = [
+      question,
+      ..._recent.where((q) => q.toLowerCase() != question.toLowerCase()),
+    ].take(_recentMax).toList();
+    if (mounted) setState(() => _recent = list);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_recentKey, list);
+    } catch (_) {}
   }
 
   @override
@@ -76,7 +106,10 @@ class _AiChatSheetState extends State<AiChatSheet> {
       _showLimitSheet();
       return;
     }
-    if (preset == null) _controller.clear();
+    if (preset == null) {
+      _controller.clear();
+      unawaited(_rememberQuestion(text));
+    }
     await _service.send(text);
   }
 
@@ -473,34 +506,58 @@ class _AiChatSheetState extends State<AiChatSheet> {
           ),
         ),
         const SizedBox(height: 18),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: starters.map((q) {
-            return ActionChip(
-              label: Text(
-                q,
-                style: GoogleFonts.inter(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: text,
-                ),
-              ),
-              onPressed: () => _submit(q),
-              backgroundColor: dark
-                  ? const Color(0xFF2C2C2E)
-                  : const Color(0xFFF6F8FA),
-              side: BorderSide(
-                color: dark
-                    ? const Color(0xFF48484A)
-                    : const Color(0xFFE1E4E8),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(9),
-              ),
-            );
-          }).toList(),
+        if (_recent.isNotEmpty) ...[
+          _chipsLabel('Son sorduklarım', sub),
+          _chipsWrap(_recent, text, dark),
+          const SizedBox(height: 18),
+          _chipsLabel('Önerilenler', sub),
+        ],
+        _chipsWrap(starters, text, dark),
+      ],
+    );
+  }
+
+  Widget _chipsLabel(String label, Color sub) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 11.5,
+          fontWeight: FontWeight.w600,
+          color: sub,
+          letterSpacing: 0.3,
         ),
+      ),
+    );
+  }
+
+  Widget _chipsWrap(List<String> questions, Color text, bool dark) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final q in questions)
+          ActionChip(
+            label: Text(
+              q,
+              style: GoogleFonts.inter(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: text,
+              ),
+            ),
+            onPressed: () => _submit(q),
+            backgroundColor: dark
+                ? const Color(0xFF2C2C2E)
+                : const Color(0xFFF6F8FA),
+            side: BorderSide(
+              color: dark ? const Color(0xFF48484A) : const Color(0xFFE1E4E8),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(9),
+            ),
+          ),
       ],
     );
   }

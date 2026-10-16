@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/dialect_language.dart';
+import 'api_keys.dart';
 
 /// Levanten uygulamasından adapte edilmiş Gemini çeviri servisi.
 class DialectTranslationService {
-  static const String _apiKey = 'AIzaSyAdOAGFsPo0nA4pIgKR9kz9mDgqJS4oxGY';
+  static const String _apiKey = ApiKeys.gemini;
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
   static const String _model = 'gemini-3-flash-preview';

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
 import '../models/ai_teacher_model.dart';
 import '../models/word_model.dart';
+import 'api_keys.dart';
 import 'database_service.dart';
 import 'dart:math' as math;
 import 'package:kavaid/services/global_config_service.dart';
@@ -16,8 +17,7 @@ class GeminiApiKeyInvalidException implements Exception {
 }
 
 class GeminiService {
-  static const String _defaultApiKey =
-      'AIzaSyBJhiD9uzHDLd1BE_FYqoXlbw6L5_IXW54';
+  static const String _defaultApiKey = ApiKeys.gemini;
   static const String _defaultModel = 'gemini-3.1-flash-lite';
   static const String _defaultPrompt =
       '''YAPAY ZEKA İÇİN GÜNCEL VE KESİN TALİMATLAR

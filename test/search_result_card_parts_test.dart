@@ -34,7 +34,12 @@ void main() {
       final root = tester.widget<Text>(find.byKey(const ValueKey('word-root')));
       expect(root.data, 'كتب');
       expect(root.style!.fontSize, lessThan(word.style!.fontSize!));
-      expect(root.style!.color!.a, lessThan(word.style!.color!.a));
+      // Soluk ama opak (yarı saydam renk fontta koyu noktalar oluşturuyordu)
+      expect(root.style!.color!.a, 1.0);
+      expect(
+        root.style!.color!.computeLuminance(),
+        greaterThan(word.style!.color!.computeLuminance()),
+      );
       expect(find.text('İsim'), findsOneWidget);
     });
 

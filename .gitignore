@@ -35,3 +35,6 @@ ios/Runner/GoogleService-Info.plist
 
 # Uygulamayla gelen sözlük verisi (tool/build_dictionary_asset.py üretir)
 !assets/data/sozluk.json.gz
+
+# Yerel gizli anahtarlar (git a girmez)
+dart_defines.json

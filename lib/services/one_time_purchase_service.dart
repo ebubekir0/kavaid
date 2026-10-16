@@ -76,7 +76,7 @@ class OneTimePurchaseService extends ChangeNotifier {
           ?.lifetime; // RevenueCat dashboard'da "Lifetime" olarak işaretlenmeli
 
       if (lifetimePackage != null) {
-        final info = await Purchases.purchasePackage(lifetimePackage);
+        final info = (await Purchases.purchase(PurchaseParams.package(lifetimePackage))).customerInfo;
         _updateStatus(info);
         if (_isLifetimeAdsFree) {
           await TurkceAnalyticsService.premiumSatinAlinaBasarili(

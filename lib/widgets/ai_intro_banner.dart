@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Güncelleme sonrası ilk kullanımda, kelime kartlarının en sonundaki AI
+/// Güncelleme sonrası ilk kullanımda, kelime kartındaki ikonların en solundaki AI
 /// simgesini tanıtan tek seferlik, kapatılabilir bilgi kartı.
 class AiIntroBanner extends StatelessWidget {
   const AiIntroBanner({
@@ -64,7 +64,7 @@ class AiIntroBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Her kelime kartının en sağındaki bu simgeye dokun: '
+                    'Kelime kartındaki ikonların en solundaki bu simgeye dokun: '
                     'anlamını, benzerlerinden farkını ve örnek cümleleri sor.',
                     style: TextStyle(
                       fontSize: 12.5,

@@ -17,7 +17,6 @@ class GeminiApiKeyInvalidException implements Exception {
 }
 
 class GeminiService {
-  static const String _defaultApiKey = ApiKeys.gemini;
   static const String _defaultModel = 'gemini-3.1-flash-lite';
   static const String _defaultPrompt =
       '''YAPAY ZEKA İÇİN GÜNCEL VE KESİN TALİMATLAR
@@ -166,10 +165,7 @@ fiilCekimler (object): Fiilse çekimler.
   }
 
   // Retry mekanizması ile API key al
-  Future<String> _getApiKey() async {
-    if (_defaultApiKey.isNotEmpty) return _defaultApiKey;
-    return (await _getConfigWithRetry('gemini_api')).trim();
-  }
+  Future<String> _getApiKey() => ApiKeys.gemini();
 
   // Retry mekanizması ile model al
   Future<String> _getModel() async {
@@ -409,7 +405,7 @@ fiilCekimler (object): Fiilse çekimler.
       if (apiKey != null && apiKey.isNotEmpty) {
         updates['gemini_api'] = apiKey;
         debugPrint(
-          '🔑 API Key güncelleniyor: ${apiKey.substring(0, 15)}...${apiKey.substring(apiKey.length - 5)}',
+          '🔑 API Key güncelleniyor: (gizli)',
         );
       }
 
@@ -491,9 +487,8 @@ fiilCekimler (object): Fiilse çekimler.
       try {
         final apiKey = await _getApiKey();
         debugPrint(
-          '🔑 API Key: ${apiKey.substring(0, 15)}...${apiKey.substring(apiKey.length - 5)} (${apiKey.length} karakter)',
+          '🔑 API Key: (gizli) (${apiKey.length} karakter)',
         );
-        debugPrint('🔑 API Key Default?: ${apiKey == _defaultApiKey}');
       } catch (e) {
         debugPrint('❌ API Key hatası: $e');
       }
@@ -1345,9 +1340,6 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
       await service._createConfigInDatabase();
 
       debugPrint('📝 Firebase\'e yazılan config:');
-      debugPrint(
-        '   API Key: ${_defaultApiKey.substring(0, 15)}...${_defaultApiKey.substring(_defaultApiKey.length - 5)}',
-      );
       debugPrint('   Model: $_defaultModel');
       debugPrint('   Prompt: ${_defaultPrompt.length} karakter');
 
@@ -1399,7 +1391,7 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
       debugPrint('🔑 API Key test ediliyor...');
       final apiKey = await service._getApiKey();
       debugPrint(
-        '🔑 Alınan API Key: ${apiKey.substring(0, 15)}...${apiKey.substring(apiKey.length - 5)}',
+        '🔑 Alınan API Key: (gizli)',
       );
 
       // Model test
@@ -1500,9 +1492,9 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
         final model = await service._getModel();
 
         results['details']['apiKey'] =
-            '${apiKey.substring(0, 15)}...${apiKey.substring(apiKey.length - 5)}';
+            '(gizli)';
         results['details']['model'] = model;
-        results['details']['apiKeyIsDefault'] = apiKey == _defaultApiKey;
+        results['details']['apiKeyFromBuild'] = const String.fromEnvironment('GEMINI_API_KEY').isNotEmpty;
 
         // Basit HTTP test
         final url = Uri.parse(

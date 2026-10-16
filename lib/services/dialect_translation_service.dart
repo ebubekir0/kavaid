@@ -5,7 +5,6 @@ import 'api_keys.dart';
 
 /// Levanten uygulamasından adapte edilmiş Gemini çeviri servisi.
 class DialectTranslationService {
-  static const String _apiKey = ApiKeys.gemini;
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
   static const String _model = 'gemini-3-flash-preview';
@@ -28,7 +27,8 @@ class DialectTranslationService {
     final prompt = _buildPrompt(limitedText, source, target);
 
     try {
-      final url = Uri.parse('$_baseUrl/$_model:generateContent?key=$_apiKey');
+      final apiKey = await ApiKeys.gemini();
+      final url = Uri.parse('$_baseUrl/$_model:generateContent?key=$apiKey');
       final requestBody = {
         'contents': [
           {

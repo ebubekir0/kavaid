@@ -307,11 +307,15 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  /// Genişlet, seslendir, kaydet ve (en sonda) AI asistanı butonları.
+  /// AI asistanı (en solda), genişlet, seslendir ve kaydet butonları.
   Widget _buildActionButtons(bool isDarkMode) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
+        if (_shouldShowAiTeacherButton) ...[
+          _buildAiTeacherButton(isDarkMode),
+          const SizedBox(width: 4),
+        ],
         if (widget.showExpandButton) _buildExpandButton(isDarkMode),
         _buildSpeakButton(isDarkMode),
         if (widget.showAddButton || widget.showRemoveButton)
@@ -325,10 +329,6 @@ class _SearchResultCardState extends State<SearchResultCard>
               milliseconds: 700 + (widget.word.kelime.hashCode & 0x7f),
             ),
           ),
-        if (_shouldShowAiTeacherButton) ...[
-          const SizedBox(width: 4),
-          _buildAiTeacherButton(isDarkMode),
-        ],
       ],
     );
   }
@@ -381,7 +381,7 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
-  /// Header'daki AI asistanı düğmesi: satırın en sonunda, yumuşak mavi
+  /// Header'daki AI asistanı düğmesi: ikonların en solunda, yumuşak mavi
   /// yuvarlatılmış kare zeminde sade bir simge.
   Widget _buildAiTeacherButton(bool isDarkMode) {
     return Tooltip(

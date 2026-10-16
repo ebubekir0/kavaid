@@ -981,7 +981,7 @@ class PurchaseManager extends ChangeNotifier {
     await initialize(fetchOfferings: false);
     try {
       _lastError = '';
-      final customerInfo = await Purchases.purchasePackage(package);
+      final customerInfo = (await Purchases.purchase(PurchaseParams.package(package))).customerInfo;
       await _updateCustomerStatus(customerInfo);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
@@ -1000,7 +1000,7 @@ class PurchaseManager extends ChangeNotifier {
     await initialize(fetchOfferings: false);
     try {
       _lastError = '';
-      final customerInfo = await Purchases.purchaseStoreProduct(product);
+      final customerInfo = (await Purchases.purchase(PurchaseParams.storeProduct(product))).customerInfo;
       await _updateCustomerStatus(customerInfo);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);

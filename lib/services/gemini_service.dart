@@ -1077,7 +1077,7 @@ Sadece JSON dondur:
   Future<String> askInChat({
     required List<Map<String, dynamic>> history,
     WordModel? contextWord,
-    Duration timeout = const Duration(seconds: 12),
+    Duration timeout = const Duration(seconds: 20),
   }) async {
     if (history.isEmpty) {
       throw const FormatException('Sohbet gecmisi bos.');
@@ -1098,9 +1098,9 @@ Sadece JSON dondur:
       'generationConfig': <String, dynamic>{
         'temperature': 0.3,
         'topP': 0.85,
-        // Kisa cevap = hizli + ucuz. Sözlük asistanı uzun metin yazmaz;
-        // tavan yalnızca harekeli örnek listelerinin kesilmemesi için.
-        'maxOutputTokens': 500,
+        // Uzunluğu istem belirler; tavan yalnızca "derinleş" gibi uzun
+        // isteklerde ve harekeli örnek listelerinde cevap kesilmesin diye.
+        'maxOutputTokens': 1400,
         'thinkingConfig': _teacherThinkingConfig(model),
       },
       'systemInstruction': {
@@ -1142,6 +1142,10 @@ Sadece JSON dondur:
     if (text.isEmpty) {
       throw const FormatException('AI asistan metni bos.');
     }
+    // Tavana takılıp yarıda kesildiyse kullanıcı bunu görsün.
+    if (candidates.first['finishReason'] == 'MAX_TOKENS') {
+      return '$text…';
+    }
     return text;
   }
 
@@ -1150,14 +1154,21 @@ Sadece JSON dondur:
 Sen Kavaid sozlugunun icindeki Arapca asistanisin.
 Kullanici Turkce konusuyor, Arapca ogreniyor.
 
-Kurallar:
-- Dogrudan cevapla. Selamlama, giris cumlesi, soruyu tekrar etme, ovgu, tesvik ve kapanis cumlesi yazma.
-- Sadece sorulani cevapla. Istenmeyen ek bilgi, ders anlatimi veya hatirlatma ekleme; ornek istenmedikce ornek verme.
-- Varsayilan uzunluk 1-3 cumle. Gerekirse en fazla 5 kisa madde; her madde tek satir, "- " ile baslar.
-- Ornek istenirse her satira bir ornek yaz: tam harekeli Arapca cumle, " — ", Turkce ceviri. Aciklama ekleme.
+En onemli kural: kullanici ne istiyorsa tam olarak onu yap.
+- Uzunlugu istege gore ayarla:
+  - "kisa", "tek cumle", "ozetle" derse: 1-2 cumle.
+  - "detayli", "derinles", "ayrintili anlat", "biraz daha ac", "neden" derse: derin ve ayrintili cevap ver; kurallari, istisnalari, kullanim farklarini ve gerekirse ornekleri ac. 2-4 kisa paragraf veya maddeler olabilir.
+  - Ozel bir istek yoksa orta uzunluk: 3-6 cumle ya da en fazla 6 madde.
+- Sayi verildiyse ("5 ornek", "3 fark") tam o sayida ver.
+- "Daha basit anlat" derse ayni konuyu sade kelimelerle, kisa cumlelerle anlat.
+- Onceki mesaja bagli isteklerde ("derinles", "devam", "peki ya bu?") ayni konuyu surdur.
+- Dogrudan konuya gir: selamlama, soruyu tekrar etme, ovgu ve "umarim yardimci olmustur" gibi kapanislar yok. Sorulmayan konuya sapma.
+- Ornek cumle formati: her satira bir ornek; tam harekeli Arapca cumle, " — ", Turkce ceviri. Ornekleri sade cumlelerle kendin kur; ayetleri ornek cumle olarak verme.
 - Arapca her kelime ve cumle tam harekeli olsun.
-- Baslik, kalin yazi, emoji ve parantez kullanma.
-- Emin degilsen tek cumleyle "Emin degilim" de; asla uydurma.
+- Madde icin "- " kullan. Baslik, emoji ve parantez kullanma.
+- Kalip (vezin) ve irab bilgisini yalnizca kesin biliyorsan ver. "Kac kez gecer" gibi sayi ve istatistik verme.
+- Kur'an ayetlerinin metnini yazma; gerekirse yalnizca sure adi ve ayet numarasi ver (ornek: Bakara 2).
+- Emin degilsen "Emin degilim" de; asla uydurma.
 ''');
 
     if (word != null) {

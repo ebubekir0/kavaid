@@ -50,6 +50,7 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
 
   late bool _isLogin;
   bool _isLoading = false;
+  bool _isSendingReset = false;
   String? _errorText;
   String? _successText;
 
@@ -222,7 +223,27 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
                 obscureText: true,
                 validator: (v) => (v == null || v.isEmpty) ? (LanguageService().isEnglish ? 'Password required' : (LanguageService().isArabic ? 'كلمة المرور مطلوبة' : 'Şifre gerekli')) : null,
               ),
-              const SizedBox(height: 8),
+              if (_isLogin)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    key: const Key('forgot_password'),
+                    onPressed: (_isLoading || _isSendingReset) ? null : _sendPasswordReset,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      minimumSize: const Size(0, 36),
+                    ),
+                    child: _isSendingReset
+                        ? const SizedBox(
+                            height: 14,
+                            width: 14,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Şifremi unuttum', style: TextStyle(fontSize: 13)),
+                  ),
+                )
+              else
+                const SizedBox(height: 8),
               
               if (!_isLogin)
                 TextFormField(
@@ -276,6 +297,56 @@ class _EmailAuthSheetState extends State<EmailAuthSheet> {
         ),
       ),
     );
+  }
+
+  /// "Şifremi unuttum": yazılı e-postaya sıfırlama bağlantısı gönderir.
+  Future<void> _sendPasswordReset() async {
+    final email = _emailController.text.trim();
+    if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
+      setState(() {
+        _successText = null;
+        _errorText = 'Şifreni sıfırlamak için önce e-posta adresini yaz.';
+      });
+      _emailFocus.requestFocus();
+      return;
+    }
+
+    setState(() {
+      _isSendingReset = true;
+      _errorText = null;
+      _successText = null;
+    });
+    try {
+      await _authService.sendPasswordReset(email);
+      if (!mounted) return;
+      // Firebase güvenlik gereği hesabın var olup olmadığını söylemez;
+      // mesaj da bunu ima etmemeli.
+      setState(() {
+        _successText =
+            '$email adresine kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi. '
+            'Gelen kutunu ve gereksiz (spam) klasörünü kontrol et.';
+      });
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      final message = switch (e.code) {
+        'invalid-email' => 'Geçerli bir e‑posta adresi giriniz.',
+        'user-not-found' => 'Bu e‑posta ile kayıt bulunamadı.',
+        'too-many-requests' =>
+          'Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.',
+        'network-request-failed' =>
+          'Ağ hatası. İnternet bağlantınızı kontrol edin.',
+        _ => 'Bağlantı gönderilemedi. Lütfen tekrar deneyin.',
+      };
+      setState(() => _errorText = message);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _errorText = 'Bağlantı gönderilemedi. Lütfen tekrar deneyin.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSendingReset = false);
+    }
   }
 
   Future<void> _handleAuth() async {

@@ -213,6 +213,13 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  /// Şifre sıfırlama bağlantısı gönderir (Firebase'in kendi e-postası,
+  /// Türkçe). Hata durumunda [FirebaseAuthException] fırlatır.
+  Future<void> sendPasswordReset(String email) async {
+    await _auth.setLanguageCode('tr');
+    await _auth.sendPasswordResetEmail(email: email.trim());
+  }
+
   // Google ile giriş yap
   Future<User?> signInWithGoogle() async {
     try {

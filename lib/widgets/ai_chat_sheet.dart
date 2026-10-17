@@ -784,7 +784,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
     final followUps = <String>[
       'Örnek ver',
       'Daha basit anlat',
-      'Biraz daha aç',
+      'Derinleş',
       if (word?.fiilCekimler?.isNotEmpty == true) 'Çekimini göster',
     ];
     return SizedBox(

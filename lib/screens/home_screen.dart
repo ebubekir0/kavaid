@@ -1057,7 +1057,8 @@ class _HomeScreenState extends State<HomeScreen>
             _isLoading = false;
             _isSearchInProgress = false;
             _showAIButton = true;
-            _showNotFound = false;
+            // Sonuç yoksa boş ekran yerine "Kelime bulunamadı" göster.
+            _showNotFound = results.isEmpty;
           });
         }
       }

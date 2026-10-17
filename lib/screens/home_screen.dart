@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../models/word_model.dart';
 import '../models/quran_word_model.dart';
-import '../services/gemini_service.dart';
 import '../services/database_service.dart'; // YEREL VERİTABANI SERVİSİ
 import '../services/search_ranking.dart';
 import '../services/database_initialization_service.dart';
@@ -70,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  final GeminiService _geminiService = GeminiService();
   final DatabaseService _dbService =
       DatabaseService.instance; // YEREL DB SERVİSİ
   final CreditsService _creditsService = CreditsService();
@@ -78,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
   WordModel? _selectedWord;
   bool _isLoading = false;
   bool _isSearching = false;
-  bool _showAIButton = false; // AI butonu tamamen devre dışı bırakıldı
   bool _showNotFound = false;
   bool _showArabicKeyboard = false; // Arapça klavye durumu
   bool _isSearchInProgress = false; // Arama işlemi devam ediyor mu
@@ -476,7 +473,6 @@ class _HomeScreenState extends State<HomeScreen>
         _isLoading = !_quranService.isLoaded;
         _isQuranDictionaryLoading = !_quranService.isLoaded;
         _isSearchInProgress = !_quranService.isLoaded;
-        _showAIButton = false;
         _showNotFound = false;
         _quranSearchResults = [];
         _selectedQuranWord = null;
@@ -805,7 +801,6 @@ class _HomeScreenState extends State<HomeScreen>
         }
         _isSearching = false;
         _isLoading = false; // ← EKLENDİ: yükleme sembolü takılmasın
-        _showAIButton = false;
         _showNotFound = false;
         _isSearchInProgress = false;
       });
@@ -816,7 +811,7 @@ class _HomeScreenState extends State<HomeScreen>
     // ANR: 80ms her tuşta isolate + 2x SQLite demekti; düşük cihazda
     // platform kanalı yığılıp input dispatch timeout'a giriyordu.
     _debounceTimer?.cancel();
-    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+    _debounceTimer = Timer(const Duration(milliseconds: 250), () {
       if (mounted) {
         _performSearch(cleanText);
       }
@@ -860,7 +855,6 @@ class _HomeScreenState extends State<HomeScreen>
         _searchResults = [];
         _selectedWord = null;
         _isSearching = false;
-        _showAIButton = false;
         _showNotFound = false;
         _isSearchInProgress = false;
       });
@@ -884,7 +878,6 @@ class _HomeScreenState extends State<HomeScreen>
         _searchResults = [];
         _selectedWord = null;
         _isSearching = false;
-        _showAIButton = false;
         _showNotFound = false;
         _isSearchInProgress = false;
         _isLoading = true;
@@ -961,7 +954,6 @@ class _HomeScreenState extends State<HomeScreen>
           _searchResults = [];
           _isSearching = false;
           _isLoading = false;
-          _showAIButton = false;
           _showNotFound = false;
           _isSearchInProgress = false;
         });
@@ -984,7 +976,6 @@ class _HomeScreenState extends State<HomeScreen>
         _isSearching = true;
         _isQuranDictionaryLoading = true;
         _isLoading = true;
-        _showAIButton = false;
         _showNotFound = false;
       });
     } else {
@@ -1011,7 +1002,6 @@ class _HomeScreenState extends State<HomeScreen>
             _isLoading = false;
             _isQuranDictionaryLoading = false;
             _isSearchInProgress = false;
-            _showAIButton = false;
             _showNotFound = quranResults.isEmpty;
           });
         }
@@ -1033,7 +1023,6 @@ class _HomeScreenState extends State<HomeScreen>
             _emsileHasMore = false;
             _isLoading = false;
             _isSearchInProgress = false;
-            _showAIButton = false;
             _showNotFound = emsileResults.isEmpty;
           });
         }
@@ -1056,7 +1045,6 @@ class _HomeScreenState extends State<HomeScreen>
             _searchResults = results;
             _isLoading = false;
             _isSearchInProgress = false;
-            _showAIButton = true;
             // Sonuç yoksa boş ekran yerine "Kelime bulunamadı" göster.
             _showNotFound = results.isEmpty;
           });
@@ -1081,7 +1069,6 @@ class _HomeScreenState extends State<HomeScreen>
           }
           _isLoading = false;
           _isQuranDictionaryLoading = false;
-          _showAIButton = !_isQuranMode;
           _showNotFound = false;
           _isSearchInProgress = false;
         });
@@ -1116,236 +1103,11 @@ class _HomeScreenState extends State<HomeScreen>
       _selectedWord = word;
       _searchResults = [];
       _isSearching = false;
-      _showAIButton = false;
       _showNotFound = false;
       _searchController.text = word.kelime;
       _lastSearchText = word.kelime; // Son arama metnini güncelle
     });
     _searchFocusNode.unfocus();
-  }
-
-  Future<void> _searchWithAI() async {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) return;
-
-    // İnternet kontrolü: Offline ise tetikleme ve diyalog göster
-    final hasConnection = await _connectivityService.hasInternetConnection();
-    if (!hasConnection) {
-      if (!mounted) return;
-      await showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (ctx) {
-          final isDarkMode = widget.isDarkMode;
-          return AlertDialog(
-            backgroundColor: isDarkMode
-                ? const Color(0xFF2C2C2E)
-                : Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            title: Column(
-              children: [
-                Icon(
-                  Icons.wifi_off_rounded,
-                  size: 48,
-                  color: isDarkMode
-                      ? const Color(0xFF8E8E93)
-                      : const Color(0xFF007AFF),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'İnternet Gerekli',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-            content: const Text(
-              'arama yapmak için internete bağlanın',
-              style: TextStyle(fontSize: 14, height: 1.4),
-              textAlign: TextAlign.center,
-            ),
-            actionsAlignment: MainAxisAlignment.center,
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color(0xFF007AFF),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Tamam',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-      return; // Tetikleme
-    }
-
-    // Arama işlemini arka planda hazırla
-    final searchFuture = _performActualAISearch(query, showLoading: false);
-
-    // AdMob servisine bir arama isteği olduğunu bildir.
-    // Kararı servis verecek.
-    await _adMobService.onSearchAdRequest(
-      onAdDismissed: () async {
-        // Bu blok, reklam gösterilsin veya gösterilmesin her zaman çalışır.
-        setState(() => _isLoading = true);
-        await searchFuture;
-        setState(() => _isLoading = false);
-      },
-    );
-  }
-
-  Future<void> _performActualAISearch(
-    String query, {
-    bool showLoading = true,
-  }) async {
-    if (showLoading) {
-      setState(() {
-        _isLoading = true;
-        _selectedWord = null;
-        _searchResults = [];
-        _showAIButton = false;
-        _showNotFound = false;
-      });
-    }
-
-    try {
-      // Yerel veritabanı kontrolü kaldırıldı - direkt AI'ya git
-      // İnternet kontrolü: AI araması için internet gerekir
-      final hasConnection = await _connectivityService.hasInternetConnection();
-      if (!hasConnection) {
-        if (mounted) {
-          // Dialog uyarısı
-          await showDialog(
-            context: context,
-            barrierDismissible: true,
-            builder: (ctx) {
-              final isDarkMode = widget.isDarkMode;
-              return AlertDialog(
-                backgroundColor: isDarkMode
-                    ? const Color(0xFF2C2C2E)
-                    : Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                title: Column(
-                  children: [
-                    Icon(
-                      Icons.wifi_off_rounded,
-                      size: 48,
-                      color: isDarkMode
-                          ? const Color(0xFF8E8E93)
-                          : const Color(0xFF007AFF),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'İnternet Gerekli',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: isDarkMode
-                            ? Colors.white
-                            : const Color(0xFF1C1C1E),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-                content: const Text(
-                  'arama yapmak için internete bağlanın',
-                  style: TextStyle(fontSize: 14, height: 1.4),
-                  textAlign: TextAlign.center,
-                ),
-                actionsAlignment: MainAxisAlignment.center,
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: const Color(0xFF007AFF),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Tamam',
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-          setState(() {
-            _isLoading = false;
-            _showAIButton = true;
-            _showNotFound = false;
-          });
-        }
-        return;
-      }
-
-      final aiResult = await _geminiService.searchWord(query);
-
-      // AI arama analytics event'i gönder
-      await TurkceAnalyticsService.kelimeArandiAI(query, aiResult.bulunduMu);
-
-      if (aiResult.bulunduMu) {
-        // Eğer kelime yeni ise SyncService'e gönder
-        // GeminiService zaten duplikasyon kontrolü yaptı ve gerekirse pending tablosuna ekledi
-        // Bu yüzden burada tekrar handleAiFoundWord çağırmaya gerek yok
-
-        // Sadece AI sonucunu göster
-
-        setState(() {
-          _searchResults = [aiResult]; // Sadece AI sonucu
-          _isLoading = false;
-          _isSearching = true;
-          _showNotFound = false;
-          _prewarmPending = true; // İlk kez kartı ısıt
-        });
-      } else {
-        // AI sonucu bulunamadı
-        setState(() {
-          _isLoading = false;
-          _showAIButton = true;
-          _showNotFound = true; // AI sonucu yoksa "bulunamadı" göster
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _showAIButton = true;
-        _showNotFound = true;
-      });
-    } finally {
-      if (mounted && showLoading) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
   }
 
   void _dismissKeyboard() {
@@ -1926,10 +1688,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                           textInputAction:
                                                               TextInputAction
                                                                   .search,
-                                                          onSubmitted: (_) {
-                                                            // Sadece klavyeyi kapat, normal arama zaten debouncer ile yapılıyor
-                                                            _dismissKeyboard();
-                                                          },
+                                                          // Arama yazarken yapılır; tuş klavyeyi kapatır.
+                                                          onSubmitted: (_) =>
+                                                              _dismissKeyboard(),
                                                           readOnly:
                                                               _showArabicKeyboard,
                                                           onTap: () {
@@ -2139,8 +1900,6 @@ class _HomeScreenState extends State<HomeScreen>
                                                               _selectedQuranWord =
                                                                   null;
                                                               _isSearching =
-                                                                  false;
-                                                              _showAIButton =
                                                                   false;
                                                               _showNotFound =
                                                                   false;
@@ -2493,7 +2252,7 @@ class _HomeScreenState extends State<HomeScreen>
                         height: 280,
                         child: ArabicKeyboard(
                           controller: _searchController,
-                          onSearch: _searchWithAI,
+                          onSearch: _dismissKeyboard,
                           onClose: () {
                             setState(() {
                               _showArabicKeyboard = false;
@@ -2788,7 +2547,10 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       // ===== NORMAL SÖZLÜK ARAMA SONUÇLARI =====
-      if (_searchResults.isNotEmpty) {
+      // Yalnızca ekranda gösterilebilecek sonuçlar sayılır: kısmi ve Latin
+      // tahmini eşleşmeler gösterilmez; sadece onlar varsa "bulunamadı".
+      final hasVisibleResults = _groupedSearchResults().isNotEmpty;
+      if (hasVisibleResults) {
         // Eşleşme tipine göre gruplanmış sonuç listesi (sonuç değişmedikçe
         // yeniden hesaplanmaz)
         final groupedResults = _groupedSearchResults();
@@ -2813,6 +2575,9 @@ class _HomeScreenState extends State<HomeScreen>
                   }
                   final item = groupedResults[index];
                   if (item is SearchGroupHeader) {
+                    final lineColor = widget.isDarkMode
+                        ? const Color(0xFF3A3A3C)
+                        : const Color(0xFFE5E5EA);
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
 
@@ -2822,7 +2587,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Container(
                               margin: const EdgeInsets.only(right: 8),
                               height: 1,
-                              color: const Color(0xFFE5E5EA),
+                              color: lineColor,
                             ),
                           ),
                           Text(
@@ -2837,7 +2602,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Container(
                               margin: const EdgeInsets.only(left: 8),
                               height: 1,
-                              color: const Color(0xFFE5E5EA),
+                              color: lineColor,
                             ),
                           ),
                         ],
@@ -2871,7 +2636,8 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         );
       }
-      if (_showNotFound && _searchResults.isEmpty) {
+      if (!hasVisibleResults &&
+          (_showNotFound || _searchResults.isNotEmpty)) {
         slivers.add(
           SliverToBoxAdapter(
             child: Padding(
@@ -3277,8 +3043,8 @@ class _HomeScreenState extends State<HomeScreen>
                       if (LanguageService().isTurkish)
                         _buildInfoRow(
                           Icons.search_rounded,
-                          'Sınırsız Kelime',
-                          'Yapay zeka ile sınırsız kelime arayın.',
+                          '50.000+ Kelime',
+                          'Arapça ya da Türkçe yazın, anında bulun.',
                           widget.isDarkMode,
                         ),
                       if (LanguageService().isTurkish)

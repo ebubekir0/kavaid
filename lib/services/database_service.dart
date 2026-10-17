@@ -352,6 +352,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
   static List<String>? _normalizedHKCache;
   static List<String>? _normalizedRootCache;
   static Map<int, String>? _meaningCache;
+  // Her kaydın kökünden sözlükte kaç kayıt türediği: yaygınlık ölçüsü.
+  // Aynı puandaki sonuçlarda yaygın kelime (كَبِيرٌ) nadir olandan önce gelir.
+  static List<int>? _popularityCache;
   static Future<void>? _prewarmFuture;
 
   // Bellek içi arama için sözlük verisi. Her izolenin kendi kopyası vardır:
@@ -397,6 +400,20 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     _normalizedHKCache = hkList;
     _normalizedRootCache = rootList;
     _meaningCache = mList;
+    _popularityCache = _rootPopularity(rootList);
+  }
+
+  /// [roots] listesindeki her kökün kaç kez geçtiği, kayıt sırasıyla.
+  static List<int> _rootPopularity(List<String> roots) {
+    final counts = <String, int>{};
+    for (final r in roots) {
+      if (r.isEmpty) continue;
+      final key = r.replaceAll(' ', '');
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return [
+      for (final r in roots) r.isEmpty ? 0 : counts[r.replaceAll(' ', '')]!,
+    ];
   }
 
   /// Uygulamanin başlangıcında cache'i önceden çak. main.dart veya initState'den çağrın.
@@ -433,6 +450,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     _normalizedHKCache = hkList;
     _normalizedRootCache = rootList;
     _meaningCache = mList;
+    _popularityCache = _rootPopularity(rootList);
   }
 
   static Future<void> prewarmCache() async {
@@ -460,7 +478,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     final hkCache = _normalizedHKCache!;
     final rootCache = _normalizedRootCache!;
     final mCache = _meaningCache!;
+    final popularity = _popularityCache!;
     final guess = query.arabicGuess;
+    final alt = query.latinAlt;
 
     final results = <({int rank, int sec, int idx, WordMatchType type})>[];
 
@@ -470,10 +490,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       final nRoot = rootCache[i];
       final meanings = mCache[i] ?? '';
 
-      // ⚡ Hızlı ön-filtre: Türkçe aramada anlamında sorgu geçmeyen (ve Latin
-      // tahminine de uymayan) kayıtlar detaylı puanlamaya hiç girmez.
-      if (!query.isArabic &&
-          !meanings.contains(query.latin) &&
+      // ⚡ Hızlı ön-filtre: sorguyla hiçbir şekilde eşleşemeyecek kayıtlar
+      // detaylı puanlamaya hiç girmez. Arapçada eşleşme ancak yazımda geçen
+      // ya da kökü aynı olan kayıtlarda mümkün; Türkçede anlamda sorgu
+      // (veya mastarın geçmiş zaman hali ya da Latin tahmini) geçmeli.
+      if (query.isArabic) {
+        final q = query.arabic;
+        if (!nHK.contains(q) && !nK.contains(q) && nRoot != q) continue;
+      } else if (!(query.wholeWordOnly
+              ? _containsWholeWord(meanings, query.latin)
+              : meanings.contains(query.latin)) &&
+          !(alt.isNotEmpty && meanings.contains(alt)) &&
           !(guess.isNotEmpty &&
               (nHK.contains(guess) ||
                   nK.contains(guess) ||
@@ -492,16 +519,40 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         nKoku: nRoot,
         meanings: meanings,
         rawMeaning: query.isArabic ? '' : _mainMeaning(map['anlam'] as String?),
+        popularity: popularity[i],
       );
       if (r == null) continue;
       if (query.isArabic && r.rank >= 6 && results.length >= 360) continue;
       results.add((rank: r.rank, sec: r.sec, idx: i, type: r.type));
     }
 
-    // Önce puan, sonra ikincil ölçüt; eşitlikte sözlük sırası (kararlı sonuç).
+    // Türkçe aramada "anlam ailesi": her kökten bu aramayla eşleşen kayıt
+    // sayısı. "gitmek" için ذهب kökünden pek çok kayıt eşleşir (ذَهَبَ,
+    // تَذْهَبْ "gidiyorsun", لِيَذْهَبْ "gitsin"), روح kökünden birkaç tane;
+    // aynı puandaki sonuçlarda ailesi büyük olan (daha yaygın anlam) öne gelir.
+    final family = <String, int>{};
+    if (!query.isArabic) {
+      for (final r in results) {
+        final root = rootCache[r.idx];
+        if (root.isEmpty) continue;
+        final key = root.replaceAll(' ', '');
+        family[key] = (family[key] ?? 0) + 1;
+      }
+    }
+    int familyOf(int idx) {
+      final root = rootCache[idx];
+      return root.isEmpty ? 0 : family[root.replaceAll(' ', '')] ?? 0;
+    }
+
+    // Önce puan, sonra anlam ailesi, sonra ikincil ölçüt; eşitlikte sözlük
+    // sırası (kararlı sonuç).
     results.sort((a, b) {
       final byRank = a.rank.compareTo(b.rank);
       if (byRank != 0) return byRank;
+      if (family.isNotEmpty) {
+        final byFamily = familyOf(b.idx).compareTo(familyOf(a.idx));
+        if (byFamily != 0) return byFamily;
+      }
       final bySec = a.sec.compareTo(b.sec);
       return bySec != 0 ? bySec : a.idx.compareTo(b.idx);
     });
@@ -511,10 +562,30 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       final m = Map<String, dynamic>.from(words[r.idx]);
       m['rank'] = r.rank;
       m['sec'] = r.sec;
+      m['fam'] = familyOf(r.idx);
       m['matchType'] = r.type.index;
       return m;
     }).toList();
   }
+
+  /// [token] metinde ayrı bir kelime olarak geçiyor mu? Kısa sorgularda
+  /// ("su", "ev") binlerce anlamda harf dizisi olarak geçtiği için ön
+  /// elemede kullanılır; [foldLatin] çıktısında kelime harfleri a-z ve 0-9.
+  static bool _containsWholeWord(String text, String token) {
+    var from = 0;
+    while (true) {
+      final at = text.indexOf(token, from);
+      if (at < 0) return false;
+      final end = at + token.length;
+      final before = at == 0 || !_isWordUnit(text.codeUnitAt(at - 1));
+      final after = end == text.length || !_isWordUnit(text.codeUnitAt(end));
+      if (before && after) return true;
+      from = at + 1;
+    }
+  }
+
+  static bool _isWordUnit(int c) =>
+      (c >= 0x61 && c <= 0x7A) || (c >= 0x30 && c <= 0x39);
 
   // Kullanıcının AI ile bulduğu kelimeler (pending_ai_words). Küçük bir tablo;
   // her tuş vuruşunda SQLite'a gitmemek için bellekte tutulur.
@@ -551,6 +622,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           ({
             Map<String, dynamic> map,
             int rank,
+            int fam,
             int sec,
             int order,
             WordMatchType type,
@@ -564,6 +636,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       candidates.add((
         map: m,
         rank: m['rank'] as int,
+        fam: m['fam'] as int? ?? 0,
         sec: m['sec'] as int,
         order: i,
         type: WordMatchType.values[m['matchType'] as int],
@@ -594,6 +667,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         candidates.add((
           map: p,
           rank: r.rank,
+          fam: 0,
           sec: r.sec,
           order: mainResults.length + i,
           type: r.type,
@@ -601,9 +675,12 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       }
     } catch (_) {}
 
+    // Aynı sırayla: puan, anlam ailesi (izolede hesaplanır), ikincil ölçüt.
     candidates.sort((a, b) {
       final byRank = a.rank.compareTo(b.rank);
       if (byRank != 0) return byRank;
+      final byFamily = b.fam.compareTo(a.fam);
+      if (byFamily != 0) return byFamily;
       final bySec = a.sec.compareTo(b.sec);
       return bySec != 0 ? bySec : a.order.compareTo(b.order);
     });
@@ -623,7 +700,10 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       results.add(RankedWord(_dbMapToWord(c.map), c.type));
     }
 
-    return results;
+    // Aynı kelimenin kopyaları tek sonuçta: isimlerde hal/takı farkı
+    // (بَيْتٌ, الْبَيْتُ), Türkçe aramada ayrıca aynı kökten aynı anlamdaki
+    // varyantlar (كَتَبَ / كَتَبَتِ "yazdı").
+    return collapseVariants(results, turkishQuery: !query.isArabic);
   }
 
   /// [searchWordsRanked] sonucundaki kelimeler (eşleşme türü olmadan).
@@ -1168,9 +1248,13 @@ class SearchIsolateWorker {
       final sendPortCompleter = Completer<SendPort>();
       receivePort.listen((message) {
         if (message is SendPort) {
-          if (!sendPortCompleter.isCompleted) sendPortCompleter.complete(message);
+          if (!sendPortCompleter.isCompleted) {
+            sendPortCompleter.complete(message);
+          }
         } else if (message == _cacheReadyMessage) {
-          if (!_cacheReadyCompleter.isCompleted) _cacheReadyCompleter.complete();
+          if (!_cacheReadyCompleter.isCompleted) {
+            _cacheReadyCompleter.complete();
+          }
           receivePort.close();
         } else if (message == _cacheErrorMessage) {
           debugPrint('❌ SearchIsolateWorker: sözlük verisi çözülemedi');
@@ -1230,10 +1314,7 @@ class SearchIsolateWorker {
       return DatabaseService._runIsolateSearch(args);
     }
     final responsePort = ReceivePort();
-    _sendPort!.send({
-      'args': args,
-      'replyPort': responsePort.sendPort,
-    });
+    _sendPort!.send({'args': args, 'replyPort': responsePort.sendPort});
     // ANR: isolate cevap vermezse UI await'te takılı kalmasın, boş dön.
     try {
       final response = await responsePort.first.timeout(

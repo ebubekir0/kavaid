@@ -16,7 +16,11 @@ EntryRank? rankArabic(String query, String harekeli, {String koku = ''}) {
   );
 }
 
-EntryRank? rankTurkish(String query, String meaning, {String harekeli = 'كلمة'}) {
+EntryRank? rankTurkish(
+  String query,
+  String meaning, {
+  String harekeli = 'كلمة',
+}) {
   final q = SearchQuery.parse(query);
   return rankEntry(
     query: q,
@@ -100,7 +104,10 @@ void main() {
     });
 
     test('tam anlam eşleşmesi kelime başı eşleşmesinden önce gelir', () {
-      final exact = rankTurkish('kitap', 'mektup, belge, yazı, eser, not, kitap')!;
+      final exact = rankTurkish(
+        'kitap',
+        'mektup, belge, yazı, eser, not, kitap',
+      )!;
       final prefix = rankTurkish('kitap', 'kitapçı, kitabevi')!;
       expect(exact.rank, lessThan(prefix.rank));
     });
@@ -111,12 +118,15 @@ void main() {
       expect(rankTurkish('su', 'uzun süre'), isNull);
     });
 
-    test('Türkçe karakter katlamasıyla oluşan kelime ortası eşleşme sayılmaz', () {
-      // "döküldü" katlanınca "dokuldu" olur ve içinde "okul" geçer.
-      expect(rankTurkish('okul', 'döküldü, akıtıldı'), isNull);
-      // Kelime başındaki çekimler ise bulunur: "ağaca" → "ağaç".
-      expect(rankTurkish('ağaç', 'ağaca tırmanma'), isNotNull);
-    });
+    test(
+      'Türkçe karakter katlamasıyla oluşan kelime ortası eşleşme sayılmaz',
+      () {
+        // "döküldü" katlanınca "dokuldu" olur ve içinde "okul" geçer.
+        expect(rankTurkish('okul', 'döküldü, akıtıldı'), isNull);
+        // Kelime başındaki çekimler ise bulunur: "ağaca" → "ağaç".
+        expect(rankTurkish('ağaç', 'ağaca tırmanma'), isNotNull);
+      },
+    );
   });
 
   group('groupSearchResults', () {
@@ -126,34 +136,145 @@ void main() {
       dilbilgiselOzellikler: tur.isEmpty ? null : {'tur': tur},
     );
 
-    test('tam, önek, başlık ve kök sırasını kurar; kısmi eşleşmeleri gizler', () {
-      final exact = word('a');
-      final prefix = word('b');
-      final rootVerb = word('c', tur: 'Fiil');
-      final rootNoun = word('d', tur: 'İsim');
-      final partial = word('e');
-      final types = {
-        exact: WordMatchType.exact,
-        prefix: WordMatchType.prefix,
-        rootVerb: WordMatchType.root,
-        rootNoun: WordMatchType.root,
-        partial: WordMatchType.partial,
-      };
+    test(
+      'tam, önek, başlık ve kök sırasını kurar; kısmi eşleşmeleri gizler',
+      () {
+        final exact = word('a');
+        final prefix = word('b');
+        final rootVerb = word('c', tur: 'Fiil');
+        final rootNoun = word('d', tur: 'İsim');
+        final partial = word('e');
+        final types = {
+          exact: WordMatchType.exact,
+          prefix: WordMatchType.prefix,
+          rootVerb: WordMatchType.root,
+          rootNoun: WordMatchType.root,
+          partial: WordMatchType.partial,
+        };
 
-      final grouped = groupSearchResults(
-        [rootVerb, partial, prefix, rootNoun, exact],
-        (w) => types[w],
-      );
+        final grouped = groupSearchResults([
+          rootVerb,
+          partial,
+          prefix,
+          rootNoun,
+          exact,
+        ], (w) => types[w]);
 
-      expect(grouped[0], exact);
-      expect(grouped[1], prefix);
-      expect(grouped[2], isA<SearchGroupHeader>());
-      expect(grouped.sublist(3), [rootNoun, rootVerb]);
-    });
+        expect(grouped[0], exact);
+        expect(grouped[1], prefix);
+        expect(grouped[2], isA<SearchGroupHeader>());
+        expect(grouped.sublist(3), [rootNoun, rootVerb]);
+      },
+    );
 
     test('türü bilinmeyen kelime (AI sonucu) gösterilir', () {
       final ai = word('x');
       expect(groupSearchResults([ai], (_) => null), [ai]);
+    });
+  });
+
+  group('mastar araması', () {
+    test('mastar geçmiş zamana çevrilir (ünlü uyumu, sert ünsüz)', () {
+      String past(String q) => pastTenseOfInfinitive(foldLatin(q));
+      expect(past('yazmak'), 'yazdi');
+      expect(past('gitmek'), 'gitti');
+      expect(past('okumak'), 'okudu');
+      expect(past('görmek'), 'gordu');
+      expect(past('içmek'), 'icti');
+      expect(past('açmak'), 'acti');
+      expect(past('söylemek'), 'soyledi');
+      expect(past('yardım etmek'), 'yardim etti');
+      expect(past('kitap'), '');
+      expect(past('mak'), '');
+    });
+
+    test(
+      'mastarla arayınca "yazdı" anlamlı temel fiil, "yazmak suretiyle"den önce gelir',
+      () {
+        final base = rankTurkish('yazmak', 'yazdı, kaydetti')!;
+        final noise = rankTurkish('yazmak', 'bir yazıyla, yazmak suretiyle')!;
+        expect(base.type, WordMatchType.exact);
+        expect(base.rank, lessThan(noise.rank));
+      },
+    );
+  });
+
+  group('kopyaları birleştirme', () {
+    WordModel w(
+      String harekeli,
+      String tur, {
+      String koku = '',
+      String anlam = '',
+    }) => WordModel(
+      kelime: harekeli,
+      harekeliKelime: harekeli,
+      koku: koku,
+      anlam: anlam,
+      dilbilgiselOzellikler: {'tur': tur},
+    );
+
+    test('isimde hal eki ve "el-" takısı aynı anahtara iner', () {
+      final keys = [
+        'بَيْتٌ',
+        'بَيْتٍ',
+        'الْبَيْتِ',
+        'اَلْبَيْتُ',
+      ].map((h) => nounLemmaKey(w(h, 'İsim'))).toSet();
+      expect(keys, hasLength(1));
+      // Güneş harfi: الشُّكْرُ ile شُكْرٌ aynı kelime
+      expect(
+        nounLemmaKey(w('الشُّكْرُ', 'İsim')),
+        nounLemmaKey(w('شُكْرٌ', 'İsim')),
+      );
+      // İki harfli isimler de: الْأُمُّ ile أُمٌّ
+      expect(
+        nounLemmaKey(w('الْأُمُّ', 'İsim')),
+        nounLemmaKey(w('أُمٌّ', 'İsim')),
+      );
+    });
+
+    test('fiil ve zamir birleştirilmez, "الله"nin ال harfleri silinmez', () {
+      expect(nounLemmaKey(w('كَتَبْتُ', 'Mazî Fiil')), isNull);
+      expect(nounLemmaKey(w('لَهُ', 'Zamir')), isNull);
+      expect(nounLemmaKey(w('اللَّهُ', 'Özel İsim')), 'اللَّه');
+    });
+
+    test('Türkçe aramada kopyalar tek sonuç olur, yalın biçim gösterilir', () {
+      final r = collapseVariants([
+        RankedWord(w('الْبَيْتِ', 'İsim'), WordMatchType.exact),
+        RankedWord(
+          w('كَتَبَ', 'Mazî Fiil', koku: 'كتب', anlam: 'yazdı, kaydetti'),
+          WordMatchType.exact,
+        ),
+        RankedWord(w('بَيْتٌ', 'İsim'), WordMatchType.prefix),
+        RankedWord(
+          w('كَتَبَتِ', 'Mazî Fiil', koku: 'كتب', anlam: 'yazdı, not etti'),
+          WordMatchType.exact,
+        ),
+      ], turkishQuery: true);
+      expect(r.map((x) => x.word.harekeliKelime), ['بَيْتٌ', 'كَتَبَ']);
+      // Grup, en iyi üyesinin eşleşme türünü alır
+      expect(r.first.matchType, WordMatchType.exact);
+    });
+
+    test('Arapça aramada yazılan biçim korunur, fiil kişileri ayrı kalır', () {
+      final r = collapseVariants([
+        RankedWord(w('الْبَيْتِ', 'İsim'), WordMatchType.exact),
+        RankedWord(w('بَيْتٌ', 'İsim'), WordMatchType.prefix),
+        RankedWord(
+          w('كَتَبْتُ', 'Mazî Fiil', koku: 'كتب', anlam: 'yazdım'),
+          WordMatchType.exact,
+        ),
+        RankedWord(
+          w('كَتَبْتَ', 'Mazî Fiil', koku: 'كتب', anlam: 'yazdın'),
+          WordMatchType.exact,
+        ),
+      ], turkishQuery: false);
+      expect(r.map((x) => x.word.harekeliKelime), [
+        'الْبَيْتِ',
+        'كَتَبْتُ',
+        'كَتَبْتَ',
+      ]);
     });
   });
 }

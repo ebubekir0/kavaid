@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kavaid/data/embedded_words.dart';
 import 'package:kavaid/services/database_service.dart';
+import 'package:kavaid/services/search_ranking.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -43,23 +44,59 @@ void main() {
       );
     });
 
-    test('Arapça yazım farkları (hemze, ة/ه, uzatma çizgisi) sonucu bulur', () async {
-      Future<String?> first(String q) async =>
-          (await DatabaseService.instance.searchWords(q)).firstOrNull?.harekeliKelime;
+    test(
+      'Arapça yazım farkları (hemze, ة/ه, uzatma çizgisi) sonucu bulur',
+      () async {
+        Future<String?> first(String q) async =>
+            (await DatabaseService.instance.searchWords(
+              q,
+            )).firstOrNull?.harekeliKelime;
 
-      expect(await first('اسلام'), 'إِسْلَامٌ');
-      expect(await first('مدرسه'), 'مَدْرَسَةٌ');
-      expect(await first('كـتـاب'), await first('كتاب'));
-    });
+        expect(await first('اسلام'), 'إِسْلَامٌ');
+        expect(await first('مدرسه'), 'مَدْرَسَةٌ');
+        expect(await first('كـتـاب'), await first('كتاب'));
+      },
+    );
 
     test('kısa ve sık kelimelerde temel karşılık ilk sırada gelir', () async {
       Future<String?> first(String q) async =>
-          (await DatabaseService.instance.searchWords(q)).firstOrNull?.harekeliKelime;
+          (await DatabaseService.instance.searchWords(
+            q,
+          )).firstOrNull?.harekeliKelime;
 
       expect(await first('su'), 'مَاءٍ');
       expect(await first('ev'), 'بَيْتٌ');
       expect(await first('kitap'), 'كِتَابٌ');
       expect(await first('كتب'), 'كَتَبَ');
+    });
+
+    test('mastarla arama temel fiili ilk sırada bulur', () async {
+      Future<String?> first(String q) async =>
+          (await DatabaseService.instance.searchWords(
+            q,
+          )).firstOrNull?.harekeliKelime;
+
+      expect(await first('yazmak'), 'كَتَبَ');
+      expect(await first('gitmek'), 'ذَهَبَ');
+      expect(await first('okumak'), 'قَرَأَ');
+      expect(await first('almak'), 'أَخَذَ');
+    });
+
+    test('aynı puanda yaygın kelime nadir olandan önce gelir', () async {
+      Future<String?> first(String q) async =>
+          (await DatabaseService.instance.searchWords(
+            q,
+          )).firstOrNull?.harekeliKelime;
+
+      expect(await first('büyük'), 'كَبِيرٌ');
+      expect(await first('çok'), 'كَثِيرٌ');
+      expect(await first('baba'), 'أَبٌ');
+    });
+
+    test('ismin hal eki kopyaları sonuçlarda tekrar etmez', () async {
+      final top = (await DatabaseService.instance.searchWords('ev')).take(10);
+      final keys = top.map(nounLemmaKey).whereType<String>().toList();
+      expect(keys.toSet().length, keys.length);
     });
   });
 }

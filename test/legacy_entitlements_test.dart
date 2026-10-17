@@ -94,6 +94,56 @@ void main() {
 
       expect(result.premiumExpiry, later);
     });
+
+    test('ömür boyu belge, diğer belgedeki bitişle kısalmaz', () {
+      final result = evaluate([
+        {'lifetimePremium': true},
+        {'isPremium': true, 'premiumExpiry': future.toIso8601String()},
+      ]);
+
+      expect(result.premium, isTrue);
+      expect(result.premiumExpiry, isNull);
+    });
+  });
+
+  group('RevenueCat kopyası', () {
+    final mirror = {
+      'isPremium': true,
+      'premiumSource': 'storekit_revenuecat',
+      'premiumExpiry': future.toIso8601String(),
+      'purchasedBooks': ['kitab_kiraah_1', 'remove_ads'],
+    };
+
+    LegacyEntitlements evaluateRcEnded(List<Map<String, dynamic>> docs) =>
+        LegacyEntitlements.evaluate(docs, now: now, ignoreRevenueCatMirror: true);
+
+    test('RevenueCat aktifken kopya premium sayılır (çevrimdışı yedek)', () {
+      expect(evaluate([mirror]).premium, isTrue);
+    });
+
+    test('iade/iptal sonrası kopyadaki bitiş tarihi premium uzatmaz', () {
+      final result = evaluateRcEnded([mirror]);
+
+      expect(result.premium, isFalse);
+      // Kitaplar ve reklamsızlık kopyadan bağımsızdır, korunur.
+      expect(result.purchasedBooks, contains('kitab_kiraah_1'));
+      expect(result.adsFree, isTrue);
+    });
+
+    test('gerçek eski üyelik ve ömür boyu kopya etkilenmez', () {
+      expect(
+        evaluateRcEnded([
+          {'isPremium': true, 'premiumExpiry': future.toIso8601String()},
+        ]).premium,
+        isTrue,
+      );
+      expect(
+        evaluateRcEnded([
+          {'isPremium': true, 'premiumSource': 'storekit_revenuecat'},
+        ]).premium,
+        isTrue,
+      );
+    });
   });
 
   group('reklamsız ve kitaplar', () {

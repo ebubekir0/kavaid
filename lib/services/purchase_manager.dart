@@ -54,6 +54,12 @@ class PurchaseManager extends ChangeNotifier {
   bool _cachedLegacyPremium = false;
   bool _cachedLegacyAdsFree = false;
 
+  // RevenueCat'te premium kaydı var ama aktif değil (iade, iptal, bitiş).
+  // Bu durumda Firestore'daki RevenueCat kopyası premium sayılmaz.
+  bool _rcSaysNoPremium = false;
+  // Önbellekteki eski kayıt sonucu hangi kopya kuralıyla hesaplandı.
+  bool _legacyIgnoredMirror = false;
+
   DateTime? _subscriptionExpiryDate;
   DateTime? _promoExpiryDate;
   DateTime? _lastVerifiedAt;
@@ -430,42 +436,49 @@ class PurchaseManager extends ChangeNotifier {
     var legacyFailed = false;
     var revenueCatSucceeded = false;
 
-    final tasks = <Future<void>>[
-      (() async {
-        try {
-          revenueCatSucceeded = await _fetchCustomerInfo().timeout(const Duration(seconds: 5));
-        } catch (e) {
-          debugPrint('[RevenueCat] customerInfo timeout/error: $e');
-        }
-      })(),
-      (() async {
-        try {
-          await _checkLegacyPermissions(
-            onLegacyFound: (legacyPremium, legacyAdsFree) {
-              _cachedLegacyPremium = legacyPremium;
-              _cachedLegacyAdsFree = legacyAdsFree;
-              _legacyChecked = true;
-              checkedLegacy = true;
-              if (legacyPremium) _isPremium = true;
-              if (legacyAdsFree) _isLifetimeNoAds = true;
-            },
-          ).timeout(const Duration(seconds: 5));
-        } catch (e) {
-          debugPrint('[PurchaseManager] legacy timeout/error: $e');
-          legacyFailed = true;
-        }
-      })(),
-    ];
+    // Promo kontrolü bağımsızdır, paralel yürür.
+    final promoTask = includePromo
+        ? checkPromoPremium().timeout(const Duration(seconds: 5)).catchError((
+            e,
+          ) {
+            debugPrint('[PurchaseManager] promo timeout/error: $e');
+          })
+        : Future<void>.value();
 
-    if (includePromo) {
-      tasks.add(
-        checkPromoPremium().timeout(const Duration(seconds: 5)).catchError((e) {
-          debugPrint('[PurchaseManager] promo timeout/error: $e');
-        }),
+    // Önce RevenueCat: eski kayıt kontrolü onun sonucuna göre (iade edilmiş
+    // aboneliğin kopyası sayılmasın diye) _updateCustomerStatus içinde
+    // yapılır. Eskiden ikisi paralel çalışıyor, eski kayıt iki kez
+    // okunuyor ve sonra biten, öncekinin sonucunu eziyordu.
+    try {
+      revenueCatSucceeded = await _fetchCustomerInfo().timeout(
+        const Duration(seconds: 5),
       );
+    } catch (e) {
+      debugPrint('[RevenueCat] customerInfo timeout/error: $e');
     }
 
-    await Future.wait(tasks);
+    if (_legacyChecked) {
+      checkedLegacy = true;
+    } else {
+      try {
+        await _checkLegacyPermissions(
+          ignoreRevenueCatMirror: _rcSaysNoPremium,
+          onLegacyFound: (legacyPremium, legacyAdsFree) {
+            _cachedLegacyPremium = legacyPremium;
+            _cachedLegacyAdsFree = legacyAdsFree;
+            _legacyChecked = true;
+            checkedLegacy = true;
+            if (legacyPremium) _isPremium = true;
+            if (legacyAdsFree) _isLifetimeNoAds = true;
+          },
+        ).timeout(const Duration(seconds: 5));
+      } catch (e) {
+        debugPrint('[PurchaseManager] legacy timeout/error: $e');
+        legacyFailed = true;
+      }
+    }
+
+    await promoTask;
 
     // TÜM kaynaklar başarısız olduysa → mevcut state'i koru
     if (!checkedLegacy && !revenueCatSucceeded) {
@@ -579,10 +592,25 @@ class PurchaseManager extends ChangeNotifier {
       newPremiumStatus = true;
     }
 
-    if (customerInfo.entitlements.active.isNotEmpty) {
-      debugPrint('[PurchaseManager] Aktif Entitlement algılandı: ${customerInfo.entitlements.active.keys}');
+    // Reklamsızlık yetkisi (ads_free) premium değildir, yalnızca reklamları
+    // kapatır. Eskiden HERHANGİ bir aktif yetki premium sayılıyordu ve
+    // reklamsız alan kullanıcı tüm premium içeriğe erişiyordu.
+    final activePremiumLike = customerInfo.entitlements.active.keys
+        .where((id) => !_isAdsOnlyEntitlement(id));
+    if (activePremiumLike.isNotEmpty) {
+      debugPrint('[PurchaseManager] Aktif Entitlement algılandı: $activePremiumLike');
       newPremiumStatus = true;
     }
+
+    // Premium'u RevenueCat'in kendisi mi veriyor? (eski kayıt hariç)
+    final rcPremiumActive = newPremiumStatus;
+    // RevenueCat'te premium kaydı var ama aktif değil: iade, iptal ya da
+    // süresi bitmiş abonelik. Firestore'daki kopyası premium sayılmaz.
+    final rcHadPremium = entitlements.keys.any(
+      (id) => !_isAdsOnlyEntitlement(id),
+    );
+    final rcSaysNoPremium = rcHadPremium && !rcPremiumActive;
+    _rcSaysNoPremium = rcSaysNoPremium;
 
     // Reklam kaldırma ürün kontrolü
     for (final id in customerInfo.allPurchasedProductIdentifiers) {
@@ -604,12 +632,13 @@ class PurchaseManager extends ChangeNotifier {
     // maskeleme. expiry null kalır, bir sonraki refresh doğrusunu getirir.
 
     var legacyFailed = false;
-    if (!_legacyChecked) {
+    if (!_legacyChecked || _legacyIgnoredMirror != rcSaysNoPremium) {
       try {
         // ANR: Firestore takılırsa (kötü ağ) UI isolate'te bekleyen
         // future yığılmasın. Dış timeout zaten var ama bu yol
         // timeout'suz da çağrılıyordu (listener).
         await _checkLegacyPermissions(
+          ignoreRevenueCatMirror: rcSaysNoPremium,
           onLegacyFound: (legacyPremium, legacyAdsFree) {
             _cachedLegacyPremium = legacyPremium;
             _cachedLegacyAdsFree = legacyAdsFree;
@@ -640,9 +669,18 @@ class PurchaseManager extends ChangeNotifier {
       return;
     }
 
-    final verifiedExpiry = _cachedLegacyPremium
-        ? _subscriptionExpiryDate
-        : expiry;
+    // Eski kayıttan premium: bitişsizse ömür boyudur. RevenueCat de aktifse
+    // iki bitişin geç olanı geçerlidir; yoksa yenilenen aboneliğin yeni
+    // tarihi yerine kopyadaki eski tarih kullanılıp premium erken düşerdi.
+    final DateTime? verifiedExpiry;
+    if (_cachedLegacyPremium) {
+      final legacyExpiry = _subscriptionExpiryDate;
+      verifiedExpiry = legacyExpiry == null
+          ? null
+          : (rcPremiumActive ? latestDate(legacyExpiry, expiry) : legacyExpiry);
+    } else {
+      verifiedExpiry = expiry;
+    }
 
     _applyVerifiedEntitlements(
       isPremium: newPremiumStatus,
@@ -655,13 +693,14 @@ class PurchaseManager extends ChangeNotifier {
     await _saveEntitlementSnapshot(source: 'revenuecat');
 
     // Kullanıcı Firebase'e giriş yapmışsa Firestore'a da eşitle.
-    // KRİTİK: sadece true değil, false (bitiş) durumu da yazılmalı.
-    // Yoksa Firestore'da eski isPremium:true sonsuza kadar kalıp
-    // legacy kontrolü tekrar premium yapar (sonsuz premium bug'ı).
+    // Yalnızca RevenueCat'in KENDİ sonucu yazılır: premium eski kayıttan
+    // geliyorsa yazılmaz, yoksa eski üyenin kaydının kaynağı RevenueCat
+    // kopyası gibi görünürdü. Bitiş de yazılır ki kopya premium'u
+    // diriltmesin.
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       try {
-        if (newPremiumStatus) {
+        if (rcPremiumActive) {
           // expiry null + aktif = RevenueCat tarihsiz aktiflik.
           // Bunu lifetime gibi Firestore'a null yazma; legacy tarafı
           // null expiry + isPremium:true'yu lifetime sanır.
@@ -671,18 +710,19 @@ class PurchaseManager extends ChangeNotifier {
             'premiumSource': 'storekit_revenuecat',
             'lastVerifiedAt': FieldValue.serverTimestamp(),
           };
-          if (verifiedExpiry != null) {
-            data['premiumExpiry'] = verifiedExpiry.toIso8601String();
+          if (expiry != null) {
+            data['premiumExpiry'] = expiry.toIso8601String();
           }
           await FirebaseFirestore.instance
               .collection('users')
               .doc(currentUser.uid)
               .set(data, SetOptions(merge: true));
-        } else if (_legacyChecked &&
-            !_cachedLegacyPremium &&
+          debugPrint('✅ [PurchaseManager] Premium Firestore kullanıcı hesabına eşitlendi');
+        } else if (rcSaysNoPremium &&
+            !newPremiumStatus &&
             !_isPromoPremium) {
-          // StoreKit + legacy ikisi de premium yok diyor ve promo da yok:
-          // bitişi Firestore'a işle ki legacy tekrar diriltmesin.
+          // RevenueCat aboneliği bitti ve başka premium kaynağı yok:
+          // bitişi Firestore'a işle ki kopya tekrar diriltmesin.
           await FirebaseFirestore.instance
               .collection('users')
               .doc(currentUser.uid)
@@ -693,11 +733,16 @@ class PurchaseManager extends ChangeNotifier {
           }, SetOptions(merge: true));
           debugPrint('[PurchaseManager] Premium bitişi Firestore\'a işlendi');
         }
-        debugPrint('✅ [PurchaseManager] Premium Firestore kullanıcı hesabına eşitlendi');
       } catch (e) {
         debugPrint('⚠️ [PurchaseManager] Firestore sync hatası: $e');
       }
     }
+  }
+
+  /// Yalnızca reklamları kapatan yetki mi? (ads_free, no_ads, remove_ads...)
+  static bool _isAdsOnlyEntitlement(String id) {
+    final lower = id.toLowerCase();
+    return lower.contains('ads') || lower.contains('reklam');
   }
 
   EntitlementInfo? _firstActiveEntitlement(
@@ -765,6 +810,7 @@ class PurchaseManager extends ChangeNotifier {
 
   Future<void> _checkLegacyPermissions({
     required Function(bool isLegacyPremium, bool isLegacyAdsFree) onLegacyFound,
+    bool ignoreRevenueCatMirror = false,
   }) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -804,7 +850,12 @@ class PurchaseManager extends ChangeNotifier {
         }
       }
 
-      final legacy = LegacyEntitlements.evaluate(legacyDocs, now: now);
+      final legacy = LegacyEntitlements.evaluate(
+        legacyDocs,
+        now: now,
+        ignoreRevenueCatMirror: ignoreRevenueCatMirror,
+      );
+      _legacyIgnoredMirror = ignoreRevenueCatMirror;
 
       if (legacy.purchasedBooks.isNotEmpty) {
         _purchasedBooks = legacy.purchasedBooks;
@@ -1250,6 +1301,10 @@ class PurchaseManager extends ChangeNotifier {
           : const Duration(minutes: 5);
       _subscriptionExpiryTimer = Timer(firstCheck, () async {
         if (_isSubscriptionExpired && _isPremium) {
+          // Otomatik yenilenen abonelikte bitiş anı yenileme anıdır:
+          // düşürmeden önce mağazaya sor. Yenilendiyse yeni bitiş tarihi
+          // gelir ve zamanlayıcı yeniden kurulur.
+          if (await _refreshCustomerInfoBeforeExpiry()) return;
           debugPrint('[PurchaseManager] Abonelik süresi doldu, premium düşürülüyor');
           _isPremium = false;
           await _saveEntitlementSnapshot(source: 'subscription_expired');
@@ -1281,6 +1336,21 @@ class PurchaseManager extends ChangeNotifier {
       unawaited(_saveEntitlementSnapshot(source: 'subscription_expired'));
       unawaited(_saveLocalCache());
       notifyListeners();
+    }
+  }
+
+  /// Bitiş anında RevenueCat'ten taze bilgi ister. Abonelik yenilenmişse
+  /// (premium sürüyor) true döner.
+  Future<bool> _refreshCustomerInfoBeforeExpiry() async {
+    if (!_isRevenueCatConfigured || kIsWeb) return false;
+    try {
+      if (!await ConnectivityService().hasInternetConnection()) return false;
+      await Purchases.invalidateCustomerInfoCache();
+      final ok = await _fetchCustomerInfo().timeout(const Duration(seconds: 8));
+      return ok && _isPremium && !_isSubscriptionExpired;
+    } catch (e) {
+      debugPrint('[PurchaseManager] Bitişte yenileme kontrolü başarısız: $e');
+      return false;
     }
   }
 

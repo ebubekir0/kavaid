@@ -104,13 +104,29 @@ class LegacyEntitlements {
     'kavaid_premium',
   ];
 
+  /// Uygulamanın RevenueCat sonucunu Firestore'a yansıttığı kayıtların
+  /// `premiumSource` değerleri.
+  static const List<String> revenueCatMirrorSources = [
+    'storekit_revenuecat',
+    'storekit_revenuecat_expired',
+    'local_expiry',
+  ];
+
   /// [docs] içindeki tüm belgeleri birlikte değerlendirir; herhangi biri
   /// premium/reklamsız ise sonuç da öyledir. [now] UTC olmalıdır.
+  ///
+  /// [ignoreRevenueCatMirror]: RevenueCat'te premium kaydı olup artık aktif
+  /// olmayan kullanıcıda (iade, iptal, Google'ın geri alması) uygulamanın
+  /// daha önce RevenueCat'ten kopyaladığı süreli premium dikkate alınmaz;
+  /// yoksa kopyadaki bitiş tarihine kadar premium sürerdi. Ömür boyu
+  /// (bitişsiz) kayıtlar, kitaplar ve reklamsızlık etkilenmez.
   static LegacyEntitlements evaluate(
     Iterable<Map<String, dynamic>> docs, {
     required DateTime now,
+    bool ignoreRevenueCatMirror = false,
   }) {
     var premium = false;
+    var lifetime = false;
     var adsFree = false;
     DateTime? premiumExpiry;
     final books = <String>{};
@@ -132,13 +148,21 @@ class LegacyEntitlements {
           _activeNamedEntitlement(data['purchases'], now);
 
       final docExpiry = _firstDate(data, _premiumExpiryFields);
+      final isStaleMirror =
+          ignoreRevenueCatMirror &&
+          docExpiry != null &&
+          revenueCatMirrorSources.contains(data['premiumSource']?.toString());
 
       if (hasLifetimePremium) {
         premium = true;
-        premiumExpiry = null;
+        lifetime = true;
+      } else if (isStaleMirror) {
+        // RevenueCat'in kopyası; RevenueCat artık aktif değil diyor.
       } else if (hasPremiumFlag &&
           (docExpiry == null || docExpiry.isAfter(now))) {
         premium = true;
+        // Bitişsiz premium bayrağı ömür boyu sayılır.
+        if (docExpiry == null) lifetime = true;
         premiumExpiry = latestDate(premiumExpiry, docExpiry);
       } else if (!hasPremiumFlag &&
           docExpiry != null &&
@@ -165,7 +189,8 @@ class LegacyEntitlements {
     return LegacyEntitlements(
       premium: premium,
       adsFree: adsFree,
-      premiumExpiry: premiumExpiry,
+      // Belgelerden biri ömür boyuysa diğerlerinin bitişi onu kısaltmaz.
+      premiumExpiry: lifetime ? null : premiumExpiry,
       purchasedBooks: books,
     );
   }

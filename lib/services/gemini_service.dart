@@ -404,9 +404,7 @@ fiilCekimler (object): Fiilse çekimler.
 
       if (apiKey != null && apiKey.isNotEmpty) {
         updates['gemini_api'] = apiKey;
-        debugPrint(
-          '🔑 API Key güncelleniyor: (gizli)',
-        );
+        debugPrint('🔑 API Key güncelleniyor: (gizli)');
       }
 
       if (model != null && model.isNotEmpty) {
@@ -486,9 +484,7 @@ fiilCekimler (object): Fiilse çekimler.
 
       try {
         final apiKey = await _getApiKey();
-        debugPrint(
-          '🔑 API Key: (gizli) (${apiKey.length} karakter)',
-        );
+        debugPrint('🔑 API Key: (gizli) (${apiKey.length} karakter)');
       } catch (e) {
         debugPrint('❌ API Key hatası: $e');
       }
@@ -605,7 +601,7 @@ fiilCekimler (object): Fiilse çekimler.
       final url = Uri.parse(
         'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$apiKey',
       );
-      debugPrint('🌐 API URL: $url');
+      debugPrint('🌐 Model: $model');
 
       final requestBody = {
         'contents': [
@@ -620,9 +616,8 @@ fiilCekimler (object): Fiilse çekimler.
           'topK': 1,
           'topP': 0.1,
           'maxOutputTokens': 1000,
-          'thinkingConfig': {
-            'thinkingBudget': 0, // Thinking'i kapatmak için budget'ı 0 yap
-          },
+          // Düşünme en düşük seviyede (Gemini 3: minimal, eski modeller: 0)
+          'thinkingConfig': _teacherThinkingConfig(model),
           // Sadece metin/JSON çıktısı üretmeyi zorla; görsel çıktıları devre dışı bırakır
           'response_mime_type': 'application/json',
         },
@@ -645,7 +640,7 @@ fiilCekimler (object): Fiilse çekimler.
       );
       final thinkingConfig =
           (requestBody['generationConfig'] as Map)['thinkingConfig'] as Map?;
-      debugPrint('🔧 Thinking Budget: ${thinkingConfig?['thinkingBudget']}');
+      debugPrint('🔧 Thinking: $thinkingConfig');
 
       // Timeout ile HTTP isteği - donmayı önlemek için
       final response = await http
@@ -827,7 +822,7 @@ fiilCekimler (object): Fiilse çekimler.
       } else {
         debugPrint('❌ API Hatası - Status: ${response.statusCode}');
         debugPrint('❌ API Hatası - Body: ${response.body}');
-        debugPrint('❌ Kullanılan URL: $url');
+        debugPrint('❌ Kullanılan model: $model');
         debugPrint(
           '❌ API Key son 10 karakter: ${apiKey.substring(apiKey.length - 10)}',
         );
@@ -1101,9 +1096,10 @@ Sadece JSON dondur:
     final requestBody = <String, dynamic>{
       'contents': history,
       'generationConfig': <String, dynamic>{
-        'temperature': 0.4,
+        'temperature': 0.3,
         'topP': 0.85,
-        // Kisa cevap = hizli + ucuz. Sözlük asistanı uzun metin yazmaz.
+        // Kisa cevap = hizli + ucuz. Sözlük asistanı uzun metin yazmaz;
+        // tavan yalnızca harekeli örnek listelerinin kesilmemesi için.
         'maxOutputTokens': 500,
         'thinkingConfig': _teacherThinkingConfig(model),
       },
@@ -1151,16 +1147,17 @@ Sadece JSON dondur:
 
   String _buildChatSystemPrompt(WordModel? word) {
     final buffer = StringBuffer('''
-Sen Kavaid sozlugunun icinde calisan Turkce bir Arapca asistanisin.
+Sen Kavaid sozlugunun icindeki Arapca asistanisin.
 Kullanici Turkce konusuyor, Arapca ogreniyor.
 
 Kurallar:
-- Kisa ve net cevap ver. En fazla 4-5 cumle. Paragraf yazma.
-- Sohbet eden bir ogretmen gibi davran: samimi, vevazli, cesaretlendirici.
-- Arapca kelime veya ornek yazacaksan MUTLAKA tam harekeli yaz.
-- Emin olmadigin bilgiyi uydurma; bilmiyorsan "bilmiyorum" de.
-- Parantez kullanma. Listeyi asiri kullanim.
-- Kullanici kelime sormazsa once onu ne oldugunu kisaca hatirlat.
+- Dogrudan cevapla. Selamlama, giris cumlesi, soruyu tekrar etme, ovgu, tesvik ve kapanis cumlesi yazma.
+- Sadece sorulani cevapla. Istenmeyen ek bilgi, ders anlatimi veya hatirlatma ekleme; ornek istenmedikce ornek verme.
+- Varsayilan uzunluk 1-3 cumle. Gerekirse en fazla 5 kisa madde; her madde tek satir, "- " ile baslar.
+- Ornek istenirse her satira bir ornek yaz: tam harekeli Arapca cumle, " — ", Turkce ceviri. Aciklama ekleme.
+- Arapca her kelime ve cumle tam harekeli olsun.
+- Baslik, kalin yazi, emoji ve parantez kullanma.
+- Emin degilsen tek cumleyle "Emin degilim" de; asla uydurma.
 ''');
 
     if (word != null) {
@@ -1218,10 +1215,9 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
       final uploaded =
           (prefs.getStringList(_uploadedAiWordsKey) ?? const <String>[])
               .toSet();
-      String keyOf(WordModel w) => (w.harekeliKelime?.isNotEmpty == true
-              ? w.harekeliKelime!
-              : w.kelime)
-          .trim();
+      String keyOf(WordModel w) =>
+          (w.harekeliKelime?.isNotEmpty == true ? w.harekeliKelime! : w.kelime)
+              .trim();
 
       final pendingWords = await databaseService.getPendingAiWords();
       final toUpload = pendingWords
@@ -1390,9 +1386,7 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
       // API Key test
       debugPrint('🔑 API Key test ediliyor...');
       final apiKey = await service._getApiKey();
-      debugPrint(
-        '🔑 Alınan API Key: (gizli)',
-      );
+      debugPrint('🔑 API Key: ${apiKey.isEmpty ? 'BOŞ' : 'var (gizli)'}');
 
       // Model test
       debugPrint('🤖 Model test ediliyor...');
@@ -1491,10 +1485,11 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
         final apiKey = await service._getApiKey();
         final model = await service._getModel();
 
-        results['details']['apiKey'] =
-            '(gizli)';
+        results['details']['apiKey'] = '(gizli)';
         results['details']['model'] = model;
-        results['details']['apiKeyFromBuild'] = const String.fromEnvironment('GEMINI_API_KEY').isNotEmpty;
+        results['details']['apiKeyFromBuild'] = const String.fromEnvironment(
+          'GEMINI_API_KEY',
+        ).isNotEmpty;
 
         // Basit HTTP test
         final url = Uri.parse(

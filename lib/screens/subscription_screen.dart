@@ -128,11 +128,17 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     final rawYearly = pm.getPrice('yearly');
     final rawYearlyMonthly = pm.getMonthlyCostForYearly();
 
-    final monthlyPrice = rawMonthly.isNotEmpty ? rawMonthly : (pm.isFetchingProducts ? '...' : '79,99₺');
-    final yearlyPrice = rawYearly.isNotEmpty ? rawYearly : (pm.isFetchingProducts ? '...' : '479,99₺');
+    // Fiyat yalnızca mağazadan gelir. Gelmezse sabit (ve zamanla eskiyen)
+    // bir fiyat göstermek yerine boş bırakılır; yanlış fiyat gösterimi
+    // mağaza incelemesinde red sebebi ve kullanıcıyı yanıltır.
+    const unknownPrice = '—';
+    final monthlyPrice = rawMonthly.isNotEmpty ? rawMonthly : (pm.isFetchingProducts ? '...' : unknownPrice);
+    final yearlyPrice = rawYearly.isNotEmpty ? rawYearly : (pm.isFetchingProducts ? '...' : unknownPrice);
     final yearlyMonthlyCost = rawYearlyMonthly.isNotEmpty
         ? rawYearlyMonthly
-        : (pm.isFetchingProducts ? '...' : '40₺/ay');
+        : (pm.isFetchingProducts ? '...' : '');
+
+    final yearlyDiscount = pm.yearlyDiscountPercent();
 
     final buttonPriceText = _selectedPlan == 'monthly'
         ? (rawMonthly.isNotEmpty ? " ($rawMonthly)" : "")
@@ -198,6 +204,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          _buildBullet("AI Asistan'a sınırsız soru", highlight: true),
+                          const SizedBox(height: 8),
                           _buildBullet("Çeviriye sınırsız erişim"),
                           const SizedBox(height: 8),
                           _buildBullet("7000+ fiilin 24 sığa emsile çekimlerini aç"),
@@ -224,9 +232,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           _buildPlanTile(
                             id: 'yearly',
                             title: 'Yıllık Abonelik',
-                            subtitleText: '1 Yıl boyunca sınırsız erişim ($yearlyMonthlyCost)',
+                            subtitleText: yearlyMonthlyCost.isEmpty
+                                ? '1 Yıl boyunca sınırsız erişim'
+                                : '1 Yıl boyunca sınırsız erişim ($yearlyMonthlyCost)',
                             price: yearlyPrice,
-                            badge: '%50 İNDİRİM',
+                            // Mağaza fiyatlarından hesaplanır; fiyat değişince
+                            // rozet kendiliğinden doğru kalır.
+                            badge: yearlyDiscount == null ? null : '%$yearlyDiscount İNDİRİM',
                           ),
 
                           const SizedBox(height: 20),
@@ -352,17 +364,25 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 
-  Widget _buildBullet(String text) {
+  Widget _buildBullet(String text, {bool highlight = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.check_circle_outline, color: Colors.white70, size: 18),
+        Icon(
+          highlight ? Icons.auto_awesome_rounded : Icons.check_circle_outline,
+          color: highlight ? const Color(0xFFFFD60A) : Colors.white70,
+          size: 18,
+        ),
         const SizedBox(width: 8),
         Flexible(
           child: Text(
             text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.outfit(fontSize: 13.5, color: Colors.white.withValues(alpha: 0.95), fontWeight: FontWeight.w500),
+            style: GoogleFonts.outfit(
+              fontSize: highlight ? 14.5 : 13.5,
+              color: Colors.white.withValues(alpha: 0.95),
+              fontWeight: highlight ? FontWeight.w700 : FontWeight.w500,
+            ),
           ),
         ),
       ],

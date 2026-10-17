@@ -15,6 +15,18 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        // 🚀 PERFORMANCE MOD: Build optimizasyonları
+        freeCompilerArgs.addAll(
+            "-opt-in=kotlin.RequiresOptIn",
+            "-Xjvm-default=all",
+            "-Xlambdas=indy"
+        )
+    }
+}
+
 android {
     namespace = "com.onbir.kavaid"
     compileSdk = 36
@@ -23,10 +35,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
     }
 
     defaultConfig {
@@ -184,14 +192,3 @@ dependencies {
 
 // Google Services plugin'i apply et
 apply(plugin = "com.google.gms.google-services")
-
-// 🚀 PERFORMANCE MOD: Build optimizasyonları
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs += listOf(
-            "-opt-in=kotlin.RequiresOptIn",
-            "-Xjvm-default=all",
-            "-Xlambdas=indy"
-        )
-    }
-}

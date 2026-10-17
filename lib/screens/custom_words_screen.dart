@@ -915,11 +915,9 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
     return ReorderableListView.builder(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
       itemCount: _words.length,
-      onReorder: (oldIndex, newIndex) async {
+      // onReorderItem, newIndex'i çıkarılan öğeye göre zaten düzeltilmiş verir.
+      onReorderItem: (oldIndex, newIndex) async {
         setState(() {
-          if (oldIndex < newIndex) {
-            newIndex -= 1;
-          }
           final item = _words.removeAt(oldIndex);
           _words.insert(newIndex, item);
         });

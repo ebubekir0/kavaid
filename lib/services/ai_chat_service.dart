@@ -90,6 +90,10 @@ class AiChatService extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
+  /// Cevap alınamayan son soru; arayüz "Tekrar dene" ile yeniden gönderir.
+  String? _failedText;
+  String? get failedText => _failedText;
+
   int _remaining = 0;
   int get remainingUses => _remaining;
 
@@ -106,15 +110,17 @@ class AiChatService extends ChangeNotifier {
     _messages.clear();
     _contextWord = word;
     _error = null;
+    _failedText = null;
     unawaited(_refreshRemaining());
     notifyListeners();
   }
 
+  /// Geçmişi siler; kelime bağlamı korunur (kelime hakkında yeni sohbet).
   void reset() {
-    _memory.reset();
+    _memory.reset(wordKey: _wordKey(_contextWord));
     _messages.clear();
-    _contextWord = null;
     _error = null;
+    _failedText = null;
     notifyListeners();
   }
 
@@ -123,6 +129,7 @@ class AiChatService extends ChangeNotifier {
     if (text.isEmpty || _isSending) return;
 
     _error = null;
+    _failedText = null;
 
     // Kontroller mesaj eklenmeden önce yapılır, böylece hakkı dolmuşken
     // kullanıcı boş bir sohbet kutusunda kalmaz.
@@ -144,6 +151,7 @@ class AiChatService extends ChangeNotifier {
     _isSending = true;
     notifyListeners();
 
+    var answered = false;
     try {
       _memory.addUser(text);
       final reply = await _gemini.askInChat(
@@ -152,27 +160,31 @@ class AiChatService extends ChangeNotifier {
       );
       _memory.addModel(reply);
       _messages.add(AiChatMessage(text: reply, isUser: false));
+      answered = true;
     } on GeminiApiKeyInvalidException {
-      _error = 'AI asistan yapılandırması geçersiz.';
-      _memory.dropLastUserTurn();
-      _messages.removeWhere((m) => m.isUser && m.text == text);
+      _fail(text, 'AI asistan şu an kullanılamıyor.');
     } on TimeoutException {
-      _error = 'Yanıt gelmedi. Biraz sonra tekrar dene.';
-      _memory.dropLastUserTurn();
-      _messages.removeWhere((m) => m.isUser && m.text == text);
+      _fail(text, 'Yanıt gelmedi.');
     } catch (e) {
       debugPrint('[AiChatService] send failed: $e');
-      _error = 'Şu anda cevap alınamadı. Tekrar deneyebilirsin.';
-      _memory.dropLastUserTurn();
-      _messages.removeWhere((m) => m.isUser && m.text == text);
+      _fail(text, 'Şu anda cevap alınamadı.');
     } finally {
       _isSending = false;
-      if (!isPremium) {
+      // Hak yalnızca cevap alındığında düşer; hata kullanıcıya yazılmaz.
+      if (answered && !isPremium) {
         await _teacher.consumeQuota();
         await _refreshRemaining();
       }
       notifyListeners();
     }
+  }
+
+  void _fail(String text, String message) {
+    _error = message;
+    _failedText = text;
+    _memory.dropLastUserTurn();
+    final i = _messages.lastIndexWhere((m) => m.isUser && m.text == text);
+    if (i >= 0) _messages.removeAt(i);
   }
 
   Future<void> _refreshRemaining() async {

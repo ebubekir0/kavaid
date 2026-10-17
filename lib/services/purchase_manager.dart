@@ -947,6 +947,33 @@ class PurchaseManager extends ChangeNotifier {
     return '';
   }
 
+  /// Yıllık planın, 12 aylık ödemeye göre indirimi (%). Mağaza fiyatlarından
+  /// hesaplanır; fiyatlar yoksa ya da indirim anlamsızsa null.
+  int? yearlyDiscountPercent() {
+    final monthly = _findStoreProduct(yearly: false);
+    final yearly = _findStoreProduct(yearly: true);
+    if (monthly == null || yearly == null || monthly.price <= 0) return null;
+    final percent = ((1 - yearly.price / (monthly.price * 12)) * 100).round();
+    return percent >= 5 && percent < 100 ? percent : null;
+  }
+
+  StoreProduct? _findStoreProduct({required bool yearly}) {
+    final current = _offerings?.current;
+    final fromOffering = yearly
+        ? current?.annual?.storeProduct
+        : current?.monthly?.storeProduct;
+    if (fromOffering != null) return fromOffering;
+    final ids = yearly ? yearlyProductIds : monthlyProductIds;
+    for (final p in _fallbackProducts) {
+      final id = p.identifier.toLowerCase();
+      final nameMatches = yearly
+          ? id.contains('yearly') || id.contains('annual')
+          : id.contains('monthly');
+      if (ids.contains(p.identifier) || nameMatches) return p;
+    }
+    return null;
+  }
+
   String getMonthlyCostForYearly() {
     try {
       StoreProduct? annualProduct = _offerings?.current?.annual?.storeProduct;

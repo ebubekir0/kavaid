@@ -30,6 +30,17 @@ void main() {
     expect(service.shouldShowRatingForTest, isFalse);
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getBool('has_clicked_rating_prompt_after_update_v1'), isTrue);
+    expect(prefs.getBool('has_clicked_rating_prompt_v2'), isTrue);
+  });
+
+  test('eski karta tıklamış olmak yeni kartı gizlemez', () async {
+    SharedPreferences.setMockInitialValues({
+      'has_clicked_rating_prompt_after_update_v1': true,
+      'total_app_usage_minutes': 120,
+    });
+    final service = AppUsageService();
+    await service.startSession();
+    expect(service.shouldShowRatingForTest, isTrue);
+    await service.endSession();
   });
 }

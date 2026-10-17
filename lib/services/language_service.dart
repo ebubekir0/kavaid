@@ -3,7 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LanguageService extends ChangeNotifier {
   static const String _isFirstLaunchKey = 'is_first_launch';
-  
+
+  /// Yeni kurulumda true yazılır; tanıtım ekranı gösterilince false olur.
+  /// Güncelleme alan kullanıcılarda hiç yazılmaz, tanıtım onlara çıkmaz.
+  static const String appIntroPendingKey = 'app_intro_pending_v1';
+
   Locale _currentLocale = const Locale('tr');
   bool _isFirstLaunch = true;
   
@@ -31,6 +35,7 @@ class LanguageService extends ChangeNotifier {
     _isFirstLaunch = prefs.getBool(_isFirstLaunchKey) ?? true;
     if (_isFirstLaunch) {
       await prefs.setBool(_isFirstLaunchKey, false);
+      await prefs.setBool(appIntroPendingKey, true);
       _isFirstLaunch = false;
     }
     

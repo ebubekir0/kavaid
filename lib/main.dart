@@ -16,6 +16,7 @@ import 'screens/profile_screen.dart';
 import 'screens/admin_console_screen.dart';
 import 'services/admin_service.dart';
 import 'services/admob_service.dart';
+import 'widgets/app_intro_screen.dart';
 import 'widgets/banner_ad_widget.dart';
 import 'services/credits_service.dart';
 import 'utils/performance_utils.dart';
@@ -810,13 +811,15 @@ class _MainScreenState extends State<MainScreen> {
   // Subscriptionlar
   StreamSubscription<User?>? _authSubscription;
 
-  // Öğren sekmesi bildirim badge'i
-  bool _showLearningBadge = false;
+  // Çeviri sekmesini henüz açmamış kullanıcılara gösterilen kırmızı nokta
+  static const _translationTabOpenedKey = 'has_opened_translation_tab_v1';
+  bool _showTranslationBadge = false;
 
   @override
   void initState() {
     super.initState();
-    _checkLearningBadgeStatus();
+    _checkTranslationBadgeStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowAppIntro());
 
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -875,7 +878,17 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _currentIndex = index;
       });
+      if (index == 2) _markTranslationTabOpened();
     }
+  }
+
+  /// Çeviri sekmesi açıldı: kırmızı noktayı kalıcı olarak kaldır (index 2).
+  void _markTranslationTabOpened() {
+    if (!_showTranslationBadge) return;
+    setState(() => _showTranslationBadge = false);
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setBool(_translationTabOpenedKey, true);
+    });
   }
 
   // Yerel veritabanı hazır mı? Hazırsa internetsiz kullanım mümkün => engelleyici dialog gerekmez
@@ -931,14 +944,24 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Future<void> _checkLearningBadgeStatus() async {
+  /// Yeni kurulumda uygulamayı tanıtan ekranı bir kez göster.
+  Future<void> _maybeShowAppIntro() async {
+    try {
+      if (!await AppIntroScreen.shouldShow() || !mounted) return;
+      await AppIntroScreen.show(context, isDarkMode: widget.isDarkMode);
+    } catch (e) {
+      debugPrint('❌ Tanıtım ekranı açılamadı: $e');
+    }
+  }
+
+  Future<void> _checkTranslationBadgeStatus() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       // true ise daha önce açılmış demektir, badge gösterme
-      final hasOpened = prefs.getBool('has_opened_learning_tab') ?? false;
+      final hasOpened = prefs.getBool(_translationTabOpenedKey) ?? false;
       if (mounted) {
         setState(() {
-          _showLearningBadge = !hasOpened;
+          _showTranslationBadge = !hasOpened;
         });
       }
     } catch (e) {
@@ -974,6 +997,35 @@ class _MainScreenState extends State<MainScreen> {
     return navIndex >= 0 ? navIndex : 0;
   }
 
+  /// Sekme ikonunun sağ üstüne "yeni" kırmızı noktası ekler.
+  Widget _withBadge(Widget icon, bool show) {
+    if (!show) return icon;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        icon,
+        Positioned(
+          right: -4,
+          top: -4,
+          child: Container(
+            width: 10,
+            height: 10,
+            decoration: BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: widget.isDarkMode
+                    ? const Color(0xFF1C1C1E)
+                    : Colors.white,
+                width: 1.5,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   void _onTabTapped(int index) {
     // Navigation bar index'ini IndexedStack index'ine çevir
     final realIndex = _mapNavigationToStackIndex(index);
@@ -991,15 +1043,7 @@ class _MainScreenState extends State<MainScreen> {
     // Farklı bir sekmeye geçiliyorsa yalnızca index'i değiştir
     setState(() => _currentIndex = realIndex);
 
-    // Öğren sekmesine tıklandıysa badge'i kaldır ve kaydet (index 1 = Öğren)
-    if (realIndex == 1 && _showLearningBadge) {
-      setState(() {
-        _showLearningBadge = false;
-      });
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setBool('has_opened_learning_tab', true);
-      });
-    }
+    if (realIndex == 2) _markTranslationTabOpened();
 
     // Sekme değişiminde (navigasyon bar geçişi) interstitial reklam tetikle
     // Premium / reklamsız kullanıcılar ve cooldown kontrolleri AdMobService içinde yapılır
@@ -1079,8 +1123,11 @@ class _MainScreenState extends State<MainScreen> {
             setState(() => _currentIndex = 0);
             return;
           }
-          // Ana sekmede, sistemin geri tuşu davranışını uygula
-          Navigator.of(context).maybePop();
+          // Ana sekmede, sistemin geri tuşu davranışını uygula: uygulamadan
+          // çık. maybePop() burada KULLANILMAMALI: bu route canPop:false
+          // olduğu için maybePop bu işleyiciyi tekrar çağırıyor, bitmeyen
+          // döngü ana iş parçacığını kilitleyip ANR'a yol açıyordu.
+          SystemNavigator.pop();
         },
         child: Scaffold(
           resizeToAvoidBottomInset: false,
@@ -1323,40 +1370,19 @@ class _MainScreenState extends State<MainScreen> {
                                         ? 'قاموس'
                                         : 'Sözlük'),
                             ),
-                            const BottomNavigationBarItem(
-                              icon: Icon(Icons.translate_outlined),
-                              activeIcon: Icon(Icons.translate),
+                            BottomNavigationBarItem(
+                              icon: _withBadge(
+                                const Icon(Icons.translate_outlined),
+                                _showTranslationBadge,
+                              ),
+                              activeIcon: const Icon(Icons.translate),
                               label: 'Çeviri',
                             ),
                             if (!LanguageService().isEnglish &&
                                 !LanguageService().isArabic)
-                              BottomNavigationBarItem(
-                                icon: Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    const Icon(Icons.school_outlined),
-                                    if (_showLearningBadge)
-                                      Positioned(
-                                        right: -4,
-                                        top: -4,
-                                        child: Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: widget.isDarkMode
-                                                  ? const Color(0xFF1C1C1E)
-                                                  : Colors.white,
-                                              width: 1.5,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                activeIcon: const Icon(Icons.school),
+                              const BottomNavigationBarItem(
+                                icon: Icon(Icons.school_outlined),
+                                activeIcon: Icon(Icons.school),
                                 label: 'Öğren',
                               ),
                             BottomNavigationBarItem(

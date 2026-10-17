@@ -2,6 +2,7 @@ import 'dart:async';
 // PERFORMANCE: dart:isolate importı kaldırıldı (kullanılmıyordu)
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import '../models/word_model.dart';
 import '../models/quran_word_model.dart';
 import '../services/gemini_service.dart';
@@ -29,7 +30,6 @@ import 'log_screen.dart';
 import 'custom_words_screen.dart';
 import '../services/auth_service.dart';
 import 'package:google_fonts/google_fonts.dart'; // Kuran modu Arapça metin için hala gerekli
-import '../widgets/quran_onboarding.dart';
 import '../widgets/emsile_view.dart';
 import '../utils/dictionary_mode_notifier.dart';
 import 'subscription_screen.dart';
@@ -137,16 +137,20 @@ class _HomeScreenState extends State<HomeScreen>
   bool get _debugAlwaysShowHint => kDebugMode;
 
   @override
-  bool get wantKeepAlive =>
-      true; // Keep alive açık: sekmeler arası geçişte state korunsun
+  bool get wantKeepAlive => true; // Keep alive açık: sekmeler arası geçişte state korunsun
 
   bool _containsArabic(String s) => containsArabic(s);
 
   Future<void> _loadAiIntro() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      // Yeni kurulumda AI'ı tanıtım ekranı anlatır; kart çakışmasın.
+      final introPending =
+          prefs.getBool(LanguageService.appIntroPendingKey) ?? false;
       final seen = prefs.getBool(_aiIntroSeenKey) ?? false;
-      if (!seen && mounted) setState(() => _showAiIntro = true);
+      if (!seen && !introPending && mounted) {
+        setState(() => _showAiIntro = true);
+      }
     } catch (_) {}
   }
 
@@ -340,13 +344,9 @@ class _HomeScreenState extends State<HomeScreen>
     // Sadece başlangıçta tek seferlik kontrol yeterli.
   }
 
-  // Klavyeyi doğal şekilde açmak için yardımcı metod
+  /// Ana ekrandaki değerlendirme kartı: bir kez dokunulunca kalıcı kaybolur.
   bool get _shouldShowReviewPrompt =>
-      !_isQuranMode &&
-      !_isEmsileMode &&
-      _hasInternet &&
-      _appUsageService.shouldShowRating;
-  bool get _showLegacyFloatingReviewButton => false;
+      _hasInternet && _appUsageService.shouldShowRating;
 
   Future<void> _openReviewPrompt() async {
     await _appUsageService.markRatingPromptClicked();
@@ -422,9 +422,7 @@ class _HomeScreenState extends State<HomeScreen>
           _quranSearchResults = [];
         }
 
-        // Eğer Kuran modu açıldıysa ve ilk defa geliniyorsa tanıtımı göster
         if (_isQuranMode) {
-          _checkAndShowQuranOnboarding();
           _startQuranUsageTimer();
         } else {
           _stopQuranUsageTimer();
@@ -710,17 +708,6 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
-  }
-
-  Future<void> _checkAndShowQuranOnboarding() async {
-    final shouldShow = await QuranOnboarding.shouldShow();
-    if (shouldShow && mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => QuranOnboarding(isDarkMode: widget.isDarkMode),
-      );
-    }
   }
 
   @override
@@ -1512,14 +1499,15 @@ class _HomeScreenState extends State<HomeScreen>
                       physics: const ClampingScrollPhysics(),
                       keyboardDismissBehavior:
                           ScrollViewKeyboardDismissBehavior.onDrag,
-                      cacheExtent:
-                          (_isSearching &&
-                              !_isQuranMode &&
-                              _searchResults.isNotEmpty)
-                          ? 80.0
-                          : hasKeyboard
-                          ? 220.0
-                          : PerformanceUtils.listCacheExtent,
+                      scrollCacheExtent: ScrollCacheExtent.pixels(
+                        (_isSearching &&
+                                !_isQuranMode &&
+                                _searchResults.isNotEmpty)
+                            ? 80.0
+                            : hasKeyboard
+                            ? 220.0
+                            : PerformanceUtils.listCacheExtent,
+                      ),
                       key: const PageStorageKey<String>('home_scroll'),
                       slivers: <Widget>[
                         SliverAppBar(
@@ -2281,8 +2269,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                         boxShadow: [
                                                           BoxShadow(
                                                             color: activeColor
-                                                                .withValues(alpha: 
-                                                                  0.3,
+                                                                .withValues(
+                                                                  alpha: 0.3,
                                                                 ),
                                                             blurRadius: 4,
                                                             offset:
@@ -2474,59 +2462,6 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
 
-            // Değerlendirme butonu - kelime kartlarının üstünde katman olarak
-            if (_showLegacyFloatingReviewButton &&
-                (_appUsageService.shouldShowRating && _hasInternet ||
-                    kDebugMode))
-              Positioned(
-                top: 60, // Yukarı kaydırıldı
-                right: 6, // Daha sağa kaydırıldı
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () async {
-                      // Google Play değerlendirme aç
-                      await _reviewService.requestReview();
-                      // Butonu kalıcı olarak kaldır
-                      if (mounted) {
-                        setState(() {
-                          // hasRated true olduğu için buton bir daha gösterilmez
-                        });
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFFFD700), // Altın
-                            Color(0xFFFFA500), // Turuncu
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFFFD700).withValues(alpha: 0.4),
-                            blurRadius: 8,
-                            spreadRadius: 0,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.star_rounded,
-                        size: 24, // Yıldız büyütüldü
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
             // Arapça klavye
             if (_showArabicKeyboard)
               Positioned(
@@ -2604,111 +2539,74 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildReviewPromptCard() {    final isDarkMode = widget.isDarkMode;
-    final backgroundColor = isDarkMode ? const Color(0xFF2C2C2E) : Colors.white;
-    final borderColor = isDarkMode
-        ? const Color(0xFF48484A)
-        : const Color(0xFFD0D0D0);
-    final primaryText = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
-    final secondaryText = isDarkMode
-        ? const Color(0xFFB0B0B5)
-        : const Color(0xFF6D6D70);
+  /// Ana ekrandaki değerlendirme kartı. Üstündeki "Kavaid Arapça Sözlük"
+  /// kartıyla aynı yüzey, kenarlık ve satır diliyle; tek dokunuşla kaybolur.
+  Widget _buildReviewPromptCard() {
+    final isDarkMode = widget.isDarkMode;
+    const star = Color(0xFFFFB300);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
-      child: Material(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(8),
-        child: InkWell(
-          onTap: _openReviewPrompt,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: borderColor, width: 0.8),
-              boxShadow: (isDarkMode || !PerformanceUtils.enableShadows)
-                  ? null
-                  : const [
-                      BoxShadow(
-                        color: Color(0x0D000000),
-                        blurRadius: 6,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: const Color(
-                      0xFF007AFF,
-                    ).withValues(alpha: isDarkMode ? 0.18 : 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.star_rounded,
-                    color: Color(0xFF007AFF),
-                    size: 22,
-                  ),
+    return Material(
+      color: isDarkMode
+          ? Colors.white.withValues(alpha: 0.03)
+          : Colors.black.withValues(alpha: 0.02),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isDarkMode
+              ? Colors.white.withValues(alpha: 0.08)
+              : Colors.black.withValues(alpha: 0.05),
+        ),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        key: const Key('review-card'),
+        onTap: _openReviewPrompt,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 14, 14, 14),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: star.withValues(alpha: isDarkMode ? 0.16 : 0.12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Uygulamayı değerlendirin',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: primaryText,
-                          letterSpacing: 0,
-                        ),
+                child: const Icon(Icons.star_rounded, size: 20, color: star),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Kavaid’i değerlendir',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: isDarkMode
+                            ? Colors.white
+                            : const Color(0xFF1C1C1E),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Uygulamanın gelişmesine yardımcı olun',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: secondaryText,
-                          height: 1.25,
-                          letterSpacing: 0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF007AFF),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Değerlendir',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: 0,
                     ),
-                  ),
+                    Text(
+                      'Görüşün bizim için çok değerli.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDarkMode
+                            ? const Color(0xFF8E8E93)
+                            : const Color(0xFF6D6D70),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: isDarkMode
+                    ? const Color(0xFF8E8E93)
+                    : const Color(0xFFAEAEB2),
+              ),
+            ],
           ),
         ),
       ),
@@ -2753,7 +2651,8 @@ class _HomeScreenState extends State<HomeScreen>
       return slivers;
     }
 
-    final hasNoResults = _searchResults.isEmpty &&
+    final hasNoResults =
+        _searchResults.isEmpty &&
         _quranSearchResults.isEmpty &&
         (!_isEmsileMode || _emsileSearchResults.isEmpty);
 
@@ -2902,9 +2801,6 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           );
         }
-        if (_shouldShowReviewPrompt) {
-          slivers.add(SliverToBoxAdapter(child: _buildReviewPromptCard()));
-        }
         slivers.add(
           SliverPadding(
             padding: EdgeInsets.fromLTRB(8, 8, 8, widget.bottomPadding + 8),
@@ -3052,7 +2948,9 @@ class _HomeScreenState extends State<HomeScreen>
                               : Colors.white,
                           borderRadius: BorderRadius.circular(28),
                           border: Border.all(
-                            color: const Color(0xFF4A5729).withValues(alpha: 0.2),
+                            color: const Color(
+                              0xFF4A5729,
+                            ).withValues(alpha: 0.2),
                           ),
                           boxShadow: [
                             BoxShadow(
@@ -3067,7 +2965,9 @@ class _HomeScreenState extends State<HomeScreen>
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4A5729).withValues(alpha: 0.1),
+                                color: const Color(
+                                  0xFF4A5729,
+                                ).withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -3111,8 +3011,12 @@ class _HomeScreenState extends State<HomeScreen>
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
                             color: widget.isDarkMode
-                                ? const Color(0xFF4A5729).withValues(alpha: 0.25)
-                                : const Color(0xFF4A5729).withValues(alpha: 0.08),
+                                ? const Color(
+                                    0xFF4A5729,
+                                  ).withValues(alpha: 0.25)
+                                : const Color(
+                                    0xFF4A5729,
+                                  ).withValues(alpha: 0.08),
                           ),
                         ),
                         child: Stack(
@@ -3403,6 +3307,11 @@ class _HomeScreenState extends State<HomeScreen>
                     ],
                   ),
                 ),
+                // Değerlendirme: herkese bir kez gösterilir, dokununca kaybolur.
+                if (_shouldShowReviewPrompt) ...[
+                  const SizedBox(height: 14),
+                  _buildReviewPromptCard(),
+                ],
                 if (LanguageService().isTurkish &&
                     !(_creditsService.isPremium ||
                         _creditsService.isLifetimeAdsFree))
@@ -3435,7 +3344,9 @@ class _HomeScreenState extends State<HomeScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF0D47A1).withValues(alpha: 0.3),
+                            color: const Color(
+                              0xFF0D47A1,
+                            ).withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -3535,5 +3446,4 @@ class _HomeScreenState extends State<HomeScreen>
       ],
     );
   }
-
 }

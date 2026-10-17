@@ -7,8 +7,10 @@ class AppUsageService extends ChangeNotifier {
   static const String _totalUsageKey = 'total_app_usage_minutes';
   static const String _lastActiveKey = 'last_active_time';
   static const String _sessionStartKey = 'session_start_time';
+  // v2: ana ekrandaki yeni değerlendirme kartı. Anahtar değiştiği için
+  // eskisine tıklamış kullanıcılar da bu sürümde kartı bir kez görür.
   static const String _hasClickedRatingPromptKey =
-      'has_clicked_rating_prompt_after_update_v1';
+      'has_clicked_rating_prompt_v2';
   static const int _ratingPromptMinMinutes = 5;
 
   int _totalUsageMinutes = 0;

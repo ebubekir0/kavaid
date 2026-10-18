@@ -17,10 +17,15 @@ class TranslationAccessResult {
   final int remaining;
   final String message;
 
+  /// Bu çeviri için ücretsiz haktan bir tane düşüldü mü? Çeviri başarısız
+  /// olursa geri verilir.
+  final bool reserved;
+
   const TranslationAccessResult({
     required this.status,
     required this.remaining,
     required this.message,
+    this.reserved = false,
   });
 
   bool get isAllowed => status == TranslationAccessStatus.allowed;
@@ -77,7 +82,7 @@ class TranslationQuotaService extends ChangeNotifier {
       return const TranslationAccessResult(
         status: TranslationAccessStatus.loginRequired,
         remaining: 0,
-        message: 'Ceviri icin giris yapman gerekiyor.',
+        message: 'Çeviri için giriş yapman gerekiyor.',
       );
     }
 
@@ -85,7 +90,7 @@ class TranslationQuotaService extends ChangeNotifier {
       return const TranslationAccessResult(
         status: TranslationAccessStatus.allowed,
         remaining: freeLimit,
-        message: 'Premium kullanici.',
+        message: 'Premium kullanıcı.',
       );
     }
 
@@ -97,7 +102,7 @@ class TranslationQuotaService extends ChangeNotifier {
         return const TranslationAccessResult(
           status: TranslationAccessStatus.limitReached,
           remaining: 0,
-          message: "Daha fazla ceviri yapabilmek icin Premium'a gecin.",
+          message: "Daha fazla çeviri yapabilmek için Premium'a geçin.",
         );
       }
 
@@ -123,7 +128,7 @@ class TranslationQuotaService extends ChangeNotifier {
         return const TranslationAccessResult(
           status: TranslationAccessStatus.limitReached,
           remaining: 0,
-          message: "Daha fazla ceviri yapabilmek icin Premium'a gecin.",
+          message: "Daha fazla çeviri yapabilmek için Premium'a geçin.",
         );
       }
 
@@ -134,15 +139,43 @@ class TranslationQuotaService extends ChangeNotifier {
       return TranslationAccessResult(
         status: TranslationAccessStatus.allowed,
         remaining: (freeLimit - _used).clamp(0, freeLimit).toInt(),
-        message: 'Ceviri hakki kullanildi.',
+        message: 'Çeviri hakkı kullanıldı.',
+        reserved: true,
       );
     } catch (e) {
       debugPrint('[TranslationQuota] reserve failed: $e');
       return const TranslationAccessResult(
         status: TranslationAccessStatus.unavailable,
         remaining: 0,
-        message: 'Ceviri hakki kontrol edilemedi. Baglantini kontrol et.',
+        message: 'Çeviri hakkı kontrol edilemedi. Bağlantını kontrol et.',
       );
+    }
+  }
+
+  /// Başarısız çeviri için düşülen hakkı geri verir.
+  Future<void> releaseTranslation() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    try {
+      final usageRef = _usageRef(user.uid);
+      final accountCount = await _firestore.runTransaction<int>((
+        transaction,
+      ) async {
+        final snapshot = await transaction.get(usageRef);
+        final current = (snapshot.data()?['count'] as num?)?.toInt() ?? 0;
+        final next = current > 0 ? current - 1 : 0;
+        transaction.set(usageRef, {
+          'count': next,
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+        return next;
+      });
+      final localUsed = await _getLocalUsageCount();
+      final localCount = await _setLocalUsageCount(localUsed - 1);
+      _used = _effectiveUsed(accountCount, localCount);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[TranslationQuota] release failed: $e');
     }
   }
 

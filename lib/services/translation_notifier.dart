@@ -114,8 +114,9 @@ class TranslationNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> translate() async {
-    if (_inputText.trim().isEmpty) return;
+  /// Çeviri başarılıysa true döner (başarısızsa hak geri verilir).
+  Future<bool> translate() async {
+    if (_inputText.trim().isEmpty) return false;
     _isLoading = true;
     _transliteration = '';
     notifyListeners();
@@ -131,9 +132,11 @@ class TranslationNotifier extends ChangeNotifier {
       _outputTextWithDiacritics = translation;
       _outputText = _showDiacritics ? translation : _removeDiacritics(translation);
       _transliteration = pronunciation;
+      return translation.isNotEmpty;
     } catch (e) {
-      _outputText = 'Hata oluştu.';
+      _outputText = e is TranslationException ? e.message : 'Hata oluştu.';
       debugPrint('TranslationNotifier.translate: $e');
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

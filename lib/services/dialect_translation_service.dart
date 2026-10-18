@@ -3,7 +3,20 @@ import 'package:http/http.dart' as http;
 import '../models/dialect_language.dart';
 import 'api_keys.dart';
 
+/// Çeviri yapılamadı; [message] kullanıcıya gösterilir.
+class TranslationException implements Exception {
+  const TranslationException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 /// Levanten uygulamasından adapte edilmiş Gemini çeviri servisi.
+///
+/// Hata durumlarında [TranslationException] fırlatır; böylece başarısız
+/// çeviri, çeviri hakkından düşülmez.
 class DialectTranslationService {
   static const String _baseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
@@ -56,11 +69,11 @@ class DialectTranslationService {
         final data = jsonDecode(response.body);
         final candidates = data['candidates'] as List?;
         if (candidates == null || candidates.isEmpty) {
-          return {'translation': 'Çeviri sonucu boş.', 'pronunciation': ''};
+          throw const TranslationException('Çeviri sonucu boş.');
         }
         final parts = candidates[0]['content']['parts'] as List?;
         if (parts == null || parts.isEmpty) {
-          return {'translation': 'Çeviri sonucu boş.', 'pronunciation': ''};
+          throw const TranslationException('Çeviri sonucu boş.');
         }
 
         String result = '';
@@ -92,13 +105,12 @@ class DialectTranslationService {
           };
         }
       } else {
-        return {
-          'translation': 'Çeviri hatası (${response.statusCode}).',
-          'pronunciation': '',
-        };
+        throw TranslationException('Çeviri hatası (${response.statusCode}).');
       }
+    } on TranslationException {
+      rethrow;
     } catch (e) {
-      return {'translation': 'Bağlantı hatası.', 'pronunciation': ''};
+      throw const TranslationException('Bağlantı hatası.');
     }
   }
 

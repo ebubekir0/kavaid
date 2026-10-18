@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../models/dialect_language.dart';
 import '../services/auth_service.dart';
@@ -81,6 +80,25 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Beyaz zeminde durum çubuğu simgeleri koyu olmalı (saat ve simgeler
+    // beyaz zemin üzerinde beyaz çizilip görünmüyordu).
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: _isDark ? Brightness.light : Brightness.dark,
+        statusBarBrightness: _isDark ? Brightness.dark : Brightness.light,
+        systemNavigationBarColor: _isDark
+            ? const Color(0xFF1C1C1E)
+            : Colors.white,
+        systemNavigationBarIconBrightness: _isDark
+            ? Brightness.light
+            : Brightness.dark,
+      ),
+      child: _buildScreen(context),
+    );
+  }
+
+  Widget _buildScreen(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => TranslationNotifier(),
       child: Consumer<TranslationNotifier>(
@@ -238,7 +256,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
             child: Center(
               child: Text(
                 'Çeviri',
-                style: GoogleFonts.roboto(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   fontSize: 22,
                   fontWeight: FontWeight.w500,
                   color: _textPrimary,
@@ -338,7 +357,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
               Flexible(
                 child: Text(
                   lang.name,
-                  style: GoogleFonts.roboto(
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: _textPrimary,
@@ -436,14 +456,15 @@ class _TranslationScreenState extends State<TranslationScreen> {
                       : TextDirection.ltr,
                   textAlign: isArabicSource ? TextAlign.right : TextAlign.left,
                   style: isArabicSource
-                      ? GoogleFonts.notoNaskhArabic(
+                      ? TextStyle(
                           fontSize: _calcFontSizeArabic(_textController.text),
                           fontWeight: FontWeight.w400,
                           color: _textPrimary,
                           height: 1.8,
                           letterSpacing: 0,
                         )
-                      : GoogleFonts.roboto(
+                      : TextStyle(
+                          fontFamily: 'Roboto',
                           fontSize: _calcFontSize(_textController.text),
                           fontWeight: FontWeight.w400,
                           color: _textPrimary,
@@ -452,13 +473,14 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   decoration: InputDecoration(
                     hintText: isArabicSource ? 'أدخل النص' : 'Metin girin',
                     hintStyle: isArabicSource
-                        ? GoogleFonts.notoNaskhArabic(
+                        ? TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w400,
                             color: _textSecondary,
                             letterSpacing: 0,
                           )
-                        : GoogleFonts.roboto(
+                        : TextStyle(
+                            fontFamily: 'Roboto',
                             fontSize: 24,
                             fontWeight: FontWeight.w400,
                             color: _textSecondary,
@@ -507,7 +529,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                       const SizedBox(height: 8),
                       Text(
                         notifier.transliteration,
-                        style: GoogleFonts.roboto(
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
                           fontSize: 15,
                           fontStyle: FontStyle.italic,
                           color: _textSecondary,
@@ -539,14 +562,15 @@ class _TranslationScreenState extends State<TranslationScreen> {
     final text = notifier.outputText;
 
     final textStyle = isArabicTarget
-        ? GoogleFonts.notoNaskhArabic(
+        ? TextStyle(
             fontSize: _calcFontSizeArabic(text),
             fontWeight: FontWeight.w400,
             color: _outputColor,
             height: 1.8,
             letterSpacing: 0,
           )
-        : GoogleFonts.roboto(
+        : TextStyle(
+            fontFamily: 'Roboto',
             fontSize: _calcFontSize(text),
             fontWeight: FontWeight.w400,
             color: _outputColor,
@@ -685,7 +709,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
               )
             : Text(
                 'Çevir',
-                style: GoogleFonts.roboto(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -797,8 +822,13 @@ class _TranslationScreenState extends State<TranslationScreen> {
     _lastDirection = notifier.isLeftToRight;
     _lastSourceCode = notifier.sourceLanguage.code;
     _lastTargetCode = notifier.targetLanguage.code;
-    await notifier.translate();
-    await _quotaService.refresh();
+    final ok = await notifier.translate();
+    // Hata (bağlantı, sunucu) olursa düşülen hak geri verilir.
+    if (!ok && access.reserved) {
+      await _quotaService.releaseTranslation();
+    } else {
+      await _quotaService.refresh();
+    }
   }
 
   void _handleAccessDenied(TranslationAccessResult access) {
@@ -836,7 +866,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 const SizedBox(width: 10),
                 Text(
                   "Premium'a geçin",
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: _textPrimary,
@@ -847,7 +878,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
             const SizedBox(height: 10),
             Text(
               "Daha fazla çeviri yapabilmek için Premium'a geçin.",
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 14,
                 color: _textSecondary,
                 height: 1.45,
@@ -877,7 +909,8 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 ),
                 child: Text(
                   "Premium'a Geç",
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                   ),
@@ -1004,7 +1037,8 @@ class _LanguagePickerSheet extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
               child: Text(
                 title,
-                style: GoogleFonts.roboto(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
                   color: textColor,
@@ -1024,12 +1058,14 @@ class _LanguagePickerSheet extends StatelessWidget {
                                 ? const Color(0xFF8E8E93)
                                 : const Color(0xFF5F6368),
                             indicatorColor: accent,
-                            labelStyle: GoogleFonts.roboto(
+                            labelStyle: TextStyle(
+                              fontFamily: 'Roboto',
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0,
                             ),
-                            unselectedLabelStyle: GoogleFonts.roboto(
+                            unselectedLabelStyle: TextStyle(
+                              fontFamily: 'Roboto',
                               fontSize: 14,
                               fontWeight: FontWeight.w400,
                               letterSpacing: 0,
@@ -1094,7 +1130,8 @@ class _LanguagePickerSheet extends StatelessWidget {
           leading: Text(l.flagEmoji, style: const TextStyle(fontSize: 24)),
           title: Text(
             l.name,
-            style: GoogleFonts.roboto(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               fontSize: 16,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               color: isSelected ? accent : textColor,
@@ -1103,7 +1140,8 @@ class _LanguagePickerSheet extends StatelessWidget {
           ),
           subtitle: Text(
             l.nativeName,
-            style: GoogleFonts.roboto(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               fontSize: 13,
               color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF5F6368),
               letterSpacing: 0,

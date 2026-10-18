@@ -113,8 +113,7 @@ class AppStartupService extends ChangeNotifier {
 
     if (context != null) {
       tasks.add(_precacheStartupAssets(context));
-      // Ana ekranın harf deseni yükleme ekranı dururken hazırlanır; ana
-      // ekranın ilk karesi bunu beklemez.
+      // Ana ekranın deseni yükleme ekranı dururken hazırlanır.
       unawaited(ArabicLettersBackground.precache(context));
     }
 

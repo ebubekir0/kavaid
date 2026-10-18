@@ -240,8 +240,25 @@ class EmsileDatabaseService {
 
   /// Veritabanını önceden başlat (soğuk başlangıç gecikmesini önlemek için)
   Future<void> preInit() async {
-    await instance.database;
+    final db = await instance.database;
+    await _loadMaziIndex(db);
   }
+
+  // Emsile'deki fiillerin (mazi) normalleştirilmiş listesi: sözlük kartı
+  // "Tüm Fiil Çekimleri" düğmesini veritabanı sorgusu beklemeden gösterir.
+  Set<String>? _maziIndex;
+
+  Future<void> _loadMaziIndex(Database db) async {
+    if (_maziIndex != null) return;
+    final rows = await db.rawQuery('SELECT mazi FROM emsile');
+    _maziIndex = {
+      for (final r in rows) normalizeArabic((r['mazi'] as String?) ?? ''),
+    };
+  }
+
+  /// Bu mazi biçimi Emsile'de var mı? Dizin henüz hazır değilse null.
+  bool? hasMazi(String maziForm) =>
+      _maziIndex?.contains(normalizeArabic(maziForm.trim()));
 
   /// Toplam fiil sayısını döndür
   Future<int> getTotalCount() async {

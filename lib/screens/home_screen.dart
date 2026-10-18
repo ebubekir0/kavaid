@@ -1258,10 +1258,10 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             // Boş Sözlük ekranında mavi zemin üzerinde çok hafif Arapça
-            // harfler (sonuç listesi açıkken çizilmez). Katman ağaçta hep
-            // durur, yalnızca görünürlüğü değişir: koşullu eklenince alttaki
-            // içerik (arama kutusu dahil) yeniden kuruluyor, klavye
-            // kapanıyordu.
+            // harfli yıldız deseni (sonuç listesi açıkken çizilmez). Katman
+            // ağaçta hep durur, yalnızca görünürlüğü değişir: koşullu
+            // eklenince içerik (arama kutusu dahil) yeniden kuruluyor,
+            // klavye kapanıyordu.
             Positioned.fill(
               child: Visibility(
                 visible:
@@ -2857,70 +2857,10 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 20),
                 if (!(_creditsService.isPremium ||
                     _creditsService.isLifetimeAdsFree))
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SubscriptionScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: widget.isDarkMode
-                              ? [
-                                  const Color(0xFF2D4720),
-                                  const Color(0xFF1A2E12),
-                                ]
-                              : [
-                                  const Color(0xFF4A5729),
-                                  const Color(0xFF2D3818),
-                                ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.stars_rounded,
-                            color: Colors.amber,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Sınırsız erişim için Premium\'a yükselt',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right_rounded,
-                            color: Colors.white.withValues(alpha: 0.7),
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildPremiumBanner(
+                    colors: widget.isDarkMode
+                        ? const [Color(0xFF2D4720), Color(0xFF1A2E12)]
+                        : const [Color(0xFF4A5729), Color(0xFF2D3818)],
                   ),
               ],
             ),
@@ -3030,71 +2970,8 @@ class _HomeScreenState extends State<HomeScreen>
                 if (LanguageService().isTurkish &&
                     !(_creditsService.isPremium ||
                         _creditsService.isLifetimeAdsFree))
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SubscriptionScreen(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(
-                              0xFF0D47A1,
-                            ).withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium_rounded,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Expanded(
-                            child: Text(
-                              'Sınırsız erişim için Premium\'a yükselt',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                          const Icon(
-                            Icons.chevron_right_rounded,
-                            color: Colors.white70,
-                          ),
-                        ],
-                      ),
-                    ),
+                  _buildPremiumBanner(
+                    colors: const [Color(0xFF0D47A1), Color(0xFF1976D2)],
                   ),
               ],
             ),
@@ -3103,6 +2980,97 @@ class _HomeScreenState extends State<HomeScreen>
       );
     }
     return slivers;
+  }
+
+  /// Premium'a geçiş bandı: karşılama kartlarının altında, kısa ve net.
+  Widget _buildPremiumBanner({required List<Color> colors}) {
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: Ink(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: colors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: InkWell(
+          key: const Key('premium-banner'),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SubscriptionScreen()),
+            );
+          },
+          child: Stack(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(13),
+                      ),
+                      child: const Icon(
+                        Icons.workspace_premium_rounded,
+                        color: Color(0xFFFFD66B),
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Premium'a Geç",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Sınırsız erişim',
+                            style: TextStyle(
+                              color: Color(0xCCFFFFFF),
+                              fontSize: 12.5,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// Mod tanıtım kartlarının başlığı (Sözlük, Kuran): sade, Emsile

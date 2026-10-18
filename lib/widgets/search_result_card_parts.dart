@@ -497,10 +497,15 @@ class ExampleSentences extends StatelessWidget {
     super.key,
     required this.word,
     required this.isDarkMode,
+    this.onSpeak,
   });
 
   final WordModel word;
   final bool isDarkMode;
+
+  /// Verilirse her örneğin solunda seslendirme simgesi çıkar; dokununca
+  /// Arapça cümle okunur.
+  final void Function(String arabic)? onSpeak;
 
   @override
   Widget build(BuildContext context) {
@@ -545,30 +550,67 @@ class ExampleSentences extends StatelessWidget {
         example['turkce']?.toString() ??
         example.toString();
 
-    return [
-      if (arabic != null && arabic.isNotEmpty) ...[
-        Text(
-          arabic,
-          style: ArabicTextStyles.example.copyWith(
-            color: isDarkMode
-                ? const Color(0xFFE5E5EA)
-                : const Color(0xFF1C1C1E),
+    final hasArabic = arabic != null && arabic.isNotEmpty;
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (hasArabic) ...[
+          Text(
+            arabic,
+            style: ArabicTextStyles.example.copyWith(
+              color: isDarkMode
+                  ? const Color(0xFFE5E5EA)
+                  : const Color(0xFF1C1C1E),
+            ),
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.right,
           ),
-          textDirection: TextDirection.rtl,
+          const SizedBox(height: 2),
+        ],
+        Text(
+          turkish,
           textAlign: TextAlign.right,
+          style: TextStyle(
+            fontSize: 13.5,
+            fontWeight: FontWeight.w500,
+            color: _secondaryText(isDarkMode),
+            height: 1.4,
+            letterSpacing: 0.1,
+          ),
         ),
-        const SizedBox(height: 2),
       ],
-      Text(
-        turkish,
-        textAlign: TextAlign.right,
-        style: TextStyle(
-          fontSize: 13.5,
-          fontWeight: FontWeight.w500,
-          color: _secondaryText(isDarkMode),
-          height: 1.4,
-          letterSpacing: 0.1,
-        ),
+    );
+
+    final speak = onSpeak;
+    if (speak == null || !hasArabic) return [text];
+    return [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Tooltip(
+            message: 'Cümleyi dinle',
+            child: InkWell(
+              key: const ValueKey('example-speak'),
+              onTap: () => speak(arabic),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 32,
+                height: 32,
+                margin: const EdgeInsets.only(right: 8, top: 4),
+                decoration: BoxDecoration(
+                  color: _blue.withValues(alpha: isDarkMode ? 0.2 : 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.volume_up_rounded,
+                  size: 18,
+                  color: _blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(child: text),
+        ],
       ),
     ];
   }

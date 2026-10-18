@@ -7,6 +7,7 @@ import '../utils/performance_utils.dart';
 import '../services/tts_service.dart';
 import '../services/turkce_analytics_service.dart';
 import '../services/language_service.dart';
+import '../services/auth_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:async';
 import 'package:flutter/foundation.dart' show SynchronousFuture;
@@ -98,7 +99,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   void _initializeAnimation() {
     if (_animationController == null) {
       _animationController = AnimationController(
-        duration: const Duration(milliseconds: 240),
+        duration: const Duration(milliseconds: 150),
         vsync: this,
       );
 
@@ -131,8 +132,16 @@ class _SearchResultCardState extends State<SearchResultCard>
     final maziForm = _maziFormForEmsile();
     if (!force && _emsileLookupMazi == maziForm) return;
     _emsileLookupMazi = maziForm;
+    final known = maziForm == null
+        ? null
+        : EmsileDatabaseService.instance.hasMazi(maziForm);
     if (maziForm == null) {
       _emsileLookupFuture = null;
+    } else if (known != null) {
+      // Bellekteki dizinden anında: veritabanı beklenmez.
+      _emsileLookupFuture = SynchronousFuture(
+        known ? const <String, dynamic>{'mazi': true} : null,
+      );
     } else if (_emsileCache.containsKey(maziForm)) {
       _emsileLookupFuture = SynchronousFuture(_emsileCache[maziForm]);
     } else {
@@ -145,7 +154,7 @@ class _SearchResultCardState extends State<SearchResultCard>
     }
   }
 
-  Future<void> _toggleExpanded() async {
+  void _toggleExpanded() {
     if (!mounted) return;
 
     // Klavyeyi kapat
@@ -155,17 +164,8 @@ class _SearchResultCardState extends State<SearchResultCard>
     widget.onExpand?.call();
 
     if (!_isExpanded) {
-      // "Tüm Fiil Çekimleri" düğmesi açılıştan sonra belirip kartı
-      // zıplatmasın: fiil kaydı varsa sonucu (en fazla kısa süre) bekleyip
-      // kart ondan sonra açılır.
+      // Düğme kararı bellekteki dizinden anında verilir; kart beklemeden açılır.
       _ensureEmsileLookup();
-      final lookup = _emsileLookupFuture;
-      if (lookup != null) {
-        try {
-          await lookup.timeout(const Duration(milliseconds: 250));
-        } catch (_) {}
-        if (!mounted || _isExpanded) return;
-      }
 
       // PERFORMANCE: Animasyonu lazy initialize et ama anında başlat
       _initializeAnimation();
@@ -266,10 +266,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                 if (_isExpanded && _expandAnimation != null)
                   SizeTransition(
                     sizeFactor: _expandAnimation!,
-                    child: FadeTransition(
-                      opacity: _expandAnimation!,
-                      child: _buildExpandedContent(isDarkMode),
-                    ),
+                    child: _buildExpandedContent(isDarkMode),
                   ),
               ],
             ),
@@ -435,6 +432,23 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   /// Kelimeye bağlı AI sohbeti açar.
   void _showAiChatSheet({String? openingMessage}) {
+    // AI asistanı için giriş şart: sohbet açılmadan alttan uyarı çıkar.
+    if (!AuthService().isSignedIn) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'AI asistanı kullanmak için lütfen giriş yapın.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.black87,
+            behavior: SnackBarBehavior.floating,
+            duration: Duration(seconds: 2),
+          ),
+        );
+      return;
+    }
     FocusScope.of(context).unfocus();
     showModalBottomSheet(
       context: context,
@@ -478,6 +492,7 @@ class _SearchResultCardState extends State<SearchResultCard>
             ExampleSentences(
               word: widget.word,
               isDarkMode: isDarkMode,
+              onSpeak: _ttsService.speak,
             ),
 
           // AI asistanı: tek satır, sade

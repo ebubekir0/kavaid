@@ -336,11 +336,19 @@ List<(String, bool)> highlightSegments(String text, String? query) {
   String fold(String s) => s.split('').map(foldTurkishChar).join();
   final foldedText = fold(text);
   final foldedQuery = fold(q);
+  // Kısa sorguda (1-2 harf) yalnızca kelime başları vurgulanır; aksi halde
+  // "k" araması kelimelerin içindeki her k'yi işaretliyordu.
+  final wordStartOnly = foldedQuery.length <= 2;
 
   final segments = <(String, bool)>[];
   var start = 0;
   while (start < text.length) {
-    final index = foldedText.indexOf(foldedQuery, start);
+    var index = foldedText.indexOf(foldedQuery, start);
+    while (wordStartOnly &&
+        index > 0 &&
+        _isWordChar(foldedText.codeUnitAt(index - 1))) {
+      index = foldedText.indexOf(foldedQuery, index + 1);
+    }
     if (index == -1) {
       segments.add((text.substring(start), false));
       break;
@@ -351,6 +359,16 @@ List<(String, bool)> highlightSegments(String text, String? query) {
   }
   return segments;
 }
+
+/// Harf, rakam ya da kesme işareti mi? (Kesme işareti kelimeyi bölmez:
+/// "Allah'a" tek kelimedir.)
+bool _isWordChar(int c) =>
+    (c >= 0x61 && c <= 0x7A) ||
+    (c >= 0x41 && c <= 0x5A) ||
+    (c >= 0x30 && c <= 0x39) ||
+    c == 0x27 ||
+    c == 0x2019 ||
+    c > 0x7F;
 
 /// Çoğul formu kutusu.
 class PluralBox extends StatelessWidget {

@@ -41,6 +41,7 @@ final RegExp _arabicLetterRx = RegExp(r'[؀-ۿ]');
 final RegExp _arabicMarksRx = RegExp(r'[ً-ٰٟـٓ-ٕ]');
 final RegExp _hamzaAlifRx = RegExp('[أإآءٱ]');
 final RegExp _nonLatinAlphanumericRx = RegExp(r'[^a-z0-9\s,;]');
+final RegExp _apostropheRx = RegExp("['’‘ʼ`´]");
 final RegExp _whitespaceRx = RegExp(r'\s+');
 final RegExp _meaningSplitRx = RegExp(r'[,،;]');
 
@@ -107,6 +108,10 @@ String foldLatin(String text) {
   return buffer
       .toString()
       .replaceAll('̇', '')
+      // Kesme işareti kelimeyi bölmez: "Allah'a" tek kelime kalır, yoksa
+      // "a"/"ye" gibi kısa aramalar ekleri ayrı kelime sanıyordu; "Kur'an"
+      // da "kuran" yazınca bulunur.
+      .replaceAll(_apostropheRx, '')
       .replaceAll(_nonLatinAlphanumericRx, ' ')
       .replaceAll(_whitespaceRx, ' ')
       .trim();
@@ -157,7 +162,11 @@ class SearchQuery {
       isArabic: isArabic,
       arabic: isArabic ? normalizeArabic(raw) : '',
       latin: latin,
-      arabicGuess: !isArabic && raw.length <= 5 ? arabicGuess : '',
+      // Latin tahmini sonuçları ekranda gösterilmez; 1-2 harfte neredeyse
+    // her kaydı taradığı için hiç hesaplanmaz.
+    arabicGuess: !isArabic && latin.length >= 3 && raw.length <= 5
+        ? arabicGuess
+        : '',
       latinAlt: isArabic ? '' : pastTenseOfInfinitive(latin),
     );
   }
@@ -188,9 +197,19 @@ class SearchQuery {
 
   bool get isEmpty => isArabic ? arabic.isEmpty : latin.isEmpty;
 
-  /// Çok kısa Türkçe sorgularda ("su", "ev") yalnızca tam kelime eşleşmeleri
-  /// alınır; aksi halde "su" binlerce anlamın içinde geçer ("susmak", "uzun süre").
-  bool get wholeWordOnly => !isArabic && latin.length <= 2;
+  /// Kısa Türkçe sorgu (1-2 harf): yalnızca kelime başında geçen eşleşmeler
+  /// alınır, kelime başı eşleşmeleri de Türkçe karakterleri birebir uyuyorsa
+  /// ("su" → sulamak, susamak; "süre" değil).
+  bool get isShortLatin => !isArabic && latin.length <= 2;
+
+  /// Alınan en zayıf anlam eşleşmesi ([_bestMeaningMatch] katmanları): tek
+  /// harfte anlamın kendisi o harfle başlamalı ("k" → kitap, kalem), iki
+  /// harfte herhangi bir kelime ("ki" → ki, kitap); kelime ortası eşleşmeler
+  /// alınmaz. Daha uzun sorgularda hepsi.
+  int get maxMeaningTier {
+    if (!isShortLatin) return 5;
+    return latin.length == 1 ? 2 : 4;
+  }
 
   Map<String, dynamic> toMap() => {
     'raw': raw,
@@ -278,10 +297,11 @@ EntryRank? rankEntry({
     best = _rankMeaning(
       meanings,
       q,
-      query.wholeWordOnly,
+      query.maxMeaningTier,
       sec,
       rawMeaning: rawMeaning,
       rawQuery: query.raw,
+      exactSpellingForPrefix: query.isShortLatin,
     );
   }
   final alt = query.latinAlt;
@@ -289,7 +309,7 @@ EntryRank? rankEntry({
     final altRank = _rankMeaning(
       meanings,
       alt,
-      false,
+      5,
       sec,
       allowInsideWord: false,
     );
@@ -317,19 +337,22 @@ EntryRank? rankEntry({
 /// Türkçe sorguyu kaydın anlamlarına göre puanlar. [rawMeaning] ve
 /// [rawQuery] verilirse Türkçe karakterleri birebir uyan anlam öne alınır;
 /// [allowInsideWord] false ise kelime ortası eşleşmeler sayılmaz.
+/// [exactSpellingForPrefix] ise kelime başı eşleşmeleri (sulamak) yalnızca
+/// yazım birebir uyuyorsa sayılır (kısa sorgularda "su" → "süre" olmasın).
 EntryRank? _rankMeaning(
   String meanings,
   String q,
-  bool wholeWordOnly,
+  int maxTier,
   int sec, {
   String rawMeaning = '',
   String rawQuery = '',
   bool allowInsideWord = true,
+  bool exactSpellingForPrefix = false,
 }) {
   final best = _bestMeaningMatch(
     meanings.split(_meaningSplitRx),
     q,
-    wholeWordOnly,
+    maxTier,
   );
   if (best == null) return null;
   if (!allowInsideWord && best.tier == 5) return null;
@@ -341,11 +364,17 @@ EntryRank? _rankMeaning(
       : _bestMeaningMatch(
           turkishLower(rawMeaning).split(_meaningSplitRx),
           turkishLower(rawQuery),
-          wholeWordOnly,
+          maxTier,
         );
   // Kelime ortası eşleşmeler yalnızca yazım birebir uyuyorsa sayılır;
   // aksi halde "okul" araması "döküldü"yü ("dokuldu") bulur.
   if (best.tier == 5 && rawMeaning.isNotEmpty && rawBest == null) return null;
+  if (exactSpellingForPrefix &&
+      (best.tier == 2 || best.tier == 4) &&
+      rawMeaning.isNotEmpty &&
+      (rawBest == null || rawBest.tier > best.tier)) {
+    return null;
+  }
 
   final accentPenalty =
       rawQuery.isEmpty || (rawBest != null && rawBest.tier <= best.tier)
@@ -367,12 +396,12 @@ EntryRank? _rankMeaning(
 /// [tier]: 0 parça tam olarak sorgu, 1 parça sorgu kelimesiyle başlıyor
 /// ("su içmek"), 2 parça sorguyla başlıyor ("sulamak"), 3 sorgu parçada ayrı
 /// bir kelime ("temiz su"), 4 parçadaki bir kelime sorguyla başlıyor
-/// ("en güzeli"), 5 sorgu bir kelimenin ortasında. [wholeWordOnly] ise
-/// yalnızca 0, 1 ve 3 sayılır.
+/// ("en güzeli"), 5 sorgu bir kelimenin ortasında. [maxTier]'dan zayıf
+/// eşleşmeler sayılmaz.
 ({int tier, int index})? _bestMeaningMatch(
   List<String> parts,
   String q,
-  bool wholeWordOnly,
+  int maxTier,
 ) {
   if (q.isEmpty) return null;
   int? bestTier;
@@ -395,7 +424,7 @@ EntryRank? _rankMeaning(
     } else {
       tier = 5;
     }
-    if (wholeWordOnly && tier != 0 && tier != 1 && tier != 3) continue;
+    if (tier > maxTier) continue;
     if (bestTier == null || tier < bestTier) {
       bestTier = tier;
       bestIndex = j;

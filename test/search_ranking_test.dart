@@ -112,10 +112,31 @@ void main() {
       expect(exact.rank, lessThan(prefix.rank));
     });
 
-    test('iki harfli sorgu yalnızca tam kelime olarak eşleşir', () {
+    test('iki harfli sorgu kelime başında eşleşir, ortasında eşleşmez', () {
       expect(rankTurkish('su', 'temiz su'), isNotNull);
-      expect(rankTurkish('su', 'susamak'), isNull);
+      expect(rankTurkish('su', 'susamak'), isNotNull);
+      expect(rankTurkish('ki', 'kitap, eser'), isNotNull);
+      expect(rankTurkish('su', 'kusurlu'), isNull);
+      // Kelime başı eşleşmesi kısa sorguda yazım birebir uymalı.
       expect(rankTurkish('su', 'uzun süre'), isNull);
+      expect(
+        rankTurkish('su', 'su')!.rank,
+        lessThan(rankTurkish('su', 'susamak')!.rank),
+      );
+    });
+
+    test('tek harfli sorgu anlamı o harfle başlayanları bulur', () {
+      expect(rankTurkish('k', 'kitap, eser'), isNotNull);
+      expect(rankTurkish('k', 'eser, kitap'), isNotNull);
+      expect(rankTurkish('k', 'büyük kapı'), isNull);
+      expect(rankTurkish('a', "Saad'a mensup"), isNull);
+      expect(rankTurkish('a', "Allah'a mahsus"), isNotNull);
+    });
+
+    test('kesme işareti kelimeyi bölmez', () {
+      expect(foldLatin("Kur'an"), 'kuran');
+      expect(rankTurkish('ye', "Ali'ye mensup"), isNull);
+      expect(rankTurkish('kuran', "Kur'an okumak"), isNotNull);
     });
 
     test(

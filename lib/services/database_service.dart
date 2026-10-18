@@ -497,9 +497,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       if (query.isArabic) {
         final q = query.arabic;
         if (!nHK.contains(q) && !nK.contains(q) && nRoot != q) continue;
-      } else if (!(query.wholeWordOnly
-              ? _containsWholeWord(meanings, query.latin)
-              : meanings.contains(query.latin)) &&
+      } else if (!_meaningMayMatch(meanings, query) &&
           !(alt.isNotEmpty && meanings.contains(alt)) &&
           !(guess.isNotEmpty &&
               (nHK.contains(guess) ||
@@ -568,18 +566,44 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     }).toList();
   }
 
-  /// [token] metinde ayrı bir kelime olarak geçiyor mu? Kısa sorgularda
-  /// ("su", "ev") binlerce anlamda harf dizisi olarak geçtiği için ön
-  /// elemede kullanılır; [foldLatin] çıktısında kelime harfleri a-z ve 0-9.
-  static bool _containsWholeWord(String text, String token) {
+  /// Ön eleme: kısa Türkçe sorguda yalnızca anlamın başında (tek harf) ya
+  /// da bir kelimenin başında (iki harf) geçen kayıtlar puanlamaya girer.
+  static bool _meaningMayMatch(String meanings, SearchQuery query) {
+    final q = query.latin;
+    switch (query.maxMeaningTier) {
+      case 2:
+        return _hasPartStartingWith(meanings, q);
+      case 4:
+        return _hasWordStartingWith(meanings, q);
+      default:
+        return meanings.contains(q);
+    }
+  }
+
+  /// Virgül/noktalı virgülle ayrılmış anlamlardan biri [token] ile mi
+  /// başlıyor?
+  static bool _hasPartStartingWith(String text, String token) {
     var from = 0;
     while (true) {
       final at = text.indexOf(token, from);
       if (at < 0) return false;
-      final end = at + token.length;
-      final before = at == 0 || !_isWordUnit(text.codeUnitAt(at - 1));
-      final after = end == text.length || !_isWordUnit(text.codeUnitAt(end));
-      if (before && after) return true;
+      var i = at - 1;
+      while (i >= 0 && text.codeUnitAt(i) == 0x20) {
+        i--;
+      }
+      if (i < 0 || text[i] == ',' || text[i] == ';') return true;
+      from = at + 1;
+    }
+  }
+
+  /// Metindeki bir kelime [token] ile mi başlıyor? ([foldLatin] çıktısında
+  /// kelime harfleri a-z ve 0-9.)
+  static bool _hasWordStartingWith(String text, String token) {
+    var from = 0;
+    while (true) {
+      final at = text.indexOf(token, from);
+      if (at < 0) return false;
+      if (at == 0 || !_isWordUnit(text.codeUnitAt(at - 1))) return true;
       from = at + 1;
     }
   }

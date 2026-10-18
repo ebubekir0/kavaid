@@ -62,6 +62,19 @@ void main() {
       ]);
     });
 
+    test('kısa sorguda yalnızca kelime başları vurgulanır', () {
+      expect(highlightSegments('kitap, yönelik', 'k'), [
+        ('k', true),
+        ('itap, yönelik', false),
+      ]);
+      expect(highlightSegments("Allah'a ait", 'a'), [
+        ('A', true),
+        ("llah'a ", false),
+        ('a', true),
+        ('it', false),
+      ]);
+    });
+
     test('sorgu yoksa metni olduğu gibi döner', () {
       expect(highlightSegments('kitap', null), [('kitap', false)]);
       expect(highlightSegments('kitap', ''), [('kitap', false)]);

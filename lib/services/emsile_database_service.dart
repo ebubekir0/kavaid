@@ -6,6 +6,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'search_ranking.dart' show foldLatin, normalizeArabic;
 
 class EmsileDatabaseService {
   static final EmsileDatabaseService instance = EmsileDatabaseService._init();
@@ -204,11 +205,38 @@ class EmsileDatabaseService {
     } catch (_) {}
   }
 
-  String _removeArabicDiacritics(String text) {
-    return text.replaceAll(RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]'), '');
-  }
-
   bool _containsArabic(String s) => RegExp(r'[\u0600-\u06FF]').hasMatch(s);
+
+  /// Arama sütununun SQL'de normalleştirilmiş hali: hemzeli elifler ve
+  /// benzeri yazım farkları sorguyla aynı biçime iner (Ana Sözlük'teki
+  /// normalizeArabic ile aynı kurallar). Böylece "امن" yazınca "آمن" ve
+  /// "أمن" fiilleri de bulunur.
+  static const String _normalizedSearchColumn =
+      "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE("
+      "search_text_arabic, 'أ', 'ا'), 'إ', 'ا'), 'آ', 'ا'), 'ٱ', 'ا'), "
+      "'ء', 'ا'), 'ؤ', 'و'), 'ئ', 'ي'), 'ى', 'ي'), 'ة', 'ه')";
+
+  /// Türkçe arama sütununun küçük harfli, Türkçe karaktersiz hali
+  /// (foldLatin ile aynı: ç→c, ğ→g, ı/İ→i, ö→o, ş→s, ü→u).
+  static const String _foldedTurkishColumn =
+      "LOWER(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE("
+      "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(search_text"
+      ", 'Ç', 'c')"
+      ", 'Ğ', 'g')"
+      ", 'İ', 'i')"
+      ", 'I', 'i')"
+      ", 'Ö', 'o')"
+      ", 'Ş', 's')"
+      ", 'Ü', 'u')"
+      ", 'ç', 'c')"
+      ", 'ğ', 'g')"
+      ", 'ı', 'i')"
+      ", 'ö', 'o')"
+      ", 'ş', 's')"
+      ", 'ü', 'u')"
+      ", 'â', 'a')"
+      ", 'î', 'i')"
+      ", 'û', 'u'))";
 
   /// Veritabanını önceden başlat (soğuk başlangıç gecikmesini önlemek için)
   Future<void> preInit() async {
@@ -269,49 +297,47 @@ class EmsileDatabaseService {
     List<Map<String, dynamic>> results;
 
     if (_containsArabic(query)) {
-      final normalizedQuery = _removeArabicDiacritics(query);
+      final normalizedQuery = normalizeArabic(query);
       final likePattern = '%$normalizedQuery%';
       final startsPattern = '$normalizedQuery%';
 
+      // Tek tarama: normalleştirilmiş arama metni her satır için bir kez
+      // hesaplanır. Sıra: tam eşleşme, başında geçen, içinde geçen.
       results = await db.rawQuery('''
-        SELECT * FROM (
-          SELECT *, 0 AS rank FROM emsile 
-          WHERE mazi = ? 
-          OR search_text_arabic = ? 
-          OR search_text_arabic LIKE ? 
-          OR mazi LIKE ? 
-          OR muzari = ?
-          UNION ALL
-          SELECT *, 1 AS rank FROM emsile WHERE search_text_arabic LIKE ? OR mazi LIKE ? OR muzari LIKE ?
-          UNION ALL
-          SELECT *, 2 AS rank FROM emsile WHERE search_text_arabic LIKE ?
-        )
+        SELECT *, CASE
+            WHEN mazi = ?1 OR n = ?2 OR n LIKE ?3 OR mazi LIKE ?4 OR muzari = ?1
+              THEN 0
+            WHEN n LIKE ?5 OR mazi LIKE ?5 OR muzari LIKE ?5 THEN 1
+            ELSE 2
+          END AS rank
+        FROM (SELECT *, $_normalizedSearchColumn AS n FROM emsile)
+        WHERE n LIKE ?6 OR mazi = ?1 OR muzari = ?1 OR mazi LIKE ?4
         ORDER BY rank ASC, LENGTH(mazi) ASC
-        LIMIT ?
+        LIMIT ?7
       ''', [
-        query, normalizedQuery, '$normalizedQuery %', '$query %', query,
-        startsPattern, startsPattern, startsPattern,
+        query,
+        normalizedQuery,
+        '$normalizedQuery %',
+        '$query %',
+        startsPattern,
         likePattern,
-        limit
+        limit,
       ]);
     } else {
-      final lowerQuery = query.toLowerCase();
+      // Türkçe karakterden bağımsız: "inandi" yazınca "inandı" da bulunur.
+      final folded = foldLatin(query);
+      if (folded.isEmpty) return [];
       results = await db.rawQuery('''
-        SELECT * FROM (
-          SELECT *, 0 AS rank FROM emsile WHERE search_text = ?
-          UNION ALL
-          SELECT *, 1 AS rank FROM emsile WHERE search_text LIKE ? OR search_text LIKE ?
-          UNION ALL
-          SELECT *, 2 AS rank FROM emsile WHERE search_text LIKE ?
-        )
+        SELECT *, CASE
+            WHEN t = ?1 THEN 0
+            WHEN t LIKE ?2 OR t LIKE ?3 THEN 1
+            ELSE 2
+          END AS rank
+        FROM (SELECT *, $_foldedTurkishColumn AS t FROM emsile)
+        WHERE t LIKE ?4
         ORDER BY rank ASC, LENGTH(anlamlar) ASC
-        LIMIT ?
-      ''', [
-        lowerQuery,
-        '$lowerQuery%', '% $lowerQuery%',
-        '%$lowerQuery%',
-        limit
-      ]);
+        LIMIT ?5
+      ''', [folded, '$folded%', '% $folded%', '%$folded%', limit]);
     }
 
     return _parseResults(results);
@@ -332,15 +358,15 @@ class EmsileDatabaseService {
   /// Mazi formuna göre emsile kaydı ara (sözlük entegrasyonu için)
   Future<Map<String, dynamic>?> searchByMazi(String maziForm) async {
     final db = await instance.database;
-    final normalized = _removeArabicDiacritics(maziForm.trim());
+    final normalized = normalizeArabic(maziForm.trim());
     if (normalized.isEmpty) return null;
 
     final results = await db.rawQuery('''
       SELECT * FROM emsile 
       WHERE mazi = ? 
-      OR search_text_arabic = ? 
-      OR search_text_arabic LIKE ? 
-      OR search_text_arabic LIKE ?
+      OR $_normalizedSearchColumn = ? 
+      OR $_normalizedSearchColumn LIKE ? 
+      OR $_normalizedSearchColumn LIKE ?
       LIMIT 1
     ''', [maziForm.trim(), normalized, '$normalized %', '% $normalized %']);
 

@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/quran_word_model.dart';
+import 'search_ranking.dart' show foldLatin, normalizeArabic;
 
 /// CSV satırlarını ayrıştıran yardımcı fonksiyon (tırnak içi virgülleri dikkate alır)
 List<String> _parseCsvLine(String line) {
@@ -76,8 +78,27 @@ class QuranDictionaryService {
   bool get isLoading => _isLoading;
   int get wordCount => _allWords.length;
 
-  /// Servisi başlat ve CSV verisini yükle
+  // Kuran sözlüğünü kullanmış kullanıcıda açılışta önceden yüklenir;
+  // kullanmayanda 17 MB'lık veri boşuna belleğe alınmaz.
+  static const _usedKey = 'quran_dictionary_used_v1';
+
+  /// Daha önce kullanıldıysa sözlüğü arka planda hazırlar.
+  Future<void> warmUpIfUsed() async {
+    if (_isLoaded || _loadingFuture != null) return;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_usedKey) ?? false) await _load();
+  }
+
+  /// Servisi başlat ve CSV verisini yükle (kullanıcı Kuran sözlüğünü açtı)
   Future<void> initialize() async {
+    if (_isLoaded) return;
+    unawaited(
+      SharedPreferences.getInstance().then((p) => p.setBool(_usedKey, true)),
+    );
+    await _load();
+  }
+
+  Future<void> _load() async {
     if (_isLoaded) return;
     if (_loadingFuture != null) return _loadingFuture;
 
@@ -124,9 +145,12 @@ class QuranDictionaryService {
     if (cleanQuery.isEmpty) return [];
 
     final hasArabic = _arabicRx.hasMatch(cleanQuery);
+    // Kelimelerle aynı normalleştirme: elif/hemze ve Türkçe karakter farkı
+    // aramayı engellemez.
     final normalizedQuery = hasArabic
-        ? removeArabicDiacritics(cleanQuery)
-        : cleanQuery.toLowerCase();
+        ? normalizeArabic(cleanQuery)
+        : foldLatin(cleanQuery);
+    if (normalizedQuery.isEmpty) return [];
 
     final exact = <QuranWordModel>[];
     final startsWith = <QuranWordModel>[];

@@ -1,3 +1,6 @@
+import '../services/search_ranking.dart'
+    show foldLatin, normalizeArabic;
+
 /// Kuran Sözlüğü için kelime modeli
 /// CSV yapısı: Kelime, Kök, Anlamlar, Ayet1, Ayet2, Ayet3
 class QuranWordModel {
@@ -38,9 +41,12 @@ class QuranWordModel {
       }
     }
 
-    final cleanKelime = _stripArabicDiacritics(kelime);
-    final cleanKok = _stripArabicDiacritics(kok);
-    final cleanAnlamlar = anlamlar.toLowerCase();
+    // Ana sözlükle aynı kurallar: hemzeli elif ve benzeri yazım farkları
+    // tek biçime iner (اكل yazınca أكل de bulunur), Türkçe karakterler de
+    // (cok yazınca çok).
+    final cleanKelime = normalizeArabic(kelime);
+    final cleanKok = normalizeArabic(kok);
+    final cleanAnlamlar = foldLatin(anlamlar);
 
     return QuranWordModel(
       kelime: kelime,
@@ -82,9 +88,9 @@ class QuranWordModel {
       kok: kok,
       anlamlar: anlamlar,
       ayetOrnekleri: ayetler,
-      normalizedKelime: _stripArabicDiacritics(kelime),
-      normalizedKok: _stripArabicDiacritics(kok),
-      normalizedAnlamlar: anlamlar.toLowerCase(),
+      normalizedKelime: normalizeArabic(kelime),
+      normalizedKok: normalizeArabic(kok),
+      normalizedAnlamlar: foldLatin(anlamlar),
     );
   }
 
@@ -153,10 +159,4 @@ class QuranAyetOrnek {
       return null;
     }
   }
-}
-
-final RegExp _diacriticsRx = RegExp(r'[\u064B-\u065F\u0670\u0653-\u0655]');
-
-String _stripArabicDiacritics(String text) {
-  return text.replaceAll(_diacriticsRx, '');
 }

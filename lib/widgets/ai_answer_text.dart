@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'search_result_card_parts.dart' show ArabicTextStyles;
 
@@ -77,7 +76,8 @@ class AiAnswerText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final base = GoogleFonts.inter(
+    final base = TextStyle(
+      fontFamily: 'Inter',
       fontSize: 14,
       height: 1.5,
       fontWeight: FontWeight.w500,

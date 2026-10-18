@@ -82,7 +82,8 @@ class _QuranTextScreenState extends State<QuranTextScreen> {
         spans.add(
           TextSpan(
             text: '$word ',
-            style: GoogleFonts.scheherazadeNew(
+            style: TextStyle(
+              fontFamily: 'ScheherazadeNew',
               fontSize: 28,
               height: 1.8,
               color: isClickable 

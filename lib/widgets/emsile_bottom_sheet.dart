@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'package:google_fonts/google_fonts.dart';
 import '../models/word_model.dart';
 
 /// Emsile (Fiil Çekimleri) Bottom Sheet Widget
@@ -237,7 +236,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
                       ),
                       child: Text(
                         'اَلْأَمْثِلَة',
-                        style: GoogleFonts.scheherazadeNew(
+                        style: TextStyle(
+                          fontFamily: 'ScheherazadeNew',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -249,7 +249,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
                     const SizedBox(width: 8),
                     Text(
                       'Emsile Çekimleri',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: isDark ? Colors.white : const Color(0xFF1C1C1E),
@@ -261,7 +262,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
                 if (widget.word.anlam?.isNotEmpty == true)
                   Text(
                     widget.word.anlam!,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       color: isDark
                           ? const Color(0xFF8E8E93)
@@ -293,7 +295,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             ),
             child: Text(
               harekeli,
-              style: GoogleFonts.scheherazadeNew(
+              style: TextStyle(
+                fontFamily: 'ScheherazadeNew',
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF1C1C1E),
@@ -341,11 +344,13 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
         unselectedLabelColor: isDark
             ? const Color(0xFF8E8E93)
             : const Color(0xFF6D6D70),
-        labelStyle: GoogleFonts.inter(
+        labelStyle: TextStyle(
+          fontFamily: 'Inter',
           fontSize: 13,
           fontWeight: FontWeight.w700,
         ),
-        unselectedLabelStyle: GoogleFonts.inter(
+        unselectedLabelStyle: TextStyle(
+          fontFamily: 'Inter',
           fontSize: 13,
           fontWeight: FontWeight.w500,
         ),
@@ -382,7 +387,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
               const SizedBox(height: 12),
               Text(
                 '$tabTitle çekimi bulunamadı',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 14,
                   color: isDark
                       ? const Color(0xFF8E8E93)
@@ -447,7 +453,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
           const SizedBox(width: 8),
           Text(
             label,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: accentColor,
@@ -500,7 +507,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             width: 90,
             child: Text(
               turkce,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 10.5,
                 fontWeight: FontWeight.w500,
                 color: isDark
@@ -520,7 +528,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             ),
             child: Text(
               zamir.replaceAll('_م', '').replaceAll('_ف', ''),
-              style: GoogleFonts.scheherazadeNew(
+              style: TextStyle(
+                fontFamily: 'ScheherazadeNew',
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: accentColor,
@@ -541,7 +550,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
           Expanded(
             child: Text(
               cekim,
-              style: GoogleFonts.scheherazadeNew(
+              style: TextStyle(
+                fontFamily: 'ScheherazadeNew',
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF1C1C1E),
@@ -599,7 +609,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             if (koku.isEmpty && ismiFail.isEmpty && ismiMeful.isEmpty)
               Text(
                 'Fiil çekimleri • Kavaid Sözlük',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 11,
                   color: isDark
                       ? const Color(0xFF48484A)
@@ -630,7 +641,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
           children: [
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 9,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -640,7 +652,8 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
             const SizedBox(height: 2),
             Text(
               value,
-              style: GoogleFonts.scheherazadeNew(
+              style: TextStyle(
+                fontFamily: 'ScheherazadeNew',
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: isDark ? Colors.white : const Color(0xFF1C1C1E),

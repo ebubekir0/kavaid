@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../models/ai_teacher_model.dart';
 import '../models/word_model.dart';
@@ -194,7 +193,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
                             _service.isPremium
                                 ? 'AI Kelime Asistanı'
                                 : 'AI Kelime Asistanı · $_remaining ücretsiz hak',
-                            style: GoogleFonts.inter(
+                            style: TextStyle(
+                              fontFamily: 'Inter',
                               fontSize: 12,
                               color: subText,
                               fontWeight: FontWeight.w600,
@@ -284,7 +284,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
             padding: const EdgeInsets.only(top: 6, bottom: 12),
             child: Text(
               explanation.confidenceNote,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 11,
                 color: subText,
                 fontWeight: FontWeight.w500,
@@ -309,7 +310,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
   }
 
   TextStyle _bodyStyle(Color color) {
-    return GoogleFonts.inter(
+    return TextStyle(
+      fontFamily: 'Inter',
       fontSize: 13.5,
       height: 1.45,
       color: color,
@@ -369,7 +371,8 @@ class _Section extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 12,
               fontWeight: FontWeight.w800,
               color: const Color(0xFF007AFF),
@@ -409,7 +412,8 @@ class _NotesSection extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 6),
                 child: Text(
                   '• $note',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 13,
                     height: 1.35,
                     color: color,
@@ -462,7 +466,8 @@ class _ExamplesSection extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       example.turkish,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 12.5,
                         color: subColor,
                         fontWeight: FontWeight.w500,
@@ -501,7 +506,8 @@ class _QuizSection extends StatelessWidget {
               children: [
                 Text(
                   item.question,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 13,
                     color: color,
                     fontWeight: FontWeight.w700,
@@ -532,7 +538,8 @@ class _QuizSection extends StatelessWidget {
                       ),
                       child: Text(
                         option,
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
+                          fontFamily: 'Inter',
                           fontSize: 12,
                           color: option == item.answer
                               ? const Color(0xFF007AFF)
@@ -547,7 +554,8 @@ class _QuizSection extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     item.explanation,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       color: isDarkMode
                           ? const Color(0xFFB0B0B5)
@@ -592,7 +600,8 @@ class _SuggestedQuestionsSection extends StatelessWidget {
             avatar: const Icon(Icons.auto_awesome_rounded, size: 15),
             label: Text(
               question,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: textColor,
@@ -657,7 +666,8 @@ class _QuestionBox extends StatelessWidget {
                 ),
                 child: Text(
                   message.text,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 12.5,
                     color: message.isUser ? Colors.white : text,
                     height: 1.35,
@@ -740,7 +750,8 @@ class _StatusView extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 14,
                 color: text,
                 fontWeight: FontWeight.w600,

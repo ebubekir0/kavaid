@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 
 import '../models/custom_word.dart';
@@ -1240,7 +1239,8 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                         key: const ValueKey('word'),
                                         textAlign: TextAlign.center,
                                         textDirection: TextDirection.rtl,
-                                        style: GoogleFonts.scheherazadeNew(
+                                        style: TextStyle(
+                                          fontFamily: 'ScheherazadeNew',
                                           fontSize: 36,
                                           fontWeight: FontWeight.w700,
                                           color: textColor,
@@ -1327,7 +1327,8 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                         arapcaCumle,
                                         textAlign: TextAlign.center,
                                         textDirection: TextDirection.rtl,
-                                        style: GoogleFonts.scheherazadeNew(
+                                        style: TextStyle(
+                                          fontFamily: 'ScheherazadeNew',
                                           fontSize: fontSize,
                                           fontWeight: FontWeight.w600,
                                           color: textColor.withValues(alpha: 0.85),

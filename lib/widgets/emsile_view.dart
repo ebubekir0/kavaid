@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'package:google_fonts/google_fonts.dart';
 import '../models/custom_word.dart';
 import 'save_button.dart';
 
@@ -258,7 +257,7 @@ class _EmsileViewState extends State<EmsileView> {
                 Icon(Icons.refresh_rounded, color: _accent, size: 18),
                 const SizedBox(width: 8),
                 Text('Daha Fazla Fiil Y\u00fckle',
-                  style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: _accent)),
+                  style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600, color: _accent)),
               ],
             ),
           ),
@@ -284,7 +283,8 @@ class _EmsileViewState extends State<EmsileView> {
                 const SizedBox(height: 12),
                 Text(
                   'Aranan kelime bulunamad\u0131',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: _anlamClr.withValues(alpha: 0.7),
@@ -392,7 +392,8 @@ class _EmsileViewState extends State<EmsileView> {
                   Expanded(
                     child: Text(
                       anlam,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: _ccAnlam,
@@ -411,7 +412,8 @@ class _EmsileViewState extends State<EmsileView> {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(muzari,
-                          style: GoogleFonts.scheherazadeNew(
+                          style: TextStyle(
+                              fontFamily: 'ScheherazadeNew',
                               fontSize: 25, 
                               color: _ccMuzari,
                               fontWeight: FontWeight.w700),
@@ -426,7 +428,8 @@ class _EmsileViewState extends State<EmsileView> {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(mazi,
-                          style: GoogleFonts.scheherazadeNew(
+                          style: TextStyle(
+                              fontFamily: 'ScheherazadeNew',
                               fontSize: 25, 
                               color: _ccMazi,
                               fontWeight: FontWeight.w700),
@@ -475,7 +478,8 @@ class _EmsileViewState extends State<EmsileView> {
                   ),
                 ),
                 child: Text(a.toString(),
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 13, color: _labelClr,
                         fontWeight: FontWeight.w600)),
               )).toList(),
@@ -626,7 +630,8 @@ class _EmsileViewState extends State<EmsileView> {
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.visible,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 9.5,
                         fontWeight: FontWeight.w700,
                         color: headerTxt,
@@ -646,7 +651,8 @@ class _EmsileViewState extends State<EmsileView> {
                           arapca,
                           textDirection: ui.TextDirection.rtl,
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.scheherazadeNew(
+                          style: TextStyle(
+                            fontFamily: 'ScheherazadeNew',
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: isConjOpen ? _accent : _arabicClr,
@@ -721,7 +727,8 @@ class _EmsileViewState extends State<EmsileView> {
                 const SizedBox(width: 6),
                 Text(
                   titleMap[key] ?? 'Çekimler',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -814,7 +821,8 @@ class _EmsileViewState extends State<EmsileView> {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(text,
-                style: GoogleFonts.scheherazadeNew(
+                style: TextStyle(
+                    fontFamily: 'ScheherazadeNew',
                     fontSize: 21, color: _arabicClr,
                     fontWeight: FontWeight.w500),
                 textDirection: ui.TextDirection.rtl,
@@ -833,7 +841,8 @@ class _EmsileViewState extends State<EmsileView> {
         Expanded(
           child: Text(
             text,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: widget.isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
@@ -871,7 +880,8 @@ class _EmsileViewState extends State<EmsileView> {
               children: [
                 Text(
                   'Premium İçerik',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
                     color: widget.isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
@@ -898,7 +908,8 @@ class _EmsileViewState extends State<EmsileView> {
                     },
                     child: Text(
                       'Premium\'a Yükselt',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
@@ -914,7 +925,8 @@ class _EmsileViewState extends State<EmsileView> {
                   },
                   child: Text(
                     'Ücretsiz Fiiller',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: widget.isDarkMode ? Colors.white54 : const Color(0xFF8E8E93),

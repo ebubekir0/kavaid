@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart' show kReleaseMode;
 import '../services/book_store_service.dart';
 import '../services/book_purchase_service.dart';
 import '../services/auth_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui' as ui;
 import '../services/book_lessons_service.dart';
 import '../models/word_model.dart';
@@ -237,7 +236,8 @@ class _LegacyBookTextsScreenState extends State<LegacyBookTextsScreen> {
                               children: [
                                 Text(
                                   _stripDots(arabic),
-                                  style: GoogleFonts.scheherazadeNew(
+                                  style: TextStyle(
+                                    fontFamily: 'ScheherazadeNew',
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
@@ -905,7 +905,8 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                         key: const ValueKey('word'),
                                         textAlign: TextAlign.center,
                                         textDirection: ui.TextDirection.rtl,
-                                        style: GoogleFonts.scheherazadeNew(
+                                        style: TextStyle(
+                                          fontFamily: 'ScheherazadeNew',
                                           fontSize: 36,
                                           fontWeight: FontWeight.w700,
                                           color: textColor,
@@ -963,7 +964,8 @@ class _LegacyTextWordsScreenState extends State<LegacyTextWordsScreen> {
                                         arapcaCumle,
                                         textAlign: TextAlign.center,
                                         textDirection: ui.TextDirection.rtl,
-                                        style: GoogleFonts.scheherazadeNew(
+                                        style: TextStyle(
+                                          fontFamily: 'ScheherazadeNew',
                                           fontSize: fontSize,
                                           fontWeight: FontWeight.w600,
                                           color: textColor.withValues(alpha: 0.85),

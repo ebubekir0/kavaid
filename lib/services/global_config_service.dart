@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalConfigService extends ChangeNotifier {
   static final FirebaseDatabase _database = FirebaseDatabase.instance;
@@ -24,6 +27,28 @@ class GlobalConfigService extends ChangeNotifier {
   bool get campaignEnabled => _campaignEnabled;
   bool get isInitialized => _isInitialized;
   
+  static const _campaignCacheKey = 'config_campaign_enabled';
+  static const _subscriptionCacheKey = 'config_subscription_disabled';
+
+  /// Son bilinen değerleri diskten okur. Ana ekran açılmadan çağrılır ki
+  /// kampanya bandı açılıştan bir an sonra belirip sayfayı kaydırmasın.
+  Future<void> loadCached() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _campaignEnabled = prefs.getBool(_campaignCacheKey) ?? _campaignEnabled;
+      _subscriptionDisabled =
+          prefs.getBool(_subscriptionCacheKey) ?? _subscriptionDisabled;
+    } catch (_) {}
+  }
+
+  Future<void> _saveCached() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_campaignCacheKey, _campaignEnabled);
+      await prefs.setBool(_subscriptionCacheKey, _subscriptionDisabled);
+    } catch (_) {}
+  }
+
   // Ana başlatma metodu
   Future<void> init() async {
     if (_isInitialized) return;
@@ -38,6 +63,7 @@ class GlobalConfigService extends ChangeNotifier {
 
     _isInitialized = true;
     notifyListeners();
+    unawaited(_saveCached());
   }
   
   // 1. Remote Config'i başlat ve değeri çek
@@ -91,6 +117,7 @@ class GlobalConfigService extends ChangeNotifier {
         debugPrint('🔄 [GlobalConfig] subscription_disabled değişti: $_subscriptionDisabled -> $newValue');
         _subscriptionDisabled = newValue;
         notifyListeners();
+        unawaited(_saveCached());
       }
     }, onError: (error) {
       debugPrint('❌ [GlobalConfig] Realtime DB dinleme hatası: $error');
@@ -113,6 +140,7 @@ class GlobalConfigService extends ChangeNotifier {
         debugPrint('🔄 [GlobalConfig] campaign_enabled değişti: $_campaignEnabled -> $newValue');
         _campaignEnabled = newValue;
         notifyListeners();
+        unawaited(_saveCached());
       }
     }, onError: (error) {
       debugPrint('❌ [GlobalConfig] Campaign dinleme hatası: $error');

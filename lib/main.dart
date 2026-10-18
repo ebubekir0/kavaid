@@ -18,7 +18,6 @@ import 'services/admin_service.dart';
 import 'services/admob_service.dart';
 import 'widgets/app_intro_screen.dart';
 import 'widgets/banner_ad_widget.dart';
-import 'services/credits_service.dart';
 import 'utils/performance_utils.dart';
 import 'utils/image_cache_manager.dart';
 import 'utils/database_cleanup_utility.dart';
@@ -39,26 +38,6 @@ import 'screens/translation_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'services/purchase_manager.dart';
-
-// Fontları arka planda yükle (UI'ı engellemez)
-Future<void> _preloadFonts() async {
-  try {
-    // ScheherazadeNew (Tüm kalınlıkları yükle)
-    final arabicLoader = FontLoader('ScheherazadeNew')
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Regular.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Medium.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-SemiBold.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Bold.ttf'));
-
-    await arabicLoader.load().timeout(const Duration(seconds: 1));
-
-    debugPrint(
-      '✅ Tüm fontlar yüklendi (FontLoader): ScheherazadeNew (Tüm Kalınlıklar)',
-    );
-  } catch (e) {
-    debugPrint('⚠️ Font preload başarısız (devam ediliyor): $e');
-  }
-}
 
 // Custom ScrollBehavior - overscroll glow efektini kaldırmak için
 class NoGlowScrollBehavior extends ScrollBehavior {
@@ -114,9 +93,14 @@ class _StartupScreenState extends State<StartupScreen> {
 
         final hasError = _startup.phase == StartupPhase.recoverableError;
         final progress = _startup.progress.clamp(0.0, 1.0);
+        // Uygulamanın temasıyla aynı renkler: koyu temada açılışta açık
+        // renkli ekran bir an parlayıp sonra koyuya dönüyordu.
+        final isDark = widget.isDarkMode;
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF5F7FB),
+          backgroundColor: isDark
+              ? const Color(0xFF1C1C1E)
+              : const Color(0xFFF5F7FB),
           body: Center(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -137,12 +121,14 @@ class _StartupScreenState extends State<StartupScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Kavaid Sözlük',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C2C2E),
+                      color: isDark
+                          ? const Color(0xFFE5E5EA)
+                          : const Color(0xFF2C2C2E),
                       fontFamily: 'Inter',
                     ),
                   ),
@@ -163,7 +149,9 @@ class _StartupScreenState extends State<StartupScreen> {
                       child: LinearProgressIndicator(
                         value: progress > 0 ? progress : null,
                         minHeight: 4,
-                        backgroundColor: const Color(0xFFE5E5EA),
+                        backgroundColor: isDark
+                            ? const Color(0xFF3A3A3C)
+                            : const Color(0xFFE5E5EA),
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Color(0xFF007AFF),
                         ),
@@ -309,9 +297,9 @@ Future<void> main() async {
         debugPrint = (String? message, {int? wrapWidth}) {};
       }
 
-      // 🚀 ÖNCELİK 1: Fontları arka planda yükle — runApp'i bloke etme (ANR önleme)
-      // await KALDIRILDI: ilk frame gecikmesin, font flash kabul edilebilir
-      _preloadFonts().catchError((e) => debugPrint('⚠️ Font preload: $e'));
+      // Fontlar pubspec'te tanımlı; motor ilk karede hazır bulur. Ayrıca
+      // FontLoader ile yüklemek aynı fontu ikinci kez belleğe alıp bütün
+      // yazıları yeniden yerleştiriyordu.
 
       // 🎨 Tema tercihini de önceden yükle - splash ekranı olmadan başlatmak için
       bool initialDarkMode = false;
@@ -430,8 +418,10 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
   static const String _themeKey = 'is_dark_mode';
   late bool _isDarkMode;
   bool _isAppInForeground = true;
-  final CreditsService _creditsService = CreditsService();
   final AppUsageService _appUsageService = AppUsageService();
+  // Temalar bir kez kurulur (ColorScheme.fromSeed hesaplaması pahalı).
+  late final ThemeData _lightTheme = _buildLightTheme();
+  late final ThemeData _darkTheme = _buildDarkTheme();
   Timer? _usageTimer;
 
   @override
@@ -441,9 +431,6 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     _isDarkMode = widget.initialDarkMode;
     WidgetsBinding.instance.addObserver(this);
     _enableFullscreenSystemUi();
-
-    // Credits service'i başlat ve dinle
-    _initializeCreditsService();
 
     // Kullanım süresini periyodik olarak güncelle
     _startUsageTimer();
@@ -459,21 +446,9 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     });
   }
 
-  Future<void> _initializeCreditsService() async {
-    // Premium state AppStartupService/PurchaseManager tarafindan yonetilir;
-    // burada sadece degisimleri dinliyoruz.
-    // Premium durumu değiştiğinde rebuild için dinle
-    _creditsService.addListener(_onCreditsChanged);
-  }
-
-  void _onCreditsChanged() {
-    if (mounted) setState(() {});
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _creditsService.removeListener(_onCreditsChanged);
     _usageTimer?.cancel();
     _appUsageService.endSession();
 
@@ -540,8 +515,8 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
       child: MaterialApp(
         title: 'Kavaid - Arapça Sözlük',
         debugShowCheckedModeBanner: false,
-        theme: _buildLightTheme(),
-        darkTheme: _buildDarkTheme(),
+        theme: _lightTheme,
+        darkTheme: _darkTheme,
         themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
         home: StartupScreen(
           isDarkMode: _isDarkMode,
@@ -746,14 +721,25 @@ class MainScreen extends StatefulWidget {
     globalKey.currentState?._navigateToTab(1);
   }
 
+  /// Öğren sekmesi ilk kez açılıyorsa iç Navigator'ı bir sonraki karede
+  /// kurulur; hazır olana kadar birkaç kare bekler.
+  static Future<NavigatorState?> _learningNavigator() async {
+    for (var i = 0; i < 10; i++) {
+      final nav = globalKey.currentState?._learningTabNavKey.currentState;
+      if (nav != null) return nav;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    return null;
+  }
+
   /// Push a route to the Learning tab's navigator
   static void pushToLearningTab(Route route) {
     // Önce tab'a geç
     navigateToLearning();
 
     // Sonra route'u pushla (biraz gecikmeli ki tab değişsin)
-    Future.delayed(const Duration(milliseconds: 100), () {
-      globalKey.currentState?._learningTabNavKey.currentState?.push(route);
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      (await _learningNavigator())?.push(route);
     });
   }
 
@@ -762,8 +748,8 @@ class MainScreen extends StatefulWidget {
     // 1. Öğren sekmesine geç
     navigateToLearning();
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      final nav = globalKey.currentState?._learningTabNavKey.currentState;
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      final nav = await _learningNavigator();
       if (nav != null) {
         // Önce stack'i temizle (LearningScreen'e dön)
         nav.popUntil((route) => route.isFirst);
@@ -811,6 +797,46 @@ class _MainScreenState extends State<MainScreen> {
   // Subscriptionlar
   StreamSubscription<User?>? _authSubscription;
 
+  // Sekmeler ilk açıldıklarında kurulur (açılışta yalnızca Sözlük) ve sonra
+  // korunur. Kurulan sekme saklanır: klavye animasyonu gibi her karede
+  // tekrarlanan yeniden çizimlerde görünmeyen sekmeler yeniden kurulmaz.
+  final Set<int> _openedTabs = {0};
+  final Map<int, (List<Object?>, Widget)> _tabCache = {};
+  Timer? _prebuildTimer;
+
+  /// Açılıştan sonra, ekranda hareket yokken diğer sekmeleri teker teker
+  /// önceden kurar: açılış akıcı kalır, sekmeye ilk geçiş de beklemez.
+  void _prebuildNextTab() {
+    if (!mounted) return;
+    final next = _getVisibleStackIndices()
+        .where((i) => i != 4 && !_openedTabs.contains(i))
+        .firstOrNull;
+    if (next == null) {
+      _prebuildTimer?.cancel();
+      return;
+    }
+    // Animasyon, kaydırma ya da açık klavye varken kurulan sekme görünür
+    // bir takılma yapar; boş bir anı bekle.
+    final scheduler = SchedulerBinding.instance;
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView;
+    if (scheduler.hasScheduledFrame ||
+        scheduler.transientCallbackCount > 0 ||
+        (view?.viewInsets.bottom ?? 0) > 0 ||
+        _showArabicKeyboard) {
+      return;
+    }
+    setState(() => _openedTabs.add(next));
+  }
+
+  Widget _tab(int index, List<Object?> deps, Widget Function() build) {
+    if (!_openedTabs.contains(index)) return const SizedBox.shrink();
+    final cached = _tabCache[index];
+    if (cached != null && listEquals(cached.$1, deps)) return cached.$2;
+    final tab = build();
+    _tabCache[index] = (deps, tab);
+    return tab;
+  }
+
   // Çeviri sekmesini henüz açmamış kullanıcılara gösterilen kırmızı nokta
   static const _translationTabOpenedKey = 'has_opened_translation_tab_v1';
   bool _showTranslationBadge = false;
@@ -820,6 +846,13 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _checkTranslationBadgeStatus();
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowAppIntro());
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      _prebuildTimer = Timer.periodic(
+        const Duration(milliseconds: 700),
+        (_) => _prebuildNextTab(),
+      );
+    });
 
     // İnternet kontrolünü arka planda yap (başlangıcı yavaşlatmasın)
     Future.delayed(const Duration(milliseconds: 500), () {
@@ -867,9 +900,14 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void dispose() {
+    _prebuildTimer?.cancel();
     _authSubscription?.cancel();
     _connectivityService.stopListening();
     super.dispose();
+  }
+
+  void _onHomeKeyboardOpened() {
+    if (_isFirstOpen) setState(() => _isFirstOpen = false);
   }
 
   /// Navigate to a specific tab by index
@@ -1144,11 +1182,19 @@ class _MainScreenState extends State<MainScreen> {
                           navBarBottomGap +
                           systemNavBarHeight;
 
-                      return IndexedStack(
-                        index: _currentIndex,
-                        children: [
-                          // 0: Sözlük (Home) - her zaman ağaçta, state korunur
-                          HomeScreen(
+                      _openedTabs.add(_currentIndex);
+                      final tabs = <Widget>[
+                        // 0: Sözlük (Home) - her zaman ağaçta, state korunur
+                        _tab(
+                          0,
+                          [
+                            _currentIndex == 0,
+                            totalBottomPadding,
+                            widget.isDarkMode,
+                            widget.onThemeToggle,
+                            _isFirstOpen,
+                          ],
+                          () => HomeScreen(
                             key: const ValueKey('home_screen'),
                             isActive: _currentIndex == 0,
                             bottomPadding: totalBottomPadding,
@@ -1157,15 +1203,15 @@ class _MainScreenState extends State<MainScreen> {
                             onArabicKeyboardStateChanged:
                                 _setArabicKeyboardState,
                             isFirstOpen: _isFirstOpen,
-                            onKeyboardOpened: () {
-                              if (_isFirstOpen) {
-                                setState(() => _isFirstOpen = false);
-                              }
-                            },
+                            onKeyboardOpened: _onHomeKeyboardOpened,
                           ),
+                        ),
 
-                          // 1: Öğren (iç Navigator) - state korunur
-                          Padding(
+                        // 1: Öğren (iç Navigator) - state korunur
+                        _tab(
+                          1,
+                          [totalBottomPadding],
+                          () => Padding(
                             key: const ValueKey('learning_screen'),
                             padding: EdgeInsets.only(
                               bottom: totalBottomPadding,
@@ -1182,33 +1228,59 @@ class _MainScreenState extends State<MainScreen> {
                               },
                             ),
                           ),
+                        ),
 
-                          // 2: Profil - her zaman ağaçta, state korunur
-                          TranslationScreen(
+                        // 2: Çeviri - state korunur
+                        _tab(
+                          2,
+                          [totalBottomPadding, widget.isDarkMode],
+                          () => TranslationScreen(
                             key: const ValueKey('translation_screen'),
                             bottomPadding: totalBottomPadding,
                             isDarkMode: widget.isDarkMode,
                             isEmbedded: false,
                           ),
+                        ),
 
-                          ProfileScreen(
+                        // 3: Profil - state korunur
+                        _tab(
+                          3,
+                          [
+                            totalBottomPadding,
+                            widget.isDarkMode,
+                            widget.onThemeToggle,
+                          ],
+                          () => ProfileScreen(
                             key: const ValueKey('profile_screen'),
                             bottomPadding: totalBottomPadding,
                             isDarkMode: widget.isDarkMode,
                             onThemeToggle: widget.onThemeToggle,
                           ),
+                        ),
 
-                          // 3: Admin Console - sadece aktifken ve adminse oluştur
-                          _adminService.isAdmin() && _currentIndex == 4
-                              ? AdminConsoleScreen(
-                                  key: const ValueKey('admin_screen'),
-                                  topPadding: _bannerHeight,
-                                  bottomPadding:
-                                      navBarHeight +
-                                      navBarBottomGap +
-                                      systemNavBarHeight,
-                                )
-                              : const SizedBox.shrink(),
+                        // 4: Admin Console - sadece aktifken ve adminse oluştur
+                        _adminService.isAdmin() && _currentIndex == 4
+                            ? AdminConsoleScreen(
+                                key: const ValueKey('admin_screen'),
+                                topPadding: _bannerHeight,
+                                bottomPadding:
+                                    navBarHeight +
+                                    navBarBottomGap +
+                                    systemNavBarHeight,
+                              )
+                            : const SizedBox.shrink(),
+                      ];
+
+                      return IndexedStack(
+                        index: _currentIndex,
+                        children: [
+                          // Görünmeyen sekmelerin animasyonları durur
+                          // (gizli sekmede dönen animasyon kare çizdiriyordu).
+                          for (var i = 0; i < tabs.length; i++)
+                            TickerMode(
+                              enabled: i == _currentIndex,
+                              child: tabs[i],
+                            ),
                         ],
                       );
                     },

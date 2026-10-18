@@ -28,8 +28,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'log_screen.dart';
 import 'custom_words_screen.dart';
 import '../services/auth_service.dart';
-import 'package:google_fonts/google_fonts.dart'; // Kuran modu Arapça metin için hala gerekli
 import '../widgets/emsile_view.dart';
+import '../widgets/arabic_letters_background.dart';
 import '../utils/dictionary_mode_notifier.dart';
 import 'subscription_screen.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -86,6 +86,11 @@ class _HomeScreenState extends State<HomeScreen>
   final Expando<WordMatchType> _matchTypes = Expando('matchType');
   List<WordModel>? _groupedSource;
   List<Object> _groupedCache = const [];
+  // Her satırın kelimeye bağlı anahtarı: yazarken sonuç listesi değişince
+  // yeni listede de bulunan kartlar yerinde kalır (Arapça yazısı yeniden
+  // dizilmez), yalnızca yeni kelimeler kurulur.
+  List<Key> _groupedKeys = const [];
+  Map<Key, int> _groupedKeyIndex = const {};
   // AI asistanını tanıtan tek seferlik bilgi kartı
   static const _aiIntroSeenKey = 'ai_intro_seen_v1';
   bool _showAiIntro = false;
@@ -97,9 +102,12 @@ class _HomeScreenState extends State<HomeScreen>
   bool _didAutoOpenKeyboard = false; // Bir kez klavye açıldı mı?
   String _lastSearchText = ''; // Son arama metnini takip et
   bool _hasInternet = true; // İnternet bağlantısı var mı?
+  // Sistem klavyesi açık mı? Klavye açılıp kapanırken her karede değil,
+  // yalnızca durum değişince güncellenir (eskiden klavye animasyonunun her
+  // karesinde bütün ekran ve kartlar yeniden kuruluyor, kaydırırken
+  // takılma oluyordu).
+  bool _hasKeyboard = false;
   bool _scrollDebounce = false; // Scroll başlangıcını throttle et
-  bool _prewarmPending =
-      false; // İlk detay açılış jank'ını önlemek için prewarm
 
   // Kuran sözlüğü state
   bool _isQuranMode = false;
@@ -166,6 +174,17 @@ class _HomeScreenState extends State<HomeScreen>
     if (!identical(_groupedSource, _searchResults)) {
       _groupedSource = _searchResults;
       _groupedCache = groupSearchResults(_searchResults, (w) => _matchTypes[w]);
+      final keys = <Key>[];
+      final seen = <String, int>{};
+      for (final item in _groupedCache) {
+        final base = item is WordModel
+            ? 'w:${item.kelime}|${item.harekeliKelime}|${item.anlam}'
+            : 'h:${(item as SearchGroupHeader).title}';
+        final n = seen[base] = (seen[base] ?? 0) + 1;
+        keys.add(ValueKey('$base#$n'));
+      }
+      _groupedKeys = keys;
+      _groupedKeyIndex = {for (var i = 0; i < keys.length; i++) keys[i]: i};
     }
     return _groupedCache;
   }
@@ -173,6 +192,10 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+    // Klavye durumu ve uygulama arka plana geçince Kuran süre sayacının
+    // durması için (gözlemci eskiden hiç kaydedilmiyordu).
+    WidgetsBinding.instance.addObserver(this);
+    _hasKeyboard = _systemKeyboardVisible();
     _loadAiIntro();
 
     _searchController.addListener(_onSearchChanged);
@@ -242,19 +265,12 @@ class _HomeScreenState extends State<HomeScreen>
         widget.onKeyboardOpened?.call();
       });
     }
-    // İlk açılışta prewarm başlat (Shader compilation jank önleme)
+    // Görünmez "ısınma kartı" kaldırıldı: Offstage çizilmediği için işe
+    // yaramıyor, açılışta ana ekranı iki kez boşuna yeniden kuruyordu.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _prewarmPending = true);
-        // 2 saniye sonra warm-up widget'ını kaldır
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) setState(() => _prewarmPending = false);
-        });
-
-        // Emsile modu aktifse ve kart yoksa yükle
-        if (_isEmsileMode && _emsileSearchResults.isEmpty) {
-          _loadRandomEmsile();
-        }
+      // Emsile modu aktifse ve kart yoksa yükle
+      if (mounted && _isEmsileMode && _emsileSearchResults.isEmpty) {
+        _loadRandomEmsile();
       }
     });
   }
@@ -706,8 +722,22 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  bool _systemKeyboardVisible() {
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView;
+    return (view?.viewInsets.bottom ?? 0) > 0;
+  }
+
+  @override
+  void didChangeMetrics() {
+    final hasKeyboard = _systemKeyboardVisible();
+    if (mounted && hasKeyboard != _hasKeyboard) {
+      setState(() => _hasKeyboard = hasKeyboard);
+    }
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _searchController.removeListener(_onSearchChanged);
     _removeTapHintOverlay();
     _searchController.dispose();
@@ -774,16 +804,9 @@ class _HomeScreenState extends State<HomeScreen>
       return;
     }
 
-    // Ana sözlükte tek harfli Türkçe aramayı engelle (2 harfliler tam kelime aranır).
-    final isArabic = _containsArabic(cleanText);
-    final isShortTurkishInMain =
-        !_isQuranMode &&
-        !_isEmsileMode &&
-        !isArabic &&
-        cleanText.isNotEmpty &&
-        cleanText.length < 2;
-
-    if (cleanText.isEmpty || isShortTurkishInMain) {
+    // 1-2 harfli aramalar da yapılır; motor kısa sorguda yalnızca kelime
+    // başında geçen eşleşmeleri alır ("k" → kitap, "ki" → kitap, kim).
+    if (cleanText.isEmpty) {
       // Timer varsa iptal et — bir önceki arama gelmeden temizlendi
       _debounceTimer?.cancel();
       setState(() {
@@ -941,25 +964,6 @@ class _HomeScreenState extends State<HomeScreen>
     if (cleanQuery.isEmpty) return;
     final searchGeneration = ++_searchGeneration;
     final searchMode = dictionaryModeNotifier.value;
-
-    // Ana sözlükte tek harfli Türkçe aramayı engelle; 2 harfliler ("su", "ev")
-    // motor tarafında yalnızca tam kelime olarak eşleşir.
-    final isArabic = _containsArabic(cleanQuery);
-    final isShortTurkishInMain =
-        !_isQuranMode && !_isEmsileMode && !isArabic && cleanQuery.length < 2;
-
-    if (isShortTurkishInMain) {
-      if (mounted) {
-        setState(() {
-          _searchResults = [];
-          _isSearching = false;
-          _isLoading = false;
-          _showNotFound = false;
-          _isSearchInProgress = false;
-        });
-      }
-      return;
-    }
 
     // Kuran sözlüğü limit kontrolü
     if (_isQuranMode && _isQuranUsageExceeded) {
@@ -1150,9 +1154,7 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     super.build(context); // AutomaticKeepAliveClientMixin için gerekli
 
-    // Klavye durumunu kontrol et
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final hasKeyboard = keyboardHeight > 0;
+    final hasKeyboard = _hasKeyboard;
     // Sözlük görünümü dışında overlay kalmışsa kaldır (başka sekmeye geçildiğinde vs.)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -1239,6 +1241,21 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ),
+            // Boş Sözlük ekranında mavi zemin üzerinde çok hafif Arapça
+            // harfler (sonuç listesi açıkken çizilmez). Katman ağaçta hep
+            // durur, yalnızca görünürlüğü değişir: koşullu eklenince alttaki
+            // içerik (arama kutusu dahil) yeniden kuruluyor, klavye
+            // kapanıyordu.
+            Positioned.fill(
+              child: Visibility(
+                visible:
+                    !_isQuranMode &&
+                    !_isEmsileMode &&
+                    !_isSearching &&
+                    _selectedWord == null,
+                child: ArabicLettersBackground(isDarkMode: widget.isDarkMode),
+              ),
+            ),
             // Ana içerik
             Positioned.fill(
               child: GestureDetector(
@@ -2073,8 +2090,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                               style: TextStyle(
                                                                 fontSize: 12,
                                                                 fontFamily:
-                                                                    GoogleFonts.inter()
-                                                                        .fontFamily,
+                                                                    'Inter',
                                                                 fontWeight:
                                                                     _isEmsileMode
                                                                     ? FontWeight
@@ -2123,8 +2139,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                               style: TextStyle(
                                                                 fontSize: 12,
                                                                 fontFamily:
-                                                                    GoogleFonts.inter()
-                                                                        .fontFamily,
+                                                                    'Inter',
                                                                 fontWeight:
                                                                     (!_isQuranMode &&
                                                                         !_isEmsileMode)
@@ -2175,8 +2190,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                               style: TextStyle(
                                                                 fontSize: 12,
                                                                 fontFamily:
-                                                                    GoogleFonts.inter()
-                                                                        .fontFamily,
+                                                                    'Inter',
                                                                 fontWeight:
                                                                     (_isQuranMode &&
                                                                         !_isEmsileMode)
@@ -2267,32 +2281,6 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
 
-            // Warm-up Widget (Performans için görünmez kart)
-            // İlk açılışta shader compilation jank'ı önler
-            if (_prewarmPending &&
-                !_isSearching &&
-                !_isLoading &&
-                _searchController.text.trim().isEmpty)
-              Positioned(
-                left: 0,
-                top: 0,
-                child: Offstage(
-                  offstage: true,
-                  child: SizedBox(
-                    width: 300,
-                    height: 200,
-                    child: WordCard(
-                      key: const ValueKey('warmup_card'),
-                      word: WordModel(
-                        kelime: 'warmup',
-                        anlam: 'warmup',
-                        koku: 'warm',
-                        harekeliKelime: 'warmup',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -2579,6 +2567,7 @@ class _HomeScreenState extends State<HomeScreen>
                         ? const Color(0xFF3A3A3C)
                         : const Color(0xFFE5E5EA);
                     return Padding(
+                      key: _groupedKeys[index],
                       padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
 
                       child: Row(
@@ -2612,7 +2601,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                   final word = item as WordModel;
                   return SearchResultCard(
-                    key: ValueKey('result_${word.kelime}_$index'),
+                    key: _groupedKeys[index],
                     word: word,
                     // Karta dokunulduğunda klavyeleri kapat + kelimeyi seç
                     onTap: () {
@@ -2628,6 +2617,7 @@ class _HomeScreenState extends State<HomeScreen>
                   );
                 },
                 childCount: groupedResults.length,
+                findChildIndexCallback: (key) => _groupedKeyIndex[key],
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: true,
                 addSemanticIndexes: false,
@@ -2746,13 +2736,8 @@ class _HomeScreenState extends State<HomeScreen>
                             const SizedBox(height: 24),
                             Text(
                               'Premium\'a Yükselt',
-                              style: GoogleFonts.outfit(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: widget.isDarkMode
-                                    ? Colors.white
-                                    : const Color(0xFF1C1C1E),
-                              ),
+                              textAlign: TextAlign.center,
+                              style: _introTitleStyle(),
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -2805,27 +2790,14 @@ class _HomeScreenState extends State<HomeScreen>
                               children: [
                                 Text(
                                   'Kur\'an-ı Kerim Sözlüğü',
-                                  style: GoogleFonts.outfit(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: widget.isDarkMode
-                                        ? Colors.white
-                                        : const Color(0xFF1C1C1E),
-                                    letterSpacing: -0.5,
-                                  ),
+                                  textAlign: TextAlign.center,
+                                  style: _introTitleStyle(),
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 6),
                                 Text(
                                   'Kur\'an\'da geçen tüm kelimelerin kullanımlarını ve Kur\'ani anlamlarını ayetlerle birlikte öğrenin.',
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.4,
-                                    color: widget.isDarkMode
-                                        ? const Color(0xFFBBBBBB)
-                                        : const Color(0xFF444446),
-                                  ),
+                                  style: _introTextStyle(),
                                 ),
                                 const SizedBox(height: 28),
                                 _buildInfoRow(
@@ -2961,6 +2933,7 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                   ),
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
                     color: widget.isDarkMode
@@ -2975,34 +2948,20 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                   child: Column(
                     children: [
-                      if (LanguageService().isTurkish)
+                      // Emsile kartıyla aynı sade yazı: başlık ve tek cümle.
+                      if (LanguageService().isTurkish) ...[
                         Text(
                           'Kavaid Arapça Sözlük',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: widget.isDarkMode
-                                ? Colors.white
-                                : const Color(0xFF1C1C1E),
-                            letterSpacing: -0.5,
-                            fontFamily: 'Inter', // Uygulamanın ana fontu
-                          ),
+                          textAlign: TextAlign.center,
+                          style: _introTitleStyle(),
                         ),
-                      if (LanguageService().isTurkish)
-                        const SizedBox(height: 12),
-                      if (LanguageService().isTurkish)
+                        const SizedBox(height: 6),
                         Text(
                           'Yeni nesil yapay zeka destekli ilk Arapça sözlük',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            height: 1.4,
-                            color: widget.isDarkMode
-                                ? const Color(0xFFBBBBBB)
-                                : const Color(0xFF444446),
-                          ),
+                          style: _introTextStyle(),
                         ),
+                      ],
                       if (LanguageService().isEnglish)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -3034,42 +2993,6 @@ class _HomeScreenState extends State<HomeScreen>
                                   : const Color(0xFF444446),
                             ),
                           ),
-                        ),
-                      if (LanguageService().isEnglish ||
-                          LanguageService().isArabic)
-                        const SizedBox(height: 12),
-                      if (LanguageService().isTurkish)
-                        const SizedBox(height: 28),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.search_rounded,
-                          '50.000+ Kelime',
-                          'Arapça ya da Türkçe yazın, anında bulun.',
-                          widget.isDarkMode,
-                        ),
-                      if (LanguageService().isTurkish)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Divider(height: 1, thickness: 0.5),
-                        ),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.menu_book_rounded,
-                          'Gramer Yapıları',
-                          'Kelimelerin gramer yapılarını öğrenin.',
-                          widget.isDarkMode,
-                        ),
-                      if (LanguageService().isTurkish)
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          child: Divider(height: 1, thickness: 0.5),
-                        ),
-                      if (LanguageService().isTurkish)
-                        _buildInfoRow(
-                          Icons.style_rounded,
-                          'Kişisel Listeler',
-                          'Kendi kelime listelerinizi ve kartlarınızı oluşturun.',
-                          widget.isDarkMode,
                         ),
                     ],
                   ),
@@ -3160,6 +3083,25 @@ class _HomeScreenState extends State<HomeScreen>
     }
     return slivers;
   }
+
+  /// Mod tanıtım kartlarının başlığı (Sözlük, Kuran): sade, Emsile
+  /// kartındaki yazıyla aynı yazı tipi.
+  TextStyle _introTitleStyle() => TextStyle(
+    fontSize: 17,
+    fontWeight: FontWeight.w600,
+    height: 1.3,
+    color: widget.isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
+  );
+
+  /// Mod tanıtım kartlarının açıklaması (Emsile kartındaki cümleyle aynı).
+  TextStyle _introTextStyle() => TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+    height: 1.4,
+    color: widget.isDarkMode
+        ? const Color(0xFFBBBBBB)
+        : const Color(0xFF444446),
+  );
 
   Widget _buildInfoRow(
     IconData icon,

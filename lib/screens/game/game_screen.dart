@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../widgets/wow_guru_mini_game.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class GameScreen extends StatelessWidget {
   final bool isDarkMode;
@@ -19,7 +18,8 @@ class GameScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'Oyun',
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Inter',
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),

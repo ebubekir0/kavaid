@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/custom_word.dart';
 import '../models/quran_word_model.dart';
 import 'dart:ui' as ui;
-import 'package:google_fonts/google_fonts.dart';
 import 'save_button.dart';
 
 /// Kuran sözlüğü arama sonucu kartı
@@ -85,7 +84,8 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
                               alignment: Alignment.centerRight,
                               child: Text(
                                 word.kelime,
-                                style: GoogleFonts.scheherazadeNew(
+                                style: TextStyle(
+                                  fontFamily: 'ScheherazadeNew',
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
                                 color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
@@ -117,7 +117,8 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
                               ),
                               child: Text(
                                 word.kok,
-                                style: GoogleFonts.inter(
+                                style: TextStyle(
+                                  fontFamily: 'Inter',
                                   fontSize: 10.5, // Biraz büyütüldü (9.5 -> 10.5)
                                   fontWeight: FontWeight.w600,
                                   color: isDarkMode
@@ -273,7 +274,8 @@ class LogicalKeyRow extends StatelessWidget {
                   if (ayet.arapcaMetin.isNotEmpty)
                     Text(
                       ayet.arapcaMetin,
-                      style: GoogleFonts.scheherazadeNew(
+                      style: TextStyle(
+                        fontFamily: 'ScheherazadeNew',
                         fontSize: 20,
                         color: isDarkMode ? Colors.white : const Color(0xFF1C1C1E),
                         height: 1.6,
@@ -342,7 +344,8 @@ class QuranWordCard extends StatelessWidget {
           Center(
             child: Text(
               word.kelime,
-              style: GoogleFonts.scheherazadeNew(
+              style: TextStyle(
+                fontFamily: 'ScheherazadeNew',
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -370,7 +373,8 @@ class QuranWordCard extends StatelessWidget {
                 ),
                 child: Text(
                   word.kok,
-                  style: GoogleFonts.scheherazadeNew(
+                  style: TextStyle(
+                    fontFamily: 'ScheherazadeNew',
                     fontSize: 18,
                     color: const Color(0xFFD4E4C0),
                     fontWeight: FontWeight.w700,
@@ -495,7 +499,8 @@ class QuranWordCard extends StatelessWidget {
             if (ayet.arapcaMetin.isNotEmpty)
               Text(
                 ayet.arapcaMetin,
-                style: GoogleFonts.scheherazadeNew(
+                style: TextStyle(
+                  fontFamily: 'ScheherazadeNew',
                   fontSize: 22,
                   color: Colors.white,
                   height: 1.7,

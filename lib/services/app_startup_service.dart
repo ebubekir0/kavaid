@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import '../utils/safe_purchase_wrapper.dart';
+import '../widgets/arabic_letters_background.dart';
 import 'app_usage_service.dart';
+import 'book_purchase_service.dart';
+import 'book_store_service.dart';
 import 'database_initialization_service.dart';
 import 'database_service.dart';
 import 'emsile_database_service.dart';
@@ -99,13 +101,21 @@ class AppStartupService extends ChangeNotifier {
       isMainDictionaryReady: false,
     );
 
+    // Ana ekranda görünen ve diskte saklanan durumlar ekran açılmadan
+    // okunur; yoksa değerlendirme kartı ve kampanya bandı bir an sonra
+    // belirip sayfayı kaydırıyordu. (Fontlar pubspec'te tanımlı, motor
+    // ilk karede hazır bulur.)
     final tasks = <Future<void>>[
-      _loadStartupFonts(),
       LanguageService().initialize(),
+      AppUsageService().loadSaved(),
+      GlobalConfigService().loadCached(),
     ];
 
     if (context != null) {
       tasks.add(_precacheStartupAssets(context));
+      // Ana ekranın harf deseni yükleme ekranı dururken hazırlanır; ana
+      // ekranın ilk karesi bunu beklemez.
+      unawaited(ArabicLettersBackground.precache(context));
     }
 
     await Future.wait(
@@ -115,30 +125,6 @@ class AppStartupService extends ChangeNotifier {
         }),
       ),
     ).timeout(const Duration(seconds: 4), onTimeout: () => <void>[]);
-  }
-
-  Future<void> _loadStartupFonts() async {
-    final interLoader = FontLoader('Inter')
-      ..addFont(rootBundle.load('assets/fonts/Inter-Regular.ttf'))
-      ..addFont(
-        rootBundle.load('assets/fonts/Inter-VariableFont_opsz,wght.ttf'),
-      );
-
-    final arabicLoader = FontLoader('ScheherazadeNew')
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Regular.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Medium.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-SemiBold.ttf'))
-      ..addFont(rootBundle.load('assets/fonts/ScheherazadeNew-Bold.ttf'));
-
-    // ANR: fontları paralel yükle, tek tek 2sn bekleme (toplam 4sn blok).
-    await Future.wait([
-      interLoader.load().timeout(const Duration(seconds: 2)).catchError((e) {
-        debugPrint('Inter font load error: $e');
-      }),
-      arabicLoader.load().timeout(const Duration(seconds: 2)).catchError((e) {
-        debugPrint('Arabic font load error: $e');
-      }),
-    ]);
   }
 
   Future<void> _precacheStartupAssets(BuildContext context) async {
@@ -268,7 +254,12 @@ class AppStartupService extends ChangeNotifier {
     _warmupFuture =
         Future(() async {
           await Future.wait([
-            QuranDictionaryService.instance.initialize().catchError((e) {
+            // Yalnızca Kuran sözlüğünü kullanan kullanıcıda ve ilk
+            // saniyelerin akıcılığını bozmamak için biraz sonra.
+            Future<void>.delayed(
+              const Duration(seconds: 4),
+              QuranDictionaryService.instance.warmUpIfUsed,
+            ).catchError((e) {
               debugPrint('Quran dictionary warmup error: $e');
             }),
             TTSService()
@@ -304,6 +295,12 @@ class AppStartupService extends ChangeNotifier {
         const Duration(seconds: 2),
       );
     }, delay: const Duration(seconds: 2));
+    // Kitap satın alımlarının dinleyicisi: bekleyen satın alımlar açılışta
+    // onaylanmalı (eskiden Profil sekmesi açılışta kurulurken başlıyordu).
+    _runDeferredTask('book purchases', () async {
+      await BookStoreService().initialize();
+      await BookPurchaseService().initialize();
+    }, delay: const Duration(milliseconds: 2500));
     _runDeferredTask('saved words', () {
       return SavedWordsService().initialize().timeout(
         const Duration(seconds: 2),

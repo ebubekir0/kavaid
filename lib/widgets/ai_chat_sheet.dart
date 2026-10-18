@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/word_model.dart';
@@ -262,7 +261,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
               children: [
                 Text(
                   'AI Asistan',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: p.text,
@@ -286,7 +286,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
                       ),
                       Text(
                         ' hakkında',
-                        style: GoogleFonts.inter(
+                        style: TextStyle(
+                          fontFamily: 'Inter',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: p.sub,
@@ -297,7 +298,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 else
                   Text(
                     'Arapça sözlük yardımcın',
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       color: p.sub,
@@ -349,7 +351,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
             const SizedBox(width: 2),
             Text(
               '$left/${AiTeacherService.freeDailyLimit}',
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: empty ? const Color(0xFFFF9500) : _Palette.blue,
@@ -399,7 +402,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
           ),
           child: Text(
             text,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 14,
               height: 1.4,
               fontWeight: FontWeight.w500,
@@ -483,7 +487,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
             const SizedBox(width: 4),
             Text(
               label,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 11.5,
                 fontWeight: FontWeight.w600,
                 color: p.sub,
@@ -510,7 +515,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
             Flexible(
               child: Text(
                 error,
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 12.5,
                   fontWeight: FontWeight.w500,
                   color: p.sub,
@@ -569,7 +575,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
               Expanded(
                 child: Text(
                   'Bugünkü ${AiTeacherService.freeDailyLimit} ücretsiz soru hakkın bitti',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Inter',
                     fontSize: 13.5,
                     fontWeight: FontWeight.w700,
                     color: p.text,
@@ -581,7 +588,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
           const SizedBox(height: 4),
           Text(
             'Hakların yarın yenilenir. Premium ile sınırsız sorabilirsin.',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 12.5,
               height: 1.35,
               fontWeight: FontWeight.w500,
@@ -668,7 +676,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
               meaning,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 13,
                 height: 1.35,
                 fontWeight: FontWeight.w500,
@@ -678,7 +687,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
           const SizedBox(height: 8),
           Text(
             'Bu kelime hakkında kısa ve net cevap alırsın.',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: _Palette.blue,
@@ -700,7 +710,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
             children: [
               Text(
                 'Arapça sorunu yaz',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: p.text,
@@ -709,7 +720,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
               const SizedBox(height: 2),
               Text(
                 'Kısa ve net cevap verir, bilmediğini uydurmaz.',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 12.5,
                   fontWeight: FontWeight.w500,
                   color: p.sub,
@@ -727,7 +739,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
       padding: const EdgeInsets.only(left: 2, bottom: 6),
       child: Text(
         label,
-        style: GoogleFonts.inter(
+        style: TextStyle(
+          fontFamily: 'Inter',
           fontSize: 12,
           fontWeight: FontWeight.w700,
           color: p.sub,
@@ -756,7 +769,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
                     question,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(
+                      fontFamily: 'Inter',
                       fontSize: 13.5,
                       fontWeight: FontWeight.w600,
                       color: p.text,
@@ -799,7 +813,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
           return ActionChip(
             label: Text(
               q,
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: _Palette.blue,
@@ -846,14 +861,16 @@ class _AiChatSheetState extends State<AiChatSheet> {
               maxLines: 4,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => _submit(),
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Inter',
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: p.text,
               ),
               decoration: InputDecoration(
                 hintText: 'AI Asistan\'a sor...',
-                hintStyle: GoogleFonts.inter(
+                hintStyle: TextStyle(
+                  fontFamily: 'Inter',
                   fontSize: 13.5,
                   fontWeight: FontWeight.w500,
                   color: p.sub,

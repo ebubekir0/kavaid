@@ -45,6 +45,15 @@ class AppUsageService extends ChangeNotifier {
     }
   }
 
+  /// Kayıtlı kullanım süresini ve değerlendirme durumunu okur. Ana ekran
+  /// açılmadan çağrılır ki değerlendirme kartı bir an sonra belirmesin.
+  Future<void> loadSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    _totalUsageMinutes = prefs.getInt(_totalUsageKey) ?? _totalUsageMinutes;
+    _hasClickedRatingPrompt =
+        prefs.getBool(_hasClickedRatingPromptKey) ?? _hasClickedRatingPrompt;
+  }
+
   Future<void> startSession() async {
     final prefs = await SharedPreferences.getInstance();
 

@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import '../data/embedded_words.dart';
 
@@ -236,7 +235,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                     const SizedBox(width: 6),
                     Text(
                       'Oyna',
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: widget.isDarkMode
@@ -272,7 +272,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                     const SizedBox(width: 6),
                     Text(
                       '100', // Demo score
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Inter',
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: const Color(0xFF007AFF),
@@ -319,7 +320,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
           child: Text(
             _meaning,
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Inter',
               fontSize: 22,
               fontWeight: FontWeight.w800,
               color: Colors.white,

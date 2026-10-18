@@ -204,7 +204,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildBullet("AI Asistan'a sınırsız soru", highlight: true),
+                          _buildBullet("AI Asistan'a sınırsız erişim", highlight: true),
                           const SizedBox(height: 8),
                           _buildBullet("Çeviriye sınırsız erişim"),
                           const SizedBox(height: 8),

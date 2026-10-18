@@ -313,6 +313,7 @@ class PurchaseManager extends ChangeNotifier {
 
     // Null user çevrimiçide: kullanıcı giriş yapmamış veya çıkış yapmış
     if (uid == null) {
+      final wasSignedIn = _lastAuthUserId != null;
       _lastAuthUserId = null;
       _legacyChecked = false;
       _cachedLegacyPremium = false;
@@ -321,20 +322,27 @@ class PurchaseManager extends ChangeNotifier {
       _hasUsedPromo = false;
       _promoExpiryDate = null;
       _promoExpiryTimer?.cancel();
+      // Çıkış yapan hesabın premium'u ve kitapları bellekte kalmasın.
+      if (wasSignedIn) {
+        _isPremium = false;
+        _isLifetimeNoAds = false;
+        _purchasedBooks = {};
+        _subscriptionExpiryDate = null;
+        _usingOfflineSnapshot = false;
+      }
 
-      // Cihazın StoreKit / RevenueCat durumunu sorgula (Anonim satın almalar)
+      // Oturum yokken yalnızca bu cihazdaki hesapsız satın alımlar geçerli.
+      // RevenueCat önceki hesapta kalmışsa (çıkışta logOut yapılmıyordu)
+      // önce anonim kullanıcıya geçilir; yoksa giriş yapılmamışken eski
+      // hesabın aboneliği aktif görünüyordu.
       if (_isRevenueCatConfigured) {
         try {
+          await _syncRevenueCatIdentity();
           final customerInfo = await Purchases.getCustomerInfo();
           await _updateCustomerStatus(customerInfo);
         } catch (e) {
           debugPrint('[RevenueCat] Anonim customerInfo hatası: $e');
         }
-      }
-
-      // Eğer StoreKit'ten aktif abonelik gelmediyse önbellekteki son durumu kontrol et
-      if (!_isPremium && !_isLifetimeNoAds) {
-        await _applyCachedEntitlementSnapshot();
       }
 
       _entitlementPending = false;
@@ -382,6 +390,48 @@ class PurchaseManager extends ChangeNotifier {
 
     await _refreshEntitlementsFromStores(includePromo: includePromo);
   }
+
+  /// RevenueCat kimliğini oturumla eşitler: giriş varsa o hesap, yoksa
+  /// anonim kullanıcı. Satın alma ve yetki bilgisi doğru hesaba yazılsın.
+  Future<void> _syncRevenueCatIdentity() async {
+    if (!_isRevenueCatConfigured) return;
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      if (uid != null) {
+        if (await Purchases.appUserID != uid) {
+          await Purchases.logIn(uid).timeout(const Duration(seconds: 5));
+        }
+      } else if (!await Purchases.isAnonymous) {
+        await Purchases.logOut().timeout(const Duration(seconds: 5));
+      }
+    } catch (e) {
+      debugPrint('[RevenueCat] Kimlik eşitleme hatası: $e');
+    }
+  }
+
+  /// RevenueCat'in şu anki kullanıcısı oturumdaki hesapla aynı mı?
+  Future<bool> _revenueCatMatchesAuthUser() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    try {
+      return uid == null
+          ? await Purchases.isAnonymous
+          : await Purchases.appUserID == uid;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /// Hızlı önbellek bu kullanıcıya mı ait? Sahibi boş kayıt, oturum
+  /// açılmadan yapılan satın alımlardır.
+  @visibleForTesting
+  static bool cacheBelongsTo(String? cachedOwner, String? currentUid) =>
+      (cachedOwner ?? '') == (currentUid ?? '');
+
+  /// Ayrıntılı kayıt yalnızca giriş yapmış kullanıcı için yazılır ve
+  /// yalnızca ona uygulanır.
+  @visibleForTesting
+  static bool snapshotBelongsTo(Object? snapshotUserId, String? currentUid) =>
+      currentUid != null && snapshotUserId == currentUid;
 
   void _markEntitlementCheckPending() {
     if (_entitlementPending) return;
@@ -560,11 +610,21 @@ class PurchaseManager extends ChangeNotifier {
     }
   }
 
-  Future<void> _updateCustomerStatus(CustomerInfo customerInfo) async {
+  Future<void> _updateCustomerStatus(
+    CustomerInfo customerInfo, {
+    bool checkIdentity = true,
+  }) async {
     // Çevrimdışıyken RevenueCat SDK eski cache ile listener tetikler.
     final hasInternet = await ConnectivityService().hasInternetConnection();
     if (!hasInternet) {
       debugPrint('[PurchaseManager] Çevrimdışı: RevenueCat CustomerInfo güncellemesi atlandı');
+      return;
+    }
+    // Başka kimliğe ait bilgi uygulanmaz: çıkıştan sonra RevenueCat anonim
+    // kullanıcıya geçmeden gelen eski hesabın bilgisi premium'u geri
+    // getiriyordu.
+    if (checkIdentity && !await _revenueCatMatchesAuthUser()) {
+      debugPrint('[PurchaseManager] RevenueCat kimliği oturumla eşleşmiyor, atlandı');
       return;
     }
 
@@ -1057,10 +1117,11 @@ class PurchaseManager extends ChangeNotifier {
 
   Future<void> buyPackage(Package package) async {
     await initialize(fetchOfferings: false);
+    await _syncRevenueCatIdentity();
     try {
       _lastError = '';
       final customerInfo = (await Purchases.purchase(PurchaseParams.package(package))).customerInfo;
-      await _updateCustomerStatus(customerInfo);
+      await _updateCustomerStatus(customerInfo, checkIdentity: false);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
@@ -1076,10 +1137,11 @@ class PurchaseManager extends ChangeNotifier {
 
   Future<void> buyStoreProduct(StoreProduct product) async {
     await initialize(fetchOfferings: false);
+    await _syncRevenueCatIdentity();
     try {
       _lastError = '';
       final customerInfo = (await Purchases.purchase(PurchaseParams.storeProduct(product))).customerInfo;
-      await _updateCustomerStatus(customerInfo);
+      await _updateCustomerStatus(customerInfo, checkIdentity: false);
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
@@ -1206,7 +1268,7 @@ class PurchaseManager extends ChangeNotifier {
       _lastError = '';
       debugPrint('[RevenueCat] Restore...');
       final customerInfo = await Purchases.restorePurchases();
-      await _updateCustomerStatus(customerInfo);
+      await _updateCustomerStatus(customerInfo, checkIdentity: false);
 
       if (customerInfo.entitlements.active.isEmpty &&
           customerInfo.activeSubscriptions.isEmpty &&
@@ -1373,14 +1435,11 @@ class PurchaseManager extends ChangeNotifier {
       final decoded = jsonDecode(raw);
       if (decoded is! Map<String, dynamic>) return;
 
+      // Yalnızca aynı hesaba uygulanır. Eskiden oturum kapalıyken (ve
+      // çevrimdışıyken başka hesapta) önceki hesabın premium'u geri
+      // yükleniyordu.
       final user = FirebaseAuth.instance.currentUser;
-      final hasInternet = await ConnectivityService().hasInternetConnection();
-
-      // Eğer internet varsa ve giriş yapılmış bir kullanıcı varsa, UID eşleşmeli.
-      // İnternet yoksa (çevrimdışıysak) veya Firebase Auth henüz yüklenirken son başarılı snapshot'ı kurtarırız.
-      if (hasInternet && user != null && decoded['userId'] != user.uid) {
-        return;
-      }
+      if (!snapshotBelongsTo(decoded['userId'], user?.uid)) return;
 
       final expiresAt = _parseMillis(decoded['expiresAt']);
       final lastVerifiedAt = _parseMillis(decoded['lastVerifiedAt']);
@@ -1523,10 +1582,11 @@ class PurchaseManager extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final currentUid = FirebaseAuth.instance.currentUser?.uid;
 
-      // UID eşleşmesi — eğer farklı kullanıcının cache'i varsa kullanma
+      // Önbellek yalnızca sahibine uygulanır; oturum kapalıyken önceki
+      // hesabın premium'u görünüyordu.
       final cachedUid = prefs.getString('purchase_cached_user_id');
-      if (cachedUid != null && currentUid != null && cachedUid != currentUid) {
-        debugPrint('[PurchaseManager] Cache UID eşleşmedi ($cachedUid != $currentUid), atlanıyor.');
+      if (!cacheBelongsTo(cachedUid, currentUid)) {
+        debugPrint('[PurchaseManager] Önbellek başka hesaba ait ($cachedUid), atlanıyor.');
         return;
       }
 
@@ -1570,14 +1630,17 @@ class PurchaseManager extends ChangeNotifier {
   Future<void> _saveLocalCache() async {
     try {
       final currentUid = FirebaseAuth.instance.currentUser?.uid;
-      // Kullanıcı yoksa kaydetme (çıkış yapmış kullanıcının premium'u silinmesin)
-      // İstisna: lifetime veya books varsa kullanıcısız da sakla
-      if (currentUid == null && !_isLifetimeNoAds && _purchasedBooks.isEmpty) return;
-
       final prefs = await SharedPreferences.getInstance();
-      if (currentUid != null) {
-        await prefs.setString('purchase_cached_user_id', currentUid);
+      // Oturum kapalıyken boş durum, bir hesabın kaydının üzerine yazılmaz
+      // (yeniden girişte çevrimdışı da premium hemen görünsün). Hesapsız
+      // satın alım varsa kayıt boş sahiple tutulur.
+      final hasEntitlement =
+          _isPremium || _isLifetimeNoAds || _purchasedBooks.isNotEmpty;
+      final cachedOwner = prefs.getString('purchase_cached_user_id') ?? '';
+      if (currentUid == null && cachedOwner.isNotEmpty && !hasEntitlement) {
+        return;
       }
+      await prefs.setString('purchase_cached_user_id', currentUid ?? '');
       await prefs.setBool('purchase_cached_is_premium', _isPremium);
       if (_subscriptionExpiryDate != null) {
         await prefs.setInt(

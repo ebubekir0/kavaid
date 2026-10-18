@@ -66,7 +66,21 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+    with
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver,
+        SingleTickerProviderStateMixin {
+  // Mod (Emsile / Sözlük / Kuran) değişince içerik yumuşakça belirir.
+  late final AnimationController _modeFade = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+    value: 1,
+  );
+  late final Animation<double> _modeFadeCurve = CurvedAnimation(
+    parent: _modeFade,
+    curve: Curves.easeOutCubic,
+  );
+
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
   final DatabaseService _dbService =
@@ -454,6 +468,7 @@ class _HomeScreenState extends State<HomeScreen>
         (!_isEmsileMode && !_isQuranMode && mode == DictionaryMode.sozluk)) {
       return;
     }
+    _modeFade.forward(from: 0);
 
     final cleanText = _searchController.text.trim();
     var shouldSearchAfterModeChange = false;
@@ -737,6 +752,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _modeFade.dispose();
     WidgetsBinding.instance.removeObserver(this);
     _searchController.removeListener(_onSearchChanged);
     _removeTapHintOverlay();
@@ -2228,7 +2244,12 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           ),
                         ),
-                        ..._buildMainContentSlivers(),
+                        SliverFadeTransition(
+                          opacity: _modeFadeCurve,
+                          sliver: SliverMainAxisGroup(
+                            slivers: _buildMainContentSlivers(),
+                          ),
+                        ),
                       ],
                     ),
                   ),

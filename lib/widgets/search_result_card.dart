@@ -9,6 +9,7 @@ import '../services/turkce_analytics_service.dart';
 import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart' show SynchronousFuture;
 import '../models/custom_word.dart';
 import '../services/emsile_database_service.dart';
 import 'ai_chat_sheet.dart';
@@ -68,6 +69,9 @@ class _SearchResultCardState extends State<SearchResultCard>
   Future<Map<String, dynamic>?>? _emsileLookupFuture;
   String? _emsileLookupMazi;
 
+  // Aynı fiil için sorgu bir kez yapılır; tekrar açılışta sonuç anında gelir.
+  static final Map<String, Map<String, dynamic>?> _emsileCache = {};
+
   // AI asistanı: kelime kartından bağımsız. Önceden kaydet/çıkar butonlarına
   // bağlıydı, bu yüzden kitap metinleri ve özel kelime listelerinde hiç
   // görünmüyordu.
@@ -94,9 +98,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   void _initializeAnimation() {
     if (_animationController == null) {
       _animationController = AnimationController(
-        duration: const Duration(
-          milliseconds: 100,
-        ), // PERFORMANCE: 150ms'den 100ms'ye düşürdüm
+        duration: const Duration(milliseconds: 240),
         vsync: this,
       );
 
@@ -129,12 +131,21 @@ class _SearchResultCardState extends State<SearchResultCard>
     final maziForm = _maziFormForEmsile();
     if (!force && _emsileLookupMazi == maziForm) return;
     _emsileLookupMazi = maziForm;
-    _emsileLookupFuture = maziForm == null
-        ? null
-        : EmsileDatabaseService.instance.searchByMazi(maziForm);
+    if (maziForm == null) {
+      _emsileLookupFuture = null;
+    } else if (_emsileCache.containsKey(maziForm)) {
+      _emsileLookupFuture = SynchronousFuture(_emsileCache[maziForm]);
+    } else {
+      _emsileLookupFuture = EmsileDatabaseService.instance
+          .searchByMazi(maziForm)
+          .then((r) {
+            if (_emsileCache.length > 300) _emsileCache.clear();
+            return _emsileCache[maziForm] = r;
+          });
+    }
   }
 
-  void _toggleExpanded() {
+  Future<void> _toggleExpanded() async {
     if (!mounted) return;
 
     // Klavyeyi kapat
@@ -144,6 +155,18 @@ class _SearchResultCardState extends State<SearchResultCard>
     widget.onExpand?.call();
 
     if (!_isExpanded) {
+      // "Tüm Fiil Çekimleri" düğmesi açılıştan sonra belirip kartı
+      // zıplatmasın: fiil kaydı varsa sonucu (en fazla kısa süre) bekleyip
+      // kart ondan sonra açılır.
+      _ensureEmsileLookup();
+      final lookup = _emsileLookupFuture;
+      if (lookup != null) {
+        try {
+          await lookup.timeout(const Duration(milliseconds: 250));
+        } catch (_) {}
+        if (!mounted || _isExpanded) return;
+      }
+
       // PERFORMANCE: Animasyonu lazy initialize et ama anında başlat
       _initializeAnimation();
 
@@ -243,7 +266,10 @@ class _SearchResultCardState extends State<SearchResultCard>
                 if (_isExpanded && _expandAnimation != null)
                   SizeTransition(
                     sizeFactor: _expandAnimation!,
-                    child: _buildExpandedContent(isDarkMode),
+                    child: FadeTransition(
+                      opacity: _expandAnimation!,
+                      child: _buildExpandedContent(isDarkMode),
+                    ),
                   ),
               ],
             ),

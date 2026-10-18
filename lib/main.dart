@@ -706,6 +706,46 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
   }
 }
 
+/// Sekme açılırken içeriği ani değil, kısa bir geçişle gösterir.
+class _TabFade extends StatefulWidget {
+  const _TabFade({required this.active, required this.child});
+
+  final bool active;
+  final Widget child;
+
+  @override
+  State<_TabFade> createState() => _TabFadeState();
+}
+
+class _TabFadeState extends State<_TabFade>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 200),
+    value: 1,
+  );
+  late final Animation<double> _opacity = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOut,
+  );
+
+  @override
+  void didUpdateWidget(_TabFade oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !oldWidget.active) _controller.forward(from: 0.25);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      FadeTransition(opacity: _opacity, child: widget.child);
+}
+
 class MainScreen extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback? onThemeToggle;
@@ -1277,9 +1317,12 @@ class _MainScreenState extends State<MainScreen> {
                           // Görünmeyen sekmelerin animasyonları durur
                           // (gizli sekmede dönen animasyon kare çizdiriyordu).
                           for (var i = 0; i < tabs.length; i++)
-                            TickerMode(
-                              enabled: i == _currentIndex,
-                              child: tabs[i],
+                            _TabFade(
+                              active: i == _currentIndex,
+                              child: TickerMode(
+                                enabled: i == _currentIndex,
+                                child: tabs[i],
+                              ),
                             ),
                         ],
                       );

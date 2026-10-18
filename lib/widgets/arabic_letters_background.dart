@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Boş Sözlük ekranının mavi zemini üzerinde çok hafif, dağınık Arapça
-/// harfler.
+/// Boş Sözlük ekranının mavi zemini üzerinde çok hafif İslami geometrik
+/// (sekiz köşeli yıldız) desen; aşağıya doğru silinir.
 ///
-/// Desen uygulamayla gelen hazır bir görseldir (beyaz harfler, saydam zemin)
+/// Desen uygulamayla gelen hazır bir görseldir (beyaz çizgiler, saydam zemin; tool/make_arabic_pattern.py üretir)
 /// ve temaya göre renklendirilir. Çalışırken harf çizilmediği için ana
 /// ekranın açılışını ve kaydırmayı yavaşlatmaz.
 class ArabicLettersBackground extends StatelessWidget {
@@ -29,8 +29,8 @@ class ArabicLettersBackground extends StatelessWidget {
           fit: BoxFit.cover,
           alignment: Alignment.topCenter,
           color: isDarkMode
-              ? Colors.white.withValues(alpha: 0.035)
-              : const Color(0xFF007AFF).withValues(alpha: 0.07),
+              ? Colors.white.withValues(alpha: 0.05)
+              : const Color(0xFF007AFF).withValues(alpha: 0.12),
           colorBlendMode: BlendMode.srcIn,
           gaplessPlayback: true,
           excludeFromSemantics: true,

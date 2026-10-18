@@ -157,11 +157,16 @@ class _QuranSearchResultCardState extends State<QuranSearchResultCard>
                     ),
                   ],
                 ),
-                LogicalKeyRow(
-                  isExpanded: _isExpanded,
-                  anlamListesi: anlamListesi,
-                  isDarkMode: isDarkMode,
-                  word: word,
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 240),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: LogicalKeyRow(
+                    isExpanded: _isExpanded,
+                    anlamListesi: anlamListesi,
+                    isDarkMode: isDarkMode,
+                    word: word,
+                  ),
                 ),
               ],
             ),

@@ -442,8 +442,15 @@ class _EmsileViewState extends State<EmsileView> {
             ),
           ),
 
-          // ── Detay ──
-          if (expanded) _buildDetail(verb, verbId),
+          // ── Detay (yumuşak açılır/kapanır; içindeki çekim tablosu da) ──
+          AnimatedSize(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: expanded
+                ? _buildDetail(verb, verbId)
+                : const SizedBox(width: double.infinity),
+          ),
         ],
       ),
     );

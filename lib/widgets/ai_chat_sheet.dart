@@ -634,11 +634,27 @@ class _AiChatSheetState extends State<AiChatSheet> {
       children: [
         if (word != null) _buildWordContext(word, p) else _buildIntro(p),
         const SizedBox(height: 18),
-        if (_recent.isNotEmpty) ...[
-          _sectionLabel('Son sorduklarım', p),
-          for (final q in _recent) _suggestionRow(Icons.history_rounded, q, p),
-          const SizedBox(height: 14),
-        ],
+        // Kayıtlı sorular sonradan okunur: bölüm yumuşakça açılır.
+        AnimatedSize(
+          duration: const Duration(milliseconds: 250),
+          curve: Curves.easeOutCubic,
+          alignment: Alignment.topCenter,
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 250),
+            opacity: _recent.isEmpty ? 0 : 1,
+            child: _recent.isEmpty
+                ? const SizedBox(width: double.infinity)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _sectionLabel('Son sorduklarım', p),
+                      for (final q in _recent)
+                        _suggestionRow(Icons.history_rounded, q, p),
+                      const SizedBox(height: 14),
+                    ],
+                  ),
+          ),
+        ),
         _sectionLabel(word != null ? 'Hızlı sorular' : 'Örnek sorular', p),
         for (final q in starters)
           _suggestionRow(Icons.north_east_rounded, q, p),

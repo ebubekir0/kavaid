@@ -81,6 +81,19 @@ void main() {
     });
   });
 
+  testWidgets('örnek cümlenin solundaki simge Arapçayı okutur', (tester) async {
+    final spoken = <String>[];
+    await tester.pumpWidget(
+      _wrap(
+        ExampleSentences(word: _kitap, isDarkMode: false, onSpeak: spoken.add),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('example-speak')).first);
+    expect(spoken, hasLength(1));
+    expect(spoken.first, contains('قَرَأْتُ'));
+  });
+
   testWidgets('örnek cümle kesilmeden tam gösterilir', (tester) async {
     await tester.pumpWidget(
       _wrap(const ExampleSentences(word: _kitap, isDarkMode: false)),

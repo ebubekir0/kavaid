@@ -6,7 +6,7 @@ Kullanım (proje kökünde): python tool/make_arabic_pattern.py [çıktı.webp]
 import math
 import sys
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else 'assets/images/arabic_letters_pattern.webp'
 
@@ -15,8 +15,6 @@ W, H = int(411 * DP), int(913 * DP)
 SS = 3                         # kenar yumuşatma için büyütme
 CELL = 96 * DP * SS
 LINE = max(2, int(1.3 * DP * SS))
-LETTERS = list('ابتثجحخدذرزسشصضطظعغفقكلمنهوي')
-FONT_PATH = 'assets/fonts/ScheherazadeNew-Bold.ttf'
 
 img = Image.new('L', (W * SS, H * SS), 0)
 d = ImageDraw.Draw(img)
@@ -39,10 +37,9 @@ for row in range(-1, rows):
         cx, cy = col * CELL, row * CELL
         r = CELL * 0.40
         star(cx, cy, r, r * 0.72, rot=math.pi / 8)
-        # yıldızın ortasında bir Arapça harf
-        letter = LETTERS[(row * cols + col) * 5 % len(LETTERS)]
-        font = ImageFont.truetype(FONT_PATH, int(r * 1.05))
-        d.text((cx, cy - r * 0.05), letter, font=font, fill=255, anchor='mm')
+        # iç sekizgen halka
+        d.ellipse((cx - r * 0.34, cy - r * 0.34, cx + r * 0.34, cy + r * 0.34),
+                  outline=255, width=LINE)
         # yıldızları bağlayan eşkenar dörtgen (hücre köşelerinde)
         k = CELL / 2
         mx, my = cx + k, cy + k

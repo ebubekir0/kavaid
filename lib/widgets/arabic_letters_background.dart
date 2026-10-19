@@ -30,7 +30,7 @@ class ArabicLettersBackground extends StatelessWidget {
           alignment: Alignment.topCenter,
           color: isDarkMode
               ? Colors.white.withValues(alpha: 0.05)
-              : const Color(0xFF007AFF).withValues(alpha: 0.14),
+              : const Color(0xFF007AFF).withValues(alpha: 0.12),
           colorBlendMode: BlendMode.srcIn,
           gaplessPlayback: true,
           excludeFromSemantics: true,

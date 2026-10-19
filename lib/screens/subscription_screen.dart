@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, Tar
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/auth_service.dart';
 import '../services/purchase_manager.dart';
 
 class SubscriptionScreen extends StatefulWidget {
@@ -74,7 +75,28 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     }
   }
 
+  /// Premium hesaba bağlıdır: giriş yapılmadan satın alma ve geri yükleme
+  /// yapılmaz, altta uyarı çıkar.
+  bool _requireSignIn() {
+    if (AuthService().isSignedIn) return true;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Premium satın almak için lütfen önce giriş yapın.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.black87,
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    return false;
+  }
+
   Future<void> _handlePurchase() async {
+    if (!_requireSignIn()) return;
     final pm = Provider.of<PurchaseManager>(context, listen: false);
 
     setState(() => _isLoading = true);
@@ -300,6 +322,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () async {
+                                  if (!_requireSignIn()) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Satın almalar kontrol ediliyor...'),

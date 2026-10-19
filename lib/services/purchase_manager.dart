@@ -1115,7 +1115,16 @@ class PurchaseManager extends ChangeNotifier {
     return '';
   }
 
+  /// Premium hesaba bağlıdır: girişsiz satın alma yapılmaz.
+  bool _blockIfSignedOut() {
+    if (FirebaseAuth.instance.currentUser != null) return false;
+    _lastError = 'Satın almak için önce giriş yapın.';
+    notifyListeners();
+    return true;
+  }
+
   Future<void> buyPackage(Package package) async {
+    if (_blockIfSignedOut()) return;
     await initialize(fetchOfferings: false);
     await _syncRevenueCatIdentity();
     try {
@@ -1136,6 +1145,7 @@ class PurchaseManager extends ChangeNotifier {
   }
 
   Future<void> buyStoreProduct(StoreProduct product) async {
+    if (_blockIfSignedOut()) return;
     await initialize(fetchOfferings: false);
     await _syncRevenueCatIdentity();
     try {

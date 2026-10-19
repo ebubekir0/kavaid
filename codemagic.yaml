@@ -55,9 +55,13 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
-      flutter: stable
+      # Yereldeki sürümle aynı (farklı Flutter sürümü derleme hatası verebilir)
+      flutter: 3.47.7
       xcode: latest
       cocoapods: default
+      # GEMINI_API_KEY (Secure) bu grupta olmalı; yoksa AI asistan çalışmaz
+      groups:
+        - kavaid_secrets
       vars:
         BUNDLE_ID: com.onbir.kavaid
     integrations:
@@ -165,8 +169,15 @@ workflows:
           echo "Using NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}"
           # Persist for subsequent steps
           echo "NEXT_BUILD_NUMBER=${NEXT_BUILD_NUMBER}" >> "$CM_ENV"
+          # Gemini anahtarı derlemeye gömülür (yoksa Firebase'deki eski değere
+          # düşer ve AI asistan "şu an kullanılamıyor" der).
+          if [[ -z "${GEMINI_API_KEY:-}" ]]; then
+            echo "HATA: GEMINI_API_KEY tanımlı değil (kavaid_secrets grubu)." >&2
+            exit 1
+          fi
           # Build with explicit build number to avoid duplicate CFBundleVersion
-          flutter build ios --release --no-codesign --build-number ${NEXT_BUILD_NUMBER}
+          flutter build ios --release --no-codesign --build-number ${NEXT_BUILD_NUMBER} \
+            --dart-define=GEMINI_API_KEY=${GEMINI_API_KEY}
       - name: Ensure Info.plist CFBundleVersion matches NEXT_BUILD_NUMBER
         script: |
           set -euo pipefail
@@ -274,9 +285,11 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
-      flutter: stable
+      flutter: 3.47.7
       xcode: latest
       cocoapods: default
+      groups:
+        - kavaid_secrets
       vars:
         BUNDLE_ID: com.onbir.kavaid
     integrations:
@@ -327,7 +340,8 @@ workflows:
           # DEBUG flags you can read in Dart via const bool.fromEnvironment('DEBUG_LOGS')
           flutter build ios --release --no-codesign \
             --build-number ${NEXT_BUILD_NUMBER} \
-            --dart-define=DEBUG_LOGS=true
+            --dart-define=DEBUG_LOGS=true \
+            --dart-define=GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - name: Ensure Info.plist CFBundleVersion matches
         script: |
           set -euo pipefail

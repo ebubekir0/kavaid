@@ -8,8 +8,9 @@ Ekran görüntüsü klasöründe telefondan alınmış (1080x2340) şu dosyalar 
 
 X 2026'dan beri çok görselli gönderileri kaydırılan karusel olarak, kırpmadan gösterir
 (en fazla 4 görsel). Bu yüzden 4 dikey 4:5 (1080x1350) slayt üretilir; ilki markanın
-mavisi, diğerleri her bölümün kendi renginde. Telefonun kendi durum çubuğu (saat,
-bildirimler) temizlenip sade bir durum çubuğu çizilir.
+mavisi, diğerleri her bölümün kendi renginde. Ekranlar make_store_graphics.iphone
+çerçevesine konur: telefonun kendi durum çubuğu ve alt gezinme çubuğu kesilir, yerine
+iPhone durum çubuğu ve ana ekran çizgisi gelir.
 """
 import os
 import sys
@@ -22,8 +23,9 @@ import make_store_graphics as g  # noqa: E402
 SHOTS = sys.argv[1] if len(sys.argv) > 1 else 'shots'
 OUT = sys.argv[2] if len(sys.argv) > 2 else 'x_post'
 W, H = 1080, 1350
-STATUS_H = 108          # telefonun durum çubuğu yüksekliği (1080 genişlikte)
 EDGE = 4                # ekran kaydı sırasında kenarda çıkan ince çerçeve
+STATUS_END = 108        # Android durum çubuğunun bittiği y (1080x2340 görüntüde)
+NAV_TOP = 2148          # uygulamanın alt gezinme çubuğunun başladığı y
 
 COLORS = {
     'blue': ((8, 84, 200), (20, 140, 255)),
@@ -33,31 +35,10 @@ COLORS = {
 }
 
 
-def clean(name):
-    """Kenarları kırpar, durum çubuğunu sade bir çubukla değiştirir, kamera deliği ekler."""
+def screen(name, top=STATUS_END, bottom=NAV_TOP):
+    """Durum çubuğu ve alt gezinme çubuğu olmadan uygulama ekranı."""
     img = Image.open(os.path.join(SHOTS, name)).convert('RGB')
-    img = img.crop((EDGE, EDGE, img.width - EDGE, img.height - EDGE))
-    w = img.width
-    bg = g._avg_color(img, (0, STATUS_H + 2, 24, STATUS_H + 10))
-    d = ImageDraw.Draw(img)
-    d.rectangle((0, 0, w, STATUS_H), fill=bg)
-    ink = (25, 25, 28) if g._is_light(bg) else (255, 255, 255)
-    cy = STATUS_H // 2 + 2
-    d.text((46, cy), '9:41', font=g.font(40, 600), fill=ink, anchor='lm')
-    x = w - 250
-    for i, h in enumerate((10, 16, 22, 28)):
-        bx = x + i * 13
-        d.rounded_rectangle((bx, cy + 14 - h, bx + 8, cy + 14), 2, fill=ink)
-    wx, wy = w - 165, cy + 14
-    for r in (28, 19, 10):
-        d.arc((wx - r, wy - r, wx + r, wy + r), 225, 315, fill=ink, width=5)
-    d.ellipse((wx - 4, wy - 4, wx + 4, wy + 4), fill=ink)
-    bx0, bx1 = w - 115, w - 50
-    d.rounded_rectangle((bx0, cy - 15, bx1, cy + 15), 8, outline=ink, width=3)
-    d.rounded_rectangle((bx0 + 5, cy - 10, bx1 - 5, cy + 10), 5, fill=ink)
-    d.rounded_rectangle((bx1 + 3, cy - 6, bx1 + 8, cy + 6), 2, fill=ink)
-    d.ellipse((w / 2 - 17, cy - 17, w / 2 + 17, cy + 17), fill=(8, 8, 10))
-    return img
+    return img.crop((EDGE, top, img.width - EDGE, min(bottom, img.height - EDGE)))
 
 
 def background(color):
@@ -105,61 +86,17 @@ def header(canvas, title_lines, sub, y=120):
     return y
 
 
-def pill(canvas, text, right_x, y, target, color):
-    """Solda beyaz etiket, sağa doğru hedef noktaya ince çizgi."""
-    f = g.font(26, 700)
-    lines = wrap(text, f, 400)
-    d = ImageDraw.Draw(canvas)
-    tw = max(d.textlength(s, font=f) for s in lines)
-    pw, ph = int(tw + 40), int(len(lines) * 34 + 24)
-    x0, y0 = right_x - pw, y - ph / 2
-    layer = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
-    ld = ImageDraw.Draw(layer)
-    ld.line((right_x, y, target[0], target[1]), fill=(255, 255, 255, 230), width=4)
-    ld.ellipse((target[0] - 10, target[1] - 10, target[0] + 10, target[1] + 10),
-               fill=(255, 255, 255, 255), outline=color + (255,), width=5)
-    ld.rounded_rectangle((x0, y0, x0 + pw, y0 + ph), 20, fill=(255, 255, 255, 245))
-    for i, s in enumerate(lines):
-        ld.text((x0 + 20, y0 + 12 + i * 34), s, font=f, fill=(12, 52, 130, 255))
-    canvas.alpha_composite(layer)
-
-
 def put_phone(canvas, shot, width, x, y):
-    sprite = g.phone(shot, width)
-    return g.with_shadow(canvas.convert('RGB'), sprite, (x, y), blur=30, offset=(0, 20),
+    sprite = g.iphone(shot, width)
+    return g.with_shadow(canvas.convert('RGB'), sprite, (int(x), int(y)), blur=30, offset=(0, 20),
                          opacity=115).convert('RGBA')
 
 
-def slide_card():
-    """1. slayt (mavi): fiil çekimli sözlük kartı ve özellik etiketleri."""
-    c = background('blue')
-    brand(c)
-    header(c, ['Kelimeyi yaz,', 'her şey tek kartta'], 'Arapça–Türkçe sözlük')
-    shot = clean('verb.png')
-    pw, px, py = 560, 480, 390
-    c = put_phone(c, shot, pw, px, py)
-    bez = max(14, pw // 36)
-    scale = (pw - 2 * bez) / shot.width
-
-    def at(x, y):  # ekran görüntüsündeki (orijinal 1080 px) nokta -> tuval noktası
-        return px + bez + (x - EDGE) * scale, py + bez + (y - EDGE) * scale
-
-    for text, y in (('Kök ve kelime türü', 532),
-                    ('Anlamlar ve harf-i cer', 690),
-                    ('Mazi, müzari, mastar, emir', 930),
-                    ('Tüm fiil çekimleri (24 sığa)', 1106),
-                    ('Örnek cümleler ve Arapça ses', 1400),
-                    ('Yapay zekâ asistanı', 1776)):
-        tx, ty = at(26, y)
-        pill(c, text, px - 26, ty, (tx, ty), COLORS['blue'][0])
-    return c.convert('RGB')
-
-
-def slide_single(color, shot_name, title_lines, sub, pw=640):
+def slide(color, shot, title_lines, sub, pw=640):
     c = background(color)
     brand(c)
     y = header(c, title_lines, sub)
-    c = put_phone(c, clean(shot_name), pw, (W - pw) // 2, int(y) + 44)
+    c = put_phone(c, shot, pw, (W - pw - 2 * max(4, round(pw * 0.007))) / 2, y + 44)
     return c.convert('RGB')
 
 
@@ -168,19 +105,22 @@ def slide_duo():
     c = background('purple')
     brand(c)
     y = header(c, ['Yapay zekâ', 've çeviri'], 'Kelimeyi sor, cümleyi Arapça lehçelere çevir')
-    c = put_phone(c, clean('ai.png'), 450, 70, int(y) + 44)
-    c = put_phone(c, clean('translate.png'), 450, 560, int(y) + 104)
+    # Asistan panelinin alttaki soru kutusu görünsün diye arkadaki karartılmış üst kısım kırpılır
+    c = put_phone(c, screen('ai.png', top=STATUS_END + 120, bottom=2336), 450, 64, y + 44)
+    c = put_phone(c, screen('translate.png'), 450, 556, y + 104)
     return c.convert('RGB')
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
     slides = [
-        slide_card(),
-        slide_single('navy', 'emsile.png', ['24 sığa ile', 'Emsile'],
-                     'Her fiilin bütün çekimleri tek ekranda'),
-        slide_single('green', 'quran.png', ["Kur'an sözlüğü"],
-                     "Kelimenin ayetlerdeki anlamları, örnek ayetler ve meali"),
+        # Kartın alttaki "AI Asistan'a sor" düğmesi de görünsün diye telefon biraz küçük
+        slide('blue', screen('verb.png'), ['Kelimeyi yaz,', 'her şey tek kartta'],
+              'Arapça–Türkçe sözlük', pw=560),
+        slide('navy', screen('emsile.png'), ['24 sığa ile', 'Emsile'],
+              'Her fiilin bütün çekimleri tek ekranda'),
+        slide('green', screen('quran.png'), ["Kur'an sözlüğü"],
+              "Kelimenin ayetlerdeki anlamları, örnek ayetler ve meali"),
         slide_duo(),
     ]
     names = ['x_1_sozluk_karti.png', 'x_2_emsile.png', 'x_3_kuran.png', 'x_4_ai_ceviri.png']

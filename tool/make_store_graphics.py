@@ -255,28 +255,33 @@ def wrap(d, lang, text, f, max_w):
     return lines
 
 
-def slide(lang, idx, spec):
+def slide(lang, idx, spec, canvas=(W, H), pw=790, subdir=None, target=None):
+    """Telefon ekran görüntüsü. `canvas` mantıksal boyuttur; `target` verilirse sonuç bu
+    boyuta ölçeklenir (App Store için 1320x2868)."""
     name, top, bottom, texts = spec
+    cw, ch = canvas
     heads, sub = texts[lang]
-    img = stars(gradient(W, H, top, bottom))
+    img = stars(gradient(cw, ch, top, bottom))
     d = ImageDraw.Draw(img)
     y = 120
     hf = font(92, 800, lang)
     for line in heads:
-        draw_centered(d, vis(lang, line), y, hf, (255, 255, 255))
+        draw_centered(d, vis(lang, line), y, hf, (255, 255, 255), cw)
         y += 108
     sf = font(40, 500, lang)
     y += 10
-    for line in wrap(d, lang, sub, sf, W - 160):
-        draw_centered(d, vis(lang, line), y, sf, (255, 255, 255, 235))
+    for line in wrap(d, lang, sub, sf, cw - 160):
+        draw_centered(d, vis(lang, line), y, sf, (255, 255, 255, 235), cw)
         y += 54
     shot = Image.open(f'{INTRO}/{name}.webp').convert('RGB')
-    pw = 790
     sprite = phone(shot, pw)
     py = max(y + 50, 440)
-    img = with_shadow(img, sprite, ((W - pw) // 2, py))
-    os.makedirs(f'{OUT}/{lang}', exist_ok=True)
-    img.save(f'{OUT}/{lang}/{idx:02d}.png', 'PNG', optimize=True)
+    img = with_shadow(img, sprite, ((cw - pw) // 2, py))
+    if target:
+        img = img.resize(target, Image.LANCZOS)
+    folder = f'{OUT}/{subdir}/{lang}' if subdir else f'{OUT}/{lang}'
+    os.makedirs(folder, exist_ok=True)
+    img.save(f'{folder}/{idx:02d}.png', 'PNG', optimize=True)
     return img.size
 
 
@@ -339,6 +344,8 @@ def main():
     for lang in ('tr', 'en', 'ar'):
         for i, spec in enumerate(SLIDES, start=1):
             slide(lang, i, spec)
+            # App Store iPhone 6.3" (1206x2622); diğer ekran boyutlarına App Store ölçekler
+            slide(lang, i, spec, canvas=(1080, 2348), pw=1000, subdir='ios', target=(1206, 2622))
         feature(lang)
     icon = Image.open('assets/images/app_icon.png').convert('RGBA').resize((512, 512), Image.LANCZOS)
     icon.save(f'{OUT}/icon_512.png', 'PNG', optimize=True)

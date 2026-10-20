@@ -7,7 +7,8 @@ Ekran görüntüsü klasöründe telefondan alınmış (1080x2340) şu dosyalar 
   verb.png (fiil çekimli sözlük kartı), emsile.png, quran.png, ai.png, translate.png
 
 X 2026'dan beri çok görselli gönderileri kaydırılan karusel olarak, kırpmadan gösterir
-(en fazla 4 görsel). Bu yüzden 4 dikey 4:5 (1080x1350) slayt üretilir; ilki markanın
+(en fazla 4 görsel). Telefonda ekranı en çok 9:16 kapladığı için 4 dikey 9:16 (1080x1920)
+slayt üretilir ve telefon görselin çoğunu kaplar ki arayüz okunabilsin; ilki markanın
 mavisi, diğerleri her bölümün kendi renginde. Ekranlar make_store_graphics.iphone
 çerçevesine konur: telefonun kendi durum çubuğu ve alt gezinme çubuğu kesilir, yerine
 iPhone durum çubuğu ve ana ekran çizgisi gelir.
@@ -22,7 +23,7 @@ import make_store_graphics as g  # noqa: E402
 
 SHOTS = sys.argv[1] if len(sys.argv) > 1 else 'shots'
 OUT = sys.argv[2] if len(sys.argv) > 2 else 'x_post'
-W, H = 1080, 1350
+W, H = 1080, 1920
 EDGE = 4                # ekran kaydı sırasında kenarda çıkan ince çerçeve
 STATUS_END = 108        # Android durum çubuğunun bittiği y (1080x2340 görüntüde)
 NAV_TOP = 2148          # uygulamanın alt gezinme çubuğunun başladığı y
@@ -75,10 +76,10 @@ def brand(canvas, y=40, size=56):
 def header(canvas, title_lines, sub, y=120):
     """Ortalı başlık ve alt metin; alt metnin bittiği y'yi döndürür."""
     d = ImageDraw.Draw(canvas)
-    tf, sf = g.font(74, 800), g.font(36, 500)
+    tf, sf = g.font(84, 800), g.font(40, 500)
     for s in title_lines:
         d.text(((W - d.textlength(s, font=tf)) / 2, y), s, font=tf, fill=(255, 255, 255))
-        y += 86
+        y += 98
     y += 6
     for s in wrap(sub, sf, W - 140):
         d.text(((W - d.textlength(s, font=sf)) / 2, y), s, font=sf, fill=(255, 255, 255, 235))
@@ -92,7 +93,7 @@ def put_phone(canvas, shot, width, x, y):
                          opacity=115).convert('RGBA')
 
 
-def slide(color, shot, title_lines, sub, pw=640):
+def slide(color, shot, title_lines, sub, pw=920):
     c = background(color)
     brand(c)
     y = header(c, title_lines, sub)
@@ -106,8 +107,9 @@ def slide_duo():
     brand(c)
     y = header(c, ['Yapay zekâ', 've çeviri'], 'Kelimeyi sor, cümleyi Arapça lehçelere çevir')
     # Asistan panelinin alttaki soru kutusu görünsün diye arkadaki karartılmış üst kısım kırpılır
-    c = put_phone(c, screen('ai.png', top=STATUS_END + 120, bottom=2336), 450, 64, y + 44)
-    c = put_phone(c, screen('translate.png'), 450, 556, y + 104)
+    # İki telefon büyük ve hafif üst üste: arayüz okunur kalsın, alt boşluk dolsun
+    c = put_phone(c, screen('ai.png', top=STATUS_END + 120, bottom=2336), 600, -24, y + 40)
+    c = put_phone(c, screen('translate.png'), 600, 498, y + 190)
     return c.convert('RGB')
 
 
@@ -116,7 +118,7 @@ def main():
     slides = [
         # Kartın alttaki "AI Asistan'a sor" düğmesi de görünsün diye telefon biraz küçük
         slide('blue', screen('verb.png'), ['Kelimeyi yaz,', 'her şey tek kartta'],
-              'Arapça–Türkçe sözlük', pw=560),
+              'Arapça–Türkçe sözlük', pw=860),
         slide('navy', screen('emsile.png'), ['24 sığa ile', 'Emsile'],
               'Her fiilin bütün çekimleri tek ekranda'),
         slide('green', screen('quran.png'), ["Kur'an sözlüğü"],

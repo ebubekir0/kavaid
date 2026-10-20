@@ -1,0 +1,57 @@
+[TITLE]
+Kavaid Arapça Türkçe Sözlük
+
+[SHORT]
+Arapça-Türkçe sözlük: fiil çekimleri, YDS, Kur'an sözlüğü, çeviri ve yapay zekâ
+
+[FULL]
+Kavaid, Arapça kelimeleri hızlıca bulmanız ve doğru anlamanız için hazırlanmış Arapça–Türkçe sözlüktür. Arapça ya da Türkçe yazın; harekeli kelimeyi, kökünü, türünü, çoğulunu, fiil çekimlerini ve örnek cümleleri tek kartta görün.
+
+SÖZLÜK
+• Yaklaşık 55.000 harekeli Arapça kelime
+• Arapça veya Türkçe arama: "kitap" ya da "كتاب" yazın
+• Türkçe karakter ve hemze (أ إ ا) farkı aramayı engellemez
+• Kök, kelime türü, çoğul ve harf-i cer bilgisi
+• Mazi, müzari, mastar ve emir çekimleri
+• Örnek cümleler ve Arapça seslendirme
+• Sesli arama ve Arapça klavye
+• Sözlük internet olmadan da çalışır
+
+EMSİLE (FİİL ÇEKİMLERİ)
+• 5.500'den fazla fiil için 24 sığa ile Emsile-i Muhtelife çekimleri
+• Fiilin Türkçe karşılıklarıyla birlikte, her çekim tek ekranda
+• Sözlükteki fiil kartından tek dokunuşla Emsile'ye geçiş
+
+KUR'AN SÖZLÜĞÜ
+• 21.000'den fazla Kur'an kelimesi
+• Kelimenin kökü, Kur'an'daki anlamları ve örnek ayetler (Arapça metin ve Türkçe meal)
+
+YAPAY ZEKÂ ASİSTANI
+• Bir kelime hakkında soru sorun: kullanımı, örnek cümleler, benzer kelimelerden farkı
+• Kısa ve net cevaplar; daha fazlası için "derinleş" deyin
+• Giriş yapmanız gerekir. Ücretsiz günlük kullanım hakkı vardır, Premium ile sınırsızdır
+• Yapay zekâ cevapları hata içerebilir; önemli yerlerde kontrol edin
+
+ÇEVİRİ
+• Arapça (Standart Arapça ve 17 lehçe: Suriye, Mısır, Irak, Lübnan, Ürdün, Filistin, Suudi, Fas, Cezayir, Tunus ve diğerleri) ile Türkçe, İngilizce, Almanca, Fransızca, Rusça, İspanyolca, İtalyanca, Portekizce, Hollandaca, Farsça, Urduca ve Endonezce arasında çeviri
+• Latin harfleriyle okunuş ve sesli dinleme
+• Giriş yapmanız gerekir; ücretsiz deneme hakkı vardır
+
+ÖĞREN
+• Seviyelere ayrılmış Arapça hikâyeler: harekeli metin, sesli okuma, kelimeye dokunup anlam görme
+• Bir kısmı ücretsiz, tamamı Premium ile
+
+KİŞİSEL LİSTELER
+• Kelimeleri, Kur'an kelimelerini ve fiilleri kendi listelerinize kaydedin
+• Liste ve kart görünümüyle tekrar edin
+• Giriş yaptığınızda listeleriniz yedeklenir
+
+PREMIUM
+• Sözlük araması ücretsizdir. Emsile, Kur'an sözlüğü, yapay zekâ asistanı, çeviri ve hikâyelerin bir kısmını ücretsiz deneyebilirsiniz
+• Premium ile bunların hepsi sınırsız olur
+• Aylık veya yıllık abonelik; ödeme Google Play hesabınızdan alınır, dönem sonunda otomatik yenilenir. Google Play > Abonelikler bölümünden dilediğiniz zaman iptal edebilirsiniz
+
+KİMLER İÇİN?
+Arapça öğrenenler, ilahiyat ve Arap dili öğrencileri, Kur'an okuyanlar, çevirmenler ve Arapçaya meraklı herkes.
+
+Öneri ve hata bildirimlerinizi Profil > İletişim bölümünden iletebilirsiniz.

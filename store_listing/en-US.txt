@@ -1,0 +1,59 @@
+[TITLE]
+Kavaid: Arabic Dictionary
+
+[SHORT]
+Arabic–Turkish dictionary: verb forms, Quran words, translation and AI helper
+
+[FULL]
+Kavaid is an Arabic–Turkish dictionary for finding Arabic words fast and understanding them correctly. Type in Arabic or Turkish and see the vowelled word, its root, type, plural, verb forms and example sentences on a single card.
+
+Please note: the app interface and the word meanings are in Turkish. It is built for Turkish speakers learning Arabic, and for Arabic speakers who need Turkish meanings.
+
+DICTIONARY
+• Nearly 55,000 Arabic words with full vowel marks
+• Search in Arabic or Turkish
+• Spelling differences such as hamza forms (أ إ ا) do not block a search
+• Root, word type, plural and preposition information
+• Past, present, verbal noun and imperative forms
+• Example sentences with Arabic audio
+• Voice search and an Arabic keyboard
+• The dictionary works offline
+
+EMSILE (VERB CONJUGATION)
+• Over 5,500 verbs conjugated in 24 forms (Emsile-i Muhtelife)
+• Each form on one screen, with Turkish meanings
+• Jump from a dictionary verb card to Emsile with one tap
+
+QURAN DICTIONARY
+• Over 21,000 Quranic words
+• Root, Quranic meanings and example verses (Arabic text with Turkish translation)
+
+AI ASSISTANT
+• Ask about a word: usage, example sentences, how it differs from similar words
+• Short, clear answers; say "go deeper" for more
+• Sign-in required. A daily free allowance is included; Premium is unlimited
+• AI answers can contain mistakes, so double-check important points
+
+TRANSLATION
+• Translate between Arabic (Standard Arabic and 17 dialects, including Syrian, Egyptian, Iraqi, Lebanese, Jordanian, Palestinian, Saudi, Moroccan, Algerian and Tunisian) and Turkish, English, German, French, Russian, Spanish, Italian, Portuguese, Dutch, Persian, Urdu and Indonesian
+• Latin-letter pronunciation and audio playback
+• Sign-in required; a free trial allowance is included
+
+LEARN
+• Arabic stories graded by level: vowelled text, audio reading, tap a word to see its meaning
+• Some are free; all are included with Premium
+
+PERSONAL LISTS
+• Save words, Quranic words and verbs to your own lists
+• Review in list or card view
+• Your lists are backed up when you are signed in
+
+PREMIUM
+• Dictionary search is free. You can try Emsile, the Quran dictionary, the AI assistant, translation and part of the stories for free
+• Premium makes all of them unlimited
+• Monthly or yearly subscription; payment is charged to your Google Play account and renews automatically. Cancel any time in Google Play > Subscriptions
+
+WHO IS IT FOR?
+Arabic learners, theology and Arabic-language students, Quran readers, translators and anyone curious about Arabic.
+
+Send suggestions and bug reports from Profile > Contact.

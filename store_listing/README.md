@@ -5,6 +5,9 @@ Play Console metinlerinin kopyası.
 - `tr-TR.txt` — canlı varsayılan giriş (Arapça–Türkçe sözlük).
 - `en-US.txt` — Arapça–İngilizce sözlük olarak yazılmış metin.
 - `ar.txt` — Arapça–Arapça sözlük olarak yazılmış metin.
+- `ios-tr.txt` — App Store (Türkçe) ad, alt başlık, tanıtım metni, anahtar kelimeler, açıklama, "Yenilikler".
+  App Store ekran görüntüleri `tool/make_store_graphics.py` çıktısındaki `ios/tr/` klasörüdür
+  (1206x2622, iPhone çerçevesi: Dynamic Island, durum çubuğu, ana ekran çizgisi).
 
 `en-US` ve `ar` girişleri, uygulama arayüzü ve kelime anlamları o dillere
 yerelleştirilmeden **yayına gönderilmemelidir**; Play Console'da taslak olarak

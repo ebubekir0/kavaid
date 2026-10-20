@@ -223,6 +223,90 @@ def phone(screen, width):
     return body
 
 
+def _avg_color(img, box):
+    px = img.crop(box).resize((1, 1), Image.BOX).getpixel((0, 0))
+    return tuple(px[:3])
+
+
+def _is_light(rgb):
+    return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) > 150
+
+
+def iphone(screen, width):
+    """iPhone 15 Pro benzeri çerçeve: Dynamic Island, durum çubuğu, ana ekran çizgisi ve
+    yan tuşlar. Uygulama ekran görüntüsü durum çubuğu ile ana ekran çizgisi arasına girer.
+    Boyutlar 393x852 pt'lik ekran üzerinden ölçeklenir."""
+    btn = max(4, round(width * 0.007))          # yan tuşların dışarı taşan kısmı
+    frame = round(width * 0.030)                 # titanyum + siyah çerçeve
+    sw = width - 2 * frame
+    k = sw / 393.0
+    top_h, sh = round(59 * k), round(852 * k)
+    content_h = min(round(sw * screen.height / screen.width), sh - top_h - round(20 * k))
+    bottom_h = sh - top_h - content_h
+    shot = screen.convert('RGB').resize((sw, round(sw * screen.height / screen.width)), Image.LANCZOS)
+    shot = shot.crop((0, 0, sw, content_h))
+
+    top_bg = _avg_color(shot, (0, 0, sw, 8))
+    bot_bg = _avg_color(shot, (0, content_h - 8, sw, content_h))
+    scr = Image.new('RGB', (sw, sh), top_bg)
+    scr.paste(Image.new('RGB', (sw, bottom_h), bot_bg), (0, top_h + content_h))
+    scr.paste(shot, (0, top_h))
+    d = ImageDraw.Draw(scr)
+
+    ink = (20, 20, 22) if _is_light(top_bg) else (255, 255, 255)
+    cy = round(30 * k)                           # durum çubuğu satırının ortası
+    # Saat
+    tf = font(round(17 * k), 700)
+    t = '9:41'
+    d.text((round(70 * k) - d.textlength(t, font=tf) / 2, cy), t, font=tf, fill=ink, anchor='lm')
+    # Sinyal çubukları
+    x = round(297 * k)
+    for i, h in enumerate((4, 6, 8.5, 11)):
+        bx = x + round(i * 4.6 * k)
+        d.rounded_rectangle((bx, cy + round(5.5 * k) - round(h * k), bx + round(3 * k), cy + round(5.5 * k)),
+                            round(1 * k), fill=ink)
+    # Wi-Fi
+    wx, wy = round(331 * k), cy + round(6 * k)
+    for r in (11, 7.2, 3.4):
+        rr = round(r * k)
+        d.arc((wx - rr, wy - rr, wx + rr, wy + rr), 228, 312, fill=ink, width=max(2, round(2.2 * k)))
+    d.ellipse((wx - round(1.6 * k), wy - round(1.6 * k), wx + round(1.6 * k), wy + round(1.6 * k)), fill=ink)
+    # Pil
+    bx0, bx1 = round(348 * k), round(373 * k)
+    by0, by1 = cy - round(6 * k), cy + round(6 * k)
+    d.rounded_rectangle((bx0, by0, bx1, by1), round(3.6 * k), outline=ink, width=max(2, round(1.1 * k)))
+    d.rounded_rectangle((bx0 + round(2 * k), by0 + round(2 * k), bx1 - round(2 * k), by1 - round(2 * k)),
+                        round(2 * k), fill=ink)
+    d.rounded_rectangle((bx1 + round(1.6 * k), cy - round(2.2 * k), bx1 + round(3.2 * k), cy + round(2.2 * k)),
+                        round(0.8 * k), fill=ink)
+    # Dynamic Island
+    d.rounded_rectangle((sw / 2 - 63 * k, 11 * k, sw / 2 + 63 * k, 48 * k), 18.5 * k, fill=(0, 0, 0))
+    # Ana ekran çizgisi
+    hi = (20, 20, 22) if _is_light(bot_bg) else (255, 255, 255)
+    d.rounded_rectangle((sw / 2 - 67 * k, sh - 13 * k, sw / 2 + 67 * k, sh - 8 * k), 2.5 * k, fill=hi)
+
+    total_w, total_h = width + 2 * btn, sh + 2 * frame
+    body = Image.new('RGBA', (total_w, total_h), (0, 0, 0, 0))
+    bd = ImageDraw.Draw(body)
+    metal = (70, 71, 76, 255)
+    # Yan tuşlar (gövdenin arkasında)
+    for y0, h in ((118, 26), (172, 52), (240, 52)):          # sol: eylem, ses +, ses -
+        bd.rounded_rectangle((0, frame + round(y0 * k), btn + frame, frame + round((y0 + h) * k)),
+                             round(2 * k), fill=metal)
+    bd.rounded_rectangle((total_w - btn - frame, frame + round(200 * k), total_w, frame + round(290 * k)),
+                         round(2 * k), fill=metal)                  # sağ: güç
+    outer_r = round(55 * k) + frame
+    bd.rounded_rectangle((btn, 0, btn + width - 1, total_h - 1), outer_r, fill=metal)
+    band = round(frame * 0.42)
+    bd.rounded_rectangle((btn + band, band, btn + width - 1 - band, total_h - 1 - band),
+                         outer_r - band, fill=(6, 6, 8, 255))
+    mask = Image.new('L', (sw, sh), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, sw - 1, sh - 1), round(55 * k), fill=255)
+    body.paste(scr.convert('RGBA'), (btn + frame, frame), mask)
+    bd.rounded_rectangle((btn, 0, btn + width - 1, total_h - 1), outer_r, outline=(255, 255, 255, 46), width=2)
+    return body
+
+
 def with_shadow(canvas, sprite, xy, blur=38, offset=(0, 26), opacity=120):
     sh = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
     alpha = sprite.split()[3].point(lambda v: v * opacity // 255)
@@ -255,9 +339,10 @@ def wrap(d, lang, text, f, max_w):
     return lines
 
 
-def slide(lang, idx, spec, canvas=(W, H), pw=790, subdir=None, target=None):
+def slide(lang, idx, spec, canvas=(W, H), pw=790, subdir=None, target=None, mock=None):
     """Telefon ekran görüntüsü. `canvas` mantıksal boyuttur; `target` verilirse sonuç bu
-    boyuta ölçeklenir (App Store için 1320x2868)."""
+    boyuta ölçeklenir. `mock` verilirse (ör. iphone) telefon çerçevesi olarak o kullanılır
+    ve telefon, tuvale sığacak şekilde `pw` genişliğine kadar küçültülür."""
     name, top, bottom, texts = spec
     cw, ch = canvas
     heads, sub = texts[lang]
@@ -274,9 +359,14 @@ def slide(lang, idx, spec, canvas=(W, H), pw=790, subdir=None, target=None):
         draw_centered(d, vis(lang, line), y, sf, (255, 255, 255, 235), cw)
         y += 54
     shot = Image.open(f'{INTRO}/{name}.webp').convert('RGB')
-    sprite = phone(shot, pw)
     py = max(y + 50, 440)
-    img = with_shadow(img, sprite, ((cw - pw) // 2, py))
+    if mock:
+        probe = mock(shot, 1000)
+        pw = min(pw, int(1000 * (ch - py - 60) / probe.height))
+        sprite = mock(shot, pw)
+    else:
+        sprite = phone(shot, pw)
+    img = with_shadow(img, sprite, ((cw - sprite.width) // 2, py))
     if target:
         img = img.resize(target, Image.LANCZOS)
     folder = f'{OUT}/{subdir}/{lang}' if subdir else f'{OUT}/{lang}'
@@ -345,7 +435,7 @@ def main():
         for i, spec in enumerate(SLIDES, start=1):
             slide(lang, i, spec)
             # App Store iPhone 6.3" (1206x2622); diğer ekran boyutlarına App Store ölçekler
-            slide(lang, i, spec, canvas=(1080, 2348), pw=1000, subdir='ios', target=(1206, 2622))
+            slide(lang, i, spec, canvas=(1080, 2348), pw=1000, subdir='ios', target=(1206, 2622), mock=iphone)
         feature(lang)
     icon = Image.open('assets/images/app_icon.png').convert('RGBA').resize((512, 512), Image.LANCZOS)
     icon.save(f'{OUT}/icon_512.png', 'PNG', optimize=True)

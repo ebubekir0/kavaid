@@ -17,7 +17,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from PIL import Image, ImageDraw  # noqa: E402
+from PIL import Image, ImageChops, ImageDraw  # noqa: E402
 
 import make_store_graphics as g  # noqa: E402
 
@@ -44,7 +44,11 @@ def screen(name, top=STATUS_END, bottom=NAV_TOP):
 
 def background(color):
     top, bottom = COLORS[color]
-    return g.stars(g.gradient(W, H, top, bottom), alpha=26, cell=170).convert('RGBA')
+    bg = g.stars(g.gradient(W, H, top, bottom), alpha=26, cell=170)
+    # Hafif kumlama: X görseli JPEG'e çevirirken düz renk geçişlerinde bant oluşmasın
+    noise = Image.effect_noise((W, H), 5).convert('RGB')
+    bg = ImageChops.add(bg, noise, scale=1.0, offset=-128)
+    return bg.convert('RGBA')
 
 
 def wrap(text, f, max_w):
@@ -128,6 +132,10 @@ def main():
     names = ['x_1_sozluk_karti.png', 'x_2_emsile.png', 'x_3_kuran.png', 'x_4_ai_ceviri.png']
     for img, name in zip(slides, names):
         img.save(os.path.join(OUT, name), optimize=True)
+        # X'e yüklemek için: yüksek kaliteli, renk alt örneklemesiz JPEG (X'in kendi
+        # dönüştürmesinden daha temiz sonuç verir)
+        img.save(os.path.join(OUT, name.replace('.png', '.jpg')), quality=95, subsampling=0,
+                 optimize=True)
     print('tamam:', OUT)
 
 

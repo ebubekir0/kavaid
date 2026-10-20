@@ -1,17 +1,15 @@
 [TITLE]
-Kavaid: Arabic Dictionary
+Arabic English Dictionary
 
 [SHORT]
-Arabic–Turkish dictionary: verb forms, Quran words, translation and AI helper
+Kavaid: Arabic–English dictionary, verb forms, Quran words, translation and AI
 
 [FULL]
-Kavaid is an Arabic–Turkish dictionary for finding Arabic words fast and understanding them correctly. Type in Arabic or Turkish and see the vowelled word, its root, type, plural, verb forms and example sentences on a single card.
-
-Please note: the app interface and the word meanings are in Turkish. It is built for Turkish speakers learning Arabic, and for Arabic speakers who need Turkish meanings.
+Kavaid is an Arabic–English dictionary for finding Arabic words fast and understanding them correctly. Type in Arabic or English and see the vowelled word, its root, type, plural, verb forms and example sentences on a single card.
 
 DICTIONARY
 • Nearly 55,000 Arabic words with full vowel marks
-• Search in Arabic or Turkish
+• Search in Arabic or English
 • Spelling differences such as hamza forms (أ إ ا) do not block a search
 • Root, word type, plural and preposition information
 • Past, present, verbal noun and imperative forms
@@ -21,12 +19,12 @@ DICTIONARY
 
 EMSILE (VERB CONJUGATION)
 • Over 5,500 verbs conjugated in 24 forms (Emsile-i Muhtelife)
-• Each form on one screen, with Turkish meanings
+• Each form on one screen, with English meanings
 • Jump from a dictionary verb card to Emsile with one tap
 
 QURAN DICTIONARY
 • Over 21,000 Quranic words
-• Root, Quranic meanings and example verses (Arabic text with Turkish translation)
+• Root, Quranic meanings and example verses (Arabic text with English translation)
 
 AI ASSISTANT
 • Ask about a word: usage, example sentences, how it differs from similar words
@@ -35,7 +33,7 @@ AI ASSISTANT
 • AI answers can contain mistakes, so double-check important points
 
 TRANSLATION
-• Translate between Arabic (Standard Arabic and 17 dialects, including Syrian, Egyptian, Iraqi, Lebanese, Jordanian, Palestinian, Saudi, Moroccan, Algerian and Tunisian) and Turkish, English, German, French, Russian, Spanish, Italian, Portuguese, Dutch, Persian, Urdu and Indonesian
+• Translate between Arabic (Standard Arabic and 17 dialects, including Syrian, Egyptian, Iraqi, Lebanese, Jordanian, Palestinian, Saudi, Moroccan, Algerian and Tunisian) and English, Turkish, German, French, Russian, Spanish, Italian, Portuguese, Dutch, Persian, Urdu and Indonesian
 • Latin-letter pronunciation and audio playback
 • Sign-in required; a free trial allowance is included
 

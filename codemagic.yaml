@@ -250,7 +250,7 @@ workflows:
       - name: Build for iOS Simulator
         script: |
           set -euo pipefail
-          flutter build ios --simulator --debug --dart-define=DEBUG_LOGS=true
+          flutter build ios --simulator --debug --dart-define=DEBUG_LOGS=true --dart-define=PERF_BENCH=true
       - name: Install & Launch on Simulator, capture logs
         script: |
           set -euo pipefail
@@ -267,9 +267,13 @@ workflows:
             xcrun simctl uninstall booted com.onbir.kavaid || true
             xcrun simctl install booted "$APP_PATH"
             xcrun simctl launch booted com.onbir.kavaid -AppleLanguages "(${LANG_CODE})" -AppleLocale "${LANG_CODE}" || true
-            echo "[$LANG_CODE] launched, waiting 75 s (debug build, first install)..."
-            sleep 75
+            echo "[$LANG_CODE] launched, waiting 90 s (debug build, first install)..."
+            sleep 90
             xcrun simctl io booted screenshot "$OUT/intro_${LANG_CODE}.png" || true
+            # PERF_BENCH: açılış süreleri, o dilde aramalar, Emsile veritabanı ve anlamları
+            xcrun simctl spawn booted log show --last 100s --style compact \
+              --predicate 'process == "Runner"' 2>/dev/null | grep "PERF" > "$OUT/perf_${LANG_CODE}.txt" || true
+            echo "[$LANG_CODE] $(grep -c 'bench' "$OUT/perf_${LANG_CODE}.txt" || true) bench satırı; $(grep 'emsile' "$OUT/perf_${LANG_CODE}.txt" | head -2 | tr '\n' ' ')"
             xcrun simctl terminate booted com.onbir.kavaid || true
           done
           # Collect last 20 minutes of syslog (trim to last 3000 lines)
@@ -279,6 +283,7 @@ workflows:
       - build/ios/iphonesimulator/simulator_syslog.txt
       - build/ios/iphonesimulator/flutter_errors.txt
       - build/ios/iphonesimulator/shots/*.png
+      - build/ios/iphonesimulator/shots/*.txt
     publishing:
       email:
         recipients:

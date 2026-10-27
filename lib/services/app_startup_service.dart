@@ -13,6 +13,7 @@ import 'book_store_service.dart';
 import 'database_initialization_service.dart';
 import 'database_service.dart';
 import 'emsile_database_service.dart';
+import 'emsile_meanings.dart';
 import 'gemini_service.dart';
 import 'global_config_service.dart';
 import 'language_service.dart';
@@ -106,6 +107,19 @@ class AppStartupService extends ChangeNotifier {
       final results = await DatabaseService.instance.searchWordsRanked(q);
       final top = results.take(3).map((r) => r.word.harekeliKelime).join(' ');
       PerfLog.note('bench $lang "$q" → $top');
+    }
+    // Emsile: veritabanı kurulup açılıyor mu, anlamlar o dilde mi (iOS denetimi)
+    try {
+      final sw = Stopwatch()..start();
+      final verbs = await EmsileDatabaseService.instance.searchEmsile('كتب');
+      PerfLog.took('bench emsile "كتب" (${verbs.length})', sw);
+      final meanings = EmsileMeanings.instance;
+      if (meanings.usesPack) {
+        await meanings.ensureLoaded();
+        PerfLog.note('bench emsile $lang anlam → ${meanings.of(4819)}');
+      }
+    } catch (e) {
+      PerfLog.note('bench emsile HATA: $e');
     }
   }
 

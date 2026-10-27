@@ -237,16 +237,23 @@ workflows:
           cd ios
           pod install
           cd ..
-      - name: Boot iOS Simulator (iPhone 15)
+      - name: Boot iOS Simulator
         script: |
           set -euo pipefail
-          DEVICE_NAME="iPhone 15"
-          # Create if missing, then boot
-          RUNTIME=$(xcrun simctl list runtimes | grep -E "iOS .*" | tail -n 1 | awk -F'[()]' '{print $2}')
-          xcrun simctl list devices | grep -q "$DEVICE_NAME (" || xcrun simctl create "$DEVICE_NAME" com.apple.CoreSimulator.SimDeviceType.iPhone-15 "$RUNTIME" || true
-          xcrun simctl boot "$DEVICE_NAME" || true
+          # En yeni iOS çalışma ortamındaki ilk iPhone (cihaz adları Xcode sürümüne göre değişiyor)
+          xcrun simctl list devices available -j > /tmp/sim_devices.json
+          UDID=$(python3 - <<'PY'
+          import json
+          devs = json.load(open("/tmp/sim_devices.json"))["devices"]
+          ios = sorted((k for k in devs if ".iOS-" in k and devs[k]),
+                       key=lambda k: [int(x) for x in k.rsplit("iOS-", 1)[1].split("-")])
+          print(next(d["udid"] for d in devs[ios[-1]] if d["name"].startswith("iPhone")))
+          PY
+          )
+          echo "Simulator: $UDID"
+          xcrun simctl boot "$UDID" || true
           /usr/bin/open -a Simulator || true
-          xcrun simctl bootstatus "$DEVICE_NAME" -b
+          xcrun simctl bootstatus "$UDID" -b
       - name: Build for iOS Simulator
         script: |
           set -euo pipefail

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/campaign_screen.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Sözlük ana sayfasında gösterilen kampanya banner widget'ı.
 /// Non-premium kullanıcılara ve kampanya aktifken gösterilir.
@@ -56,8 +57,8 @@ class _CampaignBannerState extends State<CampaignBanner> with SingleTickerProvid
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFF0D47A1), Color(0xFF1565C0)], // Mavi tonları
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
@@ -81,7 +82,7 @@ class _CampaignBannerState extends State<CampaignBanner> with SingleTickerProvid
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                '1 Ay Ücretsiz Premium Kazan',
+                l10n.m1AyUcretsizPremiumKazan,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

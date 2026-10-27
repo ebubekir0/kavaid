@@ -4,6 +4,7 @@ import '../models/ai_teacher_model.dart';
 import '../models/word_model.dart';
 import '../screens/subscription_screen.dart';
 import '../services/ai_teacher_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 enum AiTeacherInitialMode { overview, moreExamples }
 
@@ -61,7 +62,7 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
         !_didRunInitialPrompt) {
       _didRunInitialPrompt = true;
       await _sendQuestion(
-        'Bu kelimeyle seviye seviye daha fazla örnek ver: kolay, orta, günlük kullanım, gramer odaklı ve soru cümlesi.',
+        l10n.buKelimeyleSeviyeSeviyeDaha,
       );
     }
   }
@@ -100,9 +101,9 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
       if (!mounted) return;
       setState(() {
         _messages.add(
-          const _TeacherMessage(
+          _TeacherMessage(
             text:
-                'Bugünkü ücretsiz AI Kelime Asistanı hakkın doldu. Devam etmek için premiuma geçebilirsin.',
+                l10n.bugunkuUcretsizAiKelimeAsistani2,
             isUser: false,
           ),
         );
@@ -111,9 +112,9 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
       if (!mounted) return;
       setState(() {
         _messages.add(
-          const _TeacherMessage(
+          _TeacherMessage(
             text:
-                'Şu anda cevap alınamadı. İnternet bağlantını kontrol edip tekrar deneyebilirsin.',
+                l10n.suAndaCevapAlinamadiInternet,
             isUser: false,
           ),
         );
@@ -156,7 +157,7 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 14, 8, 10),
+                padding: const EdgeInsetsDirectional.fromSTEB(18, 14, 8, 10),
                 child: Row(
                   children: [
                     Container(
@@ -191,8 +192,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
                           ),
                           Text(
                             _service.isPremium
-                                ? 'AI Kelime Asistanı'
-                                : 'AI Kelime Asistanı · $_remaining ücretsiz hak',
+                                ? l10n.aiKelimeAsistani
+                                : l10n.aiKelimeAsistaniRemainingUcretsiz(_remaining),
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 12,
@@ -230,8 +231,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
     final result = _result;
     if (result == null) {
       return _StatusView(
-        message: 'AI Kelime Asistanı hazırlanamadı.',
-        actionText: 'Tekrar dene',
+        message: l10n.aiKelimeAsistaniHazirlanamadi,
+        actionText: l10n.tekrarDene2,
         onAction: _load,
         isDarkMode: widget.isDarkMode,
       );
@@ -241,8 +242,8 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
       return _StatusView(
         message: result.message,
         actionText: result.status == AiTeacherAccessStatus.limitReached
-            ? 'Premium’a geç'
-            : 'Tekrar dene',
+            ? l10n.premiumAGec3
+            : l10n.tekrarDene2,
         onAction: result.status == AiTeacherAccessStatus.limitReached
             ? () {
                 Navigator.of(context).push(
@@ -257,20 +258,20 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
     final explanation = result.explanation!;
     return ListView(
       controller: scrollController,
-      padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 0, 18, 24),
       children: [
         _Section(
-          title: 'Kısaca Anlat',
+          title: l10n.kisacaAnlat2,
           isDarkMode: widget.isDarkMode,
           child: Text(explanation.summary, style: _bodyStyle(text)),
         ),
         _NotesSection(
-          title: 'Gramer Notları',
+          title: l10n.gramerNotlari,
           notes: explanation.grammarNotes,
           isDarkMode: widget.isDarkMode,
         ),
         _NotesSection(
-          title: 'Kullanım Notları',
+          title: l10n.kullanimNotlari,
           notes: explanation.usageNotes,
           isDarkMode: widget.isDarkMode,
         ),
@@ -321,16 +322,16 @@ class _AiTeacherSheetState extends State<AiTeacherSheet> {
 
   List<String> _suggestedQuestions(AiTeacherExplanation explanation) {
     final defaults = <String>[
-      'Bu kelime nerede kullanılır?',
-      'Benzer kelimelerden farkı ne?',
-      '5 yeni örnek ver',
-      'Kolay cümlelerle anlat',
+      l10n.buKelimeNeredeKullanilir,
+      l10n.benzerKelimelerdenFarkiNe,
+      l10n.m5YeniOrnekVer,
+      l10n.kolayCumlelerleAnlat,
     ];
     if (widget.word.fiilCekimler?.isNotEmpty == true) {
-      defaults.add('Çekimle örnek ver');
+      defaults.add(l10n.cekimleOrnekVer);
     }
     if (widget.word.harfiCerler.isNotEmpty) {
-      defaults.add('Harf-i cer farkını anlat');
+      defaults.add(l10n.harfICerFarkiniAnlat);
     }
 
     return [...explanation.suggestedQuestions, ...defaults]
@@ -442,7 +443,7 @@ class _ExamplesSection extends StatelessWidget {
         ? const Color(0xFFB0B0B5)
         : const Color(0xFF6D6D70);
     return _Section(
-      title: 'Örnekle Öğren',
+      title: l10n.ornekleOgren,
       isDarkMode: isDarkMode,
       child: Column(
         children: examples
@@ -494,7 +495,7 @@ class _QuizSection extends StatelessWidget {
     if (quiz.isEmpty) return const SizedBox.shrink();
     final color = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
     return _Section(
-      title: 'Mini Alıştırma',
+      title: l10n.miniAlistirma,
       isDarkMode: isDarkMode,
       child: Column(
         children: quiz.take(3).map((item) {
@@ -590,7 +591,7 @@ class _SuggestedQuestionsSection extends StatelessWidget {
     if (questions.isEmpty) return const SizedBox.shrink();
     final textColor = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
     return _Section(
-      title: 'Hazır Sorular',
+      title: l10n.hazirSorular,
       isDarkMode: isDarkMode,
       child: Wrap(
         spacing: 8,
@@ -645,7 +646,7 @@ class _QuestionBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = isDarkMode ? Colors.white : const Color(0xFF1C1C1E);
     return _Section(
-      title: 'Sor',
+      title: l10n.sor,
       isDarkMode: isDarkMode,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -653,8 +654,8 @@ class _QuestionBox extends StatelessWidget {
           ...messages.map((message) {
             return Align(
               alignment: message.isUser
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
+                  ? AlignmentDirectional.centerEnd
+                  : AlignmentDirectional.centerStart,
               child: Container(
                 margin: const EdgeInsets.only(bottom: 8),
                 padding: const EdgeInsets.all(9),
@@ -685,7 +686,7 @@ class _QuestionBox extends StatelessWidget {
                   maxLines: 3,
                   style: TextStyle(color: text),
                   decoration: InputDecoration(
-                    hintText: 'Bu kelimeyle ilgili soru sor',
+                    hintText: l10n.buKelimeyleIlgiliSoruSor,
                     hintStyle: TextStyle(
                       color: isDarkMode
                           ? const Color(0xFF8E8E93)

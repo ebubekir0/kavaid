@@ -34,7 +34,13 @@ SOZLUK_*.json
 ios/Runner/GoogleService-Info.plist
 
 # Uygulamayla gelen sözlük verisi (tool/build_dictionary_asset.py üretir)
-!assets/data/sozluk.json.gz
+!assets/data/sozluk.json.xz
 
 # Yerel gizli anahtarlar (git a girmez)
 dart_defines.json
+
+# Yerelleştirme içerik üretimi (büyük veri, git dışında)
+/content/
+
+# Test kopyasının (.entest) Firebase istemcisi: yalnız yerel ölçüm derlemeleri için
+/android/app/src/debug/google-services.json

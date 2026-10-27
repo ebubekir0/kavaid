@@ -1,8 +1,10 @@
+import 'dart:isolate';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' show min;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:archive/archive.dart' show XZDecoder;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +16,8 @@ class EmsileDatabaseService {
 
   EmsileDatabaseService._init();
 
-  static const String _dbAsset = 'assets/data/emsile.db';
+  // xz ile sıkıştırılmış (32 MB → 1,6 MB); ilk kurulumda arka planda bir kez açılır
+  static const String _dbAsset = 'assets/data/emsile.db.xz';
   static const String _dbName = 'emsile.db';
   static const String _tempName = 'emsile.db.installing';
   static const String _sizePrefsKey = 'emsile_db_installed_size_v1';
@@ -140,8 +143,9 @@ class EmsileDatabaseService {
       rethrow;
     }
 
-    // asUint8List bir GORUNUM (kopyalamaz), ayri bir 30MB tampon olusmaz.
-    final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    final packed = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    // xz çözme ağır bir iş: arayüz donmasın diye arka plan izolesinde
+    final bytes = await Isolate.run(() => Uint8List.fromList(XZDecoder().decodeBytes(packed)));
 
     try {
       final raf = await File(temp).open(mode: FileMode.write);

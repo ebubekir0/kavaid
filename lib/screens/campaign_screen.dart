@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/promo_code_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class CampaignScreen extends StatefulWidget {
   final bool isDarkMode;
@@ -28,7 +29,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
     if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bağlantı açılamadı')),
+          SnackBar(content: Text(l10n.baglantiAcilamadi)),
         );
       }
     }
@@ -48,23 +49,23 @@ class _CampaignScreenState extends State<CampaignScreen> {
 
       if (result == 'success') {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tebrikler! 1 Ay Premium hesabınıza tanımlandı 🌟'),
+          SnackBar(
+            content: Text(l10n.tebrikler1AyPremiumHesabiniza),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 4),
           ),
         );
         Navigator.pop(context); // Ana sayfaya dön
       } else {
-        String errorMsg = 'Geçersiz veya kullanılmış kod.';
+        String errorMsg = l10n.gecersizVeyaKullanilmisKod;
         if (result == 'already_used') {
-          errorMsg = 'Bu kodu daha önce kullandınız.';
+          errorMsg = l10n.buKoduDahaOnceKullandiniz;
         } else if (result == 'expired') {
-          errorMsg = 'Bu kodun süresi dolmuş.';
+          errorMsg = l10n.buKodunSuresiDolmus;
         } else if (result == 'used') {
-          errorMsg = 'Bu kodun kullanım limiti dolmuş.';
+          errorMsg = l10n.buKodunKullanimLimitiDolmus;
         } else if (result == 'login_required') {
-          errorMsg = 'Lütfen önce giriş yapın.';
+          errorMsg = l10n.lutfenOnceGirisYapin;
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,7 +128,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    '1 Ay Ücretsiz Premium Kazan',
+                    l10n.m1AyUcretsizPremiumKazan,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.outfit(
                       fontSize: 22,
@@ -139,7 +140,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Uygulama hakkında görüşlerinizi belirtilen tweeti alıntılayarak Twitter (X)\'te paylaşın, 1 ay ücretsiz premium kazanın!',
+                    l10n.uygulamaHakkindaGorusleriniziBelirtilenTweeti,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 15,
@@ -166,7 +167,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nasıl Katılırım?',
+                    l10n.nasilKatilirim,
                     style: GoogleFonts.outfit(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -177,7 +178,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
 
                   _buildInstructionStep(
                     number: '1',
-                    text: 'Uygulama ile ilgili görüşlerinizi belirtilen tweeti alıntılayarak Twitter (X)\'te paylaşın.',
+                    text: l10n.uygulamaIleIlgiliGorusleriniziBelirtilen,
                     isDark: isDark,
                     textColor: textColor,
                     subtitleColor: subtitleColor,
@@ -189,7 +190,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   
                   _buildInstructionStep(
                     number: '2',
-                    text: 'Paylaşımınızı Twitter\'da @ebubekr53 hesabına direkt mesaj atın, kodunuzu alın.',
+                    text: l10n.paylasiminiziTwitterDaEbubekr53Hesabina,
                     isDark: isDark,
                     textColor: textColor,
                     subtitleColor: subtitleColor,
@@ -201,7 +202,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                   
                   _buildInstructionStep(
                     number: '3',
-                    text: 'Kodu aşağıya girin.',
+                    text: l10n.koduAsagiyaGirin,
                     isDark: isDark,
                     textColor: textColor,
                     subtitleColor: subtitleColor,
@@ -215,7 +216,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                     child: ElevatedButton.icon(
                       onPressed: _quoteTweet,
                       icon: const Icon(Icons.share_rounded, size: 20),
-                      label: const Text('Tweeti Alıntıla'),
+                      label: Text(l10n.tweetiAlintila),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isDark ? Colors.white : Colors.black,
                         foregroundColor: isDark ? Colors.black : Colors.white,
@@ -249,7 +250,7 @@ class _CampaignScreenState extends State<CampaignScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Promosyon Kodu',
+                    l10n.promosyonKodu,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -304,8 +305,8 @@ class _CampaignScreenState extends State<CampaignScreen> {
                                 height: 20, 
                                 child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                               )
-                            : const Text(
-                                'Kullan',
+                            : Text(
+                                l10n.kullan,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                         ),

@@ -12,6 +12,7 @@ import '../services/tts_service.dart';
 import '../services/purchase_manager.dart';
 import '../services/language_service.dart';
 import 'subscription_screen.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Kelimelerim Ana Ekranı - Kullanıcının oluşturduğu listeleri gösterir
 /// BookTextsScreen ile aynı UI yapısına sahip
@@ -119,7 +120,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         builder: (ctx) => AlertDialog(
           backgroundColor: widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 12),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -137,9 +138,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                LanguageService().isEnglish 
-                    ? 'More Features' 
-                    : (LanguageService().isArabic ? 'المزيد من الميزات' : 'Daha Fazla Özellik'),
+                l10n.dahaFazlaOzellik,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -148,7 +147,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                LanguageService().isEnglish ? 'Upgrade to Premium\nto create more lists' : 'Daha fazla liste oluşturmak için\nPremium\'a yükselt',
+                l10n.dahaFazlaListeOlusturmakIcin,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -158,7 +157,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
               ),
             ],
           ),
-          actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          actionsPadding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
           actions: [
             Row(
               children: [
@@ -170,7 +169,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Text(
-                      LanguageService().isEnglish ? 'Close' : 'Kapat',
+                      l10n.kapat,
                       style: TextStyle(
                         fontSize: 16,
                         color: widget.isDarkMode ? Colors.white60 : Colors.black54,
@@ -196,7 +195,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                       elevation: 0,
                     ),
                     child: Text(
-                      LanguageService().isEnglish ? 'Get Premium' : (LanguageService().isArabic ? 'احصل على بريميوم' : 'Premium Al'),
+                      l10n.premiumAl,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -218,9 +217,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           backgroundColor:
               widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
           title: Text(
-            LanguageService().isEnglish 
-              ? 'New List' 
-              : (LanguageService().isArabic ? 'قائمة جديدة' : 'Yeni Liste'),
+            l10n.yeniListe,
             style: TextStyle(
               color: widget.isDarkMode ? Colors.white : Colors.black,
             ),
@@ -229,7 +226,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: LanguageService().isEnglish ? 'List name' : 'Liste adı',
+              hintText: l10n.listeAdi,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(
@@ -255,9 +252,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                LanguageService().isEnglish 
-                    ? 'Cancel' 
-                    : (LanguageService().isArabic ? 'إلغاء' : 'İptal'),
+                l10n.iptal,
               ),
             ),
             ElevatedButton(
@@ -270,9 +265,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                 _loadData();
               },
               child: Text(
-                LanguageService().isEnglish 
-                  ? 'Create' 
-                  : (LanguageService().isArabic ? 'إنشاء' : 'Oluştur'),
+                l10n.olustur,
               ),
             ),
           ],
@@ -291,9 +284,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           backgroundColor:
               widget.isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
           title: Text(
-            LanguageService().isEnglish 
-              ? 'Rename List' 
-              : (LanguageService().isArabic ? 'إعادة تسمية القائمة' : 'Listeyi Yeniden Adlandır'),
+            l10n.listeyiYenidenAdlandir,
             style: TextStyle(
               color: widget.isDarkMode ? Colors.white : Colors.black,
             ),
@@ -302,7 +293,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              hintText: LanguageService().isEnglish ? 'List name' : 'Liste adı',
+              hintText: l10n.listeAdi,
               border: const OutlineInputBorder(),
               hintStyle: TextStyle(
                 color: widget.isDarkMode ? Colors.white38 : Colors.black38,
@@ -316,9 +307,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                LanguageService().isEnglish 
-                  ? 'Cancel' 
-                  : (LanguageService().isArabic ? 'إلغاء' : 'İptal'),
+                l10n.iptal,
               ),
             ),
             ElevatedButton(
@@ -331,9 +320,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                 _loadData();
               },
               child: Text(
-                LanguageService().isEnglish 
-                  ? 'Save' 
-                  : (LanguageService().isArabic ? 'حفظ' : 'Kaydet'),
+                l10n.kaydet,
               ),
             ),
           ],
@@ -378,9 +365,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         backgroundColor: const Color(0xFF007AFF),
         elevation: 0,
         title: Text(
-          LanguageService().isEnglish 
-              ? 'My Word Lists' 
-              : (LanguageService().isArabic ? 'قوائم كلماتي' : 'Kelime Listelerim'),
+          l10n.kelimeListelerim,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -403,7 +388,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                   children: [
                     Expanded(
                       child: ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                         itemCount: _lists.length,
                         itemBuilder: (context, index) {
                           final list = _lists[index];
@@ -414,7 +399,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                     ),
                     // Alt kısımda liste ekleme butonu
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 24),
                       child: SizedBox(
                         width: double.infinity,
                         height: 50,
@@ -422,9 +407,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                           onPressed: _showAddListDialog,
                           icon: const Icon(Icons.add_rounded, size: 20),
                           label: Text(
-                            LanguageService().isEnglish 
-                                ? 'Create New List' 
-                                : (LanguageService().isArabic ? 'إنشاء قائمة جديدة' : 'Yeni Liste Oluştur'),
+                            l10n.yeniListeOlustur,
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -464,9 +447,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           ),
           const SizedBox(height: 20),
           Text(
-            LanguageService().isEnglish 
-                ? 'No lists yet' 
-                : (LanguageService().isArabic ? 'لا توجد قوائم بعد' : 'Henüz liste yok'),
+            l10n.henuzListeYok,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -475,7 +456,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            LanguageService().isEnglish ? 'Create a list to organize\nyour words' : 'Kelimelerinizi düzenlemek için\nbir liste oluşturun',
+            l10n.kelimeleriniziDuzenlemekIcinBirListe,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
@@ -499,9 +480,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                   const Icon(Icons.add_rounded, size: 20, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
-                    LanguageService().isEnglish 
-                        ? 'Create New List' 
-                        : (LanguageService().isArabic ? 'إنشاء قائمة جديدة' : 'Yeni Liste Oluştur'),
+                    l10n.yeniListeOlustur,
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
@@ -582,9 +561,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        LanguageService().isEnglish 
-                            ? '$wordCount words' 
-                            : (LanguageService().isArabic ? '$wordCount كلمة' : '$wordCount kelime'),
+                        l10n.wordcountKelime(wordCount),
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
@@ -629,9 +606,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                             Icon(Icons.edit_rounded, size: 18, color: isDark ? Colors.white : Colors.black87),
                             const SizedBox(width: 12),
                             Text(
-                              LanguageService().isEnglish 
-                                ? 'Rename' 
-                                : (LanguageService().isArabic ? 'إعادة تسمية' : 'Yeniden Adlandır'),
+                              l10n.yenidenAdlandir,
                               style: TextStyle(fontSize: 14, color: isDark ? Colors.white : Colors.black87),
                             ),
                           ],
@@ -646,9 +621,7 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
                               const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
                               const SizedBox(width: 12),
                               Text(
-                                LanguageService().isEnglish 
-                                  ? 'Delete' 
-                                  : (LanguageService().isArabic ? 'حذف' : 'Sil'),
+                                l10n.sil,
                                 style: const TextStyle(fontSize: 14, color: Colors.red),
                               ),
                             ],
@@ -671,15 +644,13 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
         return AlertDialog(
           backgroundColor: isDark ? const Color(0xFF2C2C2E) : Colors.white,
           title: Text(
-            'Listeyi Sil',
+            l10n.listeyiSil,
             style: TextStyle(
               color: isDark ? Colors.white : Colors.black,
             ),
           ),
           content: Text(
-            LanguageService().isEnglish 
-                ? 'Delete "${list.name}"?\nAll words inside will be deleted.' 
-                : (LanguageService().isArabic ? 'هل تريد حذف "${list.name}"؟\nسيتم حذف جميع الكلمات الموجودة بالداخل.' : '"${list.name}" silinsin mi?\nİçindeki tüm kelimeler de silinecek.'),
+            l10n.nameSilinsinMiIcindekiTum(list.name),
             style: TextStyle(
               color: isDark ? Colors.white70 : Colors.black87,
             ),
@@ -687,12 +658,12 @@ class _CustomWordsScreenState extends State<CustomWordsScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(LanguageService().isEnglish ? 'Cancel' : (LanguageService().isArabic ? 'إلغاء' : 'İptal')),
+              child: Text(l10n.iptal),
             ),
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               child: Text(
-                LanguageService().isEnglish ? 'Delete' : (LanguageService().isArabic ? 'حذف' : 'Sil'),
+                l10n.sil,
                 style: const TextStyle(color: Colors.red),
               ),
             ),
@@ -803,7 +774,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
           : _words.isEmpty
               ? Center(
                   child: Text(
-                    'Bu listede henüz kelime yok',
+                    l10n.buListedeHenuzKelimeYok,
                     style: TextStyle(
                       fontSize: 16,
                       color: isDark ? Colors.white70 : Colors.black54,
@@ -862,7 +833,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      LanguageService().isEnglish ? 'List' : (LanguageService().isArabic ? 'قائمة' : 'Liste'),
+                      l10n.liste,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -892,7 +863,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                   ),
                   child: Center(
                     child: Text(
-                      LanguageService().isEnglish ? 'Card' : (LanguageService().isArabic ? 'بطاقة' : 'Kart'),
+                      l10n.kart,
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -1009,7 +980,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
       children: [
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 12),
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
                   if (notification is ScrollStartNotification && _showMeaning) {
@@ -1062,9 +1033,9 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                         child: Stack(
                           children: [
                             // Dekoratif parıltı efekti - üst
-                            Positioned(
+                            PositionedDirectional(
                               top: -50,
-                              right: -50,
+                              end: -50,
                               child: Container(
                                 width: 150,
                                 height: 150,
@@ -1075,9 +1046,9 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                               ),
                             ),
                             // Dekoratif parıltı efekti - alt
-                            Positioned(
+                            PositionedDirectional(
                               bottom: -30,
-                              left: -30,
+                              start: -30,
                               child: Container(
                                 width: 100,
                                 height: 100,
@@ -1115,9 +1086,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 40),
                                     child: Text(
-                                      LanguageService().isEnglish 
-                                          ? 'Upgrade to Premium for more word cards' 
-                                          : (LanguageService().isArabic ? 'الترقية إلى بريميوم لمزيد من بطاقات الكلمات' : 'Daha fazla kelime kartı için Premium\'a yükselt'),
+                                      l10n.dahaFazlaKelimeKartiIcin,
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         fontSize: 20, // Font boyutu büyütüldü
@@ -1157,7 +1126,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                         elevation: 0,
                                       ),
                                       child: Text(
-                                        LanguageService().isEnglish ? 'Upgrade to Premium' : (LanguageService().isArabic ? 'الترقية إلى بريميوم' : 'Premium\'a Yükselt'),
+                                        l10n.premiumAYukselt,
                                         style: const TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.bold,
@@ -1207,9 +1176,9 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                       child: Stack(
                         children: [
                           // Ses Butonu - En Üstte
-                          Positioned(
+                          PositionedDirectional(
                             top: 16,
-                            right: 16,
+                            end: 16,
                             child: IconButton(
                               onPressed: () {
                                 _ttsService.speak(word.arabic);
@@ -1219,7 +1188,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                 color: subTextColor.withValues(alpha: 0.7),
                                 size: 28,
                               ),
-                              tooltip: LanguageService().isEnglish ? 'Listen' : (LanguageService().isArabic ? 'استمع' : 'Dinle'),
+                              tooltip: l10n.dinle,
                             ),
                           ),
 
@@ -1253,9 +1222,9 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                           
                           // Örnek Cümle - Minimalist - Arapça için gösterme
                           if (!LanguageService().isArabic)
-                          Positioned(
-                            left: 10,
-                            right: 10,
+                          PositionedDirectional(
+                            start: 10,
+                            end: 10,
                             bottom: 10,
                             child: Builder(
                               builder: (context) {
@@ -1306,7 +1275,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
                                 }
                                 
                                 return Container(
-                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                                  padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                                   decoration: BoxDecoration(
                                     color: isDarkMode 
                                         ? Colors.white.withValues(alpha: 0.03)
@@ -1373,7 +1342,7 @@ class _WordListDetailScreenState extends State<WordListDetailScreen> {
         ),
         // Slider navigasyon - TextWordsScreen ile aynı
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(

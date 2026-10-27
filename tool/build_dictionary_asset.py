@@ -1,10 +1,10 @@
-"""Sözlük verisini uygulamaya gömülecek asset'e dönüştürür.
+"""Sözlük verisini uygulamaya gömülecek asset'e dönüştürür (xz; gzip'e göre ≈ %47 küçük).
 
 Kullanım (proje kökünden):
     python tool/build_dictionary_asset.py [kaynak.json]
 
 Kaynak varsayılan olarak SON_GUNCEL_VERITABANI_V2.json'dur. Üretilenler:
-  - assets/data/sozluk.json.gz          : uygulamanın okuduğu sıkıştırılmış veri
+  - assets/data/sozluk.json.xz          : uygulamanın okuduğu sıkıştırılmış veri
   - lib/data/embedded_words_meta.dart   : veri sürümü ve kelime sayısı
 
 Veri sürümü içerikten (SHA-256) hesaplanır. Sürüm değiştiğinde uygulama
@@ -12,13 +12,13 @@ açılışta yerel SQLite sözlüğünü otomatik olarak yeniden kurar; böylece
 güncellenen kelimeler mevcut kullanıcılara da ulaşır.
 """
 import datetime
-import gzip
+import lzma
 import hashlib
 import json
 import sys
 
 SOURCE = sys.argv[1] if len(sys.argv) > 1 else 'SON_GUNCEL_VERITABANI_V2.json'
-ASSET_PATH = 'assets/data/sozluk.json.gz'
+ASSET_PATH = 'assets/data/sozluk.json.xz'
 META_PATH = 'lib/data/embedded_words_meta.dart'
 
 with open(SOURCE, 'r', encoding='utf-8') as f:
@@ -57,10 +57,10 @@ payload = json.dumps(
 ).encode('utf-8')
 version = hashlib.sha256(payload).hexdigest()[:16]
 
-# mtime=0: aynı veri her seferinde aynı dosyayı üretsin (gereksiz git farkı olmasın)
+# Aynı veri her seferinde aynı dosyayı üretir (gereksiz git farkı olmasın).
+# Uygulama veriyi yalnız sözlük sürümü değişince bir kez çözer (embedded_words.dart).
 with open(ASSET_PATH, 'wb') as f:
-    with gzip.GzipFile(fileobj=f, mode='wb', compresslevel=9, mtime=0) as gz:
-        gz.write(payload)
+    f.write(lzma.compress(payload, preset=9 | lzma.PRESET_EXTREME))
 
 with open(META_PATH, 'w', encoding='utf-8', newline='\n') as f:
     f.write('// AUTO-GENERATED FILE - DO NOT EDIT MANUALLY\n')

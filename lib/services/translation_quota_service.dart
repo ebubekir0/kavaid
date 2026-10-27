@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'purchase_manager.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 enum TranslationAccessStatus {
   allowed,
@@ -79,18 +80,18 @@ class TranslationQuotaService extends ChangeNotifier {
   Future<TranslationAccessResult> reserveTranslation() async {
     final user = _auth.currentUser;
     if (user == null) {
-      return const TranslationAccessResult(
+      return TranslationAccessResult(
         status: TranslationAccessStatus.loginRequired,
         remaining: 0,
-        message: 'Çeviri için giriş yapman gerekiyor.',
+        message: l10n.ceviriIcinGirisYapmanGerekiyor,
       );
     }
 
     if (_purchaseManager.isPremium) {
-      return const TranslationAccessResult(
+      return TranslationAccessResult(
         status: TranslationAccessStatus.allowed,
         remaining: freeLimit,
-        message: 'Premium kullanıcı.',
+        message: l10n.premiumKullanici,
       );
     }
 
@@ -99,10 +100,10 @@ class TranslationQuotaService extends ChangeNotifier {
       if (localUsed >= freeLimit) {
         _used = freeLimit;
         notifyListeners();
-        return const TranslationAccessResult(
+        return TranslationAccessResult(
           status: TranslationAccessStatus.limitReached,
           remaining: 0,
-          message: "Daha fazla çeviri yapabilmek için Premium'a geçin.",
+          message: l10n.dahaFazlaCeviriYapabilmekIcin,
         );
       }
 
@@ -125,10 +126,10 @@ class TranslationQuotaService extends ChangeNotifier {
       if (accountNewCount > freeLimit) {
         _used = freeLimit;
         notifyListeners();
-        return const TranslationAccessResult(
+        return TranslationAccessResult(
           status: TranslationAccessStatus.limitReached,
           remaining: 0,
-          message: "Daha fazla çeviri yapabilmek için Premium'a geçin.",
+          message: l10n.dahaFazlaCeviriYapabilmekIcin,
         );
       }
 
@@ -139,15 +140,15 @@ class TranslationQuotaService extends ChangeNotifier {
       return TranslationAccessResult(
         status: TranslationAccessStatus.allowed,
         remaining: (freeLimit - _used).clamp(0, freeLimit).toInt(),
-        message: 'Çeviri hakkı kullanıldı.',
+        message: l10n.ceviriHakkiKullanildi,
         reserved: true,
       );
     } catch (e) {
       debugPrint('[TranslationQuota] reserve failed: $e');
-      return const TranslationAccessResult(
+      return TranslationAccessResult(
         status: TranslationAccessStatus.unavailable,
         remaining: 0,
-        message: 'Çeviri hakkı kontrol edilemedi. Bağlantını kontrol et.',
+        message: l10n.ceviriHakkiKontrolEdilemediBaglantini,
       );
     }
   }

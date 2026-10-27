@@ -7,8 +7,11 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../models/word_model.dart';
+import '../services/arabic_definitions.dart';
 import '../services/language_service.dart';
 import '../services/search_ranking.dart' show foldTurkishChar;
+import 'package:kavaid/l10n/l10n.dart';
+import '../utils/word_type_label.dart';
 
 const _blue = Color(0xFF007AFF);
 const _arabicFeatures = [
@@ -82,15 +85,20 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: const TextStyle(
-        fontSize: 10.5,
-        fontWeight: FontWeight.w700,
-        color: _blue,
-        letterSpacing: 0.4,
+    // Bazı dillerde etiket uzun olabilir: "…" ile kesilmek yerine sığacak kadar küçülür.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        style: const TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w700,
+          color: _blue,
+          letterSpacing: 0.4,
+        ),
       ),
     );
   }
@@ -138,7 +146,7 @@ class WordHeadline extends StatelessWidget {
       flex: 3,
       child: FittedBox(
         fit: BoxFit.scaleDown,
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         child: Text(
           title,
           style: ArabicTextStyles.word.copyWith(color: wordColor),
@@ -153,12 +161,12 @@ class WordHeadline extends StatelessWidget {
         : Flexible(
             flex: 2,
             child: Semantics(
-              label: 'kök $root',
+              label: l10n.kokRoot(root),
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: rightToLeft
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
+                    ? AlignmentDirectional.centerEnd
+                    : AlignmentDirectional.centerStart,
                 child: Text(
                   root,
                   key: const ValueKey('word-root'),
@@ -207,17 +215,16 @@ class WordHeadline extends StatelessWidget {
     );
   }
 
-  /// Kelime türü etiketi (yalnızca Türkçe arayüzde).
+  /// Kelime türü etiketi; arayüz dilinde kısa ad (lib/utils/word_type_label.dart).
   Widget? _buildTypeChip() {
-    if (!LanguageService().isTurkish) return null;
-
-    String? typeText;
+    String? rawType;
     if (word.dilbilgiselOzellikler?.containsKey('tur') == true) {
-      typeText = word.dilbilgiselOzellikler!['tur']?.toString();
+      rawType = word.dilbilgiselOzellikler!['tur']?.toString();
     } else if (word.tip?.isNotEmpty == true) {
-      typeText = word.tip;
+      rawType = word.tip;
     }
-    if (typeText == null || typeText.trim().isEmpty) return null;
+    final typeText = rawType == null ? null : wordTypeLabel(rawType);
+    if (typeText == null) return null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -230,7 +237,7 @@ class WordHeadline extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: LanguageService().isRtl ? 12 : 10,
           fontWeight: FontWeight.w600,
           color: isDarkMode ? const Color(0xFF4DA3FF) : _blue,
           letterSpacing: 0.2,
@@ -383,15 +390,13 @@ class PluralBox extends StatelessWidget {
         word.dilbilgiselOzellikler?['cogulForm']?.toString().trim() ?? '';
     if (plural.isEmpty) return const SizedBox.shrink();
 
-    final label = LanguageService().isEnglish
-        ? 'Plural'
-        : (LanguageService().isArabic ? 'جمع' : 'Çoğul');
+    final label = l10n.cogul;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(10, 6, 10, 8),
+        padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 10, 8),
         decoration: _sectionDecoration(isDarkMode),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -429,24 +434,22 @@ class ConjugationRow extends StatelessWidget {
     if (cekimler == null || cekimler.isEmpty) return const SizedBox.shrink();
 
     final lang = LanguageService();
-    String label(String en, String ar, String tr) =>
-        lang.isEnglish ? en : (lang.isArabic ? ar : tr);
     final forms = <(String, String)>[
-      for (final (key, en, ar, tr) in const [
-        ('maziForm', 'Past', 'ماضي', 'Mazi'),
-        ('muzariForm', 'Present', 'مضارع', 'Müzari'),
-        ('mastarForm', 'Infinitive', 'مصدر', 'Mastar'),
-        ('emirForm', 'Imperative', 'أمر', 'Emir'),
+      for (final (key, label) in [
+        ('maziForm', l10n.verbFormPast),
+        ('muzariForm', l10n.verbFormPresent),
+        ('mastarForm', l10n.verbFormInfinitive),
+        ('emirForm', l10n.verbFormImperative),
       ])
         if (cekimler[key]?.toString().trim().isNotEmpty == true)
-          (label(en, ar, tr), cekimler[key].toString()),
+          (label, cekimler[key].toString()),
     ];
     if (forms.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Directionality(
-        textDirection: lang.isArabic ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: lang.isRtl ? TextDirection.rtl : TextDirection.ltr,
         child: Row(
           children: [
             for (var i = 0; i < forms.length; i++) ...[
@@ -462,7 +465,7 @@ class ConjugationRow extends StatelessWidget {
   Widget _buildForm(String title, String form) {
     return Container(
       height: 58,
-      padding: const EdgeInsets.fromLTRB(6, 5, 6, 4),
+      padding: const EdgeInsetsDirectional.fromSTEB(6, 5, 6, 4),
       decoration: _sectionDecoration(isDarkMode),
       child: Column(
         children: [
@@ -522,13 +525,13 @@ class ExampleSentences extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(top: 4),
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 12, 12),
       decoration: _sectionDecoration(isDarkMode),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SectionLabel(
-            LanguageService().isEnglish ? 'Example Sentences' : 'Örnek Cümleler',
+            l10n.ornekCumleler,
           ),
           const SizedBox(height: 6),
           for (var i = 0; i < examples.length; i++) ...[
@@ -588,7 +591,7 @@ class ExampleSentences extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Tooltip(
-            message: 'Cümleyi dinle',
+            message: l10n.cumleyiDinle,
             child: InkWell(
               key: const ValueKey('example-speak'),
               onTap: () => speak(arabic),
@@ -596,7 +599,7 @@ class ExampleSentences extends StatelessWidget {
               child: Container(
                 width: 32,
                 height: 32,
-                margin: const EdgeInsets.only(right: 8, top: 4),
+                margin: const EdgeInsetsDirectional.only(end: 8, top: 4),
                 decoration: BoxDecoration(
                   color: _blue.withValues(alpha: isDarkMode ? 0.2 : 0.1),
                   shape: BoxShape.circle,
@@ -634,11 +637,8 @@ class AiAssistPills extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = LanguageService();
-    final ask = lang.isEnglish
-        ? 'Ask assistant'
-        : (lang.isArabic ? 'اسأل المساعد' : 'AI Asistan\'a sor');
-    final more = lang.isEnglish ? 'More examples' : 'Daha fazla örnek';
+    final ask = l10n.aiAsistanASor2;
+    final more = l10n.dahaFazlaOrnek;
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -674,6 +674,229 @@ class AiAssistPills extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Arapça anlam dilinde kartın üst satırı: ilk (en yaygın) anlamın şerhi. Kart
+/// açılınca yerinde kalır, altına bu anlamın örneği gelir; diğer anlamlar
+/// ArabicDefinitionView'da ٢'den başlar.
+class ArabicQuickLine extends StatelessWidget {
+  const ArabicQuickLine({
+    super.key,
+    required this.word,
+    required this.entry,
+    required this.isDarkMode,
+    required this.expanded,
+  });
+
+  final WordModel word;
+  final Map<String, dynamic> entry;
+  final bool isDarkMode;
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+        valueListenable: ArabicDefinitions.instance.showTashkeel,
+        builder: (context, _, _) => _build(),
+      );
+
+  Widget _build() {
+    final senses = entry['senses'] as List? ?? const [];
+    if (senses.isEmpty) return const SizedBox.shrink();
+    final first = Map<String, dynamic>.from(senses.first as Map);
+    final example = expanded ? arabicExampleOf(word, first) : null;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      // Numara yok: kart açılınca ilk satır yerinden kaymaz
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              arabicDisplay(first['d'].toString()),
+              maxLines: expanded ? null : 2,
+              overflow: expanded ? null : TextOverflow.ellipsis,
+              // Açılınca renk değişmesin; satır yerinde ve aynı kalır
+              style: arabicDefinitionStyle(isDarkMode),
+            ),
+          ),
+          if (example != null) arabicExampleQuote(example, isDarkMode),
+        ],
+      ),
+    );
+  }
+}
+
+final _tashkeel = RegExp('[ً-ْٰ]');
+
+/// Tanım, örnek ve harf-i cerli anlam metni: hareke kapalıysa harekeleri atılır (veride tam harekeli durur).
+String arabicDisplay(String text) =>
+    ArabicDefinitions.instance.showTashkeel.value ? text : text.replaceAll(_tashkeel, '');
+
+/// Tanım yazısı: yazı tipi verilmez, Arap harfleri telefonun Arapça fontuyla çizilir.
+TextStyle arabicDefinitionStyle(bool isDarkMode) =>
+    TextStyle(fontSize: 18, height: 1.5, color: _primaryText(isDarkMode));
+
+/// Anlamın örnek cümlesi: kelimenin kendi örneklerinden biri (model sırasını seçer);
+/// hiçbiri uymuyorsa modelin yazdığı kısa örnek (`ext`).
+String? arabicExampleOf(WordModel word, Map<String, dynamic> sense) {
+  final examples = word.ornekCumleler ?? const <Map<String, dynamic>>[];
+  final i = sense['ex'];
+  if (i is! int || i < 0 || i >= examples.length) {
+    final written = sense['ext']?.toString().trim() ?? '';
+    return written.isEmpty ? null : written;
+  }
+  final e = examples[i];
+  final text = (e['arapcaCumle'] ?? e['arapcaCümle'] ?? e['arapca'] ?? '').toString();
+  return text.isEmpty ? null : text;
+}
+
+/// Örnek cümle: tanımdan ayrılsın diye açık zeminli, yuvarlak köşeli bir balonda,
+/// ScheherazadeNew ile (tanımlar telefonun düz Arapça fontuyla).
+Widget arabicExampleQuote(String text, bool isDarkMode) => Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 1),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF2C2C2E) : const Color(0xFFF2F5FA),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        arabicDisplay(text),
+        style: ArabicTextStyles.example.copyWith(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: isDarkMode ? const Color(0xFFAEAEB2) : const Color(0xFF5A6478),
+        ),
+      ),
+    );
+
+/// Arapça–Arapça madde, kart açılınca: diğer anlamlar (numarasız, her birinin altında
+/// kendi örneği), anlama bağlanmamış örnekler ve kelimeyle birlikte harf-i cerli
+/// anlamlar. İlk anlam ve örneği üst satırda (ArabicQuickLine).
+class ArabicDefinitionView extends StatelessWidget {
+  const ArabicDefinitionView({
+    super.key,
+    required this.word,
+    required this.entry,
+    required this.isDarkMode,
+  });
+
+  final WordModel word;
+  final Map<String, dynamic> entry;
+  final bool isDarkMode;
+
+  @override
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+        valueListenable: ArabicDefinitions.instance.showTashkeel,
+        builder: (context, _, _) => _build(),
+      );
+
+  Widget _build() {
+    final senses = [
+      for (final m in entry['senses'] as List? ?? const []) Map<String, dynamic>.from(m as Map),
+    ];
+    final preps = [
+      for (final m in entry['preps'] as List? ?? const []) Map<String, dynamic>.from(m as Map),
+    ];
+    final examples = word.ornekCumleler ?? const <Map<String, dynamic>>[];
+    // Anlamların altında gösterilen örnekler metinle eşlenir: tam sözlükte örnek numara (ex) yerine metin (ext) gelir
+    final shown = {for (final s in senses) arabicExampleOf(word, s)?.trim()};
+    final definition = arabicDefinitionStyle(isDarkMode);
+
+    final children = <Widget>[
+      for (var i = 1; i < senses.length; i++)
+        Padding(
+          // Numara yok; anlamlar, her birinin altındaki örnek balonuyla ayrılır
+          padding: const EdgeInsets.only(top: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: Text(arabicDisplay(senses[i]['d'].toString()), style: definition),
+              ),
+              if (arabicExampleOf(word, senses[i]) case final ex?) arabicExampleQuote(ex, isDarkMode),
+            ],
+          ),
+        ),
+      // Hiçbir anlama bağlanmamış örnekler
+      for (var i = 0; i < examples.length; i++)
+        if (arabicExampleOf(word, {'ex': i, 'ext': ''}) case final ex? when !shown.contains(ex.trim()))
+          Padding(padding: const EdgeInsets.only(top: 4), child: arabicExampleQuote(ex, isDarkMode)),
+      if (preps.isNotEmpty) ...[
+        // Bölüm başlığı ve ince çizgi: «مع حروف الجر ────»
+        Padding(
+          padding: const EdgeInsets.only(top: 12, bottom: 2),
+          child: Row(
+            children: [
+              Text(
+                l10n.prepositionsLabel,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: _secondaryText(isDarkMode)),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  height: 0.8,
+                  color: isDarkMode ? const Color(0xFF48484A) : const Color(0xFFE5E5EA),
+                ),
+              ),
+            ],
+          ),
+        ),
+        for (final p in preps) _prepRow(p, definition),
+      ],
+    ];
+    if (children.isEmpty) return const SizedBox.shrink();
+
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    );
+  }
+
+  /// Harf-i cerli anlam (anlamlardan bir boy küçük), kelimeyle birlikte: «قَامَ بِـ  تَوَلَّاهُ وَأَنْجَزَهُ».
+  Widget _prepRow(Map<String, dynamic> p, TextStyle definition) {
+    var head = p['h'].toString().trim();
+    var meaning = p['m'].toString().trim();
+    // Model bazen anlamı «رَجَعَ إِلَيْهِ: …» diye başlığıyla yazıyor
+    final colon = meaning.indexOf(':');
+    if (colon > 0 && colon < 30) {
+      head = meaning.substring(0, colon).trim();
+      meaning = meaning.substring(colon + 1).trim();
+    } else {
+      final bare = head.replaceAll(RegExp(r'[ً-ْـ+]'), '');
+      if (bare.length == 1) head = '${head.replaceAll(RegExp(r'[ـ+]'), '')}ـ';
+      head = '${word.harekeliKelime ?? word.kelime} $head';
+    }
+    // Solda mavi zeminli kalıp («لَاحَ لَهُ»), yanında anlamı; uzun anlam kalıbın yanında alt satıra geçer
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 150),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+              decoration: BoxDecoration(
+                color: _blue.withValues(alpha: isDarkMode ? 0.22 : 0.09),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(head, style: ArabicTextStyles.form.copyWith(fontSize: 19, color: _blue)),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 3),
+              child: Text(arabicDisplay(meaning), style: definition),
+            ),
+          ),
+        ],
       ),
     );
   }

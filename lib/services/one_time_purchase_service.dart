@@ -7,6 +7,7 @@ import 'credits_service.dart';
 import 'admob_service.dart';
 import 'purchase_manager.dart';
 import '../services/turkce_analytics_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class OneTimePurchaseService extends ChangeNotifier {
   static const String _removeAdsEntitlement = 'ads_free';
@@ -64,7 +65,7 @@ class OneTimePurchaseService extends ChangeNotifier {
       await PurchaseManager().initialize(fetchOfferings: false);
       _lastError = '';
       if (FirebaseAuth.instance.currentUser == null) {
-        _lastError = 'Giriş yapmalısınız.';
+        _lastError = l10n.girisYapmalisiniz;
         notifyListeners();
         return false;
       }
@@ -87,15 +88,15 @@ class OneTimePurchaseService extends ChangeNotifier {
           return true;
         }
       } else {
-        _lastError = 'Paket bulunamadı (Lifetime).';
+        _lastError = l10n.paketBulunamadiLifetime;
       }
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        _lastError = e.message ?? 'Hata oluştu';
+        _lastError = e.message ?? l10n.hataOlustu;
       }
     } catch (e) {
-      _lastError = 'Beklenmedik hata: $e';
+      _lastError = l10n.beklenmedikHataE(e);
     }
     notifyListeners();
     return false;

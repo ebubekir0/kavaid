@@ -37,6 +37,7 @@ import '../services/language_service.dart';
 import '../widgets/campaign_banner.dart';
 import '../widgets/ai_intro_banner.dart';
 import '../services/global_config_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 // Arka planda arama sonuçlarını sıralama fonksiyonu kaldırıldı
 // Artık DatabaseService.searchWords() zaten doğru sıralamayı yapıyor
@@ -213,6 +214,12 @@ class _HomeScreenState extends State<HomeScreen>
     _loadAiIntro();
 
     _searchController.addListener(_onSearchChanged);
+
+    // Kuran sözlüğü yalnız Türkçe arayüzde var; dil değişince açık kalmasın
+    if (!LanguageService().isTurkishUi && quranModeNotifier.value) {
+      quranModeNotifier.value = false;
+      dictionaryModeNotifier.value = DictionaryMode.sozluk;
+    }
 
     // Kuran modunu dinle
     _isQuranMode = quranModeNotifier.value;
@@ -694,7 +701,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               const SizedBox(height: 16),
               Text(
-                'Kullanım Sınırı Doldu',
+                l10n.kullanimSiniriDoldu,
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -703,8 +710,8 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ],
           ),
-          content: const Text(
-            'Kuran sözlüğünü sınırsız kullanmaya devam etmek için lütfen giriş yapın ve Premium\'a yükseltin.',
+          content: Text(
+            l10n.kuranSozlugunuSinirsizKullanmayaDevam,
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, height: 1.5),
           ),
@@ -725,8 +732,8 @@ class _HomeScreenState extends State<HomeScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Tamam',
+                child: Text(
+                  l10n.tamam,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -883,8 +890,8 @@ class _HomeScreenState extends State<HomeScreen>
         SnackBar(
           content: Text(
             isAdFreeNow
-                ? 'Tüm kitaplar açıldı ve reklamlar kaldırıldı.'
-                : 'Tüm kitaplar açıldı. Reklamları kalıcı kaldırmak için lütfen giriş yapın.',
+                ? l10n.tumKitaplarAcildiVeReklamlar
+                : l10n.tumKitaplarAcildiReklamlariKalici,
           ),
         ),
       );
@@ -901,7 +908,7 @@ class _HomeScreenState extends State<HomeScreen>
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Gizli kod uygulanamadı: $e')));
+      ).showSnackBar(SnackBar(content: Text(l10n.gizliKodUygulanamadiE(e))));
     }
   }
 
@@ -924,8 +931,8 @@ class _HomeScreenState extends State<HomeScreen>
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Sözlük güncelleniyor... Lütfen bekleyin.'),
+        SnackBar(
+          content: Text(l10n.sozlukGuncelleniyorLutfenBekleyin),
           duration: Duration(seconds: 3),
         ),
       );
@@ -943,7 +950,7 @@ class _HomeScreenState extends State<HomeScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Sözlük başarıyla güncellendi! ${info['wordCount']} kelime yüklendi.',
+              l10n.sozlukBasariylaGuncellendiP1Kelime(info['wordCount']),
             ),
             backgroundColor: Colors.green,
             duration: const Duration(seconds: 3),
@@ -951,8 +958,8 @@ class _HomeScreenState extends State<HomeScreen>
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sözlük güncellenirken hata oluştu!'),
+          SnackBar(
+            content: Text(l10n.sozlukGuncellenirkenHataOlustu),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 3),
           ),
@@ -970,7 +977,7 @@ class _HomeScreenState extends State<HomeScreen>
       });
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Database reload hatası: $e')));
+      ).showSnackBar(SnackBar(content: Text(l10n.databaseReloadHatasiE(e))));
     }
   }
 
@@ -1343,7 +1350,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           ? const Color(0xFF1C1C1E)
                                           : const Color(0xFF007AFF)),
                                 child: Container(
-                                  padding: const EdgeInsets.fromLTRB(
+                                  padding: const EdgeInsetsDirectional.fromSTEB(
                                     8,
                                     8,
                                     8,
@@ -1354,7 +1361,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     children: [
                                       Row(
                                         textDirection:
-                                            LanguageService().isArabic
+                                            LanguageService().isRtl
                                             ? TextDirection.rtl
                                             : TextDirection.ltr,
                                         children: [
@@ -1371,13 +1378,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   ).showSnackBar(
                                                     SnackBar(
                                                       content: Text(
-                                                        LanguageService()
-                                                                .isEnglish
-                                                            ? 'Please log in or sign up first'
-                                                            : (LanguageService()
-                                                                      .isArabic
-                                                                  ? 'يرجى تسجيل الدخول أو الاشتراك أولاً'
-                                                                  : 'Lütfen önce kayıt olun, giriş yapın.'),
+                                                        l10n.lutfenOnceKayitOlunGiris,
                                                         style: const TextStyle(
                                                           color: Colors.white,
                                                         ),
@@ -1451,9 +1452,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                   // Büyüteç (Arama) İkonu - En solda
                                                   Padding(
                                                     padding:
-                                                        const EdgeInsets.only(
-                                                          left: 4,
-                                                          right: 0,
+                                                        const EdgeInsetsDirectional.only(
+                                                          start: 4,
+                                                          end: 0,
                                                         ),
                                                     child: GestureDetector(
                                                       onLongPress: () {
@@ -1491,9 +1492,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                       .isArabic) ...[
                                                     Padding(
                                                       padding:
-                                                          const EdgeInsets.only(
-                                                            left: 4,
-                                                            right: 0,
+                                                          const EdgeInsetsDirectional.only(
+                                                            start: 4,
+                                                            end: 0,
                                                           ),
                                                       child: Material(
                                                         color:
@@ -1612,7 +1613,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                   .center,
                                                           textDirection:
                                                               (LanguageService()
-                                                                      .isArabic ||
+                                                                      .isRtl ||
                                                                   _containsArabic(
                                                                     _searchController
                                                                         .text,
@@ -1623,7 +1624,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                     .ltr,
                                                           textAlign:
                                                               (LanguageService()
-                                                                      .isArabic ||
+                                                                      .isRtl ||
                                                                   _containsArabic(
                                                                     _searchController
                                                                         .text,
@@ -1681,13 +1682,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                           ),
                                                           decoration: InputDecoration(
                                                             hintText:
-                                                                LanguageService()
-                                                                    .isEnglish
-                                                                ? 'Search Word'
-                                                                : (LanguageService()
-                                                                          .isArabic
-                                                                      ? 'ابحث عن كلمة'
-                                                                      : 'Kelime ara'),
+                                                                l10n.kelimeAra,
                                                             hintStyle: TextStyle(
                                                               color:
                                                                   widget
@@ -1740,8 +1735,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   // Mikrofon Butonu (Sesli Arama) - Klavye ikonunun solunda
                                                   Padding(
                                                     padding:
-                                                        const EdgeInsets.only(
-                                                          right: 0,
+                                                        const EdgeInsetsDirectional.only(
+                                                          end: 0,
                                                         ),
                                                     child: Material(
                                                       color: Colors.transparent,
@@ -1821,8 +1816,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                       .isArabic)
                                                     Padding(
                                                       padding:
-                                                          const EdgeInsets.only(
-                                                            right: 4,
+                                                          const EdgeInsetsDirectional.only(
+                                                            end: 4,
                                                           ),
                                                       child: Material(
                                                         color:
@@ -1911,8 +1906,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                       .isNotEmpty)
                                                     Padding(
                                                       padding:
-                                                          const EdgeInsets.only(
-                                                            right: 6,
+                                                          const EdgeInsetsDirectional.only(
+                                                            end: 6,
                                                           ),
                                                       child: Material(
                                                         color:
@@ -2011,8 +2006,12 @@ class _HomeScreenState extends State<HomeScreen>
                                           ),
                                           child: LayoutBuilder(
                                             builder: (context, constraints) {
+                                              // Kuran sözlüğü yalnız Türkçe arayüzde
+                                              final showQuran =
+                                                  LanguageService().isTurkishUi;
                                               final double tabWidth =
-                                                  constraints.maxWidth / 3;
+                                                  constraints.maxWidth /
+                                                  (showQuran ? 3 : 2);
                                               // Sıra: Emsile(0) Sözlük(1) Kuran(2)
                                               final int selectedIdx =
                                                   _isEmsileMode
@@ -2039,12 +2038,12 @@ class _HomeScreenState extends State<HomeScreen>
                                               return Stack(
                                                 children: [
                                                   // Kayan arka plan göstergesi
-                                                  AnimatedPositioned(
+                                                  AnimatedPositionedDirectional(
                                                     duration: const Duration(
                                                       milliseconds: 250,
                                                     ),
                                                     curve: Curves.easeOutCubic,
-                                                    left:
+                                                    start:
                                                         selectedIdx * tabWidth,
                                                     top: 0,
                                                     bottom: 0,
@@ -2121,8 +2120,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                                         0xFF8E8E93,
                                                                       ),
                                                               ),
-                                                              child: const Text(
-                                                                'Emsile',
+                                                              child: Text(
+                                                                l10n.emsile,
                                                               ),
                                                             ),
                                                           ),
@@ -2172,14 +2171,15 @@ class _HomeScreenState extends State<HomeScreen>
                                                                         0xFF8E8E93,
                                                                       ),
                                                               ),
-                                                              child: const Text(
-                                                                'Sözlük',
+                                                              child: Text(
+                                                                l10n.sozluk,
                                                               ),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                       // Kuran Sözlüğü tab
+                                                      if (showQuran)
                                                       Expanded(
                                                         child: GestureDetector(
                                                           behavior:
@@ -2223,8 +2223,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                                         0xFF8E8E93,
                                                                       ),
                                                               ),
-                                                              child: const Text(
-                                                                'Kuran Sözlüğü',
+                                                              child: Text(
+                                                                l10n.kuranSozlugu,
                                                               ),
                                                             ),
                                                           ),
@@ -2259,10 +2259,10 @@ class _HomeScreenState extends State<HomeScreen>
 
             // Arapça klavye
             if (_showArabicKeyboard)
-              Positioned(
+              PositionedDirectional(
                 bottom: 0, // Ekranın en altından başla
-                left: 0,
-                right: 0,
+                start: 0,
+                end: 0,
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     // Arapça klavye açıkken banner yukarıda olduğu için
@@ -2331,7 +2331,7 @@ class _HomeScreenState extends State<HomeScreen>
         key: const Key('review-card'),
         onTap: _openReviewPrompt,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 14, 14, 14),
+          padding: const EdgeInsetsDirectional.fromSTEB(22, 14, 14, 14),
           child: Row(
             children: [
               Container(
@@ -2348,7 +2348,7 @@ class _HomeScreenState extends State<HomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Kavaid’i değerlendir',
+                      l10n.kavaidIDegerlendir,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
@@ -2358,7 +2358,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     Text(
-                      'Görüşün bizim için çok değerli.',
+                      l10n.gorusunBizimIcinCokDegerli,
                       style: TextStyle(
                         fontSize: 12,
                         color: isDarkMode
@@ -2443,22 +2443,10 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 16),
                   Text(
                     _isQuranDictionaryLoading
-                        ? (LanguageService().isEnglish
-                              ? 'Loading Quran dictionary...'
-                              : (LanguageService().isArabic
-                                    ? 'جاري تحميل قاموس القرآن...'
-                                    : 'Kuran sözlüğü yükleniyor...'))
+                        ? (l10n.kuranSozluguYukleniyor)
                         : _isQuranMode
-                        ? (LanguageService().isEnglish
-                              ? 'Searching Quran dictionary...'
-                              : (LanguageService().isArabic
-                                    ? 'جارٍ البحث في قاموس القرآن...'
-                                    : 'Kuran sözlüğünde aranıyor...'))
-                        : (LanguageService().isEnglish
-                              ? 'Searching...'
-                              : (LanguageService().isArabic
-                                    ? 'جارٍ البحث...'
-                                    : 'Aranıyor...')),
+                        ? (l10n.kuranSozlugundeAraniyor)
+                        : (l10n.araniyor),
                     style: TextStyle(
                       fontSize: 16,
                       color: _isQuranMode
@@ -2481,7 +2469,7 @@ class _HomeScreenState extends State<HomeScreen>
         if (_quranSearchResults.isNotEmpty) {
           slivers.add(
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(8, 8, 8, widget.bottomPadding + 8),
+              padding: EdgeInsetsDirectional.fromSTEB(8, 8, 8, widget.bottomPadding + 8),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -2513,7 +2501,7 @@ class _HomeScreenState extends State<HomeScreen>
           slivers.add(
             SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(
+                padding: EdgeInsetsDirectional.fromSTEB(
                   8,
                   60,
                   8,
@@ -2529,7 +2517,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Kuran sözlüğünde bulunamadı',
+                        l10n.kuranSozlugundeBulunamadi,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -2538,7 +2526,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Farklı bir kelime veya kök ile aramayı deneyin',
+                        l10n.farkliBirKelimeVeyaKok,
                         style: TextStyle(
                           fontSize: 13,
                           color: const Color(0xFFB8D4A0).withValues(alpha: 0.5),
@@ -2575,7 +2563,7 @@ class _HomeScreenState extends State<HomeScreen>
         }
         slivers.add(
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(8, 8, 8, widget.bottomPadding + 8),
+            padding: EdgeInsetsDirectional.fromSTEB(8, 8, 8, widget.bottomPadding + 8),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
@@ -2589,19 +2577,19 @@ class _HomeScreenState extends State<HomeScreen>
                         : const Color(0xFFE5E5EA);
                     return Padding(
                       key: _groupedKeys[index],
-                      padding: const EdgeInsets.fromLTRB(4, 10, 4, 6),
+                      padding: const EdgeInsetsDirectional.fromSTEB(4, 10, 4, 6),
 
                       child: Row(
                         children: [
                           Expanded(
                             child: Container(
-                              margin: const EdgeInsets.only(right: 8),
+                              margin: const EdgeInsetsDirectional.only(end: 8),
                               height: 1,
                               color: lineColor,
                             ),
                           ),
                           Text(
-                            item.title,
+                            item.title == SearchGroupHeader.root ? l10n.rootMatches : item.title,
                             style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
@@ -2610,7 +2598,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           Expanded(
                             child: Container(
-                              margin: const EdgeInsets.only(left: 8),
+                              margin: const EdgeInsetsDirectional.only(start: 8),
                               height: 1,
                               color: lineColor,
                             ),
@@ -2652,7 +2640,7 @@ class _HomeScreenState extends State<HomeScreen>
         slivers.add(
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(8, 60, 8, widget.bottomPadding + 8),
+              padding: EdgeInsetsDirectional.fromSTEB(8, 60, 8, widget.bottomPadding + 8),
               child: Center(
                 child: Column(
                   children: [
@@ -2665,9 +2653,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      LanguageService().isArabic
-                          ? 'كلمة غير موجودة'
-                          : 'Kelime bulunamadı',
+                      l10n.kelimeBulunamadi,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -2690,7 +2676,7 @@ class _HomeScreenState extends State<HomeScreen>
     if (_selectedWord != null) {
       slivers.add(
         SliverPadding(
-          padding: EdgeInsets.fromLTRB(8, 12, 8, widget.bottomPadding),
+          padding: EdgeInsetsDirectional.fromSTEB(8, 12, 8, widget.bottomPadding),
           sliver: SliverToBoxAdapter(
             child: RepaintBoundary(
               child: WordCard(
@@ -2711,7 +2697,7 @@ class _HomeScreenState extends State<HomeScreen>
       slivers.add(
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 25, 20, 10),
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 25, 20, 10),
             child: Column(
               children: [
                 isLimitExceeded
@@ -2756,13 +2742,13 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                             const SizedBox(height: 24),
                             Text(
-                              'Premium\'a Yükselt',
+                              l10n.premiumAYukselt,
                               textAlign: TextAlign.center,
                               style: _introTitleStyle(),
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'Kuran sözlüğünü daha fazla kullanabilmek için Premium\'a yükseltin.',
+                              l10n.kuranSozlugunuDahaFazlaKullanabilmek,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 15,
@@ -2795,8 +2781,8 @@ class _HomeScreenState extends State<HomeScreen>
                         child: Stack(
                           children: [
                             if (kDebugMode)
-                              Positioned(
-                                right: 0,
+                              PositionedDirectional(
+                                end: 0,
                                 top: 0,
                                 child: Text(
                                   'DEBUG: ${_quranTimeLimit - _quranUsageSeconds}s',
@@ -2810,21 +2796,21 @@ class _HomeScreenState extends State<HomeScreen>
                             Column(
                               children: [
                                 Text(
-                                  'Kur\'an-ı Kerim Sözlüğü',
+                                  l10n.kurAnIKerimSozlugu,
                                   textAlign: TextAlign.center,
                                   style: _introTitleStyle(),
                                 ),
                                 const SizedBox(height: 6),
                                 Text(
-                                  'Kur\'an\'da geçen tüm kelimelerin kullanımlarını ve Kur\'ani anlamlarını ayetlerle birlikte öğrenin.',
+                                  l10n.kurAnDaGecenTum,
                                   textAlign: TextAlign.center,
                                   style: _introTextStyle(),
                                 ),
                                 const SizedBox(height: 28),
                                 _buildInfoRow(
                                   Icons.collections_bookmark_rounded,
-                                  '25.000+ Kelime',
-                                  'Kur\'an\'daki benzersiz tüm kelimeler.',
+                                  '21.000+ Kelime',
+                                  l10n.kurAnDakiBenzersizTum,
                                   widget.isDarkMode,
                                 ),
                                 const Padding(
@@ -2833,8 +2819,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                                 _buildInfoRow(
                                   Icons.psychology_alt_rounded,
-                                  'Kurani Anlamlar',
-                                  'Kelimelerin Kur\'an ayetlerinde kazandığı anlamları öğrenin.',
+                                  l10n.kuraniAnlamlar,
+                                  l10n.kelimelerinKurAnAyetlerindeKazandigi,
                                   widget.isDarkMode,
                                 ),
                                 const Padding(
@@ -2843,8 +2829,8 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                                 _buildInfoRow(
                                   Icons.auto_awesome_motion_rounded,
-                                  'Kur\'an Ayetleri',
-                                  'On binlerce Kur\'an ayeti ile kelimelerin Kur\'andaki kullanımlarını görün.',
+                                  l10n.kurAnAyetleri,
+                                  l10n.onBinlerceKurAnAyeti,
                                   widget.isDarkMode,
                                 ),
                               ], // Closes inner Column children
@@ -2872,11 +2858,11 @@ class _HomeScreenState extends State<HomeScreen>
       slivers.add(
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 25, 20, 10),
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 25, 20, 10),
             child: Column(
               children: [
                 // 🎁 KAMPANYA BANNER'I - Hesap bazlı: kampanya aktif + promo kullanmamış hesaplar
-                if (LanguageService().isTurkish)
+                if (LanguageService().isTurkishUi)
                   ListenableBuilder(
                     listenable: GlobalConfigService(),
                     builder: (context, _) {
@@ -2910,51 +2896,17 @@ class _HomeScreenState extends State<HomeScreen>
                   child: Column(
                     children: [
                       // Emsile kartıyla aynı sade yazı: başlık ve tek cümle.
-                      if (LanguageService().isTurkish) ...[
-                        Text(
-                          'Kavaid Arapça Sözlük',
-                          textAlign: TextAlign.center,
-                          style: _introTitleStyle(),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Yeni nesil yapay zeka destekli ilk Arapça sözlük',
-                          textAlign: TextAlign.center,
-                          style: _introTextStyle(),
-                        ),
-                      ],
-                      if (LanguageService().isEnglish)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'The first AI-powered Arabic dictionary',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
-                              color: widget.isDarkMode
-                                  ? const Color(0xFFBBBBBB)
-                                  : const Color(0xFF444446),
-                            ),
-                          ),
-                        ),
-                      if (LanguageService().isArabic)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Text(
-                            'أول قاموس عربي مدعوم بالذكاء الاصطناعي',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              height: 1.4,
-                              color: widget.isDarkMode
-                                  ? const Color(0xFFBBBBBB)
-                                  : const Color(0xFF444446),
-                            ),
-                          ),
-                        ),
+                      Text(
+                        l10n.kavaidArapcaSozluk2,
+                        textAlign: TextAlign.center,
+                        style: _introTitleStyle(),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        l10n.yeniNesilYapayZekaDestekli,
+                        textAlign: TextAlign.center,
+                        style: _introTextStyle(),
+                      ),
                     ],
                   ),
                 ),
@@ -2963,12 +2915,10 @@ class _HomeScreenState extends State<HomeScreen>
                   const SizedBox(height: 14),
                   _buildReviewPromptCard(),
                 ],
-                if (LanguageService().isTurkish &&
-                    !(_creditsService.isPremium ||
+                if (!(_creditsService.isPremium ||
                         _creditsService.isLifetimeAdsFree))
                   const SizedBox(height: 20),
-                if (LanguageService().isTurkish &&
-                    !(_creditsService.isPremium ||
+                if (!(_creditsService.isPremium ||
                         _creditsService.isLifetimeAdsFree))
                   _buildPremiumBanner(
                     colors: const [Color(0xFF0D47A1), Color(0xFF1976D2)],
@@ -2992,8 +2942,8 @@ class _HomeScreenState extends State<HomeScreen>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: colors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
           ),
           borderRadius: BorderRadius.circular(20),
         ),
@@ -3008,7 +2958,7 @@ class _HomeScreenState extends State<HomeScreen>
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 14, 14),
                 child: Row(
                   children: [
                     Container(
@@ -3025,12 +2975,12 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Premium'a Geç",
+                            l10n.premiumAGec,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
@@ -3039,7 +2989,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           SizedBox(height: 2),
                           Text(
-                            'Sınırsız erişim',
+                            l10n.sinirsizErisim,
                             style: TextStyle(
                               color: Color(0xCCFFFFFF),
                               fontSize: 12.5,

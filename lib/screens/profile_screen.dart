@@ -32,6 +32,10 @@ import 'package:kavaid/widgets/email_auth_sheet.dart';
 import 'dart:io';
 import 'dart:async';
 import '../services/language_service.dart';
+import '../widgets/language_tile.dart';
+import '../widgets/dictionary_language_tile.dart';
+import '../widgets/tashkeel_tile.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 part 'profile_debug_tools.dart';
 
@@ -316,8 +320,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.pop(context); // Loading kapat
         debugPrint('✅ [PROFILE] Profil resmi başarıyla güncellendi!');
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('✅ Profil resmi güncellendi!'),
+          SnackBar(
+            content: Text(l10n.profilResmiGuncellendi),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 2),
           ),
@@ -327,16 +331,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       debugPrint('❌ [PROFILE] HATA: $e');
       debugPrint('📍 [PROFILE] Stack trace: $stackTrace');
       
-      String errorMessage = 'Bir hata oluştu';
+      String errorMessage = l10n.birHataOlustu;
       
       if (e.toString().contains('object-not-found')) {
-        errorMessage = 'Firebase Storage yapılandırılmamış. Lütfen Firebase Console\'dan Storage\'ı aktifleştirin.';
+        errorMessage = l10n.firebaseStorageYapilandirilmamisLutfenFirebase;
       } else if (e.toString().contains('permission-denied')) {
-        errorMessage = 'İzin hatası. Storage kurallarını kontrol edin.';
+        errorMessage = l10n.izinHatasiStorageKurallariniKontrol;
       } else if (e.toString().contains('unauthorized')) {
-        errorMessage = 'Yetkilendirme hatası. Lütfen giriş yapın.';
+        errorMessage = l10n.yetkilendirmeHatasiLutfenGirisYapin;
       } else if (e.toString().contains('network')) {
-        errorMessage = 'İnternet bağlantısı hatası.';
+        errorMessage = l10n.internetBaglantisiHatasi;
       }
       
       if (mounted) {
@@ -352,20 +356,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 5),
             action: SnackBarAction(
-              label: 'Detay',
+              label: l10n.detay,
               textColor: Colors.white,
               onPressed: () {
                 showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Hata Detayı'),
+                    title: Text(l10n.hataDetayi),
                     content: SingleChildScrollView(
                       child: Text(e.toString()),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Tamam'),
+                        child: Text(l10n.tamam),
                       ),
                     ],
                   ),
@@ -405,9 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: const Color(0xFF007AFF),
             elevation: 0,
             title: Text(
-              LanguageService().isEnglish 
-                  ? 'Profile' 
-                  : (LanguageService().isArabic ? 'الملف الشخصي' : 'Profil'),
+              l10n.profil,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -419,7 +421,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               if (widget.onThemeToggle != null)
                 // Tema değiştirme toggle butonu (yalnızca callback varsa)
                 Container(
-                  margin: const EdgeInsets.only(right: 16),
+                  margin: const EdgeInsetsDirectional.only(end: 16),
                   child: Container(
                     width: 50,
                     height: 30,
@@ -477,7 +479,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
           body: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, widget.bottomPadding),
+            padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, widget.bottomPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -513,7 +515,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             }
                             
                             // Username yoksa displayName veya email kullan
-                            final displayText = username ?? _authService.displayName ?? _authService.userEmail?.split('@')[0] ?? 'Kullanıcı';
+                            final displayText = username ?? _authService.displayName ?? _authService.userEmail?.split('@')[0] ?? l10n.kullanici;
                             
                             // Firestore'dan photoUrl al, yoksa Auth'dan al
                             String? photoUrl;
@@ -540,8 +542,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         photoUrl: photoUrl,
                                         radius: 30,
                                       ),
-                                      Positioned(
-                                        right: 0,
+                                      PositionedDirectional(
+                                        end: 0,
                                         bottom: 0,
                                         child: Container(
                                           padding: const EdgeInsets.all(4),
@@ -614,8 +616,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                               child: Text(
                                                 _userRole == 'founder' 
-                                                    ? (LanguageService().isArabic ? 'المؤسس' : 'KURUCU') 
-                                                    : (LanguageService().isArabic ? 'المشرف' : 'MODERATÖR'),
+                                                    ? (l10n.kurucu) 
+                                                    : (l10n.moderator),
                                                 style: TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.w600,
@@ -645,7 +647,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                 ),
                                               ),
                                               child: Text(
-                                                LanguageService().isArabic ? 'المشرف' : 'MODERATÖR',
+                                                l10n.moderator,
                                                 style: TextStyle(
                                                   fontSize: 9,
                                                   fontWeight: FontWeight.bold,
@@ -661,7 +663,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        _authService.userEmail ?? 'Email yok',
+                                        _authService.userEmail ?? l10n.emailYok,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
@@ -677,16 +679,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final confirm = await showDialog<bool>(
                                       context: context,
                                       builder: (dCtx) => AlertDialog(
-                                        title: Text(LanguageService().isEnglish ? 'Log out?' : (LanguageService().isArabic ? 'تسجيل الخروج؟' : 'Çıkış yapılsın mı?')),
-                                        content: Text(LanguageService().isEnglish ? 'Your session will be closed.' : (LanguageService().isArabic ? 'سيتم إغلاق جلستك.' : 'Oturumunuz kapatılacak.')),
+                                        title: Text(l10n.cikisYapilsinMi),
+                                        content: Text(l10n.oturumunuzKapatilacak),
                                         actions: [
                                           TextButton(
                                             onPressed: () => Navigator.of(dCtx).pop(false),
-                                            child: Text(LanguageService().isEnglish ? 'Cancel' : (LanguageService().isArabic ? 'إلغاء' : 'İptal')),
+                                            child: Text(l10n.iptal),
                                           ),
                                           TextButton(
                                             onPressed: () => Navigator.of(dCtx).pop(true),
-                                            child: Text(LanguageService().isEnglish ? 'Log out' : (LanguageService().isArabic ? 'تسجيل الخروج' : 'Çıkış')),
+                                            child: Text(l10n.cikis),
                                           ),
                                         ],
                                       ),
@@ -697,7 +699,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     }
                                   },
                                   icon: const Icon(Icons.logout, size: 16),
-                                  label: Text(LanguageService().isEnglish ? 'Log out' : (LanguageService().isArabic ? 'تسجيل الخروج' : 'Çıkış')),
+                                  label: Text(l10n.cikis),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                     minimumSize: const Size(0, 32),
@@ -727,9 +729,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         Icon(Icons.payment, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
                                         const SizedBox(width: 8),
                                         Text(
-                                          LanguageService().isEnglish 
-                                              ? "Manage Subscription" 
-                                              : (LanguageService().isArabic ? "إدارة الاشتراك" : "Aboneliği Yönet"),
+                                          l10n.aboneligiYonet,
                                           style: TextStyle(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -743,7 +743,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     InkWell(
                                       onTap: () async {
                                         ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Satın almalar kontrol ediliyor...'), duration: Duration(seconds: 2)),
+                                          SnackBar(content: Text(l10n.satinAlmalarKontrolEdiliyor), duration: Duration(seconds: 2)),
                                         );
                                         await Provider.of<PurchaseManager>(context, listen: false).restorePurchases();
                                       },
@@ -752,7 +752,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           Icon(Icons.restore, color: isDarkMode ? Colors.grey[400] : Colors.grey[600], size: 18),
                                           const SizedBox(width: 4),
                                           Text(
-                                            LanguageService().isEnglish ? "Restore" : (LanguageService().isArabic ? "استعادة" : "Geri Yükle"),
+                                            l10n.geriYukle,
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w500,
@@ -773,9 +773,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                LanguageService().isEnglish 
-                                    ? 'Log in or sign up' 
-                                    : (LanguageService().isArabic ? 'تسجيل الدخول / الاشتراك' : 'Giriş yapın veya kayıt olun'),
+                                l10n.girisYapinVeyaKayitOlun,
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -804,7 +802,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _listenToRoleChanges();
                               }
                             }),
-                            child: Text(LanguageService().isArabic ? 'تسجيل الدخول' : (LanguageService().isEnglish ? 'Log In' : 'Giriş Yap')),
+                            child: Text(l10n.girisYap),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -826,7 +824,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _listenToRoleChanges();
                               }
                             }),
-                            child: Text(LanguageService().isArabic ? 'الاشتراك' : (LanguageService().isEnglish ? 'Sign Up' : 'Kayıt Ol')),
+                            child: Text(l10n.kayitOl),
                           ),
                         ),
                       ],
@@ -847,8 +845,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
+                            begin: AlignmentDirectional.topStart,
+                            end: AlignmentDirectional.bottomEnd,
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
@@ -874,16 +872,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Premium Üyesiniz",
+                                  Text(
+                                    l10n.premiumUyesiniz,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
                                     ),
                                   ),
-                                  const Text(
-                                    "Sınırsız içerik, reklamsız kullanım.",
+                                  Text(
+                                    l10n.sinirsizIcerikReklamsizKullanim,
                                     style: TextStyle(color: Colors.white70, fontSize: 13),
                                   ),
                                 ],
@@ -908,8 +906,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
                                   colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                                  begin: AlignmentDirectional.topStart,
+                                  end: AlignmentDirectional.bottomEnd,
                                 ),
                                 borderRadius: BorderRadius.circular(12),
                                 boxShadow: [
@@ -934,9 +932,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: const [
+                                      children: [
                                         Text(
-                                          "Premium'a Geç",
+                                          l10n.premiumAGec,
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -944,7 +942,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                         ),
                                         Text(
-                                          "Tüm özelliklere erişin.",
+                                          l10n.tumOzelliklereErisin,
                                           style: TextStyle(color: Colors.white70, fontSize: 13),
                                         ),
                                       ],
@@ -962,8 +960,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
                                 colors: [Color(0xFF007AFF), Color(0xFF0051D5)], // Premium ile aynı mavi tonları
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                                begin: AlignmentDirectional.topStart,
+                                end: AlignmentDirectional.bottomEnd,
                               ),
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
@@ -986,8 +984,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 const SizedBox(width: 12),
                                 Expanded(
-                                  child: const Text(
-                                    "Reklamsız Kullanım",
+                                  child: Text(
+                                    l10n.reklamsizKullanim,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -1015,8 +1013,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
                               colors: [Color(0xFF007AFF), Color(0xFF0051D5)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                              begin: AlignmentDirectional.topStart,
+                              end: AlignmentDirectional.bottomEnd,
                             ),
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
@@ -1041,9 +1039,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: const [
+                                  children: [
                                     Text(
-                                      "Premium'a Geç",
+                                      l10n.premiumAGec,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -1051,7 +1049,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       ),
                                     ),
                                     Text(
-                                      "Sınırsız içerik, reklamsız kullanım.",
+                                      l10n.sinirsizIcerikReklamsizKullanim,
                                       style: TextStyle(color: Colors.white70, fontSize: 13),
                                     ),
                                   ],
@@ -1069,10 +1067,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const SizedBox(height: 12),
                 
                 
+
                 // TEST: Debug butonları (sadece debug modda)
                 if (!kReleaseMode) ..._buildDebugButtons(context),
                 
                 // İstek: Sade UI için bulut senkron butonlarını göstermiyoruz
+
+                // Uygulama (arayüz) dili seçimi
+                LanguageTile(isDarkMode: isDarkMode),
+                const SizedBox(height: 12),
+
+                // Sözlük (anlam) dili
+                DictionaryLanguageTile(isDarkMode: isDarkMode),
+
+                // Arapça–Arapça maddelerde hareke (yalnız Arapça anlam dilinde görünür)
+                TashkeelTile(isDarkMode: isDarkMode),
 
                 // Paylaşım butonu - UI ile uyumlu
                 GestureDetector(
@@ -1118,7 +1127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            LanguageService().isEnglish ? 'Share App' : 'Uygulamayı Paylaş',
+                            l10n.uygulamayiPaylas,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1171,7 +1180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              LanguageService().isEnglish ? 'Contact' : 'İletişim',
+                              l10n.iletisim,
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
@@ -1185,7 +1194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   scheme: 'mailto',
                                   path: 'ebubekirkul6153@gmail.com',
                                   queryParameters: {
-                                    'subject': 'Kavaid Uygulaması Hakkında',
+                                    'subject': l10n.kavaidUygulamasiHakkinda,
                                   },
                                 );
                                 if (await canLaunchUrl(emailUri)) {
@@ -1265,7 +1274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            LanguageService().isEnglish ? 'Contact' : 'İletişim',
+                            l10n.iletisim,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -1330,7 +1339,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              LanguageService().isEnglish ? 'Delete Account' : 'Hesabımı Sil',
+                              l10n.hesabimiSil,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -1363,21 +1372,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: isDarkMode ? const Color(0xFF2C2C2E) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: Colors.red),
             SizedBox(width: 8),
-            Text('Hesabımı Sil', style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(l10n.hesabimiSil, style: TextStyle(color: Colors.red, fontSize: 18, fontWeight: FontWeight.bold)),
           ],
         ),
-        content: const Text(
-          'Hesabınızı ve hesabınıza bağlı tüm verileri kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+        content: Text(
+          l10n.hesabiniziVeHesabinizaBagliTum,
           style: TextStyle(fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.vazgec),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -1386,8 +1395,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 await _authService.deleteAccount();
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Hesabınız başarıyla silindi.'),
+                    SnackBar(
+                      content: Text(l10n.hesabinizBasariylaSilindi),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -1397,7 +1406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Hesap silinemedi: $e. Güvenlik gereği yeniden giriş yapmanız gerekebilir.'),
+                      content: Text(l10n.hesapSilinemediEGuvenlikGeregi(e)),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -1428,7 +1437,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       
       await Share.share(
         playStoreUrl,
-        subject: 'Kavaid - Arapça Sözlük Uygulaması',
+        subject: l10n.kavaidArapcaSozlukUygulamasi,
       );
       
       debugPrint('✅ Uygulama başarıyla paylaşıldı');
@@ -1446,8 +1455,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       AdMobService().clearInAppActionFlag();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Paylaşım sırasında bir hata oluştu'),
+          SnackBar(
+            content: Text(l10n.paylasimSirasindaBirHataOlustu),
             backgroundColor: Colors.red,
           ),
         );
@@ -1474,12 +1483,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('İnternet Gerekli'),
-        content: Text(message ?? 'Bu işlem için internet bağlantısı gereklidir.'),
+        title: Text(l10n.internetGerekli),
+        content: Text(message ?? l10n.buIslemIcinInternetBaglantisi),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tamam'),
+            child: Text(l10n.tamam),
           ),
         ],
       ),
@@ -1516,13 +1525,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
-              title: const Text('Kullanıcı Adı Değiştir'),
+              title: Text(l10n.kullaniciAdiDegistir),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Mevcut: $currentUsername',
+                    l10n.mevcutCurrentusername(currentUsername),
                     style: TextStyle(
                       color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                       fontSize: 14,
@@ -1547,8 +1556,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     },
                     decoration: InputDecoration(
-                      labelText: 'Yeni Kullanıcı Adı',
-                      hintText: 'kullaniciadi123 (küçük harf, boşluksuz)',
+                      labelText: l10n.yeniKullaniciAdi,
+                      hintText: l10n.kullaniciadi123KucukHarfBosluksuz,
                       prefixIcon: const Icon(Icons.person),
                       errorText: errorText,
                       border: OutlineInputBorder(
@@ -1562,7 +1571,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '• En az 3 karakter\n• Sadece küçük harf, rakam ve Türkçe karakterler',
+                    l10n.enAz3KarakterSadece,
                     style: TextStyle(
                       fontSize: 11,
                       color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
@@ -1574,7 +1583,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 TextButton(
                   onPressed: isLoading ? null : () => Navigator.of(dialogContext).pop(),
                   child: Text(
-                    'İptal',
+                    l10n.iptal,
                     style: TextStyle(color: isDarkMode ? Colors.grey : Colors.grey[600]),
                   ),
                 ),
@@ -1584,14 +1593,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     
                     if (newUsername.isEmpty || newUsername.length < 3) {
                       setDialogState(() {
-                        errorText = 'Kullanıcı adı en az 3 karakter olmalı';
+                        errorText = l10n.kullaniciAdiEnAz3;
                       });
                       return;
                     }
                     
                     if (!RegExp(r'^[a-z0-9çğıöşü]+$').hasMatch(newUsername)) {
                       setDialogState(() {
-                        errorText = 'Sadece küçük harf, rakam ve Türkçe karakterler';
+                        errorText = l10n.sadeceKucukHarfRakamVe;
                       });
                       return;
                     }
@@ -1609,7 +1618,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Navigator.of(dialogContext).pop();
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Kullanıcı adınız "$newUsername" olarak güncellendi!'),
+                            content: Text(l10n.kullaniciAdinizNewusernameOlarakGuncellendi(newUsername)),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -1617,7 +1626,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     } else {
                       setDialogState(() {
-                        errorText = 'Bu kullanıcı adı kullanılamıyor veya zaten alınmış';
+                        errorText = l10n.buKullaniciAdiKullanilamiyorVeya;
                         isLoading = false;
                       });
                     }
@@ -1638,7 +1647,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.white,
                           ),
                         )
-                      : const Text('Değiştir'),
+                      : Text(l10n.degistir),
                 ),
               ],
             );

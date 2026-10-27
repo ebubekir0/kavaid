@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Güncelleme sonrası ilk kullanımda, kelime kartındaki ikonların en solundaki AI
 /// simgesini tanıtan tek seferlik, kapatılabilir bilgi kartı.
@@ -22,9 +23,9 @@ class AiIntroBanner extends StatelessWidget {
         : const Color(0xFF6D6D70);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 0),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 8, 12),
         decoration: BoxDecoration(
           color: _blue.withValues(alpha: isDarkMode ? 0.14 : 0.07),
           borderRadius: BorderRadius.circular(10),
@@ -55,7 +56,7 @@ class AiIntroBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Yeni: AI Asistan',
+                    l10n.yeniAiAsistan,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -64,8 +65,7 @@ class AiIntroBanner extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    'Kelime kartındaki ikonların en solundaki bu simgeye dokun: '
-                    'anlamını, benzerlerinden farkını ve örnek cümleleri sor.',
+                    l10n.kelimeKartindakiIkonlarinEnSolundaki,
                     style: TextStyle(
                       fontSize: 12.5,
                       height: 1.35,
@@ -81,8 +81,8 @@ class AiIntroBanner extends StatelessWidget {
                       minimumSize: const Size(0, 28),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    child: const Text(
-                      'Anladım',
+                    child: Text(
+                      l10n.anladim,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
@@ -96,7 +96,7 @@ class AiIntroBanner extends StatelessWidget {
               onPressed: onDismiss,
               icon: Icon(Icons.close_rounded, size: 18, color: secondary),
               visualDensity: VisualDensity.compact,
-              tooltip: 'Kapat',
+              tooltip: l10n.kapat,
             ),
           ],
         ),

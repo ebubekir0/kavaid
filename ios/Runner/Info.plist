@@ -4,6 +4,21 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>tr</string>
+		<string>en</string>
+		<string>ar</string>
+		<string>id</string>
+		<string>ms</string>
+		<string>ur</string>
+		<string>fr</string>
+		<string>bn</string>
+		<string>ru</string>
+		<string>uz</string>
+		<string>az</string>
+		<string>de</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Kavaid</string>
 	<key>CFBundleExecutable</key>

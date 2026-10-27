@@ -125,21 +125,28 @@ android {
                 )
             }
             
+            // Geçici test kopyası: -PtestAppIdSuffix=.entest -PtestAppLabel=... verilirse
+            // Play sürümünün yanına ayrı bir uygulama olarak kurulur (veriye dokunmaz).
+            (project.findProperty("testAppIdSuffix") as String?)?.let { applicationIdSuffix = it }
+
             // APK boyutunu küçültmek için
-            resValue("string", "app_name", "Kavaid")
+            resValue("string", "app_name", (project.findProperty("testAppLabel") as String?) ?: "Kavaid")
         }
         
         debug {
             // Debug için suffix kaldırıldı - google-services.json uyumu için
             versionNameSuffix = "-debug"
             isDebuggable = true
+
+            // Geçici test kopyası (release'teki gibi): -PtestAppIdSuffix / -PtestAppLabel
+            (project.findProperty("testAppIdSuffix") as String?)?.let { applicationIdSuffix = it }
             
             // 🚀 PERFORMANCE MOD: Debug'da da performans testleri için optimizasyonlar
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
             
-            resValue("string", "app_name", "Kavaid")
+            resValue("string", "app_name", (project.findProperty("testAppLabel") as String?) ?: "Kavaid")
         }
         
         // 🚀 PERFORMANCE MOD: Mevcut profile build type'ını optimize et

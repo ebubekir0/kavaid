@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/dialect_language.dart';
 import 'dialect_translation_service.dart';
 import 'dialect_tts_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
+import 'language_service.dart';
 
 const String _kSourceLangKey = 'dialect_source_lang';
 const String _kTargetLangKey = 'dialect_target_lang';
@@ -12,7 +14,7 @@ class TranslationNotifier extends ChangeNotifier {
   final DialectTranslationService _translationService = DialectTranslationService();
   final DialectTTSService _ttsService = DialectTTSService();
 
-  DialectLanguage _leftLang = DialectLanguage.supportedLanguages.firstWhere((l) => l.code == 'tr');
+  DialectLanguage _leftLang = _defaultSource();
   DialectLanguage _rightLang = DialectLanguage.supportedLanguages.firstWhere((l) => l.code == 'ar_syrian');
   bool _isLeftToRight = true;
 
@@ -43,13 +45,25 @@ class TranslationNotifier extends ChangeNotifier {
     _loadSavedLanguages();
   }
 
+  /// Kaynak dil kullanıcının arayüz dili; Arapça arayüzde Fusha.
+  static DialectLanguage _defaultSource() {
+    final ui = LanguageService().uiLocale.languageCode;
+    final code = ui == 'ar' ? 'ar_standard' : ui;
+    return DialectLanguage.supportedLanguages.firstWhere(
+      (l) => l.code == code,
+      orElse: () => DialectLanguage.supportedLanguages.firstWhere((l) => l.code == 'en'),
+    );
+  }
+
   Future<void> _loadSavedLanguages() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final leftCode = prefs.getString(_kSourceLangKey);
       final rightCode = prefs.getString(_kTargetLangKey);
       _isLeftToRight = prefs.getBool(_kDirectionKey) ?? _isLeftToRight;
-      if (leftCode != null) {
+      // Arayüz dili Türkçe değilken eski "Türkçe" kaynak seçimi taşınmaz
+      final uiIsTurkish = LanguageService().isTurkishUi;
+      if (leftCode != null && (uiIsTurkish || leftCode != 'tr')) {
         _leftLang = DialectLanguage.supportedLanguages.firstWhere(
           (l) => l.code == leftCode,
           orElse: () => _leftLang,
@@ -134,7 +148,7 @@ class TranslationNotifier extends ChangeNotifier {
       _transliteration = pronunciation;
       return translation.isNotEmpty;
     } catch (e) {
-      _outputText = e is TranslationException ? e.message : 'Hata oluştu.';
+      _outputText = e is TranslationException ? e.message : l10n.hataOlustu2;
       debugPrint('TranslationNotifier.translate: $e');
       return false;
     } finally {

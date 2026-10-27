@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'database_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class ConnectivityService {
   static final ConnectivityService _instance = ConnectivityService._internal();
@@ -104,7 +105,7 @@ class ConnectivityService {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'İnternet Bağlantısı Yok',
+                  l10n.internetBaglantisiYok,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -118,7 +119,7 @@ class ConnectivityService {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Uygulamayı kullanabilmek için internet bağlantısına ihtiyacınız var. Lütfen WiFi veya mobil veri bağlantınızı kontrol edin.',
+                  l10n.uygulamayiKullanabilmekIcinInternetBaglantisina,
                   style: TextStyle(
                     fontSize: 14,
                     color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
@@ -148,8 +149,8 @@ class ConnectivityService {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Tekrar Dene',
+                child: Text(
+                  l10n.tekrarDene,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,

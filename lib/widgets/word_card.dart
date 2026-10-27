@@ -8,6 +8,7 @@ import '../services/turkce_analytics_service.dart';
 import '../services/auth_service.dart';
 import '../services/language_service.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 // 🚀 PERFORMANCE: Font stilleri artık doğrudan ve sabit olarak tanımlanıyor.
 const TextStyle _arabicTextStyle = TextStyle(
@@ -100,9 +101,7 @@ class _WordCardState extends State<WordCard> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                LanguageService().isEnglish 
-                    ? 'Log in first to save words' 
-                    : (LanguageService().isArabic ? 'سجل الدخول أولاً لحفظ الكلمات' : 'Kelime kaydetmek için önce giriş yapın'),
+                l10n.kelimeKaydetmekIcinOnceGiris,
                 style: const TextStyle(color: Colors.white),
               ),
               backgroundColor: Colors.black87,

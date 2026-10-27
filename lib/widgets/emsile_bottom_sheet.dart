@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../models/word_model.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Emsile (Fiil Çekimleri) Bottom Sheet Widget
 /// Arapça fiillerin tüm şahıslara göre mazi, müzari ve emir çekimlerini gösterir.
@@ -125,28 +126,28 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
   }
 
   // Zamir'in Türkçe karşılığı
-  static const _zamirTurkce = {
-    'هُوَ': 'O (eril)',
-    'هِيَ': 'O (dişil)',
-    'هُمَا': 'İkisi',
-    'هُمَا_م': 'İkisi (eril)',
-    'هُمَا_ف': 'İkisi (dişil)',
-    'هُمْ': 'Onlar (eril)',
-    'هُنَّ': 'Onlar (dişil)',
-    'أَنْتَ': 'Sen (eril)',
-    'أَنْتِ': 'Sen (dişil)',
-    'أَنْتُمَا': 'İkiniz',
-    'أَنْتُمْ': 'Siz (eril)',
-    'أَنْتُنَّ': 'Siz (dişil)',
-    'أَنَا': 'Ben',
-    'نَحْنُ': 'Biz',
+  static Map<String, String> get _zamirTurkce => {
+    'هُوَ': l10n.zamirOEril,
+    'هِيَ': l10n.oDisil,
+    'هُمَا': l10n.ikisi,
+    'هُمَا_م': l10n.ikisiEril,
+    'هُمَا_ف': l10n.ikisiDisil,
+    'هُمْ': l10n.zamirOnlarEril,
+    'هُنَّ': l10n.onlarDisil,
+    'أَنْتَ': l10n.zamirSenEril,
+    'أَنْتِ': l10n.senDisil,
+    'أَنْتُمَا': l10n.ikiniz,
+    'أَنْتُمْ': l10n.zamirSizEril,
+    'أَنْتُنَّ': l10n.sizDisil,
+    'أَنَا': l10n.zamirBen,
+    'نَحْنُ': l10n.zamirBiz,
   };
 
   // Şahıs grupları
-  static const _groupLabels = {
-    0: 'غَائِب (3. Şahıs)',
-    7: 'مُخَاطَب (2. Şahıs)',
-    12: 'مُتَكَلِّم (1. Şahıs)',
+  static Map<int, String> get _groupLabels => {
+    0: l10n.m3Sahis,
+    7: l10n.m2Sahis,
+    12: l10n.m1Sahis,
   };
 
   @override
@@ -201,7 +202,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
               controller: _tabController,
               children: [
                 _buildConjugationTable(data['mazi'] ?? [], isDark, _maziColor, 'Mazi'),
-                _buildConjugationTable(data['muzari'] ?? [], isDark, _muzariColor, 'Müzari'),
+                _buildConjugationTable(data['muzari'] ?? [], isDark, _muzariColor, l10n.muzari),
                 _buildConjugationTable(data['emir'] ?? [], isDark, _emirColor, 'Emir'),
               ],
             ),
@@ -216,7 +217,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
 
   Widget _buildHeader(bool isDark, String harekeli, String mastarForm) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 16, 20, 8),
       child: Row(
         children: [
           // Sol: Başlık
@@ -248,7 +249,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Emsile Çekimleri',
+                      l10n.emsileCekimleri,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 16,
@@ -355,10 +356,10 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
           fontWeight: FontWeight.w500,
         ),
         padding: const EdgeInsets.all(3),
-        tabs: const [
-          Tab(text: 'Mazi (Geçmiş)'),
-          Tab(text: 'Müzari (Geniş)'),
-          Tab(text: 'Emir'),
+        tabs: [
+          Tab(text: l10n.maziGecmis),
+          Tab(text: l10n.muzariGenis),
+          Tab(text: l10n.emir),
         ],
       ),
     );
@@ -386,7 +387,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
               ),
               const SizedBox(height: 12),
               Text(
-                '$tabTitle çekimi bulunamadı',
+                l10n.tabtitleCekimiBulunamadi(tabTitle),
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 14,
@@ -402,7 +403,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
       itemCount: entries.length,
       itemBuilder: (context, index) {
         final entry = entries[index];
@@ -576,7 +577,7 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
     final ismiMeful = _emsileData?['ismiMeful']?.toString() ?? '';
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      padding: const EdgeInsetsDirectional.fromSTEB(20, 8, 20, 20),
       decoration: BoxDecoration(
         color: isDark
             ? const Color(0xFF2C2C2E).withValues(alpha: 0.5)
@@ -595,20 +596,20 @@ class _EmsileBottomSheetState extends State<EmsileBottomSheet>
         child: Row(
           children: [
             if (koku.isNotEmpty)
-              _buildFooterChip('Kök', koku, isDark, const Color(0xFF007AFF)),
+              _buildFooterChip(l10n.kok, koku, isDark, const Color(0xFF007AFF)),
             if (koku.isNotEmpty && (ismiFail.isNotEmpty || ismiMeful.isNotEmpty))
               const SizedBox(width: 8),
             if (ismiFail.isNotEmpty)
               _buildFooterChip(
-                  'İsm-i Fail', ismiFail, isDark, const Color(0xFF34C759)),
+                  l10n.ismIFail, ismiFail, isDark, const Color(0xFF34C759)),
             if (ismiFail.isNotEmpty && ismiMeful.isNotEmpty)
               const SizedBox(width: 8),
             if (ismiMeful.isNotEmpty)
               _buildFooterChip(
-                  'İsm-i Mef\'ul', ismiMeful, isDark, const Color(0xFFFF9500)),
+                  l10n.ismIMefUl, ismiMeful, isDark, const Color(0xFFFF9500)),
             if (koku.isEmpty && ismiFail.isEmpty && ismiMeful.isEmpty)
               Text(
-                'Fiil çekimleri • Kavaid Sözlük',
+                l10n.fiilCekimleriKavaidSozluk,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 11,

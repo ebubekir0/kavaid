@@ -184,18 +184,6 @@ Bu komut `assets/data/sozluk.json.gz` ve `lib/data/embedded_words_meta.dart`
 dosyalarını üretir. Veri sürümü içerikten hesaplanır; sürüm değişince uygulama
 açılışta kullanıcının yerel sözlüğünü otomatik olarak yeniden kurar.
 
-### 🌟 Günün kelimeleri
-
-Ana sayfadaki "Günün Kelimesi" `assets/data/gunun_kelimeleri.json` dosyasından gelir
-(her gün listeden sıradaki kelime; liste bitince başa döner). Sözlükte yapay zekâ
-kaynaklı hatalı kayıtlar olduğu için kelimeler otomatik seçilmez: gündelik kelimelerin
-listesi `tool/build_daily_words.py` içinde elle tutulur, betik anlam ve örnek cümleyi
-sözlükten çeker. Kelime eklemek ya da çıkarmak için o listeyi düzenleyip çalıştırın:
-
-```bash
-python tool/build_daily_words.py
-```
-
 ### ✅ Test ve analiz
 
 ```bash

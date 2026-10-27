@@ -104,7 +104,7 @@ class AiAnswerText extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsetsDirectional.only(end: 8),
                     child: Text(
                       '•',
                       style: base.copyWith(fontWeight: FontWeight.w800),

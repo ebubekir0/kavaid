@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/dialect_language.dart';
 import 'api_keys.dart';
+import 'language_service.dart';
 
 /// Çeviri yapılamadı; [message] kullanıcıya gösterilir.
 class TranslationException implements Exception {
@@ -143,7 +144,21 @@ LEHÇE TALİMATLARI:
     }
 
     String pronunciationInstr = '';
-    if (target.type == DialectLanguageType.arabic) {
+    final uiCode = LanguageService().uiLocale.languageCode;
+    final readsArabicScript = LanguageService().isRtl;
+    final pronunciationHint = uiCode == 'tr'
+        ? 'Türkçe harflerle okunuş'
+        : readsArabicScript
+            ? ''
+            : 'pronunciation in simple Latin letters';
+    if (target.type == DialectLanguageType.arabic && uiCode != 'tr') {
+      // Okunuş kullanıcının okuyabileceği harflerle; Arap harfli dillerde gereksiz
+      pronunciationInstr = readsArabicScript
+          ? '\n\nPRONUNCIATION: leave the "pronunciation" field empty.'
+          : '\n\nPRONUNCIATION (pronunciation field): write how it sounds in simple Latin letters '
+              'that a ${LanguageService.englishNames[uiCode] ?? 'English'} speaker can read '
+              "(kh, sh, gh, th; use ' for ع). Do not use Turkish letters.";
+    } else if (target.type == DialectLanguageType.arabic) {
       pronunciationInstr = '''
 
 TÜRKÇE OKUNUŞ TALİMATLARI (pronunciation alanı):
@@ -169,7 +184,7 @@ GİRDİ: $text
 JSON FORMATI:
 {
   "translation": "Çevrilen metin${target.type == DialectLanguageType.arabic ? ' (harekeli)' : ''}",
-  "pronunciation": "${target.type == DialectLanguageType.arabic ? 'Türkçe harflerle okunuş' : ''}"
+  "pronunciation": "${target.type == DialectLanguageType.arabic ? pronunciationHint : ''}"
 }''';
   }
 }

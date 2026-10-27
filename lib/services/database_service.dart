@@ -8,7 +8,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/word_model.dart';
 import '../data/embedded_words.dart';
+import '../utils/perf_log.dart';
 import 'search_ranking.dart';
+import 'search_store.dart';
 
 export 'search_ranking.dart' show RankedWord, WordMatchType;
 
@@ -334,35 +336,17 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  // Normalizasyon kuralları search_ranking.dart'ta; arama izolesi ve ana
-  // izole aynı kuralları kullanır.
-  static String _fullNormalize(String text) => normalizeArabic(text);
-
-  static String _normalizeLatinSearch(String text) => foldLatin(text);
-
   /// Anlamın harfi cer bölümü (|| sonrası) hariç ana kısmı.
-  static String _mainMeaning(String? anlam) {
-    if (anlam == null || anlam.isEmpty) return '';
-    final pipe = anlam.indexOf('||');
-    return pipe >= 0 ? anlam.substring(0, pipe) : anlam;
-  }
+  static String _mainMeaning(String? anlam) => SearchStore.mainMeaningOf(anlam);
 
-  // ─── Önceden normalize edilmiş harekeliKelime cache'i ────────────────────────────
-  static List<String>? _normalizedKelimeCache;
-  static List<String>? _normalizedHKCache;
-  static List<String>? _normalizedRootCache;
-  static Map<int, String>? _meaningCache;
-  // Her kaydın kökünden sözlükte kaç kayıt türediği: yaygınlık ölçüsü.
-  // Aynı puandaki sonuçlarda yaygın kelime (كَبِيرٌ) nadir olandan önce gelir.
-  static List<int>? _popularityCache;
+  // Arama fihristi (normalize edilmiş hâller, yaygınlık) ve kayıtlara erişim.
+  // Arama izolesi sözlük sürümü değişince bir kez kurup telefona yazar, sonra
+  // her açılışta yalnız fihristi okur (search_store.dart). Ana izolede yalnızca
+  // izole başlatılamazsa (yedek yol) bellekte kurulur.
+  static SearchStore? _store;
   static Future<void>? _prewarmFuture;
 
-  // Bellek içi arama için sözlük verisi. Her izolenin kendi kopyası vardır:
-  // arama izolesi başlarken asset'ten çözer; ana izolede yalnızca izole
-  // başlatılamazsa (yedek yol) yüklenir.
-  static List<Map<String, dynamic>>? _words;
-
-  static final SearchIsolateWorker _worker = SearchIsolateWorker();
+  static SearchIsolateWorker _worker = SearchIsolateWorker();
 
   static bool get isSearchCacheReady => kIsWeb ? true : _worker.isReady;
 
@@ -371,124 +355,54 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     await _worker.start();
   }
 
-  static void _buildCache() {
-    if (_normalizedHKCache != null) return;
-    final words = _words;
-    if (words == null) return;
-    final kList = <String>[];
-    final hkList = <String>[];
-    final rootList = <String>[];
-    final mList = <int, String>{};
-
-    for (int i = 0; i < words.length; i++) {
-      final map = words[i];
-      final rawK = map['kelime'] as String? ?? '';
-      final rawHK = map['harekeliKelime'] as String? ?? '';
-      final rawRoot = map['koku'] as String? ?? '';
-      final rawA = map['anlam'] as String? ?? '';
-
-      kList.add(rawK.isEmpty ? '' : _fullNormalize(rawK));
-      hkList.add(rawHK.isEmpty ? '' : _fullNormalize(rawHK));
-      rootList.add(rawRoot.isEmpty ? '' : _fullNormalize(rawRoot));
-
-      final pipIdx = rawA.indexOf('||');
-      mList[i] = _normalizeLatinSearch(
-        pipIdx >= 0 ? rawA.substring(0, pipIdx) : rawA,
-      );
-    }
-    _normalizedKelimeCache = kList;
-    _normalizedHKCache = hkList;
-    _normalizedRootCache = rootList;
-    _meaningCache = mList;
-    _popularityCache = _rootPopularity(rootList);
+  /// İlk kurulum ve sözlük güncellemesi: arama izolesini, fihristi veritabanı için
+  /// çözülen kelime listesinden kuracak şekilde başlatır; listenin gönderileceği
+  /// portu döndürür (sözlük bir kez çözülür). Fihrist zaten varsa ya da izole başka
+  /// yoldan başlamışsa null.
+  static Future<SendPort?> searchWordsPort() async {
+    if (kIsWeb) return null;
+    await _worker.start(awaitWords: true);
+    return _worker.wordsPort;
   }
 
-  /// [roots] listesindeki her kökün kaç kez geçtiği, kayıt sırasıyla.
-  static List<int> _rootPopularity(List<String> roots) {
-    final counts = <String, int>{};
-    for (final r in roots) {
-      if (r.isEmpty) continue;
-      final key = r.replaceAll(' ', '');
-      counts[key] = (counts[key] ?? 0) + 1;
-    }
-    return [
-      for (final r in roots) r.isEmpty ? 0 : counts[r.replaceAll(' ', '')]!,
-    ];
-  }
-
-  /// Uygulamanin başlangıcında cache'i önceden çak. main.dart veya initState'den çağrın.
-  static Future<void> _buildCacheIncrementally({int chunkSize = 700}) async {
-    if (_normalizedHKCache != null) return;
-    final words = _words ??= await EmbeddedWords.load();
-    final kList = <String>[];
-    final hkList = <String>[];
-    final rootList = <String>[];
-    final mList = <int, String>{};
-
-    for (int i = 0; i < words.length; i++) {
-      final map = words[i];
-      final rawK = map['kelime'] as String? ?? '';
-      final rawHK = map['harekeliKelime'] as String? ?? '';
-      final rawRoot = map['koku'] as String? ?? '';
-      final rawA = map['anlam'] as String? ?? '';
-
-      kList.add(rawK.isEmpty ? '' : _fullNormalize(rawK));
-      hkList.add(rawHK.isEmpty ? '' : _fullNormalize(rawHK));
-      rootList.add(rawRoot.isEmpty ? '' : _fullNormalize(rawRoot));
-
-      final pipIdx = rawA.indexOf('||');
-      mList[i] = _normalizeLatinSearch(
-        pipIdx >= 0 ? rawA.substring(0, pipIdx) : rawA,
-      );
-
-      if (i > 0 && i % chunkSize == 0) {
-        await Future<void>.delayed(Duration.zero);
-      }
-    }
-
-    _normalizedKelimeCache = kList;
-    _normalizedHKCache = hkList;
-    _normalizedRootCache = rootList;
-    _meaningCache = mList;
-    _popularityCache = _rootPopularity(rootList);
-  }
-
+  /// Yedek yol (izole başlatılamadı): fihristi ana izolede, arayüzü
+  /// dondurmadan parça parça kurar.
   static Future<void> prewarmCache() async {
-    if (_normalizedHKCache != null) return;
+    if (_store != null) return;
     if (_prewarmFuture != null) return _prewarmFuture;
-    _prewarmFuture = _buildCacheIncrementally().whenComplete(() {
+    _prewarmFuture = () async {
+      _store = await SearchStore.buildInMemory(await EmbeddedWords.load());
+    }().whenComplete(() {
       _prewarmFuture = null;
     });
     return _prewarmFuture;
   }
 
-  // ─── RAM'de arama (Isolate-safe, bu izoledeki _words'ü okur) ──────────────
+  // ─── Fihristte arama (Isolate-safe, bu izoledeki _store'u okur) ──────────
   static List<Map<String, dynamic>> _runIsolateSearch(
     Map<String, dynamic> args,
   ) {
     final query = SearchQuery.fromMap(args);
 
-    // Cache yoksa (prewarm henüz bitmedi) oluştur
-    _buildCache();
-    final words = _words;
-    if (words == null || _normalizedHKCache == null || query.isEmpty) {
+    final store = _store;
+    if (store == null || query.isEmpty) {
       return <Map<String, dynamic>>[];
     }
-    final kCache = _normalizedKelimeCache!;
-    final hkCache = _normalizedHKCache!;
-    final rootCache = _normalizedRootCache!;
-    final mCache = _meaningCache!;
-    final popularity = _popularityCache!;
+    final kCache = store.nKelime;
+    final hkCache = store.nHarekeli;
+    final rootCache = store.nKoku;
+    final mCache = store.meanings;
+    final popularity = store.popularity;
     final guess = query.arabicGuess;
     final alt = query.latinAlt;
 
     final results = <({int rank, int sec, int idx, WordMatchType type})>[];
 
-    for (int i = 0; i < words.length; i++) {
+    for (int i = 0; i < store.length; i++) {
       final nK = kCache[i];
       final nHK = hkCache[i];
       final nRoot = rootCache[i];
-      final meanings = mCache[i] ?? '';
+      final meanings = mCache[i];
 
       // ⚡ Hızlı ön-filtre: sorguyla hiçbir şekilde eşleşemeyecek kayıtlar
       // detaylı puanlamaya hiç girmez. Arapçada eşleşme ancak yazımda geçen
@@ -506,17 +420,16 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         continue;
       }
 
-      final map = words[i];
       final r = rankEntry(
         query: query,
-        kelime: map['kelime'] as String? ?? '',
-        harekeli: map['harekeliKelime'] as String? ?? '',
-        koku: map['koku'] as String? ?? '',
+        kelime: store.kelime[i],
+        harekeli: store.harekeli[i],
+        koku: store.koku[i],
         nKelime: nK,
         nHarekeli: nHK,
         nKoku: nRoot,
         meanings: meanings,
-        rawMeaning: query.isArabic ? '' : _mainMeaning(map['anlam'] as String?),
+        rawMeaning: query.isArabic ? '' : store.mainMeaning[i],
         popularity: popularity[i],
       );
       if (r == null) continue;
@@ -557,7 +470,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
 
     // UI jank'ini azaltmak için ilk 120 sonuçla sınırlı tutuluyor.
     return results.take(120).map((r) {
-      final m = Map<String, dynamic>.from(words[r.idx]);
+      final m = store.record(r.idx);
       m['rank'] = r.rank;
       m['sec'] = r.sec;
       m['fam'] = familyOf(r.idx);
@@ -637,6 +550,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       arabicGuess: containsArabic(raw) ? '' : _latinToArabicGuess(raw),
     );
     if (query.isEmpty) return [];
+    final sw = Stopwatch()..start();
 
     // UI frame'inin render edilmesine fırsat ver, sonra aramayı yap.
     await Future.delayed(Duration.zero);
@@ -727,7 +641,9 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
     // Aynı kelimenin kopyaları tek sonuçta: isimlerde hal/takı farkı
     // (بَيْتٌ, الْبَيْتُ), Türkçe aramada ayrıca aynı kökten aynı anlamdaki
     // varyantlar (كَتَبَ / كَتَبَتِ "yazdı").
-    return collapseVariants(results, turkishQuery: !query.isArabic);
+    final collapsed = collapseVariants(results, turkishQuery: !query.isArabic);
+    PerfLog.took('search "$raw" (${collapsed.length})', sw);
+    return collapsed;
   }
 
   /// [searchWordsRanked] sonucundaki kelimeler (eşleşme türü olmadan).
@@ -804,6 +720,43 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       // to run during first-install database creation.
       await Future<void>.delayed(Duration.zero);
     }
+  }
+
+  /// Harekeli başlığa göre kelimelerin dilbilgisi alanı (Arapça maddesi `arDef` burada).
+  Future<Map<String, Map<String, dynamic>>> grammarByHeadwords(Set<String> headwords) async {
+    final out = <String, Map<String, dynamic>>{};
+    if (kIsWeb || headwords.isEmpty) return out;
+    final db = await instance.database;
+    if (db == null) return out;
+    final list = headwords.toList();
+    for (var start = 0; start < list.length; start += 400) {
+      final chunk = list.sublist(start, start + 400 < list.length ? start + 400 : list.length);
+      final rows = await db.query(
+        'words',
+        columns: ['harekeliKelime', 'dilbilgiselOzellikler'],
+        where: 'harekeliKelime IN (${List.filled(chunk.length, '?').join(',')})',
+        whereArgs: chunk,
+      );
+      for (final r in rows) {
+        final raw = r['dilbilgiselOzellikler'];
+        if (raw is! String || raw.isEmpty) continue;
+        final decoded = json.decode(raw);
+        if (decoded is Map) {
+          out[r['harekeliKelime'] as String] = Map<String, dynamic>.from(decoded);
+        }
+      }
+    }
+    return out;
+  }
+
+  /// Sözlük dili değişince: arama izolesini ve fihristi bırakır; bir sonraki
+  /// [ensureSearchCacheReady] yeni dilin fihristini kurar.
+  static void restartSearch() {
+    _worker.stop();
+    _store?.close();
+    _store = null;
+    _pendingWordsCache = null;
+    _worker = SearchIsolateWorker();
   }
 
   Future<int> getWordsCount() async {
@@ -1255,19 +1208,37 @@ class SearchIsolateWorker {
   Future<void>? _startFuture;
   bool _isInitialized = false;
   bool _hasError = false;
+  bool _awaitingWords = false;
 
   bool get isReady => _isInitialized && !_hasError;
+
+  /// Kelime listesini bekleyen izolenin portu; beklemiyorsa null.
+  SendPort? get wordsPort => _awaitingWords && !_hasError ? _sendPort : null;
 
   /// Birden çok kez çağrılabilir; izole yalnızca bir kez başlatılır.
   /// (Eskiden başlangıçtaki zaman aşımı sonrası ikinci çağrı ikinci bir
   /// izole açıyor ve arama yanlışlıkla yedek yola düşüyordu.)
-  Future<void> start() => _startFuture ??= _start();
+  /// [awaitWords]: fihrist yoksa sözlüğü kendisi çözmez, [wordsPort]'a gönderilecek
+  /// kelime listesini bekler (veritabanı için çözülen veri paylaşılır).
+  Future<void> start({bool awaitWords = false}) => _startFuture ??= _start(awaitWords);
 
-  Future<void> _start() async {
+  Future<void> _start(bool awaitWords) async {
     try {
-      // Sıkıştırılmış veri ana izolede okunur (rootBundle burada çalışır),
-      // çözme ve normalize etme işi arama izolesinde yapılır.
-      final compressed = await EmbeddedWords.loadCompressed();
+      // Fihrist bu sözlük sürümü için telefonda varsa izole yalnız onu okur.
+      // Yoksa sıkıştırılmış veri ana izolede okunur (rootBundle burada çalışır);
+      // çözme, normalize etme ve dosyaları yazma işi arama izolesinde yapılır.
+      final version = await EmbeddedWords.currentVersion();
+      String? dir;
+      try {
+        dir = await getDatabasesPath();
+      } catch (_) {
+        dir = null; // birim testleri: dosya yok, fihrist bellekte kurulur
+      }
+      final hasIndex = dir != null && SearchStore.exists(dir, version);
+      _awaitingWords = awaitWords && !hasIndex;
+      final sources = hasIndex || _awaitingWords
+          ? null
+          : await EmbeddedWords.loadSources();
       final receivePort = ReceivePort();
       final sendPortCompleter = Completer<SendPort>();
       receivePort.listen((message) {
@@ -1276,6 +1247,7 @@ class SearchIsolateWorker {
             sendPortCompleter.complete(message);
           }
         } else if (message == _cacheReadyMessage) {
+          PerfLog.mark('searchCacheReady');
           if (!_cacheReadyCompleter.isCompleted) {
             _cacheReadyCompleter.complete();
           }
@@ -1286,9 +1258,12 @@ class SearchIsolateWorker {
           receivePort.close();
         }
       });
-      _isolate = await Isolate.spawn(_isolateEntry, <Object>[
+      _isolate = await Isolate.spawn(_isolateEntry, <Object?>[
         receivePort.sendPort,
-        TransferableTypedData.fromList([compressed]),
+        dir,
+        version,
+        sources,
+        _awaitingWords,
       ]).timeout(const Duration(seconds: 4));
       // ANR: isolate başlamazsa (düşük RAM) sonsuza kadar bekleme.
       _sendPort = await sendPortCompleter.future.timeout(
@@ -1329,7 +1304,7 @@ class SearchIsolateWorker {
       // (tek seferde 5sn+ blok, "Input dispatching timed out").
       // Artık: UI thread'inde cache senkron kurulmaz. Kurulum arka planda
       // parçalı (zaman aralıklı) yapılır, bu arama boş döner.
-      if (DatabaseService._normalizedHKCache == null) {
+      if (DatabaseService._store == null) {
         unawaited(DatabaseService.prewarmCache());
         debugPrint('⚠️ [Search] Isolate yok, cache arka planda kuruluyor');
         return <Map<String, dynamic>>[];
@@ -1352,26 +1327,42 @@ class SearchIsolateWorker {
     }
   }
 
-  static void _isolateEntry(List<Object> init) {
+  static void _isolateEntry(List<Object?> init) {
     final sendPort = init[0] as SendPort;
-    final compressed = init[1] as TransferableTypedData;
+    final dir = init[1] as String?;
+    final version = init[2] as String;
+    final sources = init[3] as List<Object?>?;
+    final awaitWords = init[4] as bool;
     final receivePort = ReceivePort();
     sendPort.send(receivePort.sendPort);
 
-    // Sözlüğü bu izolede çöz ve arama cache'ini kur. Gelen aramalar
-    // bu iş bitene kadar kuyrukta bekler.
-    try {
-      DatabaseService._words = EmbeddedWords.decode(
-        compressed.materialize().asUint8List(),
-      );
-      DatabaseService._buildCache();
-      sendPort.send(_cacheReadyMessage);
-    } catch (_) {
-      sendPort.send(_cacheErrorMessage);
-      return;
+    // Fihristi telefondaki dosyadan oku; yoksa (ilk açılış, sözlük güncellemesi)
+    // sözlüğü çöz ya da veritabanı için çözülen listeyi bekle, fihristi kur ve
+    // dosyaları yaz. Gelen aramalar bu iş bitene kadar kuyrukta bekler.
+    void prepare(List<Map<String, dynamic>>? words) {
+      try {
+        var store = dir == null ? null : SearchStore.open(dir, version);
+        if (store == null) {
+          if (words == null && sources == null) throw StateError('sözlük verisi yok');
+          store = SearchStore.build(words ?? EmbeddedWords.decode(sources!), dir: dir, version: version);
+        }
+        DatabaseService._store = store;
+        sendPort.send(_cacheReadyMessage);
+      } catch (_) {
+        sendPort.send(_cacheErrorMessage);
+      }
     }
 
+    if (!awaitWords) prepare(null);
+
     receivePort.listen((message) {
+      // Veritabanı için çözülen kelime listesi (yalnız awaitWords ile, bir kez)
+      if (message is List) {
+        if (DatabaseService._store == null) {
+          prepare(List<Map<String, dynamic>>.from(message));
+        }
+        return;
+      }
       final msg = message as Map<String, dynamic>;
       final args = msg['args'] as Map<String, dynamic>;
       final replyPort = msg['replyPort'] as SendPort;

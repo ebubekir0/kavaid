@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'promo_code_service.dart';
 import 'connectivity_service.dart';
 import 'legacy_entitlements.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 const _apiKeyAndroid = 'goog_JUkLUxlscZqowPzLzmvYPKddTbE';
 const _apiKeyIOS = 'appl_NZgrRHVUkpanVmNiCcqlEpQlMXo';
@@ -259,7 +260,7 @@ class PurchaseManager extends ChangeNotifier {
       await _configureRevenueCat();
       _attachCustomerInfoListener();
     } catch (e) {
-      _lastError = 'RevenueCat baslatilamadi: $e';
+      _lastError = l10n.revenuecatBaslatilamadiE(e);
       debugPrint('[RevenueCat] Configure error: $e');
     }
   }
@@ -1118,7 +1119,7 @@ class PurchaseManager extends ChangeNotifier {
   /// Premium hesaba bağlıdır: girişsiz satın alma yapılmaz.
   bool _blockIfSignedOut() {
     if (FirebaseAuth.instance.currentUser != null) return false;
-    _lastError = 'Satın almak için önce giriş yapın.';
+    _lastError = l10n.satinAlmakIcinOnceGiris;
     notifyListeners();
     return true;
   }
@@ -1134,12 +1135,12 @@ class PurchaseManager extends ChangeNotifier {
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        _lastError = 'Satın alma hatası: ${e.message ?? e.toString()}';
+        _lastError = l10n.satinAlmaHatasiP1(e.message ?? e.toString());
         debugPrint('[RevenueCat] Purchase error: $e');
         notifyListeners();
       }
     } catch (e) {
-      _lastError = 'Beklenmedik hata: $e';
+      _lastError = l10n.beklenmedikHataE(e);
       notifyListeners();
     }
   }
@@ -1155,12 +1156,12 @@ class PurchaseManager extends ChangeNotifier {
     } on PlatformException catch (e) {
       final errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
-        _lastError = 'Satın alma hatası: ${e.message ?? e.toString()}';
+        _lastError = l10n.satinAlmaHatasiP1(e.message ?? e.toString());
         debugPrint('[RevenueCat] Purchase product error: $e');
         notifyListeners();
       }
     } catch (e) {
-      _lastError = 'Beklenmedik hata: $e';
+      _lastError = l10n.beklenmedikHataE(e);
       notifyListeners();
     }
   }
@@ -1212,7 +1213,7 @@ class PurchaseManager extends ChangeNotifier {
       return;
     }
 
-    _lastError = 'Abonelik paketi yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
+    _lastError = l10n.abonelikPaketiYuklenemediLutfenInternet;
     notifyListeners();
   }
 
@@ -1263,14 +1264,14 @@ class PurchaseManager extends ChangeNotifier {
       return;
     }
 
-    _lastError = 'Abonelik paketi yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.';
+    _lastError = l10n.abonelikPaketiYuklenemediLutfenInternet;
     notifyListeners();
   }
 
   Future<void> restorePurchases() async {
     await refreshEntitlements(includePromo: true);
     if (!_isRevenueCatConfigured) {
-      _lastError = 'Satın alma kontrolü için internet bağlantısı gerekiyor.';
+      _lastError = l10n.satinAlmaKontroluIcinInternet;
       notifyListeners();
       return;
     }
@@ -1285,11 +1286,11 @@ class PurchaseManager extends ChangeNotifier {
           !isPremium &&
           !_isLifetimeNoAds &&
           _purchasedBooks.isEmpty) {
-        _lastError = 'Aktif bir abonelik bulunamadi.';
+        _lastError = l10n.aktifBirAbonelikBulunamadi;
         notifyListeners();
       }
     } catch (e) {
-      _lastError = 'Restore hatasi: $e';
+      _lastError = l10n.restoreHatasiE(e);
       notifyListeners();
     }
   }

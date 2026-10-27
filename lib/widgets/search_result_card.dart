@@ -16,6 +16,8 @@ import '../services/emsile_database_service.dart';
 import 'ai_chat_sheet.dart';
 import 'save_button.dart';
 import 'search_result_card_parts.dart';
+import '../services/arabic_definitions.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 // Global expanded card controller sınıfı ve ilgili mantık kaldırıldı.
 // Artık bir kart açıldığında diğeri kapanmayacak.
@@ -80,6 +82,18 @@ class _SearchResultCardState extends State<SearchResultCard>
       _aiTeacherFeatureEnabled && widget.showAiTeacherButton;
 
   @override
+  void initState() {
+    super.initState();
+    if (!ArabicDefinitions.instance.loaded.value) {
+      ArabicDefinitions.instance.loaded.addListener(_onArabicLoaded);
+    }
+  }
+
+  void _onArabicLoaded() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void didUpdateWidget(covariant SearchResultCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.word.kelime != widget.word.kelime ||
@@ -91,6 +105,7 @@ class _SearchResultCardState extends State<SearchResultCard>
 
   @override
   void dispose() {
+    ArabicDefinitions.instance.loaded.removeListener(_onArabicLoaded);
     _animationController?.dispose();
     super.dispose();
   }
@@ -282,7 +297,8 @@ class _SearchResultCardState extends State<SearchResultCard>
       onTap: widget.enableExpand ? _toggleExpanded : null,
       borderRadius: BorderRadius.circular(6),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        // Arapça madde açıkken ١ ile ٢ arası diğer anlamlar arasıyla aynı kalsın
+        padding: EdgeInsets.fromLTRB(12, 12, 12, _isExpanded && _arabicEntry != null ? 4 : 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -313,8 +329,19 @@ class _SearchResultCardState extends State<SearchResultCard>
               ],
             ),
 
+            // Arapça anlam dilinde ilk anlamın şerhi (١)
+            if (_arabicEntry case final entry?) ...[
+              // İlk anlamın şerhi; açılınca yerinde kalır, altına örneği gelir
+              const SizedBox(height: 6),
+              ArabicQuickLine(
+                word: widget.word,
+                entry: entry,
+                isDarkMode: isDarkMode,
+                expanded: _isExpanded,
+              ),
+            ]
             // Türkçe anlam ve harfi cerler (tam genişlikte)
-            if (widget.word.sadeAnlam?.isNotEmpty == true ||
+            else if (widget.word.sadeAnlam?.isNotEmpty == true ||
                 widget.word.harfiCerler.isNotEmpty) ...[
               const SizedBox(height: 6),
               MeaningText(
@@ -408,7 +435,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   /// yuvarlatılmış kare zeminde sade bir simge.
   Widget _buildAiTeacherButton(bool isDarkMode) {
     return Tooltip(
-      message: 'AI Asistan',
+      message: l10n.aiAsistan,
       child: Material(
         color: const Color(0xFF007AFF).withValues(alpha: isDarkMode ? 0.18 : 0.09),
         borderRadius: BorderRadius.circular(9),
@@ -437,9 +464,9 @@ class _SearchResultCardState extends State<SearchResultCard>
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'AI asistanı kullanmak için lütfen giriş yapın.',
+              l10n.aiAsistaniKullanmakIcinLutfen,
               style: TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.black87,
@@ -463,20 +490,30 @@ class _SearchResultCardState extends State<SearchResultCard>
     );
   }
 
+  /// Anlam dili Arapçaysa kelimenin Arapça maddesi (yoksa null).
+  Map<String, dynamic>? get _arabicEntry => ArabicDefinitions.instance.of(widget.word);
+
   Widget _buildExpandedContent(bool isDarkMode) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 0, 12, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            height: 1.0,
-            color: isDarkMode
-                ? const Color(0xFF48484A)
-                : const Color(0xFFD1D1D6),
-          ),
-          const SizedBox(height: 8),
+          // Arapça madde: ١ ve örneği üst satırda yerinde kalır (açılınca kaymasın);
+          // ardından ٢ ve sonrası, harf-i cerler; çoğul ve çekim kutuları en altta.
+          if (_arabicEntry case final entry?) ...[
+            ArabicDefinitionView(word: widget.word, entry: entry, isDarkMode: isDarkMode),
+            const SizedBox(height: 12),
+          ] else ...[
+            Container(
+              height: 1.0,
+              color: isDarkMode
+                  ? const Color(0xFF48484A)
+                  : const Color(0xFFD1D1D6),
+            ),
+            const SizedBox(height: 8),
+          ],
 
           // Kök ana kartta kelimenin yanında; çoğul alt kartta
           PluralBox(word: widget.word, isDarkMode: isDarkMode),
@@ -484,11 +521,12 @@ class _SearchResultCardState extends State<SearchResultCard>
           // Fiil çekimleri (yan yana, sadece varsa göster)
           ConjugationRow(word: widget.word, isDarkMode: isDarkMode),
 
-          // Emsile (fiil çekimleri tablosu) butonu - Arapça için gösterme
+          // Emsile (fiil çekimleri tablosu) butonu. Arapça anlam dilinde emsile
+          // anlamları Arapça maddeden gelir (EmsileView).
           if (!LanguageService().isArabic) _buildEmsileButton(isDarkMode),
 
-          // Örnek cümleler - Arapça için gösterme
-          if (!LanguageService().isArabic)
+          // Örnek cümleler - Arapça için gösterme (Arapça maddede anlamların altında)
+          if (!LanguageService().isArabic && _arabicEntry == null)
             ExampleSentences(
               word: widget.word,
               isDarkMode: isDarkMode,
@@ -503,11 +541,12 @@ class _SearchResultCardState extends State<SearchResultCard>
                 isDarkMode: isDarkMode,
                 showMoreExamples:
                     !LanguageService().isArabic &&
+                    _arabicEntry == null &&
                     widget.word.ornekCumleler?.isNotEmpty == true,
                 onAsk: () => _showAiChatSheet(),
                 onMoreExamples: () => _showAiChatSheet(
                   openingMessage:
-                      'Bu kelimeyle seviyeme uygun 5 yeni örnek ver: kolaydan zora doğru.',
+                      l10n.buKelimeyleSeviyemeUygun5,
                 ),
               ),
             ),
@@ -587,7 +626,7 @@ class _SearchResultCardState extends State<SearchResultCard>
                     Icon(Icons.menu_book_rounded, size: 16, color: emsileBlue),
                     const SizedBox(width: 8),
                     Text(
-                      'Tüm Fiil Çekimleri',
+                      l10n.tumFiilCekimleri,
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,

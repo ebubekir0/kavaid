@@ -2,9 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kavaid/data/embedded_words.dart';
 import 'package:kavaid/services/database_service.dart';
 import 'package:kavaid/services/search_ranking.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // EmbeddedWords anlam dilini (meaning_lang) ayarlardan okur
+  SharedPreferences.setMockInitialValues({});
 
   test('sözlük asset\'i çözülüyor ve kelime sayısı meta ile tutarlı', () async {
     final words = await EmbeddedWords.load();

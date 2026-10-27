@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/purchase_manager.dart';
+import 'package:kavaid/l10n/l10n.dart';
+import 'package:kavaid/services/language_service.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
@@ -50,8 +52,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     if (pm.isPremium) {
       if (Navigator.of(context).canPop()) Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('🎉 Premium üyelik aktif!'),
+        SnackBar(
+          content: Text(l10n.premiumUyelikAktif),
           backgroundColor: Colors.green,
         ),
       );
@@ -69,7 +71,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Bağlantı açılamadı: $e')),
+          SnackBar(content: Text(l10n.baglantiAcilamadiE(e))),
         );
       }
     }
@@ -82,9 +84,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text(
-            'Premium satın almak için lütfen önce giriş yapın.',
+            l10n.premiumSatinAlmakIcinLutfen,
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.black87,
@@ -119,7 +121,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 4),
               action: SnackBarAction(
-                label: 'Tekrar Dene',
+                label: l10n.tekrarDene,
                 textColor: Colors.white,
                 onPressed: () {
                   pm.fetchProducts();
@@ -132,7 +134,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Hata: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(l10n.hataE(e)), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -218,7 +220,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            "Kavaid Premium",
+                            l10n.kavaidPremium,
                             style: GoogleFonts.outfit(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -226,41 +228,41 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildBullet("AI Asistan'a sınırsız erişim", highlight: true),
+                          _buildBullet(l10n.aiAsistanASinirsizErisim, highlight: true),
                           const SizedBox(height: 8),
-                          _buildBullet("Çeviriye sınırsız erişim"),
+                          _buildBullet(l10n.ceviriyeSinirsizErisim),
                           const SizedBox(height: 8),
-                          _buildBullet("7000+ fiilin 24 sığa emsile çekimlerini aç"),
+                          _buildBullet(l10n.m5500Fiilin24Siga),
                           const SizedBox(height: 8),
-                          _buildBullet("Öğren kısmındaki tüm materyallere erişim"),
+                          if (LanguageService().isTurkishUi) _buildBullet(l10n.ogrenKismindakiTumMateryallereErisim),
                           const SizedBox(height: 8),
-                          _buildBullet("Kuran Sözlüğüne Sınırsız Erişim"),
+                          if (LanguageService().isTurkishUi) _buildBullet(l10n.kuranSozluguneSinirsizErisim),
                           const SizedBox(height: 8),
-                          _buildBullet("Sınırsız kelime kartı ve liste oluştur"),
+                          _buildBullet(l10n.sinirsizKelimeKartiVeListe),
                           const SizedBox(height: 8),
-                          _buildBullet("Reklamsız deneyim"),
+                          _buildBullet(l10n.reklamsizDeneyim),
 
                           const SizedBox(height: 24),
 
                           // 2. PLANLAR (Aylık ve Yıllık)
                           _buildPlanTile(
                             id: 'monthly',
-                            title: 'Aylık Abonelik',
-                            subtitleText: '1 Ay boyunca sınırsız erişim',
+                            title: l10n.aylikAbonelik,
+                            subtitleText: l10n.m1AyBoyuncaSinirsizErisim,
                             price: monthlyPrice,
                             badge: null,
                           ),
                           const SizedBox(height: 12),
                           _buildPlanTile(
                             id: 'yearly',
-                            title: 'Yıllık Abonelik',
+                            title: l10n.yillikAbonelik,
                             subtitleText: yearlyMonthlyCost.isEmpty
-                                ? '1 Yıl boyunca sınırsız erişim'
-                                : '1 Yıl boyunca sınırsız erişim ($yearlyMonthlyCost)',
+                                ? l10n.m1YilBoyuncaSinirsizErisim
+                                : l10n.m1YilBoyuncaSinirsizErisim2(yearlyMonthlyCost),
                             price: yearlyPrice,
                             // Mağaza fiyatlarından hesaplanır; fiyat değişince
                             // rozet kendiliğinden doğru kalır.
-                            badge: yearlyDiscount == null ? null : '%$yearlyDiscount İNDİRİM',
+                            badge: yearlyDiscount == null ? null : l10n.yearlydiscountIndirim(yearlyDiscount),
                           ),
 
                           const SizedBox(height: 20),
@@ -286,8 +288,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                     )
                                   : Text(
                                       _selectedPlan == 'monthly'
-                                          ? "Aylık Abone Ol$buttonPriceText"
-                                          : "Yıllık Abone Ol$buttonPriceText",
+                                          ? l10n.aylikAboneOlButtonpricetext(buttonPriceText)
+                                          : l10n.yillikAboneOlButtonpricetext(buttonPriceText),
                                       style: GoogleFonts.outfit(fontSize: 17, fontWeight: FontWeight.bold),
                                     ),
                             ),
@@ -301,8 +303,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                           // ihlaliydi.
                           Text(
                             _isApplePlatform
-                                ? 'Ödeme Apple ID hesabınızdan tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman App Store Hesap Ayarları\'ndan iptal edebilirsiniz.'
-                                : 'Ödeme Google Play üzerinden tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman Google Play Hesap Ayarları\'ndan iptal edebilirsiniz.',
+                                ? l10n.odemeAppleIdHesabinizdanTahsil
+                                : l10n.odemeGooglePlayUzerindenTahsil,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.outfit(
                               fontSize: 11,
@@ -324,15 +326,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                                 onTap: () async {
                                   if (!_requireSignIn()) return;
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Satın almalar kontrol ediliyor...'),
+                                    SnackBar(
+                                      content: Text(l10n.satinAlmalarKontrolEdiliyor),
                                       duration: Duration(seconds: 2),
                                     ),
                                   );
                                   await Provider.of<PurchaseManager>(context, listen: false).restorePurchases();
                                 },
                                 child: Text(
-                                  "Satın Almaları Geri Yükle",
+                                  l10n.satinAlmalariGeriYukle,
                                   style: GoogleFonts.outfit(
                                     fontSize: 12,
                                     color: Colors.white,
@@ -346,7 +348,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               GestureDetector(
                                 onTap: () => _openUrl(_termsOfUseUrl),
                                 child: Text(
-                                  "Kullanım Koşulları (EULA)",
+                                  l10n.kullanimKosullariEula,
                                   style: GoogleFonts.outfit(
                                     fontSize: 12,
                                     color: Colors.white,
@@ -360,7 +362,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                               GestureDetector(
                                 onTap: () => _openUrl(_privacyPolicyUrl),
                                 child: Text(
-                                  "Gizlilik Politikası",
+                                  l10n.gizlilikPolitikasi,
                                   style: GoogleFonts.outfit(
                                     fontSize: 12,
                                     color: Colors.white,

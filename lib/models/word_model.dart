@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/type_translations.dart';
 import '../services/language_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 part 'word_model.g.dart';
 
@@ -42,7 +43,7 @@ class WordModel {
         return WordModel(
           kelime: json['kelime']?.toString() ?? '',
           bulunduMu: false,
-          anlam: 'Kelime bulunamadı',
+          anlam: l10n.kelimeBulunamadi,
         );
       }
       

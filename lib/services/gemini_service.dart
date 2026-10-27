@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:firebase_database/firebase_database.dart';
 import '../models/ai_teacher_model.dart';
 import '../models/word_model.dart';
+import 'language_service.dart';
 import 'api_keys.dart';
 import 'dart:math' as math;
 
@@ -580,7 +581,8 @@ fiilCekimler (object): Fiilse çekimler.
         'parts': [
           {
             'text':
-                'Sen Arapca-Turkce sozluk icinde calisan kisa, net ve guvenilir bir AI ogretmensin. Bilmedigin bilgiyi uydurma.',
+                'Sen Arapca-Turkce sozluk icinde calisan kisa, net ve guvenilir bir AI ogretmensin. Bilmedigin bilgiyi uydurma.'
+                '${_answerLanguageRule()}',
           },
         ],
       },
@@ -667,7 +669,7 @@ Sadece JSON dondur:
   ],
   "confidenceNote": "Bilgi kartindaki veriye dayali kisa guven notu"
 }
-''';
+${_answerLanguageRule()}''';
   }
 
   String _buildTeacherQuestionPrompt(
@@ -699,7 +701,7 @@ $question
 
 Sadece JSON dondur:
 {"answer": "kisa ve ogretici cevap"}
-''';
+${_answerLanguageRule()}''';
   }
 
   // ─── SÖZLÜK SOHBETİ (chat bot) ───────────────────────────────────────────
@@ -819,7 +821,25 @@ Kullanicinin kelimesini sozluk mantigina gore yorumla: koku, kalip, harf-i cer.
 ''');
     }
 
+    buffer.write(_answerLanguageRule());
     return buffer.toString();
+  }
+
+  /// İstemler Türkçe yazılı; cevap arayüz dilinde gelsin diye sona eklenen kural.
+  /// Türkçe arayüzde boştur, istemler eskisi gibi çalışır.
+  String _answerLanguageRule() {
+    final code = LanguageService().uiLocale.languageCode;
+    if (code == 'tr') return '';
+    if (code == 'ar') {
+      return '\n\nLANGUAGE (overrides the rules above): the user speaks Arabic, not Turkish. '
+          'Write everything in clear Modern Standard Arabic. Where the rules ask for a Turkish '
+          'translation of an example, give a short Arabic explanation instead. JSON keys stay as they are.\n';
+    }
+    final name = LanguageService.englishNames[code] ?? 'English';
+    return '\n\nLANGUAGE (overrides the rules above): the user speaks $name, not Turkish. '
+        'Write every explanation, note, question and translation in $name; wherever the rules say '
+        '"Turkce" or "Turkish", use $name. Arabic words and sentences stay in Arabic with full harakat. '
+        'JSON keys stay as they are.\n';
   }
 
   Map<String, dynamic> _teacherWordPayload(WordModel word) {

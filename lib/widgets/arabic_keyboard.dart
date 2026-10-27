@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class ArabicKeyboard extends StatelessWidget {
   final TextEditingController controller;
@@ -169,7 +170,7 @@ class ArabicKeyboard extends StatelessWidget {
           // Ana harfler
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
+              padding: const EdgeInsetsDirectional.only(start: 8, end: 8),
               child: Column(
                 children: [
                   // Üç satır Arapça harf için Expanded widget'lar
@@ -196,10 +197,10 @@ class ArabicKeyboard extends StatelessWidget {
                         Expanded(
                           flex: 3,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 2, right: 2, top: 2),
+                            padding: const EdgeInsetsDirectional.only(start: 2, end: 2, top: 2),
                             child: _buildSpecialKey(
                               context,
-                              text: 'Ara',
+                              text: l10n.ara,
                               onPressed: () {
                                 if (onSearch != null) onSearch!();
                               },
@@ -210,10 +211,10 @@ class ArabicKeyboard extends StatelessWidget {
                         Expanded(
                           flex: 6,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 2, right: 2, top: 2),
+                            padding: const EdgeInsetsDirectional.only(start: 2, end: 2, top: 2),
                             child: _buildSpecialKey(
                               context,
-                              text: 'Boşluk',
+                              text: l10n.bosluk,
                               onPressed: _addSpace,
                               isSpace: true,
                             ),
@@ -222,7 +223,7 @@ class ArabicKeyboard extends StatelessWidget {
                         Expanded(
                           flex: 2,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 2, right: 2, top: 2),
+                            padding: const EdgeInsetsDirectional.only(start: 2, end: 2, top: 2),
                             child: _buildSpecialKey(
                               context,
                               icon: Icons.backspace_outlined,

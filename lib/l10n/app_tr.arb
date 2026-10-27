@@ -1,0 +1,1975 @@
+{
+  "@@locale": "tr",
+  "kavaidSozluk": "Kavaid Sözlük",
+  "@kavaidSozluk": {
+    "description": "lib/main.dart:125"
+  },
+  "tekrarDene": "Tekrar Dene",
+  "@tekrarDene": {
+    "description": "lib/main.dart:182"
+  },
+  "kavaidArapcaSozluk": "Kavaid - Arapça Sözlük",
+  "@kavaidArapcaSozluk": {
+    "description": "lib/main.dart:516"
+  },
+  "sozluk": "Sözlük",
+  "@sozluk": {
+    "description": "lib/main.dart:1482"
+  },
+  "ceviri": "Çeviri",
+  "@ceviri": {
+    "description": "lib/main.dart:1490"
+  },
+  "ogren": "Öğren",
+  "@ogren": {
+    "description": "lib/main.dart:1497"
+  },
+  "profil": "Profil",
+  "@profil": {
+    "description": "lib/main.dart:1502"
+  },
+  "kelimeBulunamadi": "Kelime bulunamadı",
+  "@kelimeBulunamadi": {
+    "description": "lib/models/word_model.dart:45"
+  },
+  "baglantiAcilamadi": "Bağlantı açılamadı",
+  "@baglantiAcilamadi": {
+    "description": "lib/screens/campaign_screen.dart:31"
+  },
+  "tebrikler1AyPremiumHesabiniza": "Tebrikler! 1 Ay Premium hesabınıza tanımlandı 🌟",
+  "@tebrikler1AyPremiumHesabiniza": {
+    "description": "lib/screens/campaign_screen.dart:52"
+  },
+  "gecersizVeyaKullanilmisKod": "Geçersiz veya kullanılmış kod.",
+  "@gecersizVeyaKullanilmisKod": {
+    "description": "lib/screens/campaign_screen.dart:59"
+  },
+  "buKoduDahaOnceKullandiniz": "Bu kodu daha önce kullandınız.",
+  "@buKoduDahaOnceKullandiniz": {
+    "description": "lib/screens/campaign_screen.dart:61"
+  },
+  "buKodunSuresiDolmus": "Bu kodun süresi dolmuş.",
+  "@buKodunSuresiDolmus": {
+    "description": "lib/screens/campaign_screen.dart:63"
+  },
+  "buKodunKullanimLimitiDolmus": "Bu kodun kullanım limiti dolmuş.",
+  "@buKodunKullanimLimitiDolmus": {
+    "description": "lib/screens/campaign_screen.dart:65"
+  },
+  "lutfenOnceGirisYapin": "Lütfen önce giriş yapın.",
+  "@lutfenOnceGirisYapin": {
+    "description": "lib/screens/campaign_screen.dart:67"
+  },
+  "m1AyUcretsizPremiumKazan": "1 Ay Ücretsiz Premium Kazan",
+  "@m1AyUcretsizPremiumKazan": {
+    "description": "lib/screens/campaign_screen.dart:130"
+  },
+  "uygulamaHakkindaGorusleriniziBelirtilenTweeti": "Uygulama hakkında görüşlerinizi belirtilen tweeti alıntılayarak Twitter (X)'te paylaşın, 1 ay ücretsiz premium kazanın!",
+  "@uygulamaHakkindaGorusleriniziBelirtilenTweeti": {
+    "description": "lib/screens/campaign_screen.dart:142"
+  },
+  "nasilKatilirim": "Nasıl Katılırım?",
+  "@nasilKatilirim": {
+    "description": "lib/screens/campaign_screen.dart:169"
+  },
+  "uygulamaIleIlgiliGorusleriniziBelirtilen": "Uygulama ile ilgili görüşlerinizi belirtilen tweeti alıntılayarak Twitter (X)'te paylaşın.",
+  "@uygulamaIleIlgiliGorusleriniziBelirtilen": {
+    "description": "lib/screens/campaign_screen.dart:180"
+  },
+  "paylasiminiziTwitterDaEbubekr53Hesabina": "Paylaşımınızı Twitter'da @ebubekr53 hesabına direkt mesaj atın, kodunuzu alın.",
+  "@paylasiminiziTwitterDaEbubekr53Hesabina": {
+    "description": "lib/screens/campaign_screen.dart:192"
+  },
+  "koduAsagiyaGirin": "Kodu aşağıya girin.",
+  "@koduAsagiyaGirin": {
+    "description": "lib/screens/campaign_screen.dart:204"
+  },
+  "tweetiAlintila": "Tweeti Alıntıla",
+  "@tweetiAlintila": {
+    "description": "lib/screens/campaign_screen.dart:218"
+  },
+  "promosyonKodu": "Promosyon Kodu",
+  "@promosyonKodu": {
+    "description": "lib/screens/campaign_screen.dart:252"
+  },
+  "kullan": "Kullan",
+  "@kullan": {
+    "description": "lib/screens/campaign_screen.dart:308"
+  },
+  "dahaFazlaOzellik": "Daha Fazla Özellik",
+  "@dahaFazlaOzellik": {
+    "description": "lib/screens/custom_words_screen.dart:140"
+  },
+  "dahaFazlaListeOlusturmakIcin": "Daha fazla liste oluşturmak için\nPremium'a yükselt",
+  "@dahaFazlaListeOlusturmakIcin": {
+    "description": "lib/screens/custom_words_screen.dart:149"
+  },
+  "kapat": "Kapat",
+  "@kapat": {
+    "description": "lib/screens/custom_words_screen.dart:171"
+  },
+  "premiumAl": "Premium Al",
+  "@premiumAl": {
+    "description": "lib/screens/custom_words_screen.dart:197"
+  },
+  "yeniListe": "Yeni Liste",
+  "@yeniListe": {
+    "description": "lib/screens/custom_words_screen.dart:219"
+  },
+  "listeAdi": "Liste adı",
+  "@listeAdi": {
+    "description": "lib/screens/custom_words_screen.dart:228"
+  },
+  "iptal": "İptal",
+  "@iptal": {
+    "description": "lib/screens/custom_words_screen.dart:254"
+  },
+  "olustur": "Oluştur",
+  "@olustur": {
+    "description": "lib/screens/custom_words_screen.dart:267"
+  },
+  "listeyiYenidenAdlandir": "Listeyi Yeniden Adlandır",
+  "@listeyiYenidenAdlandir": {
+    "description": "lib/screens/custom_words_screen.dart:286"
+  },
+  "kaydet": "Kaydet",
+  "@kaydet": {
+    "description": "lib/screens/custom_words_screen.dart:322"
+  },
+  "kelimeListelerim": "Kelime Listelerim",
+  "@kelimeListelerim": {
+    "description": "lib/screens/custom_words_screen.dart:367"
+  },
+  "yeniListeOlustur": "Yeni Liste Oluştur",
+  "@yeniListeOlustur": {
+    "description": "lib/screens/custom_words_screen.dart:409"
+  },
+  "henuzListeYok": "Henüz liste yok",
+  "@henuzListeYok": {
+    "description": "lib/screens/custom_words_screen.dart:449"
+  },
+  "kelimeleriniziDuzenlemekIcinBirListe": "Kelimelerinizi düzenlemek için\nbir liste oluşturun",
+  "@kelimeleriniziDuzenlemekIcinBirListe": {
+    "description": "lib/screens/custom_words_screen.dart:458"
+  },
+  "wordcountKelime": "{wordCount} kelime",
+  "@wordcountKelime": {
+    "description": "lib/screens/custom_words_screen.dart:563",
+    "placeholders": {
+      "wordCount": {
+        "type": "int"
+      }
+    }
+  },
+  "yenidenAdlandir": "Yeniden Adlandır",
+  "@yenidenAdlandir": {
+    "description": "lib/screens/custom_words_screen.dart:608"
+  },
+  "sil": "Sil",
+  "@sil": {
+    "description": "lib/screens/custom_words_screen.dart:623"
+  },
+  "listeyiSil": "Listeyi Sil",
+  "@listeyiSil": {
+    "description": "lib/screens/custom_words_screen.dart:646"
+  },
+  "nameSilinsinMiIcindekiTum": "\"{name}\" silinsin mi?\nİçindeki tüm kelimeler de silinecek.",
+  "@nameSilinsinMiIcindekiTum": {
+    "description": "lib/screens/custom_words_screen.dart:652",
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "buListedeHenuzKelimeYok": "Bu listede henüz kelime yok",
+  "@buListedeHenuzKelimeYok": {
+    "description": "lib/screens/custom_words_screen.dart:776"
+  },
+  "liste": "Liste",
+  "@liste": {
+    "description": "lib/screens/custom_words_screen.dart:835"
+  },
+  "kart": "Kart",
+  "@kart": {
+    "description": "lib/screens/custom_words_screen.dart:865"
+  },
+  "dahaFazlaKelimeKartiIcin": "Daha fazla kelime kartı için Premium'a yükselt",
+  "@dahaFazlaKelimeKartiIcin": {
+    "description": "lib/screens/custom_words_screen.dart:1088"
+  },
+  "premiumAYukselt": "Premium'a Yükselt",
+  "@premiumAYukselt": {
+    "description": "lib/screens/custom_words_screen.dart:1128"
+  },
+  "dinle": "Dinle",
+  "@dinle": {
+    "description": "lib/screens/custom_words_screen.dart:1190"
+  },
+  "oyun": "Oyun",
+  "@oyun": {
+    "description": "lib/screens/game/game_screen.dart:20"
+  },
+  "kullanimSiniriDoldu": "Kullanım Sınırı Doldu",
+  "@kullanimSiniriDoldu": {
+    "description": "lib/screens/home_screen.dart:697"
+  },
+  "kuranSozlugunuSinirsizKullanmayaDevam": "Kuran sözlüğünü sınırsız kullanmaya devam etmek için lütfen giriş yapın ve Premium'a yükseltin.",
+  "@kuranSozlugunuSinirsizKullanmayaDevam": {
+    "description": "lib/screens/home_screen.dart:707"
+  },
+  "tamam": "Tamam",
+  "@tamam": {
+    "description": "lib/screens/home_screen.dart:729"
+  },
+  "tumKitaplarAcildiVeReklamlar": "Tüm kitaplar açıldı ve reklamlar kaldırıldı.",
+  "@tumKitaplarAcildiVeReklamlar": {
+    "description": "lib/screens/home_screen.dart:886"
+  },
+  "tumKitaplarAcildiReklamlariKalici": "Tüm kitaplar açıldı. Reklamları kalıcı kaldırmak için lütfen giriş yapın.",
+  "@tumKitaplarAcildiReklamlariKalici": {
+    "description": "lib/screens/home_screen.dart:887"
+  },
+  "gizliKodUygulanamadiE": "Gizli kod uygulanamadı: {e}",
+  "@gizliKodUygulanamadiE": {
+    "description": "lib/screens/home_screen.dart:904",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "sozlukGuncelleniyorLutfenBekleyin": "Sözlük güncelleniyor... Lütfen bekleyin.",
+  "@sozlukGuncelleniyorLutfenBekleyin": {
+    "description": "lib/screens/home_screen.dart:928"
+  },
+  "sozlukBasariylaGuncellendiP1Kelime": "Sözlük başarıyla güncellendi! {p1} kelime yüklendi.",
+  "@sozlukBasariylaGuncellendiP1Kelime": {
+    "description": "lib/screens/home_screen.dart:946",
+    "placeholders": {
+      "p1": {
+        "type": "int"
+      }
+    }
+  },
+  "sozlukGuncellenirkenHataOlustu": "Sözlük güncellenirken hata oluştu!",
+  "@sozlukGuncellenirkenHataOlustu": {
+    "description": "lib/screens/home_screen.dart:955"
+  },
+  "databaseReloadHatasiE": "Database reload hatası: {e}",
+  "@databaseReloadHatasiE": {
+    "description": "lib/screens/home_screen.dart:973",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "lutfenOnceKayitOlunGiris": "Lütfen önce kayıt olun, giriş yapın.",
+  "@lutfenOnceKayitOlunGiris": {
+    "description": "lib/screens/home_screen.dart:1374"
+  },
+  "kelimeAra": "Kelime ara",
+  "@kelimeAra": {
+    "description": "lib/screens/home_screen.dart:1678"
+  },
+  "emsile": "Emsile",
+  "@emsile": {
+    "description": "lib/screens/home_screen.dart:2113"
+  },
+  "kuranSozlugu": "Kuran Sözlüğü",
+  "@kuranSozlugu": {
+    "description": "lib/screens/home_screen.dart:2215"
+  },
+  "kavaidIDegerlendir": "Kavaid’i değerlendir",
+  "@kavaidIDegerlendir": {
+    "description": "lib/screens/home_screen.dart:2339"
+  },
+  "gorusunBizimIcinCokDegerli": "Görüşün bizim için çok değerli.",
+  "@gorusunBizimIcinCokDegerli": {
+    "description": "lib/screens/home_screen.dart:2349"
+  },
+  "kuranSozluguYukleniyor": "Kuran sözlüğü yükleniyor...",
+  "@kuranSozluguYukleniyor": {
+    "description": "lib/screens/home_screen.dart:2434"
+  },
+  "kuranSozlugundeAraniyor": "Kuran sözlüğünde aranıyor...",
+  "@kuranSozlugundeAraniyor": {
+    "description": "lib/screens/home_screen.dart:2436"
+  },
+  "araniyor": "Aranıyor...",
+  "@araniyor": {
+    "description": "lib/screens/home_screen.dart:2437"
+  },
+  "kuranSozlugundeBulunamadi": "Kuran sözlüğünde bulunamadı",
+  "@kuranSozlugundeBulunamadi": {
+    "description": "lib/screens/home_screen.dart:2508"
+  },
+  "farkliBirKelimeVeyaKok": "Farklı bir kelime veya kök ile aramayı deneyin",
+  "@farkliBirKelimeVeyaKok": {
+    "description": "lib/screens/home_screen.dart:2517"
+  },
+  "kuranSozlugunuDahaFazlaKullanabilmek": "Kuran sözlüğünü daha fazla kullanabilmek için Premium'a yükseltin.",
+  "@kuranSozlugunuDahaFazlaKullanabilmek": {
+    "description": "lib/screens/home_screen.dart:2739"
+  },
+  "kurAnIKerimSozlugu": "Kur'an-ı Kerim Sözlüğü",
+  "@kurAnIKerimSozlugu": {
+    "description": "lib/screens/home_screen.dart:2787"
+  },
+  "kurAnDaGecenTum": "Kur'an'da geçen tüm kelimelerin kullanımlarını ve Kur'ani anlamlarını ayetlerle birlikte öğrenin.",
+  "@kurAnDaGecenTum": {
+    "description": "lib/screens/home_screen.dart:2793"
+  },
+  "kurAnDakiBenzersizTum": "Kur'an'daki benzersiz tüm kelimeler.",
+  "@kurAnDakiBenzersizTum": {
+    "description": "lib/screens/home_screen.dart:2801"
+  },
+  "kuraniAnlamlar": "Kurani Anlamlar",
+  "@kuraniAnlamlar": {
+    "description": "lib/screens/home_screen.dart:2810"
+  },
+  "kelimelerinKurAnAyetlerindeKazandigi": "Kelimelerin Kur'an ayetlerinde kazandığı anlamları öğrenin.",
+  "@kelimelerinKurAnAyetlerindeKazandigi": {
+    "description": "lib/screens/home_screen.dart:2811"
+  },
+  "kurAnAyetleri": "Kur'an Ayetleri",
+  "@kurAnAyetleri": {
+    "description": "lib/screens/home_screen.dart:2820"
+  },
+  "onBinlerceKurAnAyeti": "On binlerce Kur'an ayeti ile kelimelerin Kur'andaki kullanımlarını görün.",
+  "@onBinlerceKurAnAyeti": {
+    "description": "lib/screens/home_screen.dart:2821"
+  },
+  "kavaidArapcaSozluk2": "Kavaid Arapça Sözlük",
+  "@kavaidArapcaSozluk2": {
+    "description": "lib/screens/home_screen.dart:2889"
+  },
+  "yeniNesilYapayZekaDestekli": "Yeni nesil yapay zeka destekli ilk Arapça sözlük",
+  "@yeniNesilYapayZekaDestekli": {
+    "description": "lib/screens/home_screen.dart:2895"
+  },
+  "premiumAGec": "Premium'a Geç",
+  "@premiumAGec": {
+    "description": "lib/screens/home_screen.dart:3007"
+  },
+  "sinirsizErisim": "Sınırsız erişim",
+  "@sinirsizErisim": {
+    "description": "lib/screens/home_screen.dart:3016"
+  },
+  "profilResmiGuncellendi": "✅ Profil resmi güncellendi!",
+  "@profilResmiGuncellendi": {
+    "description": "lib/screens/profile_screen.dart:321"
+  },
+  "birHataOlustu": "Bir hata oluştu",
+  "@birHataOlustu": {
+    "description": "lib/screens/profile_screen.dart:331"
+  },
+  "firebaseStorageYapilandirilmamisLutfenFirebase": "Firebase Storage yapılandırılmamış. Lütfen Firebase Console'dan Storage'ı aktifleştirin.",
+  "@firebaseStorageYapilandirilmamisLutfenFirebase": {
+    "description": "lib/screens/profile_screen.dart:334"
+  },
+  "izinHatasiStorageKurallariniKontrol": "İzin hatası. Storage kurallarını kontrol edin.",
+  "@izinHatasiStorageKurallariniKontrol": {
+    "description": "lib/screens/profile_screen.dart:336"
+  },
+  "yetkilendirmeHatasiLutfenGirisYapin": "Yetkilendirme hatası. Lütfen giriş yapın.",
+  "@yetkilendirmeHatasiLutfenGirisYapin": {
+    "description": "lib/screens/profile_screen.dart:338"
+  },
+  "internetBaglantisiHatasi": "İnternet bağlantısı hatası.",
+  "@internetBaglantisiHatasi": {
+    "description": "lib/screens/profile_screen.dart:340"
+  },
+  "detay": "Detay",
+  "@detay": {
+    "description": "lib/screens/profile_screen.dart:356"
+  },
+  "hataDetayi": "Hata Detayı",
+  "@hataDetayi": {
+    "description": "lib/screens/profile_screen.dart:362"
+  },
+  "kullanici": "Kullanıcı",
+  "@kullanici": {
+    "description": "lib/screens/profile_screen.dart:515"
+  },
+  "kurucu": "KURUCU",
+  "@kurucu": {
+    "description": "lib/screens/profile_screen.dart:616"
+  },
+  "moderator": "MODERATÖR",
+  "@moderator": {
+    "description": "lib/screens/profile_screen.dart:617"
+  },
+  "emailYok": "Email yok",
+  "@emailYok": {
+    "description": "lib/screens/profile_screen.dart:663"
+  },
+  "cikisYapilsinMi": "Çıkış yapılsın mı?",
+  "@cikisYapilsinMi": {
+    "description": "lib/screens/profile_screen.dart:679"
+  },
+  "oturumunuzKapatilacak": "Oturumunuz kapatılacak.",
+  "@oturumunuzKapatilacak": {
+    "description": "lib/screens/profile_screen.dart:680"
+  },
+  "cikis": "Çıkış",
+  "@cikis": {
+    "description": "lib/screens/profile_screen.dart:688"
+  },
+  "aboneligiYonet": "Aboneliği Yönet",
+  "@aboneligiYonet": {
+    "description": "lib/screens/profile_screen.dart:729"
+  },
+  "satinAlmalarKontrolEdiliyor": "Satın almalar kontrol ediliyor...",
+  "@satinAlmalarKontrolEdiliyor": {
+    "description": "lib/screens/profile_screen.dart:743"
+  },
+  "geriYukle": "Geri Yükle",
+  "@geriYukle": {
+    "description": "lib/screens/profile_screen.dart:752"
+  },
+  "girisYapinVeyaKayitOlun": "Giriş yapın veya kayıt olun",
+  "@girisYapinVeyaKayitOlun": {
+    "description": "lib/screens/profile_screen.dart:773"
+  },
+  "girisYap": "Giriş Yap",
+  "@girisYap": {
+    "description": "lib/screens/profile_screen.dart:802"
+  },
+  "kayitOl": "Kayıt Ol",
+  "@kayitOl": {
+    "description": "lib/screens/profile_screen.dart:824"
+  },
+  "premiumUyesiniz": "Premium Üyesiniz",
+  "@premiumUyesiniz": {
+    "description": "lib/screens/profile_screen.dart:873"
+  },
+  "sinirsizIcerikReklamsizKullanim": "Sınırsız içerik, reklamsız kullanım.",
+  "@sinirsizIcerikReklamsizKullanim": {
+    "description": "lib/screens/profile_screen.dart:881"
+  },
+  "tumOzelliklereErisin": "Tüm özelliklere erişin.",
+  "@tumOzelliklereErisin": {
+    "description": "lib/screens/profile_screen.dart:942"
+  },
+  "reklamsizKullanim": "Reklamsız Kullanım",
+  "@reklamsizKullanim": {
+    "description": "lib/screens/profile_screen.dart:985"
+  },
+  "uygulamayiPaylas": "Uygulamayı Paylaş",
+  "@uygulamayiPaylas": {
+    "description": "lib/screens/profile_screen.dart:1120"
+  },
+  "iletisim": "İletişim",
+  "@iletisim": {
+    "description": "lib/screens/profile_screen.dart:1173"
+  },
+  "kavaidUygulamasiHakkinda": "Kavaid Uygulaması Hakkında",
+  "@kavaidUygulamasiHakkinda": {
+    "description": "lib/screens/profile_screen.dart:1187"
+  },
+  "hesabimiSil": "Hesabımı Sil",
+  "@hesabimiSil": {
+    "description": "lib/screens/profile_screen.dart:1332"
+  },
+  "hesabiniziVeHesabinizaBagliTum": "Hesabınızı ve hesabınıza bağlı tüm verileri kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+  "@hesabiniziVeHesabinizaBagliTum": {
+    "description": "lib/screens/profile_screen.dart:1373"
+  },
+  "vazgec": "Vazgeç",
+  "@vazgec": {
+    "description": "lib/screens/profile_screen.dart:1379"
+  },
+  "hesabinizBasariylaSilindi": "Hesabınız başarıyla silindi.",
+  "@hesabinizBasariylaSilindi": {
+    "description": "lib/screens/profile_screen.dart:1389"
+  },
+  "hesapSilinemediEGuvenlikGeregi": "Hesap silinemedi: {e}. Güvenlik gereği yeniden giriş yapmanız gerekebilir.",
+  "@hesapSilinemediEGuvenlikGeregi": {
+    "description": "lib/screens/profile_screen.dart:1399",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "kavaidArapcaSozlukUygulamasi": "Kavaid - Arapça Sözlük Uygulaması",
+  "@kavaidArapcaSozlukUygulamasi": {
+    "description": "lib/screens/profile_screen.dart:1430"
+  },
+  "paylasimSirasindaBirHataOlustu": "Paylaşım sırasında bir hata oluştu",
+  "@paylasimSirasindaBirHataOlustu": {
+    "description": "lib/screens/profile_screen.dart:1449"
+  },
+  "internetGerekli": "İnternet Gerekli",
+  "@internetGerekli": {
+    "description": "lib/screens/profile_screen.dart:1476"
+  },
+  "buIslemIcinInternetBaglantisi": "Bu işlem için internet bağlantısı gereklidir.",
+  "@buIslemIcinInternetBaglantisi": {
+    "description": "lib/screens/profile_screen.dart:1477"
+  },
+  "kullaniciAdiDegistir": "Kullanıcı Adı Değiştir",
+  "@kullaniciAdiDegistir": {
+    "description": "lib/screens/profile_screen.dart:1518"
+  },
+  "mevcutCurrentusername": "Mevcut: {currentUsername}",
+  "@mevcutCurrentusername": {
+    "description": "lib/screens/profile_screen.dart:1524",
+    "placeholders": {
+      "currentUsername": {
+        "type": "Object"
+      }
+    }
+  },
+  "yeniKullaniciAdi": "Yeni Kullanıcı Adı",
+  "@yeniKullaniciAdi": {
+    "description": "lib/screens/profile_screen.dart:1549"
+  },
+  "kullaniciadi123KucukHarfBosluksuz": "kullaniciadi123 (küçük harf, boşluksuz)",
+  "@kullaniciadi123KucukHarfBosluksuz": {
+    "description": "lib/screens/profile_screen.dart:1550"
+  },
+  "enAz3KarakterSadece": "• En az 3 karakter\n• Sadece küçük harf, rakam ve Türkçe karakterler",
+  "@enAz3KarakterSadece": {
+    "description": "lib/screens/profile_screen.dart:1564"
+  },
+  "kullaniciAdiEnAz3": "Kullanıcı adı en az 3 karakter olmalı",
+  "@kullaniciAdiEnAz3": {
+    "description": "lib/screens/profile_screen.dart:1586"
+  },
+  "sadeceKucukHarfRakamVe": "Sadece küçük harf, rakam ve Türkçe karakterler",
+  "@sadeceKucukHarfRakamVe": {
+    "description": "lib/screens/profile_screen.dart:1593"
+  },
+  "kullaniciAdinizNewusernameOlarakGuncellendi": "Kullanıcı adınız \"{newUsername}\" olarak güncellendi!",
+  "@kullaniciAdinizNewusernameOlarakGuncellendi": {
+    "description": "lib/screens/profile_screen.dart:1611",
+    "placeholders": {
+      "newUsername": {
+        "type": "Object"
+      }
+    }
+  },
+  "buKullaniciAdiKullanilamiyorVeya": "Bu kullanıcı adı kullanılamıyor veya zaten alınmış",
+  "@buKullaniciAdiKullanilamiyorVeya": {
+    "description": "lib/screens/profile_screen.dart:1619"
+  },
+  "degistir": "Değiştir",
+  "@degistir": {
+    "description": "lib/screens/profile_screen.dart:1640"
+  },
+  "premiumUyelikAktif": "🎉 Premium üyelik aktif!",
+  "@premiumUyelikAktif": {
+    "description": "lib/screens/subscription_screen.dart:54"
+  },
+  "baglantiAcilamadiE": "Bağlantı açılamadı: {e}",
+  "@baglantiAcilamadiE": {
+    "description": "lib/screens/subscription_screen.dart:72",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "premiumSatinAlmakIcinLutfen": "Premium satın almak için lütfen önce giriş yapın.",
+  "@premiumSatinAlmakIcinLutfen": {
+    "description": "lib/screens/subscription_screen.dart:87"
+  },
+  "hataE": "Hata: {e}",
+  "@hataE": {
+    "description": "lib/screens/subscription_screen.dart:135",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "kavaidPremium": "Kavaid Premium",
+  "@kavaidPremium": {
+    "description": "lib/screens/subscription_screen.dart:221"
+  },
+  "aiAsistanASinirsizErisim": "AI Asistan'a sınırsız erişim",
+  "@aiAsistanASinirsizErisim": {
+    "description": "lib/screens/subscription_screen.dart:229"
+  },
+  "ceviriyeSinirsizErisim": "Çeviriye sınırsız erişim",
+  "@ceviriyeSinirsizErisim": {
+    "description": "lib/screens/subscription_screen.dart:231"
+  },
+  "m5500Fiilin24Siga": "5.500+ fiilin 24 sığa emsile çekimlerini aç",
+  "@m5500Fiilin24Siga": {
+    "description": "lib/screens/subscription_screen.dart:233"
+  },
+  "ogrenKismindakiTumMateryallereErisim": "Öğren kısmındaki tüm materyallere erişim",
+  "@ogrenKismindakiTumMateryallereErisim": {
+    "description": "lib/screens/subscription_screen.dart:235"
+  },
+  "kuranSozluguneSinirsizErisim": "Kuran Sözlüğüne Sınırsız Erişim",
+  "@kuranSozluguneSinirsizErisim": {
+    "description": "lib/screens/subscription_screen.dart:237"
+  },
+  "sinirsizKelimeKartiVeListe": "Sınırsız kelime kartı ve liste oluştur",
+  "@sinirsizKelimeKartiVeListe": {
+    "description": "lib/screens/subscription_screen.dart:239"
+  },
+  "reklamsizDeneyim": "Reklamsız deneyim",
+  "@reklamsizDeneyim": {
+    "description": "lib/screens/subscription_screen.dart:241"
+  },
+  "aylikAbonelik": "Aylık Abonelik",
+  "@aylikAbonelik": {
+    "description": "lib/screens/subscription_screen.dart:248"
+  },
+  "m1AyBoyuncaSinirsizErisim": "1 Ay boyunca sınırsız erişim",
+  "@m1AyBoyuncaSinirsizErisim": {
+    "description": "lib/screens/subscription_screen.dart:249"
+  },
+  "yillikAbonelik": "Yıllık Abonelik",
+  "@yillikAbonelik": {
+    "description": "lib/screens/subscription_screen.dart:256"
+  },
+  "m1YilBoyuncaSinirsizErisim": "1 Yıl boyunca sınırsız erişim",
+  "@m1YilBoyuncaSinirsizErisim": {
+    "description": "lib/screens/subscription_screen.dart:258"
+  },
+  "m1YilBoyuncaSinirsizErisim2": "1 Yıl boyunca sınırsız erişim ({yearlyMonthlyCost})",
+  "@m1YilBoyuncaSinirsizErisim2": {
+    "description": "lib/screens/subscription_screen.dart:259",
+    "placeholders": {
+      "yearlyMonthlyCost": {
+        "type": "Object"
+      }
+    }
+  },
+  "yearlydiscountIndirim": "%{yearlyDiscount} İNDİRİM",
+  "@yearlydiscountIndirim": {
+    "description": "lib/screens/subscription_screen.dart:263",
+    "placeholders": {
+      "yearlyDiscount": {
+        "type": "Object"
+      }
+    }
+  },
+  "aylikAboneOlButtonpricetext": "Aylık Abone Ol{buttonPriceText}",
+  "@aylikAboneOlButtonpricetext": {
+    "description": "lib/screens/subscription_screen.dart:289",
+    "placeholders": {
+      "buttonPriceText": {
+        "type": "Object"
+      }
+    }
+  },
+  "yillikAboneOlButtonpricetext": "Yıllık Abone Ol{buttonPriceText}",
+  "@yillikAboneOlButtonpricetext": {
+    "description": "lib/screens/subscription_screen.dart:290",
+    "placeholders": {
+      "buttonPriceText": {
+        "type": "Object"
+      }
+    }
+  },
+  "odemeAppleIdHesabinizdanTahsil": "Ödeme Apple ID hesabınızdan tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman App Store Hesap Ayarları'ndan iptal edebilirsiniz.",
+  "@odemeAppleIdHesabinizdanTahsil": {
+    "description": "lib/screens/subscription_screen.dart:304"
+  },
+  "odemeGooglePlayUzerindenTahsil": "Ödeme Google Play üzerinden tahsil edilir. Abonelik, dönem sonundan en az 24 saat önce iptal edilmediği sürece otomatik yenilenir. İstediğiniz zaman Google Play Hesap Ayarları'ndan iptal edebilirsiniz.",
+  "@odemeGooglePlayUzerindenTahsil": {
+    "description": "lib/screens/subscription_screen.dart:305"
+  },
+  "satinAlmalariGeriYukle": "Satın Almaları Geri Yükle",
+  "@satinAlmalariGeriYukle": {
+    "description": "lib/screens/subscription_screen.dart:335"
+  },
+  "kullanimKosullariEula": "Kullanım Koşulları (EULA)",
+  "@kullanimKosullariEula": {
+    "description": "lib/screens/subscription_screen.dart:349"
+  },
+  "gizlilikPolitikasi": "Gizlilik Politikası",
+  "@gizlilikPolitikasi": {
+    "description": "lib/screens/subscription_screen.dart:363"
+  },
+  "metinGirin": "Metin girin",
+  "@metinGirin": {
+    "description": "lib/screens/translation_screen.dart:474"
+  },
+  "harekeAc": "Hareke aç",
+  "@harekeAc": {
+    "description": "lib/screens/translation_screen.dart:601"
+  },
+  "kopyala": "Kopyala",
+  "@kopyala": {
+    "description": "lib/screens/translation_screen.dart:610"
+  },
+  "kopyalandi": "Kopyalandı",
+  "@kopyalandi": {
+    "description": "lib/screens/translation_screen.dart:615"
+  },
+  "cevir": "Çevir",
+  "@cevir": {
+    "description": "lib/screens/translation_screen.dart:711"
+  },
+  "suDileCevir": "Şu Dile Çevir",
+  "@suDileCevir": {
+    "description": "lib/screens/translation_screen.dart:747"
+  },
+  "premiumAGecin": "Premium'a geçin",
+  "@premiumAGecin": {
+    "description": "lib/screens/translation_screen.dart:868"
+  },
+  "dahaFazlaCeviriYapabilmekIcin": "Daha fazla çeviri yapabilmek için Premium'a geçin.",
+  "@dahaFazlaCeviriYapabilmekIcin": {
+    "description": "lib/screens/translation_screen.dart:880"
+  },
+  "lutfenOnceKayitOlupGiris": "Lütfen önce kayıt olup giriş yapın.",
+  "@lutfenOnceKayitOlupGiris": {
+    "description": "lib/screens/translation_screen.dart:943"
+  },
+  "diller": "Diller",
+  "@diller": {
+    "description": "lib/screens/translation_screen.dart:1072"
+  },
+  "lehceler": "Lehçeler",
+  "@lehceler": {
+    "description": "lib/screens/translation_screen.dart:1073"
+  },
+  "internetBaglantisiGerekiyor": "İnternet bağlantısı gerekiyor.",
+  "@internetBaglantisiGerekiyor": {
+    "description": "lib/services/ai_chat_service.dart:138"
+  },
+  "aiAsistanSuAnKullanilamiyor": "AI asistan şu an kullanılamıyor.",
+  "@aiAsistanSuAnKullanilamiyor": {
+    "description": "lib/services/ai_chat_service.dart:165"
+  },
+  "yanitGelmedi": "Yanıt gelmedi.",
+  "@yanitGelmedi": {
+    "description": "lib/services/ai_chat_service.dart:167"
+  },
+  "suAndaCevapAlinamadi": "Şu anda cevap alınamadı.",
+  "@suAndaCevapAlinamadi": {
+    "description": "lib/services/ai_chat_service.dart:170"
+  },
+  "hazir": "Hazir.",
+  "@hazir": {
+    "description": "lib/services/ai_teacher_service.dart:52"
+  },
+  "aiKelimeAsistaniIcinInternet": "AI Kelime Asistani icin internet baglantisi gerekiyor.",
+  "@aiKelimeAsistaniIcinInternet": {
+    "description": "lib/services/ai_teacher_service.dart:60"
+  },
+  "bugunkuUcretsizAiKelimeAsistani": "Bugunku ucretsiz AI Kelime Asistani hakkin doldu.",
+  "@bugunkuUcretsizAiKelimeAsistani": {
+    "description": "lib/services/ai_teacher_service.dart:67"
+  },
+  "aiOgretmenApiAnahtariGecersiz": "AI Öğretmen API anahtarı geçersiz. Firebase gemini_api değerini kontrol edin.",
+  "@aiOgretmenApiAnahtariGecersiz": {
+    "description": "lib/services/ai_teacher_service.dart:87"
+  },
+  "aiKelimeAsistaniSuAnda": "AI Kelime Asistani su anda yanit veremedi. Tekrar deneyin.",
+  "@aiKelimeAsistaniSuAnda": {
+    "description": "lib/services/ai_teacher_service.dart:93"
+  },
+  "yukleniyor": "Yükleniyor...",
+  "@yukleniyor": {
+    "description": "lib/services/app_startup_service.dart:40"
+  },
+  "sozlukHazir": "Sözlük hazır.",
+  "@sozlukHazir": {
+    "description": "lib/services/app_startup_service.dart:79"
+  },
+  "sozlukYuklenemedi": "Sözlük yüklenemedi.",
+  "@sozlukYuklenemedi": {
+    "description": "lib/services/app_startup_service.dart:90"
+  },
+  "ekranHazirlaniyor": "Ekran hazırlanıyor...",
+  "@ekranHazirlaniyor": {
+    "description": "lib/services/app_startup_service.dart:100"
+  },
+  "sozlukKontrolEdiliyor": "Sözlük kontrol ediliyor...",
+  "@sozlukKontrolEdiliyor": {
+    "description": "lib/services/app_startup_service.dart:140"
+  },
+  "sozlukAyarlaniyor": "Sözlük ayarlanıyor...",
+  "@sozlukAyarlaniyor": {
+    "description": "lib/services/app_startup_service.dart:160"
+  },
+  "aramaHazirlaniyor": "Arama hazırlanıyor...",
+  "@aramaHazirlaniyor": {
+    "description": "lib/services/app_startup_service.dart:200"
+  },
+  "aramaHazir": "Arama hazır.",
+  "@aramaHazir": {
+    "description": "lib/services/app_startup_service.dart:222"
+  },
+  "internetBaglantisiYok": "İnternet Bağlantısı Yok",
+  "@internetBaglantisiYok": {
+    "description": "lib/services/connectivity_service.dart:107"
+  },
+  "uygulamayiKullanabilmekIcinInternetBaglantisina": "Uygulamayı kullanabilmek için internet bağlantısına ihtiyacınız var. Lütfen WiFi veya mobil veri bağlantınızı kontrol edin.",
+  "@uygulamayiKullanabilmekIcinInternetBaglantisina": {
+    "description": "lib/services/connectivity_service.dart:121"
+  },
+  "sozlukHazirlaniyor": "Sözlük hazırlanıyor...",
+  "@sozlukHazirlaniyor": {
+    "description": "lib/services/database_initialization_service.dart:36"
+  },
+  "sozlukHazirExistingcountKelimeMevcut": "Sözlük hazır. {existingCount} kelime mevcut.",
+  "@sozlukHazirExistingcountKelimeMevcut": {
+    "description": "lib/services/database_initialization_service.dart:45",
+    "placeholders": {
+      "existingCount": {
+        "type": "int"
+      }
+    }
+  },
+  "kelimelerYukleniyor": "Kelimeler yükleniyor...",
+  "@kelimelerYukleniyor": {
+    "description": "lib/services/database_initialization_service.dart:54"
+  },
+  "sozlukHazir2": "Sözlük hazır!",
+  "@sozlukHazir2": {
+    "description": "lib/services/database_initialization_service.dart:77"
+  },
+  "mevcutVeritabaniKullanilacak": "Mevcut veritabanı kullanılacak.",
+  "@mevcutVeritabaniKullanilacak": {
+    "description": "lib/services/database_initialization_service.dart:89"
+  },
+  "hicGuncellenmedi": "Hiç güncellenmedi",
+  "@hicGuncellenmedi": {
+    "description": "lib/services/database_initialization_service.dart:104"
+  },
+  "girisYapmalisiniz": "Giriş yapmalısınız.",
+  "@girisYapmalisiniz": {
+    "description": "lib/services/one_time_purchase_service.dart:67"
+  },
+  "paketBulunamadiLifetime": "Paket bulunamadı (Lifetime).",
+  "@paketBulunamadiLifetime": {
+    "description": "lib/services/one_time_purchase_service.dart:90"
+  },
+  "hataOlustu": "Hata oluştu",
+  "@hataOlustu": {
+    "description": "lib/services/one_time_purchase_service.dart:95"
+  },
+  "beklenmedikHataE": "Beklenmedik hata: {e}",
+  "@beklenmedikHataE": {
+    "description": "lib/services/one_time_purchase_service.dart:98",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "revenuecatBaslatilamadiE": "RevenueCat baslatilamadi: {e}",
+  "@revenuecatBaslatilamadiE": {
+    "description": "lib/services/purchase_manager.dart:262",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "satinAlmakIcinOnceGiris": "Satın almak için önce giriş yapın.",
+  "@satinAlmakIcinOnceGiris": {
+    "description": "lib/services/purchase_manager.dart:1121"
+  },
+  "satinAlmaHatasiP1": "Satın alma hatası: {p1}",
+  "@satinAlmaHatasiP1": {
+    "description": "lib/services/purchase_manager.dart:1137",
+    "placeholders": {
+      "p1": {
+        "type": "Object"
+      }
+    }
+  },
+  "abonelikPaketiYuklenemediLutfenInternet": "Abonelik paketi yüklenemedi. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.",
+  "@abonelikPaketiYuklenemediLutfenInternet": {
+    "description": "lib/services/purchase_manager.dart:1215"
+  },
+  "satinAlmaKontroluIcinInternet": "Satın alma kontrolü için internet bağlantısı gerekiyor.",
+  "@satinAlmaKontroluIcinInternet": {
+    "description": "lib/services/purchase_manager.dart:1273"
+  },
+  "aktifBirAbonelikBulunamadi": "Aktif bir abonelik bulunamadi.",
+  "@aktifBirAbonelikBulunamadi": {
+    "description": "lib/services/purchase_manager.dart:1288"
+  },
+  "restoreHatasiE": "Restore hatasi: {e}",
+  "@restoreHatasiE": {
+    "description": "lib/services/purchase_manager.dart:1292",
+    "placeholders": {
+      "e": {
+        "type": "Object"
+      }
+    }
+  },
+  "hataOlustu2": "Hata oluştu.",
+  "@hataOlustu2": {
+    "description": "lib/services/translation_notifier.dart:137"
+  },
+  "ceviriIcinGirisYapmanGerekiyor": "Çeviri için giriş yapman gerekiyor.",
+  "@ceviriIcinGirisYapmanGerekiyor": {
+    "description": "lib/services/translation_quota_service.dart:85"
+  },
+  "premiumKullanici": "Premium kullanıcı.",
+  "@premiumKullanici": {
+    "description": "lib/services/translation_quota_service.dart:93"
+  },
+  "ceviriHakkiKullanildi": "Çeviri hakkı kullanıldı.",
+  "@ceviriHakkiKullanildi": {
+    "description": "lib/services/translation_quota_service.dart:142"
+  },
+  "ceviriHakkiKontrolEdilemediBaglantini": "Çeviri hakkı kontrol edilemedi. Bağlantını kontrol et.",
+  "@ceviriHakkiKontrolEdilemediBaglantini": {
+    "description": "lib/services/translation_quota_service.dart:150"
+  },
+  "yeniSohbet": "Yeni sohbet",
+  "@yeniSohbet": {
+    "description": "lib/widgets/ai_chat_sheet.dart:167"
+  },
+  "buSohbetinGecmisiSilinsinMi": "Bu sohbetin geçmişi silinsin mi?",
+  "@buSohbetinGecmisiSilinsinMi": {
+    "description": "lib/widgets/ai_chat_sheet.dart:168"
+  },
+  "aiAsistan": "AI Asistan",
+  "@aiAsistan": {
+    "description": "lib/widgets/ai_chat_sheet.dart:263"
+  },
+  "hakkinda": " hakkında",
+  "@hakkinda": {
+    "description": "lib/widgets/ai_chat_sheet.dart:288"
+  },
+  "arapcaSozlukYardimcin": "Arapça sözlük yardımcın",
+  "@arapcaSozlukYardimcin": {
+    "description": "lib/widgets/ai_chat_sheet.dart:300"
+  },
+  "bugunkuUcretsizSoruHakkin": "Bugünkü ücretsiz soru hakkın",
+  "@bugunkuUcretsizSoruHakkin": {
+    "description": "lib/widgets/ai_chat_sheet.dart:332"
+  },
+  "arapcasiniDinle": "Arapçasını dinle",
+  "@arapcasiniDinle": {
+    "description": "lib/widgets/ai_chat_sheet.dart:458"
+  },
+  "tekrarDene2": "Tekrar dene",
+  "@tekrarDene2": {
+    "description": "lib/widgets/ai_chat_sheet.dart:529"
+  },
+  "bugunkuFreedailylimitUcretsizSoruHakkin": "Bugünkü {freeDailyLimit} ücretsiz soru hakkın bitti",
+  "@bugunkuFreedailylimitUcretsizSoruHakkin": {
+    "description": "lib/widgets/ai_chat_sheet.dart:577",
+    "placeholders": {
+      "freeDailyLimit": {
+        "type": "int"
+      }
+    }
+  },
+  "haklarinYarinYenilenirPremiumIle": "Hakların yarın yenilenir. Premium ile sınırsız sorabilirsin.",
+  "@haklarinYarinYenilenirPremiumIle": {
+    "description": "lib/widgets/ai_chat_sheet.dart:590"
+  },
+  "premiumAGec2": "Premium'a geç",
+  "@premiumAGec2": {
+    "description": "lib/widgets/ai_chat_sheet.dart:608"
+  },
+  "kisacaAnlat": "Kısaca anlat",
+  "@kisacaAnlat": {
+    "description": "lib/widgets/ai_chat_sheet.dart:619"
+  },
+  "m3OrnekCumleVer": "3 örnek cümle ver",
+  "@m3OrnekCumleVer": {
+    "description": "lib/widgets/ai_chat_sheet.dart:620"
+  },
+  "benzerKelimelerdenFarkiNe": "Benzer kelimelerden farkı ne?",
+  "@benzerKelimelerdenFarkiNe": {
+    "description": "lib/widgets/ai_chat_sheet.dart:621"
+  },
+  "okunusunuLatinHarfleriyleYaz": "Okunuşunu Latin harfleriyle yaz",
+  "@okunusunuLatinHarfleriyleYaz": {
+    "description": "lib/widgets/ai_chat_sheet.dart:622"
+  },
+  "gecmisZamanNasilKurulur": "Geçmiş zaman nasıl kurulur?",
+  "@gecmisZamanNasilKurulur": {
+    "description": "lib/widgets/ai_chat_sheet.dart:625"
+  },
+  "harfICerNedir": "Harf-i cer nedir?",
+  "@harfICerNedir": {
+    "description": "lib/widgets/ai_chat_sheet.dart:626"
+  },
+  "isimCumlesiNasilKurulur": "İsim cümlesi nasıl kurulur?",
+  "@isimCumlesiNasilKurulur": {
+    "description": "lib/widgets/ai_chat_sheet.dart:627"
+  },
+  "enSikKullanilan10Fiil": "En sık kullanılan 10 fiil",
+  "@enSikKullanilan10Fiil": {
+    "description": "lib/widgets/ai_chat_sheet.dart:628"
+  },
+  "sonSorduklarim": "Son sorduklarım",
+  "@sonSorduklarim": {
+    "description": "lib/widgets/ai_chat_sheet.dart:650"
+  },
+  "ornekSorular": "Örnek sorular",
+  "@ornekSorular": {
+    "description": "lib/widgets/ai_chat_sheet.dart:658"
+  },
+  "buKelimeHakkindaKisaVe": "Bu kelime hakkında kısa ve net cevap alırsın.",
+  "@buKelimeHakkindaKisaVe": {
+    "description": "lib/widgets/ai_chat_sheet.dart:705"
+  },
+  "arapcaSorunuYaz": "Arapça sorunu yaz",
+  "@arapcaSorunuYaz": {
+    "description": "lib/widgets/ai_chat_sheet.dart:728"
+  },
+  "kisaVeNetCevapVerir": "Kısa ve net cevap verir, bilmediğini uydurmaz.",
+  "@kisaVeNetCevapVerir": {
+    "description": "lib/widgets/ai_chat_sheet.dart:738"
+  },
+  "ornekVer": "Örnek ver",
+  "@ornekVer": {
+    "description": "lib/widgets/ai_chat_sheet.dart:815"
+  },
+  "dahaBasitAnlat": "Daha basit anlat",
+  "@dahaBasitAnlat": {
+    "description": "lib/widgets/ai_chat_sheet.dart:816"
+  },
+  "derinles": "Derinleş",
+  "@derinles": {
+    "description": "lib/widgets/ai_chat_sheet.dart:817"
+  },
+  "cekiminiGoster": "Çekimini göster",
+  "@cekiminiGoster": {
+    "description": "lib/widgets/ai_chat_sheet.dart:818"
+  },
+  "aiAsistanASor": "AI Asistan'a sor...",
+  "@aiAsistanASor": {
+    "description": "lib/widgets/ai_chat_sheet.dart:887"
+  },
+  "yeniAiAsistan": "Yeni: AI Asistan",
+  "@yeniAiAsistan": {
+    "description": "lib/widgets/ai_intro_banner.dart:58"
+  },
+  "kelimeKartindakiIkonlarinEnSolundaki": "Kelime kartındaki ikonların en solundaki bu simgeye dokun: anlamını, benzerlerinden farkını ve örnek cümleleri sor.",
+  "@kelimeKartindakiIkonlarinEnSolundaki": {
+    "description": "lib/widgets/ai_intro_banner.dart:67"
+  },
+  "anladim": "Anladım",
+  "@anladim": {
+    "description": "lib/widgets/ai_intro_banner.dart:85"
+  },
+  "buKelimeyleSeviyeSeviyeDaha": "Bu kelimeyle seviye seviye daha fazla örnek ver: kolay, orta, günlük kullanım, gramer odaklı ve soru cümlesi.",
+  "@buKelimeyleSeviyeSeviyeDaha": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:64"
+  },
+  "bugunkuUcretsizAiKelimeAsistani2": "Bugünkü ücretsiz AI Kelime Asistanı hakkın doldu. Devam etmek için premiuma geçebilirsin.",
+  "@bugunkuUcretsizAiKelimeAsistani2": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:105"
+  },
+  "suAndaCevapAlinamadiInternet": "Şu anda cevap alınamadı. İnternet bağlantını kontrol edip tekrar deneyebilirsin.",
+  "@suAndaCevapAlinamadiInternet": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:116"
+  },
+  "aiKelimeAsistani": "AI Kelime Asistanı",
+  "@aiKelimeAsistani": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:194"
+  },
+  "aiKelimeAsistaniRemainingUcretsiz": "AI Kelime Asistanı · {remaining} ücretsiz hak",
+  "@aiKelimeAsistaniRemainingUcretsiz": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:195",
+    "placeholders": {
+      "remaining": {
+        "type": "int"
+      }
+    }
+  },
+  "aiKelimeAsistaniHazirlanamadi": "AI Kelime Asistanı hazırlanamadı.",
+  "@aiKelimeAsistaniHazirlanamadi": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:233"
+  },
+  "premiumAGec3": "Premium’a geç",
+  "@premiumAGec3": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:244"
+  },
+  "kisacaAnlat2": "Kısaca Anlat",
+  "@kisacaAnlat2": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:263"
+  },
+  "gramerNotlari": "Gramer Notları",
+  "@gramerNotlari": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:268"
+  },
+  "kullanimNotlari": "Kullanım Notları",
+  "@kullanimNotlari": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:273"
+  },
+  "buKelimeNeredeKullanilir": "Bu kelime nerede kullanılır?",
+  "@buKelimeNeredeKullanilir": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:324"
+  },
+  "m5YeniOrnekVer": "5 yeni örnek ver",
+  "@m5YeniOrnekVer": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:326"
+  },
+  "kolayCumlelerleAnlat": "Kolay cümlelerle anlat",
+  "@kolayCumlelerleAnlat": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:327"
+  },
+  "cekimleOrnekVer": "Çekimle örnek ver",
+  "@cekimleOrnekVer": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:330"
+  },
+  "harfICerFarkiniAnlat": "Harf-i cer farkını anlat",
+  "@harfICerFarkiniAnlat": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:333"
+  },
+  "ornekleOgren": "Örnekle Öğren",
+  "@ornekleOgren": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:445"
+  },
+  "miniAlistirma": "Mini Alıştırma",
+  "@miniAlistirma": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:497"
+  },
+  "hazirSorular": "Hazır Sorular",
+  "@hazirSorular": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:593"
+  },
+  "sor": "Sor",
+  "@sor": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:648"
+  },
+  "buKelimeyleIlgiliSoruSor": "Bu kelimeyle ilgili soru sor",
+  "@buKelimeyleIlgiliSoruSor": {
+    "description": "lib/widgets/ai_teacher_sheet.dart:688"
+  },
+  "arapcaTurkceSozluk": "Arapça–Türkçe sözlük",
+  "@arapcaTurkceSozluk": {
+    "description": "lib/widgets/app_intro_screen.dart:73"
+  },
+  "arapcaYaDaTurkceYaz": "Arapça ya da Türkçe yaz, her şey tek kartta.",
+  "@arapcaYaDaTurkceYaz": {
+    "description": "lib/widgets/app_intro_screen.dart:74"
+  },
+  "sesleYaDaArapcaKlavyeyle": "Sesle ya da Arapça klavyeyle ara",
+  "@sesleYaDaArapcaKlavyeyle": {
+    "description": "lib/widgets/app_intro_screen.dart:78"
+  },
+  "kokCogulVeOrnekCumleler": "Kök, çoğul ve örnek cümleler",
+  "@kokCogulVeOrnekCumleler": {
+    "description": "lib/widgets/app_intro_screen.dart:79"
+  },
+  "fiilKarti": "Fiil kartı",
+  "@fiilKarti": {
+    "description": "lib/widgets/app_intro_screen.dart:83"
+  },
+  "fiillerinCekimleriKartinIcinde": "Fiillerin çekimleri kartın içinde.",
+  "@fiillerinCekimleriKartinIcinde": {
+    "description": "lib/widgets/app_intro_screen.dart:84"
+  },
+  "maziMuzariMastarVeEmir": "Mazi, müzari, mastar ve emir",
+  "@maziMuzariMastarVeEmir": {
+    "description": "lib/widgets/app_intro_screen.dart:88"
+  },
+  "tumCekimlerIcinEmsileyeGec": "Tüm çekimler için emsileye geç",
+  "@tumCekimlerIcinEmsileyeGec": {
+    "description": "lib/widgets/app_intro_screen.dart:89"
+  },
+  "kelimeKartininEnSolundakiSimgeye": "Kelime kartının en solundaki simgeye dokun.",
+  "@kelimeKartininEnSolundakiSimgeye": {
+    "description": "lib/widgets/app_intro_screen.dart:94"
+  },
+  "sorunuYazYaDaHazir": "Sorunu yaz ya da hazır soru seç",
+  "@sorunuYazYaDaHazir": {
+    "description": "lib/widgets/app_intro_screen.dart:99"
+  },
+  "kisaVeNetCevap": "Kısa ve net cevap",
+  "@kisaVeNetCevap": {
+    "description": "lib/widgets/app_intro_screen.dart:100"
+  },
+  "m5500DenFazlaFiilin": "5.500’den fazla fiilin çekim tablosu.",
+  "@m5500DenFazlaFiilin": {
+    "description": "lib/widgets/app_intro_screen.dart:105"
+  },
+  "fiileDokunKartiAcilsin": "Fiile dokun, kartı açılsın",
+  "@fiileDokunKartiAcilsin": {
+    "description": "lib/widgets/app_intro_screen.dart:109"
+  },
+  "anlamlariVe24SigaCekimi": "Anlamları ve 24 sığa çekimi",
+  "@anlamlariVe24SigaCekimi": {
+    "description": "lib/widgets/app_intro_screen.dart:110"
+  },
+  "kurAnSozlugu": "Kur’an sözlüğü",
+  "@kurAnSozlugu": {
+    "description": "lib/widgets/app_intro_screen.dart:114"
+  },
+  "kurAnKelimeleriniAyetleriyleOgren": "Kur’an kelimelerini ayetleriyle öğren.",
+  "@kurAnKelimeleriniAyetleriyleOgren": {
+    "description": "lib/widgets/app_intro_screen.dart:115"
+  },
+  "kelimeVeKurAniAnlamlari": "Kelime ve Kur’ani anlamları",
+  "@kelimeVeKurAniAnlamlari": {
+    "description": "lib/widgets/app_intro_screen.dart:119"
+  },
+  "gectigiAyetVeMeali": "Geçtiği ayet ve meali",
+  "@gectigiAyetVeMeali": {
+    "description": "lib/widgets/app_intro_screen.dart:120"
+  },
+  "lehceCeviri": "Lehçe çeviri",
+  "@lehceCeviri": {
+    "description": "lib/widgets/app_intro_screen.dart:124"
+  },
+  "turkceYazYaDaKonus": "Türkçe yaz ya da konuş, 17 lehçeye çevir.",
+  "@turkceYazYaDaKonus": {
+    "description": "lib/widgets/app_intro_screen.dart:125"
+  },
+  "karsiligiVeOkunusu": "Karşılığı ve okunuşu",
+  "@karsiligiVeOkunusu": {
+    "description": "lib/widgets/app_intro_screen.dart:129"
+  },
+  "lehceyiSecYaDaSesle": "Lehçeyi seç ya da sesle söyle",
+  "@lehceyiSecYaDaSesle": {
+    "description": "lib/widgets/app_intro_screen.dart:130"
+  },
+  "listelerVeKartlar": "Listeler ve kartlar",
+  "@listelerVeKartlar": {
+    "description": "lib/widgets/app_intro_screen.dart:134"
+  },
+  "kaydettiginHerSeyTekYerde": "Kaydettiğin her şey tek yerde.",
+  "@kaydettiginHerSeyTekYerde": {
+    "description": "lib/widgets/app_intro_screen.dart:135"
+  },
+  "listeYaDaKartlarlaTekrar": "Liste ya da kartlarla tekrar et",
+  "@listeYaDaKartlarlaTekrar": {
+    "description": "lib/widgets/app_intro_screen.dart:139"
+  },
+  "sozlukKurAnVeEmsile": "Sözlük, Kur’an ve emsile kayıtları",
+  "@sozlukKurAnVeEmsile": {
+    "description": "lib/widgets/app_intro_screen.dart:140"
+  },
+  "a1DenC1EResimli": "A1’den C1’e resimli Arapça hikâyeler.",
+  "@a1DenC1EResimli": {
+    "description": "lib/widgets/app_intro_screen.dart:145"
+  },
+  "kelimeyeDokunAnlamiCiksin": "Kelimeye dokun, anlamı çıksın",
+  "@kelimeyeDokunAnlamiCiksin": {
+    "description": "lib/widgets/app_intro_screen.dart:149"
+  },
+  "metniSesliDinle": "Metni sesli dinle",
+  "@metniSesliDinle": {
+    "description": "lib/widgets/app_intro_screen.dart:150"
+  },
+  "gec": "Geç",
+  "@gec": {
+    "description": "lib/widgets/app_intro_screen.dart:256"
+  },
+  "yeni": "YENİ",
+  "@yeni": {
+    "description": "lib/widgets/app_intro_screen.dart:395"
+  },
+  "ara": "Ara",
+  "@ara": {
+    "description": "lib/widgets/arabic_keyboard.dart:202"
+  },
+  "bosluk": "Boşluk",
+  "@bosluk": {
+    "description": "lib/widgets/arabic_keyboard.dart:216"
+  },
+  "hesabinizYoksaOnceKayitOlun": "Hesabınız yoksa önce kayıt olun",
+  "@hesabinizYoksaOnceKayitOlun": {
+    "description": "lib/widgets/email_auth_sheet.dart:153"
+  },
+  "kayitTamamlandiktanSonraGirisYapmaniz": "Kayıt tamamlandıktan sonra giriş yapmanız gerekir.",
+  "@kayitTamamlandiktanSonraGirisYapmaniz": {
+    "description": "lib/widgets/email_auth_sheet.dart:168"
+  },
+  "ePosta": "E-posta",
+  "@ePosta": {
+    "description": "lib/widgets/email_auth_sheet.dart:213"
+  },
+  "gecersizEPostaAdresi": "Geçersiz e-posta adresi",
+  "@gecersizEPostaAdresi": {
+    "description": "lib/widgets/email_auth_sheet.dart:215"
+  },
+  "sifre": "Şifre",
+  "@sifre": {
+    "description": "lib/widgets/email_auth_sheet.dart:222"
+  },
+  "sifreGerekli": "Şifre gerekli",
+  "@sifreGerekli": {
+    "description": "lib/widgets/email_auth_sheet.dart:224"
+  },
+  "sifremiUnuttum": "Şifremi unuttum",
+  "@sifremiUnuttum": {
+    "description": "lib/widgets/email_auth_sheet.dart:242"
+  },
+  "sifreTekrar": "Şifre Tekrar",
+  "@sifreTekrar": {
+    "description": "lib/widgets/email_auth_sheet.dart:253"
+  },
+  "sifreTekrariGerekli": "Şifre tekrarı gerekli",
+  "@sifreTekrariGerekli": {
+    "description": "lib/widgets/email_auth_sheet.dart:257"
+  },
+  "sifrelerEslesmiyor": "Şifreler eşleşmiyor",
+  "@sifrelerEslesmiyor": {
+    "description": "lib/widgets/email_auth_sheet.dart:258"
+  },
+  "sifreniSifirlamakIcinOnceE": "Şifreni sıfırlamak için önce e-posta adresini yaz.",
+  "@sifreniSifirlamakIcinOnceE": {
+    "description": "lib/widgets/email_auth_sheet.dart:306"
+  },
+  "emailAdresineKayitliBirHesap": "{email} adresine kayıtlı bir hesap varsa şifre sıfırlama bağlantısı gönderildi. Gelen kutunu ve gereksiz (spam) klasörünü kontrol et.",
+  "@emailAdresineKayitliBirHesap": {
+    "description": "lib/widgets/email_auth_sheet.dart:324",
+    "placeholders": {
+      "email": {
+        "type": "Object"
+      }
+    }
+  },
+  "gecerliBirEPostaAdresi": "Geçerli bir e‑posta adresi giriniz.",
+  "@gecerliBirEPostaAdresi": {
+    "description": "lib/widgets/email_auth_sheet.dart:330"
+  },
+  "buEPostaIleKayit": "Bu e‑posta ile kayıt bulunamadı.",
+  "@buEPostaIleKayit": {
+    "description": "lib/widgets/email_auth_sheet.dart:331"
+  },
+  "cokFazlaDenemeYapildiBir": "Çok fazla deneme yapıldı. Bir süre sonra tekrar deneyin.",
+  "@cokFazlaDenemeYapildiBir": {
+    "description": "lib/widgets/email_auth_sheet.dart:333"
+  },
+  "agHatasiInternetBaglantiniziKontrol": "Ağ hatası. İnternet bağlantınızı kontrol edin.",
+  "@agHatasiInternetBaglantiniziKontrol": {
+    "description": "lib/widgets/email_auth_sheet.dart:335"
+  },
+  "baglantiGonderilemediLutfenTekrarDeneyin": "Bağlantı gönderilemedi. Lütfen tekrar deneyin.",
+  "@baglantiGonderilemediLutfenTekrarDeneyin": {
+    "description": "lib/widgets/email_auth_sheet.dart:336"
+  },
+  "hosGeldinizHesabinizBasariylaOlusturuldu": "🎉 Hoş geldiniz! Hesabınız başarıyla oluşturuldu.",
+  "@hosGeldinizHesabinizBasariylaOlusturuldu": {
+    "description": "lib/widgets/email_auth_sheet.dart:390"
+  },
+  "islemBasarisizLutfenTekrarDeneyin": "İşlem başarısız. Lütfen tekrar deneyin.",
+  "@islemBasarisizLutfenTekrarDeneyin": {
+    "description": "lib/widgets/email_auth_sheet.dart:400"
+  },
+  "ePostaVeyaSifreHatali": "E‑posta veya şifre hatalı. Lütfen kontrol ediniz.",
+  "@ePostaVeyaSifreHatali": {
+    "description": "lib/widgets/email_auth_sheet.dart:406"
+  },
+  "sifreHatali": "Şifre hatalı.",
+  "@sifreHatali": {
+    "description": "lib/widgets/email_auth_sheet.dart:410"
+  },
+  "buEPostaZatenKayitli": "Bu e‑posta zaten kayıtlı.",
+  "@buEPostaZatenKayitli": {
+    "description": "lib/widgets/email_auth_sheet.dart:412"
+  },
+  "sifreCokZayifDahaGuclu": "Şifre çok zayıf. Daha güçlü bir şifre seçin.",
+  "@sifreCokZayifDahaGuclu": {
+    "description": "lib/widgets/email_auth_sheet.dart:414"
+  },
+  "buGirisYontemiProjeIcin": "Bu giriş yöntemi proje için etkin değil.",
+  "@buGirisYontemiProjeIcin": {
+    "description": "lib/widgets/email_auth_sheet.dart:416"
+  },
+  "oDisil": "O (dişil)",
+  "@oDisil": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:130"
+  },
+  "ikisi": "İkisi",
+  "@ikisi": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:131"
+  },
+  "ikisiEril": "İkisi (eril)",
+  "@ikisiEril": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:132"
+  },
+  "ikisiDisil": "İkisi (dişil)",
+  "@ikisiDisil": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:133"
+  },
+  "onlarDisil": "Onlar (dişil)",
+  "@onlarDisil": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:135"
+  },
+  "senDisil": "Sen (dişil)",
+  "@senDisil": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:137"
+  },
+  "ikiniz": "İkiniz",
+  "@ikiniz": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:138"
+  },
+  "sizDisil": "Siz (dişil)",
+  "@sizDisil": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:140"
+  },
+  "m3Sahis": "غَائِب (3. Şahıs)",
+  "@m3Sahis": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:147"
+  },
+  "m2Sahis": "مُخَاطَب (2. Şahıs)",
+  "@m2Sahis": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:148"
+  },
+  "m1Sahis": "مُتَكَلِّم (1. Şahıs)",
+  "@m1Sahis": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:149"
+  },
+  "muzari": "Müzari",
+  "@muzari": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:204"
+  },
+  "emsileCekimleri": "Emsile Çekimleri",
+  "@emsileCekimleri": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:251"
+  },
+  "maziGecmis": "Mazi (Geçmiş)",
+  "@maziGecmis": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:359"
+  },
+  "muzariGenis": "Müzari (Geniş)",
+  "@muzariGenis": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:360"
+  },
+  "emir": "Emir",
+  "@emir": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:361"
+  },
+  "tabtitleCekimiBulunamadi": "{tabTitle} çekimi bulunamadı",
+  "@tabtitleCekimiBulunamadi": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:389",
+    "placeholders": {
+      "tabTitle": {
+        "type": "Object"
+      }
+    }
+  },
+  "kok": "Kök",
+  "@kok": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:598"
+  },
+  "ismIFail": "İsm-i Fail",
+  "@ismIFail": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:603"
+  },
+  "ismIMefUl": "İsm-i Mef'ul",
+  "@ismIMefUl": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:608"
+  },
+  "fiilCekimleriKavaidSozluk": "Fiil çekimleri • Kavaid Sözlük",
+  "@fiilCekimleriKavaidSozluk": {
+    "description": "lib/widgets/emsile_bottom_sheet.dart:611"
+  },
+  "m5500DenFazlaFiilin2": "5.500'den fazla fiilin 24 sığa Emsile-i Muhtelife çekimlerini öğrenin.",
+  "@m5500DenFazlaFiilin2": {
+    "description": "lib/widgets/emsile_view.dart:169"
+  },
+  "tumFiilleriAc": "Tüm fiilleri aç",
+  "@tumFiilleriAc": {
+    "description": "lib/widgets/emsile_view.dart:213"
+  },
+  "dahaFazlaFiilYukle": "Daha Fazla Fiil Yükle",
+  "@dahaFazlaFiilYukle": {
+    "description": "lib/widgets/emsile_view.dart:259"
+  },
+  "arananKelimeBulunamadi": "Aranan kelime bulunamadı",
+  "@arananKelimeBulunamadi": {
+    "description": "lib/widgets/emsile_view.dart:285"
+  },
+  "fiilIMaziMuttasilCekimler": "Fiil-i Mâzi — Muttasıl Çekimler",
+  "@fiilIMaziMuttasilCekimler": {
+    "description": "lib/widgets/emsile_view.dart:705"
+  },
+  "fiilIMuzariMuttasilCekimler": "Fiil-i Muzâri — Muttasıl Çekimler",
+  "@fiilIMuzariMuttasilCekimler": {
+    "description": "lib/widgets/emsile_view.dart:706"
+  },
+  "emrIHazirMuttasilCekimler": "Emr-i Hâzır — Muttasıl Çekimler",
+  "@emrIHazirMuttasilCekimler": {
+    "description": "lib/widgets/emsile_view.dart:707"
+  },
+  "cekimler": "Çekimler",
+  "@cekimler": {
+    "description": "lib/widgets/emsile_view.dart:736"
+  },
+  "premiumIcerik": "Premium İçerik",
+  "@premiumIcerik": {
+    "description": "lib/widgets/emsile_view.dart:889"
+  },
+  "m5500DenFazlaFiilin3": "5.500'den fazla fiilin 24 sığa Emsile-i Muhtelife çekimlerini açın",
+  "@m5500DenFazlaFiilin3": {
+    "description": "lib/widgets/emsile_view.dart:899"
+  },
+  "ucretsizFiiller": "Ücretsiz Fiiller",
+  "@ucretsizFiiller": {
+    "description": "lib/widgets/emsile_view.dart:934"
+  },
+  "listeyeEkle": "Listeye Ekle",
+  "@listeyeEkle": {
+    "description": "lib/widgets/save_button.dart:157"
+  },
+  "aiAsistaniKullanmakIcinLutfen": "AI asistanı kullanmak için lütfen giriş yapın.",
+  "@aiAsistaniKullanmakIcinLutfen": {
+    "description": "lib/widgets/search_result_card.dart:442"
+  },
+  "buKelimeyleSeviyemeUygun5": "Bu kelimeyle seviyeme uygun 5 yeni örnek ver: kolaydan zora doğru.",
+  "@buKelimeyleSeviyemeUygun5": {
+    "description": "lib/widgets/search_result_card.dart:510"
+  },
+  "tumFiilCekimleri": "Tüm Fiil Çekimleri",
+  "@tumFiilCekimleri": {
+    "description": "lib/widgets/search_result_card.dart:590"
+  },
+  "kokRoot": "kök {root}",
+  "@kokRoot": {
+    "description": "lib/widgets/search_result_card_parts.dart:156",
+    "placeholders": {
+      "root": {
+        "type": "Object"
+      }
+    }
+  },
+  "cogul": "Çoğul",
+  "@cogul": {
+    "description": "lib/widgets/search_result_card_parts.dart:386"
+  },
+  "ornekCumleler": "Örnek Cümleler",
+  "@ornekCumleler": {
+    "description": "lib/widgets/search_result_card_parts.dart:527"
+  },
+  "cumleyiDinle": "Cümleyi dinle",
+  "@cumleyiDinle": {
+    "description": "lib/widgets/search_result_card_parts.dart:587"
+  },
+  "aiAsistanASor2": "AI Asistan'a sor",
+  "@aiAsistanASor2": {
+    "description": "lib/widgets/search_result_card_parts.dart:634"
+  },
+  "dahaFazlaOrnek": "Daha fazla örnek",
+  "@dahaFazlaOrnek": {
+    "description": "lib/widgets/search_result_card_parts.dart:635"
+  },
+  "kelimeKaydetmekIcinOnceGiris": "Kelime kaydetmek için önce giriş yapın",
+  "@kelimeKaydetmekIcinOnceGiris": {
+    "description": "lib/widgets/word_card.dart:103"
+  },
+  "oyna": "Oyna",
+  "@oyna": {
+    "description": "lib/widgets/wow_guru_mini_game.dart:237"
+  },
+  "verbFormPast": "Mazi",
+  "@verbFormPast": {
+    "description": "Fiil çekim etiketi: geçmiş zaman (mazi). Kelime kartında kısa etiket."
+  },
+  "verbFormPresent": "Müzari",
+  "@verbFormPresent": {
+    "description": "Fiil çekim etiketi: şimdiki/geniş zaman (müzari). Kelime kartında kısa etiket."
+  },
+  "verbFormInfinitive": "Mastar",
+  "@verbFormInfinitive": {
+    "description": "Fiil çekim etiketi: mastar (masdar). Kelime kartında kısa etiket."
+  },
+  "verbFormImperative": "Emir",
+  "@verbFormImperative": {
+    "description": "Fiil çekim etiketi: emir kipi. Kelime kartında kısa etiket."
+  },
+  "zamirOEril": "O (eril)",
+  "@zamirOEril": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "zamirOnlarEril": "Onlar (eril)",
+  "@zamirOnlarEril": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "zamirSenEril": "Sen (eril)",
+  "@zamirSenEril": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "zamirSizEril": "Siz (eril)",
+  "@zamirSizEril": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "zamirBen": "Ben",
+  "@zamirBen": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "zamirBiz": "Biz",
+  "@zamirBiz": {
+    "description": "Emsile tablosunda Arapça zamirin karşılığı (şahıs etiketi)."
+  },
+  "dialectTr": "Türkçe",
+  "@dialectTr": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectEn": "İngilizce",
+  "@dialectEn": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectDe": "Almanca",
+  "@dialectDe": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectFr": "Fransızca",
+  "@dialectFr": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectRu": "Rusça",
+  "@dialectRu": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectEs": "İspanyolca",
+  "@dialectEs": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectIt": "İtalyanca",
+  "@dialectIt": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectPt": "Portekizce",
+  "@dialectPt": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectNl": "Hollandaca",
+  "@dialectNl": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectFa": "Farsça",
+  "@dialectFa": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectUr": "Urduca",
+  "@dialectUr": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectId": "Endonezce",
+  "@dialectId": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArStandard": "Standart Arapça",
+  "@dialectArStandard": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArSyrian": "Suriye Arapçası",
+  "@dialectArSyrian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArLebanese": "Lübnan Arapçası",
+  "@dialectArLebanese": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArJordanian": "Ürdün Arapçası",
+  "@dialectArJordanian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArPalestinian": "Filistin Arapçası",
+  "@dialectArPalestinian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArEgyptian": "Mısır Arapçası",
+  "@dialectArEgyptian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArIraqi": "Irak Arapçası",
+  "@dialectArIraqi": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArSudanese": "Sudan Arapçası",
+  "@dialectArSudanese": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArSaudi": "Suudi Arapçası",
+  "@dialectArSaudi": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArEmirati": "Emirlik Arapçası",
+  "@dialectArEmirati": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArKuwaiti": "Kuveyt Arapçası",
+  "@dialectArKuwaiti": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArQatari": "Katar Arapçası",
+  "@dialectArQatari": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArOmani": "Umman Arapçası",
+  "@dialectArOmani": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArYemeni": "Yemen Arapçası",
+  "@dialectArYemeni": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArMoroccan": "Fas Arapçası",
+  "@dialectArMoroccan": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArAlgerian": "Cezayir Arapçası",
+  "@dialectArAlgerian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArTunisian": "Tunus Arapçası",
+  "@dialectArTunisian": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectArLibyan": "Libya Arapçası",
+  "@dialectArLibyan": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "appLanguage": "Uygulama dili",
+  "@appLanguage": {
+    "description": "Profil ekranında arayüz dilini seçme satırının başlığı."
+  },
+  "typeNoun": "İsim",
+  "@typeNoun": {
+    "description": "Kelime kartındaki küçük tür rozeti: noun. Çok kısa olmalı."
+  },
+  "typeProperNoun": "Özel isim",
+  "@typeProperNoun": {
+    "description": "Kelime kartındaki küçük tür rozeti: proper noun. Çok kısa olmalı."
+  },
+  "typeVerb": "Fiil",
+  "@typeVerb": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb. Çok kısa olmalı."
+  },
+  "typeVerbPast": "Mazi fiil",
+  "@typeVerbPast": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, past tense (māḍī). Çok kısa olmalı."
+  },
+  "typeVerbPresent": "Muzari fiil",
+  "@typeVerbPresent": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, present tense (muḍāriʿ). Çok kısa olmalı."
+  },
+  "typeVerbImperative": "Emir fiil",
+  "@typeVerbImperative": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, imperative (amr). Çok kısa olmalı."
+  },
+  "typeVerbProhibitive": "Nehiy fiil",
+  "@typeVerbProhibitive": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, prohibitive (lā + jussive). Çok kısa olmalı."
+  },
+  "typeVerbPastPassive": "Meçhul mazi",
+  "@typeVerbPastPassive": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, past passive. Çok kısa olmalı."
+  },
+  "typeVerbPresentPassive": "Meçhul muzari",
+  "@typeVerbPresentPassive": {
+    "description": "Kelime kartındaki küçük tür rozeti: verb, present passive. Çok kısa olmalı."
+  },
+  "typeVerbDefective": "Nakıs fiil",
+  "@typeVerbDefective": {
+    "description": "Kelime kartındaki küçük tür rozeti: defective verb (kāna and its sisters). Çok kısa olmalı."
+  },
+  "typeMasdar": "Mastar",
+  "@typeMasdar": {
+    "description": "Kelime kartındaki küçük tür rozeti: verbal noun (maṣdar). Çok kısa olmalı."
+  },
+  "typeActiveParticiple": "İsm-i fail",
+  "@typeActiveParticiple": {
+    "description": "Kelime kartındaki küçük tür rozeti: active participle (ism fāʿil). Çok kısa olmalı."
+  },
+  "typePassiveParticiple": "İsm-i mef'ul",
+  "@typePassiveParticiple": {
+    "description": "Kelime kartındaki küçük tür rozeti: passive participle (ism mafʿūl). Çok kısa olmalı."
+  },
+  "typeElative": "İsm-i tafdil",
+  "@typeElative": {
+    "description": "Kelime kartındaki küçük tür rozeti: elative / comparative (ism tafḍīl). Çok kısa olmalı."
+  },
+  "typeAdjective": "Sıfat",
+  "@typeAdjective": {
+    "description": "Kelime kartındaki küçük tür rozeti: adjective. Çok kısa olmalı."
+  },
+  "typeAdverb": "Zarf",
+  "@typeAdverb": {
+    "description": "Kelime kartındaki küçük tür rozeti: adverb. Çok kısa olmalı."
+  },
+  "typeHal": "Hal",
+  "@typeHal": {
+    "description": "Kelime kartındaki küçük tür rozeti: circumstantial accusative (ḥāl). Çok kısa olmalı."
+  },
+  "typePronoun": "Zamir",
+  "@typePronoun": {
+    "description": "Kelime kartındaki küçük tür rozeti: pronoun. Çok kısa olmalı."
+  },
+  "typeDemonstrative": "İşaret ismi",
+  "@typeDemonstrative": {
+    "description": "Kelime kartındaki küçük tür rozeti: demonstrative. Çok kısa olmalı."
+  },
+  "typeRelative": "İsm-i mevsul",
+  "@typeRelative": {
+    "description": "Kelime kartındaki küçük tür rozeti: relative pronoun. Çok kısa olmalı."
+  },
+  "typeInterrogative": "Soru edatı",
+  "@typeInterrogative": {
+    "description": "Kelime kartındaki küçük tür rozeti: interrogative particle. Çok kısa olmalı."
+  },
+  "typePreposition": "Harf-i cer",
+  "@typePreposition": {
+    "description": "Kelime kartındaki küçük tür rozeti: preposition (ḥarf jarr). Çok kısa olmalı."
+  },
+  "typeParticle": "Edat",
+  "@typeParticle": {
+    "description": "Kelime kartındaki küçük tür rozeti: particle. Çok kısa olmalı."
+  },
+  "typeNumber": "Sayı",
+  "@typeNumber": {
+    "description": "Kelime kartındaki küçük tür rozeti: number. Çok kısa olmalı."
+  },
+  "typePhrase": "Tamlama",
+  "@typePhrase": {
+    "description": "Kelime kartındaki küçük tür rozeti: phrase / construct (iḍāfa). Çok kısa olmalı."
+  },
+  "typeExpression": "İfade",
+  "@typeExpression": {
+    "description": "Kelime kartındaki küçük tür rozeti: expression. Çok kısa olmalı."
+  },
+  "typeIdiom": "Deyim",
+  "@typeIdiom": {
+    "description": "Kelime kartındaki küçük tür rozeti: idiom. Çok kısa olmalı."
+  },
+  "siga01": "Fiil-i Mâzi",
+  "@siga01": {
+    "description": "Emsile tablosunda 24 sığadan 1. sığanın kısa adı: الماضي — past tense. Kartın başlık şeridine sığmalı."
+  },
+  "siga02": "Fiil-i Muzâri",
+  "@siga02": {
+    "description": "Emsile tablosunda 24 sığadan 2. sığanın kısa adı: المضارع — present tense. Kartın başlık şeridine sığmalı."
+  },
+  "siga03": "Masdar",
+  "@siga03": {
+    "description": "Emsile tablosunda 24 sığadan 3. sığanın kısa adı: المصدر — verbal noun. Kartın başlık şeridine sığmalı."
+  },
+  "siga04": "İsm-i Fâil",
+  "@siga04": {
+    "description": "Emsile tablosunda 24 sığadan 4. sığanın kısa adı: اسم الفاعل — active participle. Kartın başlık şeridine sığmalı."
+  },
+  "siga05": "İsm-i Mef’ûl",
+  "@siga05": {
+    "description": "Emsile tablosunda 24 sığadan 5. sığanın kısa adı: اسم المفعول — passive participle. Kartın başlık şeridine sığmalı."
+  },
+  "siga06": "C. Mutlak",
+  "@siga06": {
+    "description": "Emsile tablosunda 24 sığadan 6. sığanın kısa adı: الجحد المطلق (لم يفعل) — negated past. Kartın başlık şeridine sığmalı."
+  },
+  "siga07": "C. Müstağrak",
+  "@siga07": {
+    "description": "Emsile tablosunda 24 sığadan 7. sığanın kısa adı: الجحد المستغرق (لمّا يفعل) — \"not yet\". Kartın başlık şeridine sığmalı."
+  },
+  "siga08": "Nefy-i Hâl",
+  "@siga08": {
+    "description": "Emsile tablosunda 24 sığadan 8. sığanın kısa adı: نفي الحال (ما يفعل) — negated present. Kartın başlık şeridine sığmalı."
+  },
+  "siga09": "Nef. İstik.",
+  "@siga09": {
+    "description": "Emsile tablosunda 24 sığadan 9. sığanın kısa adı: نفي الاستقبال (لا يفعل) — negated future. Kartın başlık şeridine sığmalı."
+  },
+  "siga10": "Tek. N. İstik.",
+  "@siga10": {
+    "description": "Emsile tablosunda 24 sığadan 10. sığanın kısa adı: تأكيد نفي الاستقبال (لن يفعل) — emphatic negated future. Kartın başlık şeridine sığmalı."
+  },
+  "siga11": "Emr-i Gâib",
+  "@siga11": {
+    "description": "Emsile tablosunda 24 sığadan 11. sığanın kısa adı: أمر الغائب (ليفعل) — 3rd-person command. Kartın başlık şeridine sığmalı."
+  },
+  "siga12": "Nehy-i Gâib",
+  "@siga12": {
+    "description": "Emsile tablosunda 24 sığadan 12. sığanın kısa adı: نهي الغائب (لا يفعل) — 3rd-person prohibition. Kartın başlık şeridine sığmalı."
+  },
+  "siga13": "Emr-i Hâzır",
+  "@siga13": {
+    "description": "Emsile tablosunda 24 sığadan 13. sığanın kısa adı: أمر الحاضر (افعل) — imperative. Kartın başlık şeridine sığmalı."
+  },
+  "siga14": "Nehy-i Hâzır",
+  "@siga14": {
+    "description": "Emsile tablosunda 24 sığadan 14. sığanın kısa adı: نهي الحاضر (لا تفعل) — prohibition. Kartın başlık şeridine sığmalı."
+  },
+  "siga15": "Zaman/Mekân",
+  "@siga15": {
+    "description": "Emsile tablosunda 24 sığadan 15. sığanın kısa adı: اسم الزمان والمكان — noun of time/place. Kartın başlık şeridine sığmalı."
+  },
+  "siga16": "İsm-i Âlet",
+  "@siga16": {
+    "description": "Emsile tablosunda 24 sığadan 16. sığanın kısa adı: اسم الآلة — noun of instrument. Kartın başlık şeridine sığmalı."
+  },
+  "siga17": "Bina-i Merre",
+  "@siga17": {
+    "description": "Emsile tablosunda 24 sığadan 17. sığanın kısa adı: اسم المرة — noun of once. Kartın başlık şeridine sığmalı."
+  },
+  "siga18": "Bina-i Nev'î",
+  "@siga18": {
+    "description": "Emsile tablosunda 24 sığadan 18. sığanın kısa adı: اسم الهيئة — noun of manner. Kartın başlık şeridine sığmalı."
+  },
+  "siga19": "İsm-i Tasğîr",
+  "@siga19": {
+    "description": "Emsile tablosunda 24 sığadan 19. sığanın kısa adı: التصغير — diminutive. Kartın başlık şeridine sığmalı."
+  },
+  "siga20": "İsm-i Mensûb",
+  "@siga20": {
+    "description": "Emsile tablosunda 24 sığadan 20. sığanın kısa adı: الاسم المنسوب — relative adjective (nisba). Kartın başlık şeridine sığmalı."
+  },
+  "siga21": "Müb. İ. Fâil",
+  "@siga21": {
+    "description": "Emsile tablosunda 24 sığadan 21. sığanın kısa adı: صيغة المبالغة — intensive active participle. Kartın başlık şeridine sığmalı."
+  },
+  "siga22": "İsm-i Tafdîl",
+  "@siga22": {
+    "description": "Emsile tablosunda 24 sığadan 22. sığanın kısa adı: اسم التفضيل — elative. Kartın başlık şeridine sığmalı."
+  },
+  "siga23": "Taaccüb 1",
+  "@siga23": {
+    "description": "Emsile tablosunda 24 sığadan 23. sığanın kısa adı: التعجب الأول (ما أفعله) — exclamation 1. Kartın başlık şeridine sığmalı."
+  },
+  "siga24": "Taaccüb 2",
+  "@siga24": {
+    "description": "Emsile tablosunda 24 sığadan 24. sığanın kısa adı: التعجب الثاني (أفعل به) — exclamation 2. Kartın başlık şeridine sığmalı."
+  },
+  "dialectMs": "Malayca",
+  "@dialectMs": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectBn": "Bengalce",
+  "@dialectBn": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectUz": "Özbekçe",
+  "@dialectUz": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "dialectAz": "Azerice",
+  "@dialectAz": {
+    "description": "Çeviri ekranında dil/lehçe adı (dil seçici listesi)."
+  },
+  "prepositionsLabel": "Harf-i cerle",
+  "@prepositionsLabel": {
+    "description": "Arapça kelime kartında harf-i cerli (edatlı) kullanımlar bölümünün kısa başlığı; Arapçada \"مع حروف الجر\"."
+  },
+  "tashkeelToggle": "Hareke",
+  "@tashkeelToggle": {
+    "description": "Arapça kelime kartında tanım ve örneklerde harekeyi açıp kapatan düğme; Arapçada \"التشكيل\"."
+  },
+  "tashkeelSettingHint": "Tanım ve örneklerde harekeleri göster",
+  "@tashkeelSettingHint": {
+    "description": "Profildeki hareke ayarının açıklaması (yalnız Arapça anlam dilinde görünür)."
+  },
+  "rootMatches": "Kök eşleşme",
+  "@rootMatches": {
+    "description": "Arama sonuçlarında aynı kökten gelen kelimelerin bölüm başlığı."
+  },
+  "dictionaryLanguage": "Sözlük dili",
+  "@dictionaryLanguage": {
+    "description": "Profildeki sözlük (anlam) dili ayarının başlığı."
+  },
+  "dictionaryLanguageHint": "Kelime anlamlarının dili",
+  "@dictionaryLanguageHint": {
+    "description": "Sözlük dili ayarının açıklaması."
+  },
+  "arabicArabicDictionary": "Arapça–Arapça sözlük",
+  "@arabicArabicDictionary": {
+    "description": "Sözlük dili listesinde Arapça seçeneğinin altındaki açıklama."
+  }
+}

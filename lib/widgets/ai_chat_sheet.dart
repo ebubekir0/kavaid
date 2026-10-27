@@ -11,6 +11,7 @@ import '../services/ai_teacher_service.dart';
 import '../services/tts_service.dart';
 import 'ai_answer_text.dart';
 import 'search_result_card_parts.dart' show ArabicTextStyles;
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Sözlük içindeki AI asistan sohbeti.
 ///
@@ -140,8 +141,8 @@ class _AiChatSheetState extends State<AiChatSheet> {
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Kopyalandı'),
+      SnackBar(
+        content: Text(l10n.kopyalandi),
         duration: Duration(seconds: 1),
       ),
     );
@@ -164,16 +165,16 @@ class _AiChatSheetState extends State<AiChatSheet> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Yeni sohbet'),
-        content: const Text('Bu sohbetin geçmişi silinsin mi?'),
+        title: Text(l10n.yeniSohbet),
+        content: Text(l10n.buSohbetinGecmisiSilinsinMi),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.vazgec),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Sil'),
+            child: Text(l10n.sil),
           ),
         ],
       ),
@@ -249,7 +250,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
   Widget _buildHeader(_Palette p) {
     final word = _service.contextWord;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 4, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 4, 10),
       child: Row(
         children: [
           _aiBadge(34, 19),
@@ -260,7 +261,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'AI Asistan',
+                  l10n.aiAsistan,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 15,
@@ -285,7 +286,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                         ),
                       ),
                       Text(
-                        ' hakkında',
+                        l10n.hakkinda,
                         style: TextStyle(
                           fontFamily: 'Inter',
                           fontSize: 12,
@@ -297,7 +298,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                   )
                 else
                   Text(
-                    'Arapça sözlük yardımcın',
+                    l10n.arapcaSozlukYardimcin,
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 12,
@@ -313,12 +314,12 @@ class _AiChatSheetState extends State<AiChatSheet> {
             IconButton(
               onPressed: _confirmReset,
               icon: Icon(Icons.restart_alt_rounded, size: 21, color: p.sub),
-              tooltip: 'Yeni sohbet',
+              tooltip: l10n.yeniSohbet,
             ),
           IconButton(
             onPressed: () => Navigator.pop(context),
             icon: Icon(Icons.close_rounded, size: 21, color: p.sub),
-            tooltip: 'Kapat',
+            tooltip: l10n.kapat,
           ),
         ],
       ),
@@ -329,10 +330,10 @@ class _AiChatSheetState extends State<AiChatSheet> {
     final left = _service.remainingUses;
     final empty = left <= 0;
     return Tooltip(
-      message: 'Bugünkü ücretsiz soru hakkın',
+      message: l10n.bugunkuUcretsizSoruHakkin,
       triggerMode: TooltipTriggerMode.tap,
       child: Container(
-        margin: const EdgeInsets.only(left: 6),
+        margin: const EdgeInsetsDirectional.only(start: 6),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
           color: (empty ? const Color(0xFFFF9500) : _Palette.blue).withValues(
@@ -372,7 +373,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
 
     return ListView.builder(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 14, 14, 8),
       itemCount: messages.length + 1,
       itemBuilder: (context, index) {
         if (index == messages.length) return _buildStatus(p);
@@ -386,9 +387,9 @@ class _AiChatSheetState extends State<AiChatSheet> {
 
   Widget _buildQuestion(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12, left: 48),
+      padding: const EdgeInsetsDirectional.only(bottom: 12, start: 48),
       child: Align(
-        alignment: Alignment.centerRight,
+        alignment: AlignmentDirectional.centerEnd,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
           decoration: const BoxDecoration(
@@ -418,7 +419,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
   Widget _buildAnswer(String text, _Palette p) {
     final hasArabic = arabicParts(text).isNotEmpty;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14, right: 20),
+      padding: const EdgeInsetsDirectional.only(bottom: 14, end: 20),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -429,7 +430,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  padding: const EdgeInsets.fromLTRB(12, 9, 12, 10),
+                  padding: const EdgeInsetsDirectional.fromSTEB(12, 9, 12, 10),
                   decoration: BoxDecoration(
                     color: p.surface,
                     borderRadius: const BorderRadius.only(
@@ -455,7 +456,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                     if (hasArabic)
                       _miniAction(
                         Icons.volume_up_rounded,
-                        'Arapçasını dinle',
+                        l10n.arapcasiniDinle,
                         () => _speakArabic(text),
                         p,
                       ),
@@ -507,7 +508,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
     if (error != null) {
       final failed = _service.failedText;
       return Padding(
-        padding: const EdgeInsets.only(left: 34, bottom: 8),
+        padding: const EdgeInsetsDirectional.only(start: 34, bottom: 8),
         child: Row(
           children: [
             Icon(Icons.error_outline_rounded, size: 16, color: p.sub),
@@ -526,7 +527,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
             if (failed != null)
               TextButton(
                 onPressed: () => _submit(failed),
-                child: const Text('Tekrar dene'),
+                child: Text(l10n.tekrarDene2),
               ),
           ],
         ),
@@ -574,7 +575,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Bugünkü ${AiTeacherService.freeDailyLimit} ücretsiz soru hakkın bitti',
+                  l10n.bugunkuFreedailylimitUcretsizSoruHakkin(AiTeacherService.freeDailyLimit),
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 13.5,
@@ -587,7 +588,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Hakların yarın yenilenir. Premium ile sınırsız sorabilirsin.',
+            l10n.haklarinYarinYenilenirPremiumIle,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 12.5,
@@ -605,7 +606,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            child: const Text('Premium\'a geç'),
+            child: Text(l10n.premiumAGec2),
           ),
         ],
       ),
@@ -615,22 +616,22 @@ class _AiChatSheetState extends State<AiChatSheet> {
   Widget _buildStarter(_Palette p) {
     final word = _service.contextWord;
     final starters = word != null
-        ? const <String>[
-            'Kısaca anlat',
-            '3 örnek cümle ver',
-            'Benzer kelimelerden farkı ne?',
-            'Okunuşunu Latin harfleriyle yaz',
+        ? <String>[
+            l10n.kisacaAnlat,
+            l10n.m3OrnekCumleVer,
+            l10n.benzerKelimelerdenFarkiNe,
+            l10n.okunusunuLatinHarfleriyleYaz,
           ]
-        : const <String>[
-            'Geçmiş zaman nasıl kurulur?',
-            'Harf-i cer nedir?',
-            'İsim cümlesi nasıl kurulur?',
-            'En sık kullanılan 10 fiil',
+        : <String>[
+            l10n.gecmisZamanNasilKurulur,
+            l10n.harfICerNedir,
+            l10n.isimCumlesiNasilKurulur,
+            l10n.enSikKullanilan10Fiil,
           ];
 
     return ListView(
       controller: _scrollController,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 12),
       children: [
         if (word != null) _buildWordContext(word, p) else _buildIntro(p),
         const SizedBox(height: 18),
@@ -647,7 +648,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _sectionLabel('Son sorduklarım', p),
+                      _sectionLabel(l10n.sonSorduklarim, p),
                       for (final q in _recent)
                         _suggestionRow(Icons.history_rounded, q, p),
                       const SizedBox(height: 14),
@@ -655,7 +656,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                   ),
           ),
         ),
-        _sectionLabel(word != null ? 'Hızlı sorular' : 'Örnek sorular', p),
+        _sectionLabel(word != null ? 'Hızlı sorular' : l10n.ornekSorular, p),
         for (final q in starters)
           _suggestionRow(Icons.north_east_rounded, q, p),
       ],
@@ -669,7 +670,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 : (word.anlam ?? ''))
             .trim();
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 14, 12),
       decoration: BoxDecoration(
         color: p.surface,
         borderRadius: BorderRadius.circular(14),
@@ -702,7 +703,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
             ),
           const SizedBox(height: 8),
           Text(
-            'Bu kelime hakkında kısa ve net cevap alırsın.',
+            l10n.buKelimeHakkindaKisaVe,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 12,
@@ -725,7 +726,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Arapça sorunu yaz',
+                l10n.arapcaSorunuYaz,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 15,
@@ -735,7 +736,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
               ),
               const SizedBox(height: 2),
               Text(
-                'Kısa ve net cevap verir, bilmediğini uydurmaz.',
+                l10n.kisaVeNetCevapVerir,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12.5,
@@ -752,7 +753,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
 
   Widget _sectionLabel(String label, _Palette p) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2, bottom: 6),
+      padding: const EdgeInsetsDirectional.only(start: 2, bottom: 6),
       child: Text(
         label,
         style: TextStyle(
@@ -812,16 +813,16 @@ class _AiChatSheetState extends State<AiChatSheet> {
     }
     final word = _service.contextWord;
     final followUps = <String>[
-      'Örnek ver',
-      'Daha basit anlat',
-      'Derinleş',
-      if (word?.fiilCekimler?.isNotEmpty == true) 'Çekimini göster',
+      l10n.ornekVer,
+      l10n.dahaBasitAnlat,
+      l10n.derinles,
+      if (word?.fiilCekimler?.isNotEmpty == true) l10n.cekiminiGoster,
     ];
     return SizedBox(
       height: 44,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.fromLTRB(14, 4, 14, 6),
+        padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 14, 6),
         itemCount: followUps.length,
         separatorBuilder: (_, _) => const SizedBox(width: 6),
         itemBuilder: (context, i) {
@@ -857,7 +858,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
       borderSide: BorderSide.none,
     );
     return Container(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         12,
         8,
         10,
@@ -884,7 +885,7 @@ class _AiChatSheetState extends State<AiChatSheet> {
                 color: p.text,
               ),
               decoration: InputDecoration(
-                hintText: 'AI Asistan\'a sor...',
+                hintText: l10n.aiAsistanASor,
                 hintStyle: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 13.5,
@@ -976,7 +977,7 @@ class _TypingDotsState extends State<_TypingDots>
             final phase = (_anim.value * 3 - i) % 3;
             final opacity = phase < 1 ? 1.0 - phase * 0.6 : 0.35;
             return Padding(
-              padding: EdgeInsets.only(right: i < 2 ? 4 : 0),
+              padding: EdgeInsetsDirectional.only(end: i < 2 ? 4 : 0),
               child: Opacity(
                 opacity: opacity.clamp(0.35, 1.0),
                 child: Container(

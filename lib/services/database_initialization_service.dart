@@ -1,7 +1,11 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'database_service.dart';
 import '../data/embedded_words.dart';
+import '../utils/perf_log.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class DatabaseInitializationService {
   static final DatabaseInitializationService instance =
@@ -27,13 +31,15 @@ class DatabaseInitializationService {
   /// Yerel sözlük, uygulamayla gelen veri sürümüyle aynı mı?
   Future<bool> isInstalledDataCurrent() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(dataVersionKey) == embeddedWordsVersion;
+    return prefs.getString(dataVersionKey) == await EmbeddedWords.currentVersion();
   }
 
   /// Embedded data'yı yükle
   Future<bool> initializeDatabase() async {
+    // Kelime listesini bekleyen arama izolesi (liste verilene kadar dolu)
+    SendPort? searchPort;
     try {
-      onProgress?.call(0.0, 'Sözlük hazırlanıyor...');
+      onProgress?.call(0.0, l10n.sozlukHazirlaniyor);
 
       // Lokal database kontrolü
       final dbService = DatabaseService.instance;
@@ -42,50 +48,63 @@ class DatabaseInitializationService {
       // Veritabanı dolu ve uygulamadaki veriyle aynı sürümdeyse atla
       final prefs = await SharedPreferences.getInstance();
       if (existingCount > 0 && await isInstalledDataCurrent()) {
-        onProgress?.call(1.0, 'Sözlük hazır. $existingCount kelime mevcut.');
+        onProgress?.call(1.0, l10n.sozlukHazirExistingcountKelimeMevcut(existingCount));
         return true;
       }
 
-      onProgress?.call(0.1, 'Sözlük ayarlanıyor...');
+      onProgress?.call(0.1, l10n.sozlukAyarlaniyor);
 
-      // Uygulamayla gelen sözlük verisini arka planda çöz
+      // Uygulamayla gelen sözlük verisi bir kez çözülür: önce veritabanına yazılır,
+      // sonra aynı liste arama izolesine verilir ve fihrist ondan kurulur (izole
+      // ikinci kez çözmez). Fihrist yazmayla aynı anda kurulmuyor: izoleler aynı
+      // çöp toplayıcıyı paylaştığı için yazma 4-7 sn uzuyordu (Galaxy A16).
+      searchPort = await DatabaseService.searchWordsPort();
       final wordsJson = await EmbeddedWords.load();
+      PerfLog.mark('dictDecoded');
 
-      onProgress?.call(0.3, 'Kelimeler yükleniyor...');
+      onProgress?.call(0.3, l10n.kelimelerYukleniyor);
 
       // İlk kurulumda Android input dispatch'i bloklanmasın diye parça parça yaz.
       await dbService.recreateWordsTableFromEmbeddedMaps(
         wordsJson,
         onChunkCommitted: (loadedCount) {
           final progress = 0.3 + (0.6 * (loadedCount / wordsJson.length));
-          onProgress?.call(progress, 'Sözlük ayarlanıyor...');
+          onProgress?.call(progress, l10n.sozlukAyarlaniyor);
         },
       );
 
-      onProgress?.call(0.9, 'Sözlük ayarlanıyor...');
+      onProgress?.call(0.9, l10n.sozlukAyarlaniyor);
+      PerfLog.mark('dbWritten');
+
+      searchPort?.send(wordsJson);
+      searchPort = null;
 
       // Hangi veri sürümünün kurulduğunu işaretle
-      await prefs.setString(dataVersionKey, embeddedWordsVersion);
-      await prefs.setString('database_version', 'embedded_$embeddedWordsVersion');
+      final version = await EmbeddedWords.currentVersion();
+      await prefs.setString(dataVersionKey, version);
+      await prefs.setString('database_version', 'embedded_$version');
       await prefs.remove('embedded_data_loaded_v3');
       await prefs.setString(
         'last_update_date',
         DateTime.now().toIso8601String(),
       );
 
-      onProgress?.call(1.0, 'Sözlük hazır!');
+      onProgress?.call(1.0, l10n.sozlukHazir2);
 
       return true;
     } catch (e) {
       debugPrint('Database initialization hatası: $e');
       onProgress?.call(0.0, 'Hata: ${e.toString()}');
 
+      // Liste arama izolesine verilmedi: arama sözlüğü kendisi çözsün
+      if (searchPort != null) DatabaseService.restartSearch();
+
       // Hata durumunda lokal database varsa true dön
       final dbService = DatabaseService.instance;
       final count = await dbService.getWordsCount();
 
       if (count > 0) {
-        onProgress?.call(1.0, 'Mevcut veritabanı kullanılacak.');
+        onProgress?.call(1.0, l10n.mevcutVeritabaniKullanilacak);
         return true;
       }
 
@@ -100,7 +119,7 @@ class DatabaseInitializationService {
 
     return {
       'version': prefs.getString('database_version') ?? 'Bilinmiyor',
-      'lastUpdate': prefs.getString('last_update_date') ?? 'Hiç güncellenmedi',
+      'lastUpdate': prefs.getString('last_update_date') ?? l10n.hicGuncellenmedi,
       'wordCount': await dbService.getWordsCount(),
       'pendingAiWords': await dbService.getPendingAiWordsCount(),
       'hasInternet': false, // Artık internet kontrolü yapmıyoruz

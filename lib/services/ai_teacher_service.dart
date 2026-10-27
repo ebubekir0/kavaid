@@ -6,6 +6,7 @@ import '../models/word_model.dart';
 import 'connectivity_service.dart';
 import 'gemini_service.dart';
 import 'purchase_manager.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 enum AiTeacherAccessStatus { allowed, noInternet, limitReached, unavailable }
 
@@ -49,22 +50,22 @@ class AiTeacherService {
       return AiTeacherResult(
         status: AiTeacherAccessStatus.allowed,
         explanation: cached,
-        message: 'Hazir.',
+        message: l10n.hazir,
       );
     }
 
     final hasInternet = await ConnectivityService().hasInternetConnection();
     if (!hasInternet) {
-      return const AiTeacherResult(
+      return AiTeacherResult(
         status: AiTeacherAccessStatus.noInternet,
-        message: 'AI Kelime Asistani icin internet baglantisi gerekiyor.',
+        message: l10n.aiKelimeAsistaniIcinInternet,
       );
     }
 
     if (!isPremium && await _isFreeLimitReached()) {
-      return const AiTeacherResult(
+      return AiTeacherResult(
         status: AiTeacherAccessStatus.limitReached,
-        message: 'Bugunku ucretsiz AI Kelime Asistani hakkin doldu.',
+        message: l10n.bugunkuUcretsizAiKelimeAsistani,
       );
     }
 
@@ -77,20 +78,20 @@ class AiTeacherService {
       return AiTeacherResult(
         status: AiTeacherAccessStatus.allowed,
         explanation: explanation,
-        message: 'Hazir.',
+        message: l10n.hazir,
       );
     } on GeminiApiKeyInvalidException {
       debugPrint('[AiTeacherService] invalid Gemini API key');
-      return const AiTeacherResult(
+      return AiTeacherResult(
         status: AiTeacherAccessStatus.unavailable,
         message:
-            'AI Öğretmen API anahtarı geçersiz. Firebase gemini_api değerini kontrol edin.',
+            l10n.aiOgretmenApiAnahtariGecersiz,
       );
     } catch (e) {
       debugPrint('[AiTeacherService] explanation failed: $e');
-      return const AiTeacherResult(
+      return AiTeacherResult(
         status: AiTeacherAccessStatus.unavailable,
-        message: 'AI Kelime Asistani su anda yanit veremedi. Tekrar deneyin.',
+        message: l10n.aiKelimeAsistaniSuAnda,
       );
     }
   }

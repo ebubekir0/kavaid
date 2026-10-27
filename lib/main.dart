@@ -19,6 +19,7 @@ import 'services/admob_service.dart';
 import 'widgets/app_intro_screen.dart';
 import 'widgets/banner_ad_widget.dart';
 import 'utils/performance_utils.dart';
+import 'utils/perf_log.dart';
 import 'utils/image_cache_manager.dart';
 import 'utils/database_cleanup_utility.dart';
 import 'widgets/fps_counter_widget.dart';
@@ -38,6 +39,9 @@ import 'screens/translation_screen.dart';
 
 import 'package:provider/provider.dart';
 import 'services/purchase_manager.dart';
+import 'package:kavaid/l10n/l10n.dart';
+import 'services/arabic_definitions.dart';
+import 'services/dictionary_language.dart';
 
 // Custom ScrollBehavior - overscroll glow efektini kaldırmak için
 class NoGlowScrollBehavior extends ScrollBehavior {
@@ -122,7 +126,7 @@ class _StartupScreenState extends State<StartupScreen> {
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'Kavaid Sözlük',
+                    l10n.kavaidSozluk,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -179,7 +183,7 @@ class _StartupScreenState extends State<StartupScreen> {
                         foregroundColor: Colors.white,
                         elevation: 0,
                       ),
-                      child: const Text('Tekrar Dene'),
+                      child: Text(l10n.tekrarDene),
                     ),
                   ],
                 ],
@@ -287,9 +291,11 @@ Future<void> _enableFullscreenSystemUi() async {
 }
 
 Future<void> main() async {
+  PerfLog.start();
   await runZonedGuarded<Future<void>>(
     () async {
       WidgetsFlutterBinding.ensureInitialized();
+      PerfLog.mark('main');
 
       // Release'de debug log'larını kapat: hem performans hem de log'lara
       // hassas bilgi (API anahtarı uzunluğu, kullanıcı verisi) düşmemesi için.
@@ -380,7 +386,14 @@ Future<void> main() async {
         }
       }
 
+      // Arayüz dili ilk kareden önce belli olsun (tek SharedPreferences okuması)
+      await LanguageService().initialize();
+      // 22 MB'lık Arapça sözlük açılışı bekletmesin; yüklenince kartlar yenilenir
+      await DictionaryLanguage.load();
+      unawaited(ArabicDefinitions.instance.initialize());
+
       // 🚀 ÖNCELİK 3: Uygulamayı çalıştır! (Fontlar ve tema hazır, UI anında görünür)
+      PerfLog.mark('runApp');
       runApp(KavaidApp(initialDarkMode: initialDarkMode));
 
       // 🚀 ÖNCELİK 4: Diğer servisleri arka planda başlat
@@ -430,6 +443,8 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     // Tema zaten main()'de yüklendi, direkt kullan - splash gecikmesi yok
     _isDarkMode = widget.initialDarkMode;
     WidgetsBinding.instance.addObserver(this);
+    LanguageService().addListener(_onLanguageChanged);
+    DictionaryLanguage.current.addListener(_onLanguageChanged);
     _enableFullscreenSystemUi();
 
     // Kullanım süresini periyodik olarak güncelle
@@ -446,9 +461,16 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
     });
   }
 
+  /// Arayüz dili değişince ekran ağacı baştan kurulur; `l10n` metinleri yeni dille okunur.
+  void _onLanguageChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    LanguageService().removeListener(_onLanguageChanged);
+    DictionaryLanguage.current.removeListener(_onLanguageChanged);
     _usageTimer?.cancel();
     _appUsageService.endSession();
 
@@ -513,12 +535,17 @@ class _KavaidAppState extends State<KavaidApp> with WidgetsBindingObserver {
         ChangeNotifierProvider.value(value: PurchaseManager()),
       ],
       child: MaterialApp(
-        title: 'Kavaid - Arapça Sözlük',
+        title: l10n.kavaidArapcaSozluk,
         debugShowCheckedModeBanner: false,
+        locale: LanguageService().uiLocale,
+        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
         theme: _lightTheme,
         darkTheme: _darkTheme,
         themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
         home: StartupScreen(
+          // Arayüz ya da sözlük dili değişince açılış ekranı ve ana ekran yeniden kurulur
+          key: ValueKey('${LanguageService().uiLocale}_${DictionaryLanguage.current.value}'),
           isDarkMode: _isDarkMode,
           onThemeToggle: _toggleTheme,
         ),
@@ -1052,8 +1079,7 @@ class _MainScreenState extends State<MainScreen> {
     return [
       0, // Sözlük
       2, // Ceviri
-      if (!LanguageService().isEnglish && !LanguageService().isArabic)
-        1, // Öğren
+      if (LanguageService().isTurkishUi) 1, // Öğren (Türkçeye özel)
       3, // Profil
       if (_adminService.isAdmin()) 4, // Admin Console
     ];
@@ -1082,8 +1108,8 @@ class _MainScreenState extends State<MainScreen> {
       clipBehavior: Clip.none,
       children: [
         icon,
-        Positioned(
-          right: -4,
+        PositionedDirectional(
+          end: -4,
           top: -4,
           child: Container(
             width: 10,
@@ -1417,10 +1443,10 @@ class _MainScreenState extends State<MainScreen> {
                 ),
 
               // 3. Bottom Navigation Bar - klasik alta yapışık bar
-              Positioned(
+              PositionedDirectional(
                 bottom: navBarBottomGap,
-                left: 0,
-                right: 0,
+                start: 0,
+                end: 0,
                 height: navBarHeight,
                 child: RepaintBoundary(
                   child: Container(
@@ -1479,11 +1505,7 @@ class _MainScreenState extends State<MainScreen> {
                             BottomNavigationBarItem(
                               icon: const Icon(Icons.menu_book_outlined),
                               activeIcon: const Icon(Icons.menu_book),
-                              label: LanguageService().isEnglish
-                                  ? 'Dictionary'
-                                  : (LanguageService().isArabic
-                                        ? 'قاموس'
-                                        : 'Sözlük'),
+                              label: l10n.sozluk,
                             ),
                             BottomNavigationBarItem(
                               icon: _withBadge(
@@ -1491,23 +1513,18 @@ class _MainScreenState extends State<MainScreen> {
                                 _showTranslationBadge,
                               ),
                               activeIcon: const Icon(Icons.translate),
-                              label: 'Çeviri',
+                              label: l10n.ceviri,
                             ),
-                            if (!LanguageService().isEnglish &&
-                                !LanguageService().isArabic)
-                              const BottomNavigationBarItem(
+                            if (LanguageService().isTurkishUi)
+                              BottomNavigationBarItem(
                                 icon: Icon(Icons.school_outlined),
                                 activeIcon: Icon(Icons.school),
-                                label: 'Öğren',
+                                label: l10n.ogren,
                               ),
                             BottomNavigationBarItem(
                               icon: const Icon(Icons.person_outline),
                               activeIcon: const Icon(Icons.person),
-                              label: LanguageService().isEnglish
-                                  ? 'Profile'
-                                  : (LanguageService().isArabic
-                                        ? 'الملف الشخصي'
-                                        : 'Profil'),
+                              label: l10n.profil,
                             ),
                             if (_adminService.isAdmin())
                               const BottomNavigationBarItem(

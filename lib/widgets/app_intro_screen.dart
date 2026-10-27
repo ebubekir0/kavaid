@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/language_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// İlk açılışta uygulamanın tüm özelliklerini, uygulamadan alınmış gerçek
 /// ekran görüntüleri üzerinde numaralı işaretlerle anlatan, yana kaydırmalı
@@ -68,86 +69,89 @@ class _IntroPage {
 
 /// Görseller `assets/intro/` altında, uygulamanın gerçek ekran görüntüleri.
 /// Her sayfada en fazla iki işaret: sade ve tek bakışta anlaşılır.
-const _introPages = <_IntroPage>[
+List<_IntroPage> get _introPages => [
   _IntroPage(
-    title: 'Arapça–Türkçe sözlük',
-    text: 'Arapça ya da Türkçe yaz, her şey tek kartta.',
+    title: l10n.arapcaTurkceSozluk,
+    text: l10n.arapcaYaDaTurkceYaz,
     image: 'assets/intro/dictionary.webp',
     color: Color(0xFF007AFF),
     callouts: [
-      _Callout('Sesle ya da Arapça klavyeyle ara', 744, 142, 928, 238),
-      _Callout('Kök, çoğul ve örnek cümleler', 24, 448, 1056, 1576),
+      _Callout(l10n.sesleYaDaArapcaKlavyeyle, 744, 142, 928, 238),
+      _Callout(l10n.kokCogulVeOrnekCumleler, 24, 448, 1056, 1576),
     ],
   ),
   _IntroPage(
-    title: 'Fiil kartı',
-    text: 'Fiillerin çekimleri kartın içinde.',
+    title: l10n.fiilKarti,
+    text: l10n.fiillerinCekimleriKartinIcinde,
     image: 'assets/intro/verb.webp',
     color: Color(0xFF007AFF),
     callouts: [
-      _Callout('Mazi, müzari, mastar ve emir', 58, 834, 1022, 1014),
-      _Callout('Tüm çekimler için emsileye geç', 58, 1038, 1022, 1164),
+      _Callout(l10n.maziMuzariMastarVeEmir, 58, 834, 1022, 1014),
+      _Callout(l10n.tumCekimlerIcinEmsileyeGec, 58, 1038, 1022, 1164),
     ],
   ),
   _IntroPage(
-    title: 'AI Asistan',
-    text: 'Kelime kartının en solundaki simgeye dokun.',
+    title: l10n.aiAsistan,
+    text: l10n.kelimeKartininEnSolundakiSimgeye,
     image: 'assets/intro/ai.webp',
     color: Color(0xFF007AFF),
     isNew: true,
     callouts: [
-      _Callout('Sorunu yaz ya da hazır soru seç', 584, 662, 1042, 782),
-      _Callout('Kısa ve net cevap', 138, 810, 982, 1396),
+      _Callout(l10n.sorunuYazYaDaHazir, 584, 662, 1042, 782),
+      _Callout(l10n.kisaVeNetCevap, 138, 810, 982, 1396),
     ],
   ),
   _IntroPage(
-    title: 'Emsile',
-    text: '7000’den fazla fiilin çekim tablosu.',
+    title: l10n.emsile,
+    text: l10n.m5500DenFazlaFiilin,
     image: 'assets/intro/emsile.webp',
     color: Color(0xFF384D75),
     callouts: [
-      _Callout('Fiile dokun, kartı açılsın', 4, 992, 1076, 1206),
-      _Callout('Anlamları ve 24 sığa çekimi', 12, 1236, 1068, 2120),
+      _Callout(l10n.fiileDokunKartiAcilsin, 4, 992, 1076, 1206),
+      _Callout(l10n.anlamlariVe24SigaCekimi, 12, 1236, 1068, 2120),
     ],
   ),
+  // Kuran sözlüğü ve Öğren yalnız Türkçe arayüzde
+  if (LanguageService().isTurkishUi)
   _IntroPage(
-    title: 'Kur’an sözlüğü',
-    text: 'Kur’an kelimelerini ayetleriyle öğren.',
+    title: l10n.kurAnSozlugu,
+    text: l10n.kurAnKelimeleriniAyetleriyleOgren,
     image: 'assets/intro/quran.webp',
     color: Color(0xFF4A5729),
     callouts: [
-      _Callout('Kelime ve Kur’ani anlamları', 24, 746, 1056, 1014),
-      _Callout('Geçtiği ayet ve meali', 62, 1130, 1018, 1654),
+      _Callout(l10n.kelimeVeKurAniAnlamlari, 24, 746, 1056, 1014),
+      _Callout(l10n.gectigiAyetVeMeali, 62, 1130, 1018, 1654),
     ],
   ),
   _IntroPage(
-    title: 'Lehçe çeviri',
-    text: 'Türkçe yaz ya da konuş, 17 lehçeye çevir.',
+    title: l10n.lehceCeviri,
+    text: l10n.turkceYazYaDaKonus,
     image: 'assets/intro/translate.webp',
     color: Color(0xFF1A73E8),
     callouts: [
-      _Callout('Karşılığı ve okunuşu', 44, 530, 1032, 758),
-      _Callout('Lehçeyi seç ya da sesle söyle', 44, 1566, 1034, 2030),
+      _Callout(l10n.karsiligiVeOkunusu, 44, 530, 1032, 758),
+      _Callout(l10n.lehceyiSecYaDaSesle, 44, 1566, 1034, 2030),
     ],
   ),
   _IntroPage(
-    title: 'Listeler ve kartlar',
-    text: 'Kaydettiğin her şey tek yerde.',
+    title: l10n.listelerVeKartlar,
+    text: l10n.kaydettiginHerSeyTekYerde,
     image: 'assets/intro/lists.webp',
     color: Color(0xFFFF9500),
     callouts: [
-      _Callout('Liste ya da kartlarla tekrar et', 46, 290, 1034, 432),
-      _Callout('Sözlük, Kur’an ve emsile kayıtları', 24, 466, 1056, 968),
+      _Callout(l10n.listeYaDaKartlarlaTekrar, 46, 290, 1034, 432),
+      _Callout(l10n.sozlukKurAnVeEmsile, 24, 466, 1056, 968),
     ],
   ),
+  if (LanguageService().isTurkishUi)
   _IntroPage(
-    title: 'Öğren',
-    text: 'A1’den C1’e resimli Arapça hikâyeler.',
+    title: l10n.ogren,
+    text: l10n.a1DenC1EResimli,
     image: 'assets/intro/learn.webp',
     color: Color(0xFF34C759),
     callouts: [
-      _Callout('Kelimeye dokun, anlamı çıksın', 900, 722, 1078, 976),
-      _Callout('Metni sesli dinle', 300, 1944, 780, 2122),
+      _Callout(l10n.kelimeyeDokunAnlamiCiksin, 900, 722, 1078, 976),
+      _Callout(l10n.metniSesliDinle, 300, 1944, 780, 2122),
     ],
   ),
 ];
@@ -234,7 +238,7 @@ class _AppIntroScreenState extends State<AppIntroScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 6, 10, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(24, 6, 10, 0),
                 child: Row(
                   children: [
                     Text(
@@ -253,7 +257,7 @@ class _AppIntroScreenState extends State<AppIntroScreen> {
                         key: const Key('intro-skip'),
                         onPressed: isLast ? null : _finish,
                         child: Text(
-                          'Geç',
+                          l10n.gec,
                           style: _inter(
                             size: 15,
                             weight: FontWeight.w600,
@@ -299,7 +303,7 @@ class _AppIntroScreenState extends State<AppIntroScreen> {
                 }),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                padding: const EdgeInsetsDirectional.fromSTEB(24, 16, 24, 16),
                 child: SizedBox(
                   width: double.infinity,
                   height: 52,
@@ -392,7 +396,7 @@ class _IntroPageView extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            'YENİ',
+                            l10n.yeni,
                             style: _inter(
                               size: 10.5,
                               weight: FontWeight.w800,
@@ -587,8 +591,8 @@ class _PhoneShowcase extends StatelessWidget {
                                   ),
                                 ),
                                 for (var i = 0; i < rects.length; i++)
-                                  Positioned(
-                                    left: (rects[i].left - 9).clamp(
+                                  PositionedDirectional(
+                                    start: (rects[i].left - 9).clamp(
                                       2.0,
                                       imageWidth - 22,
                                     ),

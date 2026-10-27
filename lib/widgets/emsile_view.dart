@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../models/custom_word.dart';
 import 'save_button.dart';
+import 'package:kavaid/l10n/l10n.dart';
+import '../services/arabic_definitions.dart';
 
 /// Emsile Ekran\u0131
 /// - Kapal\u0131 sat\u0131r: RTL  [G\u0130TMEK ............. \u0630\u064e\u0647\u064e\u0628\u064e  \u064a\u064e\u0630\u0652\u0647\u064e\u0628\u0640\u064f  \u203a]
@@ -108,11 +110,24 @@ class _EmsileViewState extends State<EmsileView> {
   @override
   void initState() {
     super.initState();
+    _prefetchArabic();
+  }
+
+  /// Arapça anlam dilinde listedeki fiillerin maddelerini veritabanından okur;
+  /// yeni madde geldiyse anlamlar görünsün diye yeniden çizer.
+  Future<void> _prefetchArabic() async {
+    final verbs = widget.verbs;
+    if (verbs == null || !ArabicDefinitions.instance.isActive) return;
+    final heads = [
+      for (final v in verbs) ...[_e(v, 1), v['mazi']?.toString() ?? ''],
+    ];
+    if (await ArabicDefinitions.instance.prefetchHeadwords(heads) && mounted) setState(() {});
   }
 
   @override
   void didUpdateWidget(EmsileView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (!identical(widget.verbs, oldWidget.verbs)) _prefetchArabic();
     // Arama moduna girildiğinde (yeni bir arama yapıldığında) açık kartları kapat
     if (widget.isSearchMode && !oldWidget.isSearchMode) {
       _expandedIds.clear();
@@ -150,7 +165,7 @@ class _EmsileViewState extends State<EmsileView> {
   Widget _buildInfoCard() {
     final isDarkMode = widget.isDarkMode;
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 20, 16, 12),
+      margin: const EdgeInsetsDirectional.fromSTEB(16, 20, 16, 12),
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: isDarkMode 
@@ -166,7 +181,7 @@ class _EmsileViewState extends State<EmsileView> {
       child: Column(
         children: [
           Text(
-            '7000\'den fazla fiilin 24 sığa Emsile-i Muhtelife çekimlerini öğrenin.',
+            l10n.m5500DenFazlaFiilin2,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -190,8 +205,8 @@ class _EmsileViewState extends State<EmsileView> {
                     colors: isDarkMode 
                       ? [const Color(0xFF1E3562), const Color(0xFF141926)]
                       : [const Color(0xFF384D75), const Color(0xFF25375A)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+                    begin: AlignmentDirectional.topStart,
+                    end: AlignmentDirectional.bottomEnd,
                   ),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
@@ -209,8 +224,8 @@ class _EmsileViewState extends State<EmsileView> {
                     Expanded(
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: const Text(
-                          'Tüm fiilleri aç',
+                        child: Text(
+                          l10n.tumFiilleriAc,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -236,7 +251,7 @@ class _EmsileViewState extends State<EmsileView> {
   // \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 DAHA FAZLA Y\u00dcKLE BUTONU \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   Widget _buildLoadMoreButton() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(12, 4, 12, 20),
+      margin: const EdgeInsetsDirectional.fromSTEB(12, 4, 12, 20),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -256,7 +271,7 @@ class _EmsileViewState extends State<EmsileView> {
               children: [
                 Icon(Icons.refresh_rounded, color: _accent, size: 18),
                 const SizedBox(width: 8),
-                Text('Daha Fazla Fiil Y\u00fckle',
+                Text(l10n.dahaFazlaFiilYukle,
                   style: TextStyle(fontFamily: 'Inter', fontSize: 13, fontWeight: FontWeight.w600, color: _accent)),
               ],
             ),
@@ -282,7 +297,7 @@ class _EmsileViewState extends State<EmsileView> {
                 Icon(Icons.search_off_rounded, size: 48, color: _accent.withValues(alpha: 0.3)),
                 const SizedBox(height: 12),
                 Text(
-                  'Aranan kelime bulunamad\u0131',
+                  l10n.arananKelimeBulunamadi,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 15,
@@ -328,13 +343,24 @@ class _EmsileViewState extends State<EmsileView> {
     );
   }
 
+  /// Fiilin anlamları. Arapça anlam dilinde verideki Türkçe anlamlar gösterilmez;
+  /// fiilin Arapça maddesi varsa şerhleri gelir (yoksa boş).
+  List<String> _meaningsOf(Map<String, dynamic> verb) {
+    final arabic = ArabicDefinitions.instance;
+    if (arabic.isActive) {
+      final entry = arabic.ofHeadword(_e(verb, 1)) ?? arabic.ofHeadword(verb['mazi']?.toString() ?? '');
+      return [for (final s in entry?['senses'] as List? ?? const []) (s as Map)['d'].toString()];
+    }
+    return [for (final a in verb['anlamlar'] as List<dynamic>? ?? const []) a.toString()];
+  }
+
   // Solda: ok ve anlam, Sa\u011fda: Yekt\u00fcb\u00fc ve Ketebe (en sa\u011fda)
   Widget _buildRow(Map<String, dynamic> verb, int idx) {
     final verbId = verb['id'] as int;
     final locked = _isCardLocked(verb);
     final expanded = !locked && _expandedIds.contains(verbId);
-    final anlamlar = verb['anlamlar'] as List<dynamic>? ?? [];
-    final anlam    = anlamlar.isNotEmpty ? anlamlar.first.toString().toUpperCase() : '';
+    final anlamlar = _meaningsOf(verb);
+    final anlam    = anlamlar.isNotEmpty ? anlamlar.first.toUpperCase() : '';
     final mazi     = _e(verb, 1);
     final muzari   = _e(verb, 2);
 
@@ -398,7 +424,7 @@ class _EmsileViewState extends State<EmsileView> {
                         fontWeight: FontWeight.w700,
                         color: _ccAnlam,
                       ),
-                      textAlign: TextAlign.left,
+                      textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 2,
                     ),
@@ -458,7 +484,7 @@ class _EmsileViewState extends State<EmsileView> {
 
   // ─────────────────── DETAY PANEL ──────────────────────────────
   Widget _buildDetail(Map<String, dynamic> verb, int verbId) {
-    final anlamlar = verb['anlamlar'] as List<dynamic>? ?? [];
+    final anlamlar = _meaningsOf(verb);
     final emsile24 = verb['emsile_24'] as List<dynamic>? ?? [];
 
     return Container(
@@ -470,7 +496,7 @@ class _EmsileViewState extends State<EmsileView> {
 
           // ── Gelişmiş Kompakt Anlam ──
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 12),
             child: Wrap(
               alignment: WrapAlignment.center,
               spacing: 8, runSpacing: 8,
@@ -521,7 +547,7 @@ class _EmsileViewState extends State<EmsileView> {
 
       return Container(
         color: _detailBg,
-        padding: EdgeInsets.fromLTRB(hPad, 8, hPad, 4),
+        padding: EdgeInsetsDirectional.fromSTEB(hPad, 8, hPad, 4),
         child: Column(
           children: rows.asMap().entries.map((entry) {
             final rowIdx   = entry.key;
@@ -545,7 +571,7 @@ class _EmsileViewState extends State<EmsileView> {
                       final hasData = conjKey != null && _cekim(verb, conjKey).isNotEmpty;
                       
                       return Padding(
-                        padding: EdgeInsets.only(left: col < 3 ? gap : 0),
+                        padding: EdgeInsetsDirectional.only(start: col < 3 ? gap : 0),
                         child: SizedBox(
                           width: cardW,
                           child: _sigaCard(
@@ -580,17 +606,34 @@ class _EmsileViewState extends State<EmsileView> {
     });
   }
 
-  String _shortName(String name) {
-    if (name.contains('Tekîd-i Nefy-i İstikbâl')) return 'Tek. N. İstik.';
-    if (name.contains('İsm-i Zaman / Mekân')) return 'Zaman/Mekân';
-    if (name.contains('Cehd-i Müstağrak')) return 'C. Müstağrak';
-    if (name.contains('Cehd-i Mutlak')) return 'C. Mutlak';
-    if (name.contains('Müb. İsm-i Fâil')) return 'Müb. İ. Fâil';
-    if (name.contains('Taaccüb-i Evvel')) return 'Taaccüb 1';
-    if (name.contains('Taaccüb-i Sânî')) return 'Taaccüb 2';
-    if (name.contains('Nefy-i İstikbâl')) return 'Nef. İstik.';
-    return name;
-  }
+  /// Sığa adı arayüz dilinde. Verideki ad Türkçe; sıra numarası (1–24) her fiilde aynı.
+  String _sigaName(Object? sira, String fallback) => switch (sira) {
+        1 => l10n.siga01,
+        2 => l10n.siga02,
+        3 => l10n.siga03,
+        4 => l10n.siga04,
+        5 => l10n.siga05,
+        6 => l10n.siga06,
+        7 => l10n.siga07,
+        8 => l10n.siga08,
+        9 => l10n.siga09,
+        10 => l10n.siga10,
+        11 => l10n.siga11,
+        12 => l10n.siga12,
+        13 => l10n.siga13,
+        14 => l10n.siga14,
+        15 => l10n.siga15,
+        16 => l10n.siga16,
+        17 => l10n.siga17,
+        18 => l10n.siga18,
+        19 => l10n.siga19,
+        20 => l10n.siga20,
+        21 => l10n.siga21,
+        22 => l10n.siga22,
+        23 => l10n.siga23,
+        24 => l10n.siga24,
+        _ => fallback,
+      };
 
   // ─────────────────── SIĞA KARTI ──────────────────────────────
   Widget _sigaCard({
@@ -600,7 +643,7 @@ class _EmsileViewState extends State<EmsileView> {
     required bool hasData,
     required VoidCallback? onConjTap,
   }) {
-    final isim    = _shortName(item['isim']?.toString() ?? '');
+    final isim    = _sigaName(item['sira'], item['isim']?.toString() ?? '');
     final arapca  = item['arapca']?.toString() ?? '';
     final hasConj = conjKey != null && hasData;
 
@@ -674,10 +717,10 @@ class _EmsileViewState extends State<EmsileView> {
             ),
             // ── Alt: Küçük Gösterge Oku (Sadece çekimi olanlarda) ──
             if (hasConj)
-              Positioned(
+              PositionedDirectional(
                 bottom: 0,
-                left: 0,
-                right: 0,
+                start: 0,
+                end: 0,
                 child: Container(
                   height: 12,
                   color: _btnOpen.withValues(alpha: 0.8),
@@ -702,9 +745,9 @@ class _EmsileViewState extends State<EmsileView> {
 
     // Başlık metni
     final titleMap = {
-      'mazi':   'Fiil-i Mâzi — Muttasıl Çekimler',
-      'muzari': 'Fiil-i Muzâri — Muttasıl Çekimler',
-      'emir':   'Emr-i Hâzır — Muttasıl Çekimler',
+      'mazi':   l10n.fiilIMaziMuttasilCekimler,
+      'muzari': l10n.fiilIMuzariMuttasilCekimler,
+      'emir':   l10n.emrIHazirMuttasilCekimler,
     };
 
     final rows = <List<Map<String, dynamic>>>[];
@@ -733,7 +776,7 @@ class _EmsileViewState extends State<EmsileView> {
                 Icon(Icons.table_chart_rounded, size: 13, color: Colors.white70),
                 const SizedBox(width: 6),
                 Text(
-                  titleMap[key] ?? 'Çekimler',
+                  titleMap[key] ?? l10n.cekimler,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 11,
@@ -870,7 +913,7 @@ class _EmsileViewState extends State<EmsileView> {
         alignment: Alignment.topCenter,
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(24, 40, 24, 32),
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 40, 24, 32),
             decoration: BoxDecoration(
               color: widget.isDarkMode ? const Color(0xFF1E1E24) : Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -886,7 +929,7 @@ class _EmsileViewState extends State<EmsileView> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Premium İçerik',
+                  l10n.premiumIcerik,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 22,
@@ -896,7 +939,7 @@ class _EmsileViewState extends State<EmsileView> {
                 ),
                 const SizedBox(height: 16),
                 const SizedBox(height: 16),
-                _buildPremiumFeature('7000\'den fazla fiilin 24 sığa Emsile-i Muhtelife çekimlerini açın'),
+                _buildPremiumFeature(l10n.m5500DenFazlaFiilin3),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -914,7 +957,7 @@ class _EmsileViewState extends State<EmsileView> {
                       widget.onPremiumTap?.call();
                     },
                     child: Text(
-                      'Premium\'a Yükselt',
+                      l10n.premiumAYukselt,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 16,
@@ -931,7 +974,7 @@ class _EmsileViewState extends State<EmsileView> {
                     widget.onLoadFreeTap?.call();
                   },
                   child: Text(
-                    'Ücretsiz Fiiller',
+                    l10n.ucretsizFiiller,
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 15,

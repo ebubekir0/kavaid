@@ -1,5 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'dart:isolate';
+
+import 'package:archive/archive.dart' show XZDecoder;
+import 'package:path/path.dart' show join;
+import 'package:sqflite/sqflite.dart' show getDatabasesPath;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -114,9 +120,7 @@ class QuranDictionaryService {
 
   Future<void> _loadDictionary() async {
     try {
-      final String contents = await rootBundle.loadString(
-        'assets/data/quran_sozluk_okunakli.csv',
-      );
+      final String contents = await _loadCsv();
 
       // Ağır CSV ayrıştırmayı arka plan isolate'te yap
       _allWords = await compute(_parseCsvInIsolate, contents);
@@ -130,6 +134,31 @@ class QuranDictionaryService {
     } finally {
       _isLoading = false;
     }
+  }
+
+  // Uygulamada xz ile sıkıştırılmış (17,6 MB → 1,6 MB). İlk kullanımda bir kez açılıp
+  // telefona yazılır; sonraki açılışlarda o dosya okunur. Veri değişirse sürümü artırın.
+  static const _csvAsset = 'assets/data/quran_sozluk_okunakli.csv.xz';
+  static const _csvFile = 'quran_sozluk_v1.csv';
+
+  Future<String> _loadCsv() async {
+    final file = File(join(await getDatabasesPath(), _csvFile));
+    if (await file.exists()) {
+      try {
+        return await file.readAsString();
+      } catch (_) {}
+    }
+    final data = await rootBundle.load(_csvAsset);
+    final packed = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    final contents = await Isolate.run(() => utf8.decode(XZDecoder().decodeBytes(packed)));
+    try {
+      final tmp = File('${file.path}.tmp');
+      await tmp.writeAsString(contents, flush: true);
+      await tmp.rename(file.path);
+    } catch (e) {
+      debugPrint('QuranDictionaryService: CSV önbelleğe yazılamadı: $e');
+    }
+    return contents;
   }
 
   /// Arapça harekelerini kaldır

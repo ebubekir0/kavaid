@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../data/embedded_words.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class WowGuruMiniGame extends StatefulWidget {
   final bool isDarkMode;
@@ -193,7 +194,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
     if (_targetWord.isEmpty) {
       return Center(
         child: Text(
-          'Kelime bulunamadı',
+          l10n.kelimeBulunamadi,
           style: TextStyle(
             color: widget.isDarkMode ? Colors.white : Colors.black,
           ),
@@ -234,7 +235,7 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Oyna',
+                      l10n.oyna,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 14,
@@ -296,8 +297,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
             color: widget.isDarkMode ? const Color(0xFF1C1C1E) : Colors.white,
             borderRadius: BorderRadius.circular(24),
             gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+              begin: AlignmentDirectional.topStart,
+              end: AlignmentDirectional.bottomEnd,
               colors: widget.isDarkMode
                   ? [const Color(0xFF311B92), const Color(0xFF1A237E)] // Dark Purple/Deep Blue
                   : [const Color(0xFF5E35B1), const Color(0xFF4527A0)], // Guru Purple
@@ -461,8 +462,8 @@ class _WowGuruMiniGameState extends State<WowGuruMiniGame>
                       final pos = positions[index];
                       final isSelected = _selectedIndices.contains(index);
 
-                      return Positioned(
-                        left: pos.dx - letterBoxSize / 2,
+                      return PositionedDirectional(
+                        start: pos.dx - letterBoxSize / 2,
                         top: pos.dy - letterBoxSize / 2,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),

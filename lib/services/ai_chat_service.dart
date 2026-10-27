@@ -6,6 +6,7 @@ import '../models/word_model.dart';
 import 'ai_teacher_service.dart';
 import 'connectivity_service.dart';
 import 'gemini_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Sözlük içindeki AI asistanının mesajı.
 class AiChatMessage {
@@ -135,7 +136,7 @@ class AiChatService extends ChangeNotifier {
     // kullanıcı boş bir sohbet kutusunda kalmaz.
     final hasInternet = await ConnectivityService().hasInternetConnection();
     if (!hasInternet) {
-      _error = 'İnternet bağlantısı gerekiyor.';
+      _error = l10n.internetBaglantisiGerekiyor;
       notifyListeners();
       return;
     }
@@ -162,12 +163,12 @@ class AiChatService extends ChangeNotifier {
       _messages.add(AiChatMessage(text: reply, isUser: false));
       answered = true;
     } on GeminiApiKeyInvalidException {
-      _fail(text, 'AI asistan şu an kullanılamıyor.');
+      _fail(text, l10n.aiAsistanSuAnKullanilamiyor);
     } on TimeoutException {
-      _fail(text, 'Yanıt gelmedi.');
+      _fail(text, l10n.yanitGelmedi);
     } catch (e) {
       debugPrint('[AiChatService] send failed: $e');
-      _fail(text, 'Şu anda cevap alınamadı.');
+      _fail(text, l10n.suAndaCevapAlinamadi);
     } finally {
       _isSending = false;
       // Hak yalnızca cevap alındığında düşer; hata kullanıcıya yazılmaz.

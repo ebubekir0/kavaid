@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/wow_guru_mini_game.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class GameScreen extends StatelessWidget {
   final bool isDarkMode;
@@ -17,7 +18,7 @@ class GameScreen extends StatelessWidget {
           : const Color(0xFFF2F2F7),
       appBar: AppBar(
         title: Text(
-          'Oyun',
+          l10n.oyun,
           style: TextStyle(
             fontFamily: 'Inter',
             fontSize: 16,
@@ -34,7 +35,7 @@ class GameScreen extends StatelessWidget {
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/game_bg.png',
+              'assets/images/game_bg.webp',
               fit: BoxFit.cover,
             ),
           ),

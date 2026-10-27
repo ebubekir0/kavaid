@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/custom_word.dart';
 import '../services/auth_service.dart';
 import '../services/custom_word_service.dart';
-import '../services/language_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 /// Kelime / Kur'an kelimesi / emsile fiili için kaydet (yer imi) düğmesi.
 ///
@@ -108,9 +108,7 @@ class _SaveButtonState extends State<SaveButton> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          LanguageService().isEnglish
-              ? 'Please log in or sign up first'
-              : 'Lütfen önce kayıt olup giriş yapın.',
+          l10n.lutfenOnceKayitOlupGiris,
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black87,
@@ -156,7 +154,7 @@ class _SaveButtonState extends State<SaveButton> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Listeye Ekle',
+                      l10n.listeyeEkle,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

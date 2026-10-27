@@ -34,6 +34,9 @@ class RankedWord {
 class SearchGroupHeader {
   const SearchGroupHeader(this.title);
 
+  /// Kök eşleşmeleri grubu; ekranda arayüz diliyle yazılır (l10n.rootMatches).
+  static const root = 'root';
+
   final String title;
 }
 
@@ -488,7 +491,7 @@ List<Object> groupSearchResults(
   return [
     ...exact,
     ...prefix,
-    if (root.isNotEmpty) const SearchGroupHeader('Kök eşleşme'),
+    if (root.isNotEmpty) const SearchGroupHeader(SearchGroupHeader.root),
     ...root,
   ];
 }

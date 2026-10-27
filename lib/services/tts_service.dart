@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+
+import 'audio_packs.dart';
 
 /// Google Cloud TTS ile önceden indirilmiş ses dosyalarını çalan veya
 /// flutter_tts ile dinamik telaffuz sağlayan servis.
@@ -20,11 +21,14 @@ class TTSService {
   bool _isPlaying = false;
   Completer<void>? _playCompleter;
   double _playbackRate = 1.0;
-  String _audioBasePath = "audio/taysir_sira";
+  String? _bookId;
 
+  /// Kitabın sesleri telefonda yoksa arka planda indirilmeye başlanır (AudioPacks);
+  /// inene kadar cümleler telefonun okuma sesiyle okunur.
   void setBookId(String bookId) {
-    _audioBasePath = "audio/$bookId";
-    debugPrint('🔊 TTS Yolu Ayarlandı: $_audioBasePath');
+    _bookId = bookId;
+    unawaited(AudioPacks.ensure(bookId));
+    debugPrint('🔊 TTS kitabı: $bookId');
   }
 
   Future<void> initialize() async {
@@ -78,7 +82,7 @@ class TTSService {
     if (!_isInitialized) await initialize();
   }
 
-  /// Normal konuşma: Önce asset dener, yoksa FlutterTts kullanır.
+  /// Normal konuşma: Önce kitabın indirilmiş sesini dener, yoksa FlutterTts kullanır.
   Future<void> speak(String text) async {
     await _playAudio(text, wait: false);
   }
@@ -95,21 +99,13 @@ class TTSService {
     try {
       if (_isPlaying) await stop();
 
-      final fileName = _getAudioFileName(text);
-      final assetPath = "$_audioBasePath/$fileName";
+      final bookId = _bookId;
+      final path = bookId == null ? null : await AudioPacks.fileFor(bookId, _getAudioFileName(text));
 
-      bool assetExists = false;
-      try {
-        await rootBundle.load("assets/$assetPath");
-        assetExists = true;
-      } catch (e) {
-        // Asset yok, FlutterTts fallback
-      }
-
-      if (assetExists) {
+      if (path != null) {
         if (wait) _playCompleter = Completer<void>();
         await _audioPlayer.setPlaybackRate(_playbackRate);
-        await _audioPlayer.play(AssetSource(assetPath));
+        await _audioPlayer.play(DeviceFileSource(path));
         _isPlaying = true;
 
         if (wait && _playCompleter != null) {

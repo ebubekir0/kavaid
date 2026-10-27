@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import '../models/dialect_language.dart';
 import '../services/auth_service.dart';
-import '../services/language_service.dart';
 import '../services/translation_notifier.dart';
 import '../services/dialect_translation_service.dart';
 import '../services/translation_quota_service.dart';
 import 'subscription_screen.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 class TranslationScreen extends StatefulWidget {
   final bool isDarkMode;
@@ -132,27 +132,27 @@ class _TranslationScreenState extends State<TranslationScreen> {
           Widget content = Stack(
             children: [
               // ── 1. Mikrofon Alanı (sabit altta) ──────────────
-              Positioned(
-                left: 0,
-                right: 0,
+              PositionedDirectional(
+                start: 0,
+                end: 0,
                 bottom: 0,
                 height: micAreaHeight + widget.bottomPadding,
                 child: _buildMicArea(notifier),
               ),
 
               // ── 2. Dil Seçim Barı ─────────────────────────────
-              Positioned(
-                left: 0,
-                right: 0,
+              PositionedDirectional(
+                start: 0,
+                end: 0,
                 bottom: micAreaHeight + widget.bottomPadding,
                 child: _buildLanguageBar(notifier),
               ),
 
               // ── 3. Ana İçerik ─────────────────────────────────
-              Positioned(
+              PositionedDirectional(
                 top: 0,
-                left: 0,
-                right: 0,
+                start: 0,
+                end: 0,
                 bottom: isKeyboardVisible
                     ? keyboardHeight
                     : micAreaHeight + widget.bottomPadding + 68,
@@ -176,9 +176,9 @@ class _TranslationScreenState extends State<TranslationScreen> {
 
               // ── 4. Çevir Butonu (yüzen) ───────────────────────
               if (hasContent)
-                Positioned(
-                  left: 0,
-                  right: 0,
+                PositionedDirectional(
+                  start: 0,
+                  end: 0,
                   bottom: _translateButtonBottom(
                     isKeyboardVisible,
                     keyboardHeight,
@@ -255,7 +255,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           Expanded(
             child: Center(
               child: Text(
-                'Çeviri',
+                l10n.ceviri,
                 style: TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 22,
@@ -290,7 +290,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         color: _surfaceColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 0),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Row(
@@ -356,7 +356,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             children: [
               Flexible(
                 child: Text(
-                  lang.name,
+                  lang.displayName,
                   style: TextStyle(
                     fontFamily: 'Roboto',
                     fontSize: 15,
@@ -471,7 +471,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                           letterSpacing: 0,
                         ),
                   decoration: InputDecoration(
-                    hintText: isArabicSource ? 'أدخل النص' : 'Metin girin',
+                    hintText: isArabicSource ? 'أدخل النص' : l10n.metinGirin,
                     hintStyle: isArabicSource
                         ? TextStyle(
                             fontSize: 24,
@@ -598,7 +598,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             icon: notifier.showDiacritics
                 ? Icons.text_fields
                 : Icons.text_format,
-            tooltip: notifier.showDiacritics ? 'Hareke kapat' : 'Hareke aç',
+            tooltip: notifier.showDiacritics ? 'Hareke kapat' : l10n.harekeAc,
             onTap: notifier.toggleDiacritics,
           ),
           const SizedBox(width: 8),
@@ -607,12 +607,12 @@ class _TranslationScreenState extends State<TranslationScreen> {
         // Kopyala
         _buildCircleBtn(
           icon: Icons.content_copy_rounded,
-          tooltip: 'Kopyala',
+          tooltip: l10n.kopyala,
           onTap: () {
             Clipboard.setData(ClipboardData(text: notifier.outputText));
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Kopyalandı'),
+                content: Text(l10n.kopyalandi),
                 duration: const Duration(seconds: 1),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: _isDark
@@ -708,7 +708,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 ),
               )
             : Text(
-                'Çevir',
+                l10n.cevir,
                 style: TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 16,
@@ -744,7 +744,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
           onSel(l);
           FocusScope.of(context).unfocus();
         },
-        title: isSource ? 'Şu Dilden Çevir' : 'Şu Dile Çevir',
+        title: isSource ? 'Şu Dilden Çevir' : l10n.suDileCevir,
         isSource: isSource,
       ),
     );
@@ -855,7 +855,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+        padding: const EdgeInsetsDirectional.fromSTEB(20, 18, 20, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -865,7 +865,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                 Icon(Icons.workspace_premium_rounded, color: _accentColor),
                 const SizedBox(width: 10),
                 Text(
-                  "Premium'a geçin",
+                  l10n.premiumAGecin,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 18,
@@ -877,7 +877,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
             ),
             const SizedBox(height: 10),
             Text(
-              "Daha fazla çeviri yapabilmek için Premium'a geçin.",
+              l10n.dahaFazlaCeviriYapabilmekIcin,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 14,
@@ -908,7 +908,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
                   ),
                 ),
                 child: Text(
-                  "Premium'a Geç",
+                  l10n.premiumAGec,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 15,
@@ -940,9 +940,7 @@ class _TranslationScreenState extends State<TranslationScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          LanguageService().isEnglish
-              ? 'Please log in or sign up first'
-              : 'Lütfen önce kayıt olup giriş yapın.',
+          l10n.lutfenOnceKayitOlupGiris,
         ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -1034,7 +1032,7 @@ class _LanguagePickerSheet extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 4, 24, 16),
+              padding: const EdgeInsetsDirectional.fromSTEB(24, 4, 24, 16),
               child: Text(
                 title,
                 style: TextStyle(
@@ -1070,9 +1068,9 @@ class _LanguagePickerSheet extends StatelessWidget {
                               fontWeight: FontWeight.w400,
                               letterSpacing: 0,
                             ),
-                            tabs: const [
-                              Tab(text: 'Diller'),
-                              Tab(text: 'Lehçeler'),
+                            tabs: [
+                              Tab(text: l10n.diller),
+                              Tab(text: l10n.lehceler),
                             ],
                           ),
                           Expanded(
@@ -1129,7 +1127,7 @@ class _LanguagePickerSheet extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           leading: Text(l.flagEmoji, style: const TextStyle(fontSize: 24)),
           title: Text(
-            l.name,
+            l.displayName,
             style: TextStyle(
               fontFamily: 'Roboto',
               fontSize: 16,

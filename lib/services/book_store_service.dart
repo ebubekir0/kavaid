@@ -9,7 +9,7 @@ class BookInfo {
   final String title;
   final String subtitle;
   final String priceText;
-  final String imageBase; // assets/images/<base>.(jpg|png)
+  final String imageBase; // assets/images/<base>.webp (tool/shrink_images.py)
 
   BookInfo({
     required this.id,
@@ -19,7 +19,7 @@ class BookInfo {
     required this.imageBase,
   });
 
-  String get imageAsset => '$imageBase.jpg';
+  String get imageAsset => '$imageBase.webp';
 }
 
 class BookStoreService extends ChangeNotifier {

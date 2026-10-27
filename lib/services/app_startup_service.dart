@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../utils/perf_log.dart';
 import '../utils/safe_purchase_wrapper.dart';
 import '../widgets/arabic_letters_background.dart';
 import 'app_usage_service.dart';
@@ -20,6 +21,7 @@ import 'review_service.dart';
 import 'saved_words_service.dart';
 import 'tts_service.dart';
 import 'turkce_analytics_service.dart';
+import 'package:kavaid/l10n/l10n.dart';
 
 enum StartupPhase {
   visualPrep,
@@ -37,7 +39,7 @@ class AppStartupService extends ChangeNotifier {
 
   StartupPhase _phase = StartupPhase.visualPrep;
   double _progress = 0.0;
-  String _message = 'Yükleniyor...';
+  String _message = l10n.yukleniyor;
   bool _isMainDictionaryReady = false;
   bool _isWarmupRunning = false;
   String? _errorMessage;
@@ -76,7 +78,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.ready,
         progress: 1.0,
-        message: 'Sözlük hazır.',
+        message: l10n.sozlukHazir,
         isMainDictionaryReady: true,
       );
 
@@ -87,7 +89,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.recoverableError,
         progress: 0.0,
-        message: 'Sözlük yüklenemedi.',
+        message: l10n.sozlukYuklenemedi,
         isMainDictionaryReady: false,
       );
     }
@@ -97,7 +99,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.visualPrep,
       progress: 0.03,
-      message: 'Ekran hazırlanıyor...',
+      message: l10n.ekranHazirlaniyor,
       isMainDictionaryReady: false,
     );
 
@@ -137,7 +139,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.checking,
       progress: 0.12,
-      message: 'Sözlük kontrol ediliyor...',
+      message: l10n.sozlukKontrolEdiliyor,
       isMainDictionaryReady: false,
     );
 
@@ -148,7 +150,7 @@ class AppStartupService extends ChangeNotifier {
       _setState(
         phase: StartupPhase.checking,
         progress: 0.72,
-        message: 'Sözlük hazır.',
+        message: l10n.sozlukHazir,
         isMainDictionaryReady: true,
       );
       return;
@@ -157,7 +159,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.installingDictionary,
       progress: 0.18,
-      message: 'Sözlük ayarlanıyor...',
+      message: l10n.sozlukAyarlaniyor,
     );
 
     final initService = DatabaseInitializationService.instance;
@@ -183,10 +185,11 @@ class AppStartupService extends ChangeNotifier {
     }
 
     _isMainDictionaryReady = true;
+    PerfLog.mark('dbReady');
     _setState(
       phase: StartupPhase.installingDictionary,
       progress: 0.72,
-      message: 'Sözlük hazır.',
+      message: l10n.sozlukHazir,
       isMainDictionaryReady: true,
     );
   }
@@ -197,7 +200,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.warmingSearch,
       progress: 0.76,
-      message: 'Arama hazırlanıyor...',
+      message: l10n.aramaHazirlaniyor,
     );
 
     // ANR: arama cache'i kritik yol değil. Isolate düşük cihazda
@@ -219,7 +222,7 @@ class AppStartupService extends ChangeNotifier {
     _setState(
       phase: StartupPhase.warmingSearch,
       progress: 0.96,
-      message: 'Arama hazır.',
+      message: l10n.aramaHazir,
     );
   }
 

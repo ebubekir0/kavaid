@@ -12,6 +12,15 @@ class AppLocalizationsMs extends AppLocalizations {
   String get kavaidSozluk => 'Kamus Kavaid';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Teruskan';
+
+  @override
+  String get tanitimBasla => 'Mula';
+
+  @override
   String get tekrarDene => 'Cuba Semula';
 
   @override
@@ -228,7 +237,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get kelimeAra => 'Cari perkataan';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Tasrif';
 
   @override
   String get kuranSozlugu => 'Kamus al-Quran';
@@ -483,7 +492,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get m5500Fiilin24Siga =>
-      'Buka konjugasi Emsile untuk 5,500+ kata kerja';
+      'Buka tasrif 24 bentuk untuk 5,500+ kata kerja';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -929,7 +938,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get maziMuzariMastarVeEmir => 'Mazi, Mudhari, Masdar, dan Amar';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec => 'Lihat Emsile untuk semua tasrif';
+  String get tumCekimlerIcinEmsileyeGec => 'Lihat Tasrif untuk semua bentuk';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -989,7 +998,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'Ulang kaji dengan senarai atau kad';
 
   @override
-  String get sozlukKurAnVeEmsile => 'Rekod kamus, Al-Quran, dan Emsile';
+  String get sozlukKurAnVeEmsile => 'Rekod kamus, Al-Quran dan tasrif';
 
   @override
   String get a1DenC1EResimli => 'Kisah Arab bergambar dari tahap A1 hingga C1.';
@@ -1134,7 +1143,7 @@ class AppLocalizationsMs extends AppLocalizations {
   String get muzari => 'Mudhari';
 
   @override
-  String get emsileCekimleri => 'Tasrif Emsile';
+  String get emsileCekimleri => 'Jadual Tasrif';
 
   @override
   String get maziGecmis => 'Madi (Lampau)';
@@ -1164,7 +1173,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Pelajari tasrif Emsile-i Muhtalifah bagi lebih 5,500 fiil dalam 24 bentuk (sighah).';
+      'Pelajari tasrif bagi lebih 5,500 fiil dalam 24 bentuk (sighah).';
 
   @override
   String get tumFiilleriAc => 'Buka semua fiil';
@@ -1192,7 +1201,7 @@ class AppLocalizationsMs extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Buka tasrif Emsile-i Muhtalifah bagi lebih 5,500 fiil dalam 24 bentuk (sighah)';
+      'Buka tasrif bagi lebih 5,500 fiil dalam 24 bentuk (sighah)';
 
   @override
   String get ucretsizFiiller => 'Fiil Percuma';

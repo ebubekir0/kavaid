@@ -4,6 +4,12 @@
   "@kavaidSozluk": {
     "description": "lib/main.dart:125"
   },
+  "markaAdi": "Kavaid",
+  "@markaAdi": {"description": "Uygulamanın marka adı (Arap yazılı dillerde onaylı karşılığı)"},
+  "tanitimDevam": "Devam",
+  "@tanitimDevam": {"description": "Tanıtım ekranında sonraki sayfa düğmesi"},
+  "tanitimBasla": "Başla",
+  "@tanitimBasla": {"description": "Tanıtım ekranının son sayfasında uygulamaya geçiş düğmesi"},
   "tekrarDene": "Tekrar Dene",
   "@tekrarDene": {
     "description": "lib/main.dart:182"

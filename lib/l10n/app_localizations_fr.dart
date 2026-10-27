@@ -12,6 +12,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get kavaidSozluk => 'Dictionnaire Kavaid';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Continuer';
+
+  @override
+  String get tanitimBasla => 'Commencer';
+
+  @override
   String get tekrarDene => 'Réessayer';
 
   @override
@@ -226,7 +235,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get kelimeAra => 'Rechercher un mot';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Conjugaison';
 
   @override
   String get kuranSozlugu => 'Dictionnaire coranique';
@@ -485,8 +494,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get ceviriyeSinirsizErisim => 'Accès illimité à la traduction';
 
   @override
-  String get m5500Fiilin24Siga =>
-      'Débloquez la conjugaison Emsile de 5 500+ verbes';
+  String get m5500Fiilin24Siga => 'Débloquez la conjugaison de 5 500+ verbes';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -914,11 +922,11 @@ class AppLocalizationsFr extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'Posez une question sur ce mot';
 
   @override
-  String get arapcaTurkceSozluk => 'Dictionnaire arabe-français';
+  String get arapcaTurkceSozluk => 'Dictionnaire arabe-anglais';
 
   @override
   String get arapcaYaDaTurkceYaz =>
-      'Écrivez en arabe ou en français, tout est sur une seule fiche.';
+      'Écrivez en arabe ou en anglais, tout est sur une seule fiche.';
 
   @override
   String get sesleYaDaArapcaKlavyeyle =>
@@ -939,7 +947,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tumCekimlerIcinEmsileyeGec =>
-      'Voir Emsile pour toutes les conjugaisons';
+      'Voir toutes les formes dans Conjugaison';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -1003,7 +1011,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get sozlukKurAnVeEmsile =>
-      'Enregistrements du dictionnaire, du Coran et d\'Emsile';
+      'Enregistrements du dictionnaire, du Coran et des conjugaisons';
 
   @override
   String get a1DenC1EResimli =>
@@ -1151,7 +1159,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get muzari => 'Muzari';
 
   @override
-  String get emsileCekimleri => 'Conjugaisons Emsile';
+  String get emsileCekimleri => 'Conjugaisons';
 
   @override
   String get maziGecmis => 'Mazi (Passé)';
@@ -1181,7 +1189,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Apprenez les conjugaisons Emsile-i Muhtelife (24 formes) pour plus de 5 500 verbes.';
+      'Apprenez la conjugaison de plus de 5 500 verbes dans les 24 formes.';
 
   @override
   String get tumFiilleriAc => 'Débloquer tous les verbes';
@@ -1211,7 +1219,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Accédez aux conjugaisons Emsile-i Muhtelife (24 formes) de plus de 5 500 verbes';
+      'Accédez à la conjugaison de plus de 5 500 verbes dans les 24 formes';
 
   @override
   String get ucretsizFiiller => 'Verbes gratuits';

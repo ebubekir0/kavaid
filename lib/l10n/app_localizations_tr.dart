@@ -12,6 +12,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get kavaidSozluk => 'Kavaid Sözlük';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Devam';
+
+  @override
+  String get tanitimBasla => 'Başla';
+
+  @override
   String get tekrarDene => 'Tekrar Dene';
 
   @override

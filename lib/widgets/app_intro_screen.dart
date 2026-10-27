@@ -22,6 +22,8 @@ class AppIntroScreen extends StatefulWidget {
   }
 
   static Future<void> show(BuildContext context, {required bool isDarkMode}) {
+    // Açık bir klavye tanıtımın üstünde kalmasın
+    FocusManager.instance.primaryFocus?.unfocus();
     return Navigator.of(context).push(
       PageRouteBuilder<void>(
         transitionDuration: const Duration(milliseconds: 280),
@@ -242,7 +244,7 @@ class _AppIntroScreenState extends State<AppIntroScreen> {
                 child: Row(
                   children: [
                     Text(
-                      'Kavaid',
+                      l10n.markaAdi,
                       style: _inter(
                         size: 17,
                         weight: FontWeight.w800,
@@ -318,7 +320,7 @@ class _AppIntroScreenState extends State<AppIntroScreen> {
                       ),
                     ),
                     child: Text(
-                      isLast ? 'Başla' : 'Devam',
+                      isLast ? l10n.tanitimBasla : l10n.tanitimDevam,
                       style: _inter(
                         size: 16,
                         weight: FontWeight.w700,

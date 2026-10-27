@@ -12,6 +12,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kavaidSozluk => 'Kavaid Dictionary';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Continue';
+
+  @override
+  String get tanitimBasla => 'Get started';
+
+  @override
   String get tekrarDene => 'Try Again';
 
   @override
@@ -230,7 +239,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get kelimeAra => 'Search word';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Conjugation';
 
   @override
   String get kuranSozlugu => 'Quran Dictionary';
@@ -486,7 +495,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get m5500Fiilin24Siga =>
-      'Unlock 24-form Emsile conjugations for 5,500+ verbs';
+      'Unlock 24-form conjugations for 5,500+ verbs';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -942,7 +951,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Past, present, verbal noun, and imperative';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec => 'See Emsile for all conjugations';
+  String get tumCekimlerIcinEmsileyeGec => 'See all forms in Conjugation';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -1000,7 +1009,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'Review with lists or cards';
 
   @override
-  String get sozlukKurAnVeEmsile => 'Dictionary, Quran, and Emsile entries';
+  String get sozlukKurAnVeEmsile =>
+      'Dictionary, Quran, and conjugation entries';
 
   @override
   String get a1DenC1EResimli => 'Illustrated Arabic stories from A1 to C1.';
@@ -1143,7 +1153,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get muzari => 'Present';
 
   @override
-  String get emsileCekimleri => 'Emsile Conjugations';
+  String get emsileCekimleri => 'Verb Conjugations';
 
   @override
   String get maziGecmis => 'Past';
@@ -1174,7 +1184,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Learn Emsile conjugations for over 5,500 verbs across 24 forms.';
+      'Learn the conjugation of over 5,500 verbs in all 24 forms.';
 
   @override
   String get tumFiilleriAc => 'Unlock all verbs';
@@ -1203,7 +1213,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Unlock Emsile conjugations for over 5,500 verbs across 24 forms';
+      'Unlock the conjugation of over 5,500 verbs in all 24 forms';
 
   @override
   String get ucretsizFiiller => 'Free Verbs';

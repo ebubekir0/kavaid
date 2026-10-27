@@ -1,2 +1,8 @@
 /* Localized versions of Info.plist keys */
 CFBundleDisplayName = "قاموس قواعد";
+NSPhotoLibraryUsageDescription = "يلزم الوصول إلى الصور لاختيار صورة ملفك الشخصي.";
+NSPhotoLibraryAddUsageDescription = "يلزم الوصول إلى الصور لاختيار صورة ملفك الشخصي.";
+NSCameraUsageDescription = "يلزم الوصول إلى الكاميرا لالتقاط صورة ملفك الشخصي.";
+NSLocationWhenInUseUsageDescription = "يُستخدم الموقع لضبط الإعدادات الإقليمية المناسبة لخدمات التطبيق.";
+NSMicrophoneUsageDescription = "يلزم الوصول إلى الميكروفون للبحث عن الكلمات بالصوت.";
+NSSpeechRecognitionUsageDescription = "يلزم التعرّف على الكلام لتحويل بحثك الصوتي إلى نص.";

@@ -9,13 +9,22 @@ class AppLocalizationsUr extends AppLocalizations {
   AppLocalizationsUr([String locale = 'ur']) : super(locale);
 
   @override
-  String get kavaidSozluk => 'Kavaid لغت';
+  String get kavaidSozluk => 'قواعد لغت';
+
+  @override
+  String get markaAdi => 'قواعد';
+
+  @override
+  String get tanitimDevam => 'جاری رکھیں';
+
+  @override
+  String get tanitimBasla => 'شروع کریں';
 
   @override
   String get tekrarDene => 'دوبارہ کوشش کریں';
 
   @override
-  String get kavaidArapcaSozluk => 'کواعد - عربی لغت';
+  String get kavaidArapcaSozluk => 'قواعد - عربی لغت';
 
   @override
   String get sozluk => 'لغت';
@@ -225,13 +234,13 @@ class AppLocalizationsUr extends AppLocalizations {
   String get kelimeAra => 'لفظ تلاش کریں';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'گردان';
 
   @override
   String get kuranSozlugu => 'قرآنی لغت';
 
   @override
-  String get kavaidIDegerlendir => 'Kavaid کی درجہ بندی کریں';
+  String get kavaidIDegerlendir => 'قواعد کی درجہ بندی کریں';
 
   @override
   String get gorusunBizimIcinCokDegerli => 'آپ کی رائے ہمارے لیے بہت قیمتی ہے۔';
@@ -281,7 +290,7 @@ class AppLocalizationsUr extends AppLocalizations {
       'دسیوں ہزار قرآنی آیات کے ساتھ الفاظ کا استعمال دیکھیں۔';
 
   @override
-  String get kavaidArapcaSozluk2 => 'Kavaid عربی لغت';
+  String get kavaidArapcaSozluk2 => 'قواعد عربی لغت';
 
   @override
   String get yeniNesilYapayZekaDestekli =>
@@ -379,7 +388,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get iletisim => 'رابطہ';
 
   @override
-  String get kavaidUygulamasiHakkinda => 'Kavaid ایپ کے بارے میں';
+  String get kavaidUygulamasiHakkinda => 'قواعد ایپ کے بارے میں';
 
   @override
   String get hesabimiSil => 'میرا اکاؤنٹ ڈیلیٹ کریں';
@@ -401,7 +410,7 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get kavaidArapcaSozlukUygulamasi => 'Kavaid - عربی لغت ایپ';
+  String get kavaidArapcaSozlukUygulamasi => 'قواعد - عربی لغت ایپ';
 
   @override
   String get paylasimSirasindaBirHataOlustu => 'شیئرنگ کے دوران خرابی پیش آئی';
@@ -468,7 +477,7 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get kavaidPremium => 'Kavaid پریمیم';
+  String get kavaidPremium => 'قواعد پریمیم';
 
   @override
   String get aiAsistanASinirsizErisim => 'AI اسسٹنٹ تک لامحدود رسائی';
@@ -923,7 +932,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get maziMuzariMastarVeEmir => 'ماضی، مضارع، مصدر اور امر';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec => 'مکمل گردان کے لیے Emsile پر جائیں';
+  String get tumCekimlerIcinEmsileyeGec => 'تمام صیغوں کے لیے گردان دیکھیں';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -981,7 +990,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'فہرست یا کارڈز کے ساتھ دہرائیں';
 
   @override
-  String get sozlukKurAnVeEmsile => 'لغت، قرآن اور Emsile ریکارڈز';
+  String get sozlukKurAnVeEmsile => 'لغت، قرآن اور گردان کے ریکارڈز';
 
   @override
   String get a1DenC1EResimli => 'A1 سے C1 تک تصویری عربی کہانیاں۔';
@@ -1126,7 +1135,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get muzari => 'مضارع';
 
   @override
-  String get emsileCekimleri => 'امثلہ گردان';
+  String get emsileCekimleri => 'افعال کی گردان';
 
   @override
   String get maziGecmis => 'ماضی';

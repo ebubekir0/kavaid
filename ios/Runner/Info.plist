@@ -66,15 +66,15 @@
 
 	<!-- Profil resmi için fotoğraf ve kamera erişimi -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.</string>
+	<string>Photo access is needed to choose your profile photo.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.</string>
+	<string>Photo access is needed to choose your profile photo.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Profil fotoğrafı çekebilmeniz için kameraya erişim gereklidir.</string>
+	<string>Camera access is needed to take your profile photo.</string>
 	
 	<!-- Konum İzni -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Uygulama içi servislerin doğru bölgesel ayarlarla çalışabilmesi için konum izni gereklidir.</string>
+	<string>Location is used to apply the right regional settings for in-app services.</string>
 	
 	<!-- App Store İnceleme Notları -->
 	<key>NSInAppPurchaseUsageDescription</key>
@@ -82,9 +82,9 @@
 	
 	<!-- Mikrofon izni (TTS ve Sesli Arama için) -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Arama kısmında sesli olarak kelime yazabilmeniz için mikrofona erişim gereklidir.</string>
+	<string>Microphone access is needed to search for words by voice.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Sesli arama komutlarınızı metne dönüştürebilmek için konuşma tanıma iznine ihtiyaç vardır.</string>
+	<string>Speech recognition is needed to turn your voice searches into text.</string>
 	
 	<!-- Network Usage (Firebase için) -->
 	<key>NSAppTransportSecurity</key>

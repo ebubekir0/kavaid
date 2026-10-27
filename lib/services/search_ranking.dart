@@ -99,6 +99,25 @@ String foldTurkishChar(String ch) {
   return lower.length == 1 ? lower : ch;
 }
 
+final RegExp _latinLetterRx = RegExp('[A-Za-z]');
+final RegExp _infinitiveToRx = RegExp(r'(^|[,;] ?)to (?=\S)');
+
+/// İngilizce mastar eki "to " anlam parçalarının başından atılır ("to write,
+/// to record" → "write, record"); yoksa "write" araması emir kipini ("write")
+/// temel fiilden (كَتَبَ "to write") önce buluyordu.
+String stripInfinitiveTo(String text) =>
+    text.replaceAllMapped(_infinitiveToRx, (m) => m[1]!);
+
+/// Bir kaydın ana anlamını aramaya uygun hale getirir: Arap yazılı anlamlar
+/// (Urduca) [normalizeArabic] ile, diğerleri [foldLatin] ile.
+String normalizeMeaning(String mainMeaning) {
+  if (mainMeaning.isEmpty) return '';
+  if (containsArabic(mainMeaning) && !_latinLetterRx.hasMatch(mainMeaning)) {
+    return normalizeArabic(mainMeaning);
+  }
+  return stripInfinitiveTo(foldLatin(mainMeaning));
+}
+
 /// Türkçe/Latin metni aramaya uygun hale getirir: küçük harf, Türkçe
 /// karakterler ASCII karşılıklarına, harf/rakam dışı karakterler boşluğa.
 /// "Güzel", "guzel" ve "GÜZEL" aynı sonucu verir.
@@ -159,7 +178,7 @@ class SearchQuery {
   factory SearchQuery.parse(String input, {String arabicGuess = ''}) {
     final raw = input.trim();
     final isArabic = containsArabic(raw);
-    final latin = isArabic ? '' : foldLatin(raw);
+    final latin = isArabic ? '' : stripInfinitiveTo(foldLatin(raw));
     return SearchQuery(
       raw: raw,
       isArabic: isArabic,
@@ -247,53 +266,36 @@ EntryRank? rankEntry({
 }) {
   final wordLength = nHarekeli.isNotEmpty ? nHarekeli.length : nKelime.length;
 
-  if (query.isArabic) {
-    if (harekeli.isEmpty && kelime.isEmpty && koku.isEmpty) return null;
-    final q = query.arabic;
-
-    // Ekranda gösterilen harekeli yazım esas alınır. Veride "kelime" alanı
-    // bazen yanlış/Latin harfli girilmiş (ör. kelime "كتب", harekeli
-    // "لِيَكْتُبْ"); bu kayıtlar tam eşleşme sayılır ama sona alınır.
-    if (harekeli == query.raw) {
-      return (rank: 0, sec: wordLength, type: WordMatchType.exact);
-    }
-    if (nHarekeli == q || (nHarekeli.isEmpty && nKelime == q)) {
-      return (rank: 1, sec: wordLength, type: WordMatchType.exact);
-    }
-    if (kelime == query.raw || nKelime == q) {
-      return (rank: 1, sec: 1000 + wordLength, type: WordMatchType.exact);
-    }
-    final isPrefix = nHarekeli.startsWith(q) || nKelime.startsWith(q);
-    final isRoot = nKoku.isNotEmpty && nKoku == q;
-    if (isPrefix || isRoot) {
-      // Sıralamada kök eşleşmeleri öne alınır (120 sonuç sınırında
-      // kaybolmasınlar); ekranda ise önek eşleşmeleri önce gösterilir.
-      final type = isPrefix
-          ? WordMatchType.prefix
-          : (q.length >= 2 ? WordMatchType.root : WordMatchType.partial);
-      return (rank: isRoot ? 2 : 3, sec: wordLength, type: type);
-    }
-    if (_hasWholeToken(nHarekeli, q) || _hasWholeToken(nKelime, q)) {
-      return (rank: 4, sec: wordLength, type: WordMatchType.partial);
-    }
-    if (_hasTokenStartingWith(nHarekeli, q) ||
-        _hasTokenStartingWith(nKelime, q)) {
-      return (rank: 5, sec: wordLength, type: WordMatchType.partial);
-    }
-    if (nHarekeli.contains(q) || nKelime.contains(q)) {
-      return (rank: 6, sec: wordLength, type: WordMatchType.partial);
-    }
-    return null;
-  }
-
-  final q = query.latin;
-  if (q.isEmpty) return null;
-
   // Aynı puanda yaygın kelime öne gelir: kökünden sözlükte çok sayıda
   // kelime türemiş olan (كَبِيرٌ) nadir olandan (جَلَلٌ) önce. Sonra temel
   // biçim (daha kısa kelime; "ال" takısız, zamirsiz), sonra sözlük sırası.
   final sec =
       (9999 - popularity.clamp(0, 9999)) * 1000 + wordLength.clamp(0, 999);
+
+  if (query.isArabic) {
+    if (harekeli.isEmpty && kelime.isEmpty && koku.isEmpty) return null;
+    final q = query.arabic;
+    final headword = _rankArabicHeadword(
+      query, q, kelime, harekeli, koku, nKelime, nHarekeli, nKoku, wordLength,
+    );
+    if (headword != null && headword.rank < 4) return headword;
+
+    // Arap yazılı anlamlar (Urduca sözlük): "پانی" yazan kullanıcı ماء'yı
+    // bulur. Anlamda tam eşleşme, başlıkta yalnız içinde geçmekten önce gelir.
+    if (meanings.isNotEmpty && meanings.contains(q)) {
+      final meaning = _rankMeaning(
+        meanings,
+        q,
+        q.length <= 1 ? 2 : (q.length == 2 ? 4 : 5),
+        sec,
+      );
+      if (meaning != null) return meaning;
+    }
+    return headword;
+  }
+
+  final q = query.latin;
+  if (q.isEmpty) return null;
 
   EntryRank? best;
   if (meanings.isNotEmpty && meanings.contains(q)) {
@@ -337,6 +339,53 @@ EntryRank? rankEntry({
   return null;
 }
 
+/// Arapça sorguyu kaydın başlığına ve köküne göre puanlar.
+EntryRank? _rankArabicHeadword(
+  SearchQuery query,
+  String q,
+  String kelime,
+  String harekeli,
+  String koku,
+  String nKelime,
+  String nHarekeli,
+  String nKoku,
+  int wordLength,
+) {
+  // Ekranda gösterilen harekeli yazım esas alınır. Veride "kelime" alanı
+  // bazen yanlış/Latin harfli girilmiş (ör. kelime "كتب", harekeli
+  // "لِيَكْتُبْ"); bu kayıtlar tam eşleşme sayılır ama sona alınır.
+  if (harekeli == query.raw) {
+    return (rank: 0, sec: wordLength, type: WordMatchType.exact);
+  }
+  if (nHarekeli == q || (nHarekeli.isEmpty && nKelime == q)) {
+    return (rank: 1, sec: wordLength, type: WordMatchType.exact);
+  }
+  if (kelime == query.raw || nKelime == q) {
+    return (rank: 1, sec: 1000 + wordLength, type: WordMatchType.exact);
+  }
+  final isPrefix = nHarekeli.startsWith(q) || nKelime.startsWith(q);
+  final isRoot = nKoku.isNotEmpty && nKoku == q;
+  if (isPrefix || isRoot) {
+    // Sıralamada kök eşleşmeleri öne alınır (120 sonuç sınırında
+    // kaybolmasınlar); ekranda ise önek eşleşmeleri önce gösterilir.
+    final type = isPrefix
+        ? WordMatchType.prefix
+        : (q.length >= 2 ? WordMatchType.root : WordMatchType.partial);
+    return (rank: isRoot ? 2 : 3, sec: wordLength, type: type);
+  }
+  if (_hasWholeToken(nHarekeli, q) || _hasWholeToken(nKelime, q)) {
+    return (rank: 4, sec: wordLength, type: WordMatchType.partial);
+  }
+  if (_hasTokenStartingWith(nHarekeli, q) ||
+      _hasTokenStartingWith(nKelime, q)) {
+    return (rank: 5, sec: wordLength, type: WordMatchType.partial);
+  }
+  if (nHarekeli.contains(q) || nKelime.contains(q)) {
+    return (rank: 6, sec: wordLength, type: WordMatchType.partial);
+  }
+  return null;
+}
+
 /// Türkçe sorguyu kaydın anlamlarına göre puanlar. [rawMeaning] ve
 /// [rawQuery] verilirse Türkçe karakterleri birebir uyan anlam öne alınır;
 /// [allowInsideWord] false ise kelime ortası eşleşmeler sayılmaz.
@@ -365,8 +414,8 @@ EntryRank? _rankMeaning(
   final rawBest = rawMeaning.isEmpty || rawQuery.isEmpty
       ? null
       : _bestMeaningMatch(
-          turkishLower(rawMeaning).split(_meaningSplitRx),
-          turkishLower(rawQuery),
+          stripInfinitiveTo(turkishLower(rawMeaning)).split(_meaningSplitRx),
+          stripInfinitiveTo(turkishLower(rawQuery)),
           maxTier,
         );
   // Kelime ortası eşleşmeler yalnızca yazım birebir uyuyorsa sayılır;
@@ -603,7 +652,10 @@ String? sameSenseKey(WordModel word) {
   if (root.isEmpty) return null;
   final main = (word.anlam ?? '').split('||').first;
   final first = foldLatin(main.split(_meaningSplitRx).first);
-  return first.isEmpty ? null : '$root|$first';
+  // Tür de aynı olmalı: Endonezcede كَتَبَ (fiil) ve كِتَابَةٌ (mastar) ikisi de
+  // "menulis"; birleşince fiil yerine mastar görünüyordu.
+  final type = word.dilbilgiselOzellikler?['tur'] ?? word.kelimeTuru ?? '';
+  return first.isEmpty ? null : '$root|$type|$first';
 }
 
 /// Aynı kelimenin kopyalarını tek sonuçta toplar: isimlerde hal/takı farkı
@@ -650,8 +702,18 @@ List<RankedWord> collapseVariants(
       final members = entry.value;
       if (members.length < 2) continue;
       final best = members.first;
+      // Grupta tekili olan çoğul yalın biçim sayılmaz: Malaycada مَاءٌ ve
+      // مِيَاهٌ ikisi de "air"; "air" yazana çoğul gösterilmesin.
+      final plurals = {
+        for (final m in members)
+          if (m.word.dilbilgiselOzellikler?['cogulForm'] case final String p
+              when p.isNotEmpty)
+            p.trim(),
+      };
       final canonical = members.firstWhere(
-        (m) => _isCanonicalNounForm(m.word),
+        (m) =>
+            _isCanonicalNounForm(m.word) &&
+            !plurals.contains((m.word.harekeliKelime ?? '').trim()),
         orElse: () => best,
       );
       if (!identical(canonical, best)) {

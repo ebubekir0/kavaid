@@ -12,6 +12,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get kavaidSozluk => 'Словарь Kavaid';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Далее';
+
+  @override
+  String get tanitimBasla => 'Начать';
+
+  @override
   String get tekrarDene => 'Повторить попытку';
 
   @override
@@ -233,7 +242,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get kelimeAra => 'Поиск слова';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Спряжение';
 
   @override
   String get kuranSozlugu => 'Словарь Корана';
@@ -487,7 +496,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get ceviriyeSinirsizErisim => 'Безлимитный доступ к переводчику';
 
   @override
-  String get m5500Fiilin24Siga => 'Таблицы спряжения Emsile для 5500+ глаголов';
+  String get m5500Fiilin24Siga => 'Таблицы спряжения для 5500+ глаголов';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -921,11 +930,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'Задать вопрос об этом слове';
 
   @override
-  String get arapcaTurkceSozluk => 'Арабско-русский словарь';
+  String get arapcaTurkceSozluk => 'Арабско-английский словарь';
 
   @override
   String get arapcaYaDaTurkceYaz =>
-      'Пишите на арабском или русском, всё на одной карточке.';
+      'Пишите на арабском или английском, всё на одной карточке.';
 
   @override
   String get sesleYaDaArapcaKlavyeyle =>
@@ -947,8 +956,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Прошедшее, настоящее, масдар и повелительное';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec =>
-      'Перейти в Emsile для всех спряжений';
+  String get tumCekimlerIcinEmsileyeGec => 'Все формы — в разделе «Спряжение»';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -1007,7 +1015,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'Повторяйте по списку или карточкам';
 
   @override
-  String get sozlukKurAnVeEmsile => 'Записи словаря, Корана и Emsile';
+  String get sozlukKurAnVeEmsile => 'Записи словаря, Корана и спряжений';
 
   @override
   String get a1DenC1EResimli =>
@@ -1155,7 +1163,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get muzari => 'Мудари';
 
   @override
-  String get emsileCekimleri => 'Спряжение Emsile';
+  String get emsileCekimleri => 'Спряжение глаголов';
 
   @override
   String get maziGecmis => 'Мади (прош.)';
@@ -1185,7 +1193,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Изучите спряжение более 5500 глаголов по 24 формам Emsile.';
+      'Изучите спряжение более 5500 глаголов во всех 24 формах.';
 
   @override
   String get tumFiilleriAc => 'Открыть все глаголы';
@@ -1213,7 +1221,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Откройте спряжение более 5500 глаголов по 24 формам Emsile';
+      'Откройте спряжение более 5500 глаголов во всех 24 формах';
 
   @override
   String get ucretsizFiiller => 'Бесплатные глаголы';

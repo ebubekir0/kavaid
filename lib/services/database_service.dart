@@ -410,7 +410,12 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
       // (veya mastarın geçmiş zaman hali ya da Latin tahmini) geçmeli.
       if (query.isArabic) {
         final q = query.arabic;
-        if (!nHK.contains(q) && !nK.contains(q) && nRoot != q) continue;
+        if (!nHK.contains(q) &&
+            !nK.contains(q) &&
+            nRoot != q &&
+            !meanings.contains(q)) {
+          continue;
+        }
       } else if (!_meaningMayMatch(meanings, query) &&
           !(alt.isNotEmpty && meanings.contains(alt)) &&
           !(guess.isNotEmpty &&
@@ -598,7 +603,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
           nKelime: normalizeArabic(kelime),
           nHarekeli: normalizeArabic(harekeli),
           nKoku: normalizeArabic(koku),
-          meanings: foldLatin(mainMeaning),
+          meanings: normalizeMeaning(mainMeaning),
           rawMeaning: mainMeaning,
         );
         if (r == null) continue;

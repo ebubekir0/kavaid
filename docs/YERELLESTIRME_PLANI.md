@@ -665,6 +665,14 @@ veritabanının kuralları herkese açık (konsol uyarısı) ve kod Gemini anaht
 ## 6. Gelir, mağaza ve ASO
 
 ### 6.1 Abonelik ve satın alma
+**Durum (27 Ekim 2026).** Kodda hazır: fiyatlar yalnız mağazadan gelir (RevenueCat `priceString`, ülkenin para birimiyle); kitap satın almadaki sabit "₺89,99" yedeği kaldırıldı (gelmezse "—"). Ödeme ekranı metinleri 12 dilde. Mağaza tarafı yapılmadı; her adım konsolda, onayla yapılır:
+1. **Ülke erişimi:** uygulama ve abonelikler hedef mağazalarda açık olmalı — Endonezya, Malezya, Pakistan, Hindistan, Bangladeş, Suudi Arabistan/BAE/Mısır, ABD/İngiltere/Almanya (Play: Üretim › Ülkeler/bölgeler; App Store: Fiyatlandırma ve Erişilebilirlik).
+2. **Ürün adı ve açıklaması** (Play abonelik ürün ayrıntıları; App Store abonelik grubu + abonelik yerelleştirmeleri): en, ar, id, ms, ur; marka Latin yazıda "Kavaid Premium", ar "قواعد بريميوم", ur "قواعد پریمیم".
+3. **Bölgesel fiyat** (karar kullanıcıda): Türkiye fiyatı aynı kalır; ABD/AB/Körfez ≈ 2,99 $/ay; Malezya ≈ 1,99 $; Endonezya, Pakistan, Hindistan, Bangladeş, Mısır ≈ 0,99–1,49 $/ay. Yıllık ≈ 6–7 aylık. Play'de ülke bazlı fiyat, App Store'da storefront fiyatı.
+4. **RevenueCat:** ürün kimlikleri aynı, offering değişmez; yeni mağazalarda ürünlerin offering'e bağlı göründüğü kontrol edilir.
+5. **Deneme:** Play lisans test hesabı ve App Store sandbox hesabıyla en az bir yeni ülkede (ör. Endonezya) fiyatın o para biriminde göründüğü ve satın almanın tamamlandığı doğrulanır.
+
+Eski plan notları:
 - RevenueCat ürünleri aynı kalır; App Store Connect ve Play Console'da **ürün adı/açıklaması her dil için** girilir.
 - **Bölgesel fiyat**: Endonezya, Pakistan, Bangladeş, Mısır, Hindistan, Nijerya için satın alma gücüne göre düşük fiyat (Play ülke bazlı fiyat, App Store storefront fiyatı); RevenueCat Offerings'i ülkeye göre hedefleme.
 - Ödeme duvarı (subscription_screen) metinleri, otomatik yenileme açıklaması ve EULA bağlantısı **her dilde** (App Review 3.1.2 için zorunlu ögeler).

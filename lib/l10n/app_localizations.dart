@@ -124,6 +124,24 @@ abstract class AppLocalizations {
   /// **'Kavaid Sözlük'**
   String get kavaidSozluk;
 
+  /// Uygulamanın marka adı (Arap yazılı dillerde onaylı karşılığı)
+  ///
+  /// In tr, this message translates to:
+  /// **'Kavaid'**
+  String get markaAdi;
+
+  /// Tanıtım ekranında sonraki sayfa düğmesi
+  ///
+  /// In tr, this message translates to:
+  /// **'Devam'**
+  String get tanitimDevam;
+
+  /// Tanıtım ekranının son sayfasında uygulamaya geçiş düğmesi
+  ///
+  /// In tr, this message translates to:
+  /// **'Başla'**
+  String get tanitimBasla;
+
   /// lib/main.dart:182
   ///
   /// In tr, this message translates to:

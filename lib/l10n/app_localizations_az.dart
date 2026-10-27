@@ -12,6 +12,15 @@ class AppLocalizationsAz extends AppLocalizations {
   String get kavaidSozluk => 'Kavaid Lüğət';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Davam et';
+
+  @override
+  String get tanitimBasla => 'Başla';
+
+  @override
   String get tekrarDene => 'Yenidən cəhd et';
 
   @override
@@ -226,7 +235,7 @@ class AppLocalizationsAz extends AppLocalizations {
   String get kelimeAra => 'Söz axtar';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Təsrif';
 
   @override
   String get kuranSozlugu => 'Quran Lüğəti';
@@ -480,8 +489,7 @@ class AppLocalizationsAz extends AppLocalizations {
   String get ceviriyeSinirsizErisim => 'Tərcüməyə limitsiz giriş';
 
   @override
-  String get m5500Fiilin24Siga =>
-      '5.500+ feilin 24 sığa Emsile çəkilmələrini aç';
+  String get m5500Fiilin24Siga => '5.500+ feilin 24 sığa təsrifini aç';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -891,11 +899,11 @@ class AppLocalizationsAz extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'Bu sözlə bağlı sual ver';
 
   @override
-  String get arapcaTurkceSozluk => 'Ərəbcə–Azərbaycanca lüğət';
+  String get arapcaTurkceSozluk => 'Ərəbcə–İngiliscə lüğət';
 
   @override
   String get arapcaYaDaTurkceYaz =>
-      'Ərəbcə ya da Azərbaycanca yaz, hər şey bir kartda.';
+      'Ərəbcə ya da İngiliscə yaz, hər şey bir kartda.';
 
   @override
   String get sesleYaDaArapcaKlavyeyle =>
@@ -1253,7 +1261,7 @@ class AppLocalizationsAz extends AppLocalizations {
   String get zamirBiz => 'Biz';
 
   @override
-  String get dialectTr => 'Azərbaycan dili';
+  String get dialectTr => 'Türk dili';
 
   @override
   String get dialectEn => 'İngilis dili';

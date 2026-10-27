@@ -1,0 +1,8 @@
+/* Localized versions of Info.plist keys */
+CFBundleDisplayName = "Kavaid";
+NSPhotoLibraryUsageDescription = "Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.";
+NSPhotoLibraryAddUsageDescription = "Profil fotoğrafınızı değiştirmek için fotoğraf seçmeniz gerekiyor.";
+NSCameraUsageDescription = "Profil fotoğrafı çekebilmeniz için kameraya erişim gereklidir.";
+NSLocationWhenInUseUsageDescription = "Uygulama içi servislerin doğru bölgesel ayarlarla çalışabilmesi için konum izni gereklidir.";
+NSMicrophoneUsageDescription = "Arama kısmında sesli olarak kelime yazabilmeniz için mikrofona erişim gereklidir.";
+NSSpeechRecognitionUsageDescription = "Sesli arama komutlarınızı metne dönüştürebilmek için konuşma tanıma iznine ihtiyaç vardır.";

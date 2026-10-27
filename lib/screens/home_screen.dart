@@ -36,6 +36,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import '../services/language_service.dart';
 import '../widgets/campaign_banner.dart';
 import '../widgets/ai_intro_banner.dart';
+import '../widgets/app_intro_screen.dart';
 import '../services/global_config_service.dart';
 import 'package:kavaid/l10n/l10n.dart';
 
@@ -276,11 +277,16 @@ class _HomeScreenState extends State<HomeScreen>
       _didAutoOpenKeyboard = true;
 
       // İlk frame render edilir edilmez hemen klavyeyi aç
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+
+        // Yeni kurulumda üstte tanıtım ekranı açılacak: klavye onun üstünde
+        // kalıp sayfaları kapatıyordu, o zaman açma.
+        final introPending = await AppIntroScreen.shouldShow();
         if (!mounted) return;
 
         // TextField'a focus ver ve klavyeyi kesinlikle aç
-        _openKeyboardWithFocus();
+        if (!introPending) _openKeyboardWithFocus();
 
         // Dışarıya haber ver
         widget.onKeyboardOpened?.call();

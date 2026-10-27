@@ -1,0 +1,8 @@
+/* Localized versions of Info.plist keys */
+CFBundleDisplayName = "Kavaid";
+NSPhotoLibraryUsageDescription = "Photo access is needed to choose your profile photo.";
+NSPhotoLibraryAddUsageDescription = "Photo access is needed to choose your profile photo.";
+NSCameraUsageDescription = "Camera access is needed to take your profile photo.";
+NSLocationWhenInUseUsageDescription = "Location is used to apply the right regional settings for in-app services.";
+NSMicrophoneUsageDescription = "Microphone access is needed to search for words by voice.";
+NSSpeechRecognitionUsageDescription = "Speech recognition is needed to turn your voice searches into text.";

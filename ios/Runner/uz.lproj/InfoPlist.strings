@@ -1,0 +1,8 @@
+/* Localized versions of Info.plist keys */
+CFBundleDisplayName = "Kavaid";
+NSPhotoLibraryUsageDescription = "Profil rasmini tanlash uchun suratlarga ruxsat kerak.";
+NSPhotoLibraryAddUsageDescription = "Profil rasmini tanlash uchun suratlarga ruxsat kerak.";
+NSCameraUsageDescription = "Profil rasmini olish uchun kameraga ruxsat kerak.";
+NSLocationWhenInUseUsageDescription = "Ilova xizmatlari uchun to‘g‘ri mintaqaviy sozlamalarni qo‘llash maqsadida joylashuv ishlatiladi.";
+NSMicrophoneUsageDescription = "So‘zlarni ovoz orqali qidirish uchun mikrofonga ruxsat kerak.";
+NSSpeechRecognitionUsageDescription = "Ovozli qidiruvingizni matnga aylantirish uchun nutqni aniqlash kerak.";

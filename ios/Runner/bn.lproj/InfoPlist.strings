@@ -1,0 +1,8 @@
+/* Localized versions of Info.plist keys */
+CFBundleDisplayName = "Kavaid";
+NSPhotoLibraryUsageDescription = "প্রোফাইল ছবি বেছে নিতে ছবিতে অ্যাক্সেস প্রয়োজন।";
+NSPhotoLibraryAddUsageDescription = "প্রোফাইল ছবি বেছে নিতে ছবিতে অ্যাক্সেস প্রয়োজন।";
+NSCameraUsageDescription = "প্রোফাইল ছবি তুলতে ক্যামেরায় অ্যাক্সেস প্রয়োজন।";
+NSLocationWhenInUseUsageDescription = "অ্যাপের পরিষেবায় সঠিক আঞ্চলিক সেটিংস প্রয়োগ করতে অবস্থান ব্যবহার করা হয়।";
+NSMicrophoneUsageDescription = "ভয়েসের মাধ্যমে শব্দ খুঁজতে মাইক্রোফোনে অ্যাক্সেস প্রয়োজন।";
+NSSpeechRecognitionUsageDescription = "আপনার ভয়েস সার্চকে লেখায় রূপান্তর করতে স্পিচ রিকগনিশন প্রয়োজন।";

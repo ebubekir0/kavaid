@@ -12,6 +12,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get kavaidSozluk => 'Kamus Kavaid';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Lanjut';
+
+  @override
+  String get tanitimBasla => 'Mulai';
+
+  @override
   String get tekrarDene => 'Coba Lagi';
 
   @override
@@ -227,7 +236,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get kelimeAra => 'Cari kata';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Tasrif';
 
   @override
   String get kuranSozlugu => 'Kamus Al-Quran';
@@ -482,7 +491,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get m5500Fiilin24Siga =>
-      'Buka 5.500+ tabel tasrif (Emsile) untuk 24 bentuk kata kerja';
+      'Buka 5.500+ tabel tasrif dalam 24 bentuk kata kerja';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -943,7 +952,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get maziMuzariMastarVeEmir => 'Mazi, Mudhari, Mashdar, dan Amr';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec => 'Buka Emsile untuk semua konjugasi';
+  String get tumCekimlerIcinEmsileyeGec => 'Buka Tasrif untuk semua bentuk';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -1005,7 +1014,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'Ulangi dengan daftar atau kartu';
 
   @override
-  String get sozlukKurAnVeEmsile => 'Riwayat kamus, Al-Quran, dan Emsile';
+  String get sozlukKurAnVeEmsile => 'Riwayat kamus, Al-Quran, dan tasrif';
 
   @override
   String get a1DenC1EResimli =>
@@ -1151,7 +1160,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get muzari => 'Mudhari';
 
   @override
-  String get emsileCekimleri => 'Tabel Emsile';
+  String get emsileCekimleri => 'Tabel Tasrif';
 
   @override
   String get maziGecmis => 'Madhi (Lampau)';
@@ -1181,7 +1190,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Pelajari konjugasi Emsile-i Muhtelife untuk lebih dari 5.500 kata kerja dalam 24 bentuk.';
+      'Pelajari tasrif lebih dari 5.500 kata kerja dalam 24 bentuk.';
 
   @override
   String get tumFiilleriAc => 'Buka semua kata kerja';
@@ -1210,7 +1219,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Buka konjugasi Emsile-i Muhtelife untuk lebih dari 5.500 kata kerja dalam 24 bentuk';
+      'Buka tasrif lebih dari 5.500 kata kerja dalam 24 bentuk';
 
   @override
   String get ucretsizFiiller => 'Kata Kerja Gratis';

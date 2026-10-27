@@ -42,6 +42,8 @@ void main() {
     SharedPreferences.setMockInitialValues({
       LanguageService.appIntroPendingKey: true,
     });
+    // Metinler Türkçe arayüze göre; test ortamının dili İngilizce olabilir
+    await LanguageService().changeLanguage('tr');
     await _open(tester);
     expect(find.text('Arapça–Türkçe sözlük'), findsOneWidget);
 

@@ -9,13 +9,22 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get kavaidSozluk => 'قاموس Kavaid';
+  String get kavaidSozluk => 'قاموس قواعد';
+
+  @override
+  String get markaAdi => 'قواعد';
+
+  @override
+  String get tanitimDevam => 'متابعة';
+
+  @override
+  String get tanitimBasla => 'ابدأ';
 
   @override
   String get tekrarDene => 'أعد المحاولة';
 
   @override
-  String get kavaidArapcaSozluk => 'Kavaid - قاموس اللغة العربية';
+  String get kavaidArapcaSozluk => 'قواعد - قاموس اللغة العربية';
 
   @override
   String get sozluk => 'قاموس';
@@ -241,7 +250,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get kuranSozlugu => 'قاموس القرآن';
 
   @override
-  String get kavaidIDegerlendir => 'قيّم تطبيق Kavaid';
+  String get kavaidIDegerlendir => 'قيّم تطبيق قواعد';
 
   @override
   String get gorusunBizimIcinCokDegerli => 'رأيك يهمنا جداً.';
@@ -290,7 +299,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'شاهد استخدامات الكلمات في القرآن من خلال عشرات الآلاف من الآيات.';
 
   @override
-  String get kavaidArapcaSozluk2 => 'قاموس Kavaid للغة العربية';
+  String get kavaidArapcaSozluk2 => 'قاموس قواعد العربي';
 
   @override
   String get yeniNesilYapayZekaDestekli =>
@@ -388,7 +397,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get iletisim => 'تواصل معنا';
 
   @override
-  String get kavaidUygulamasiHakkinda => 'حول تطبيق Kavaid';
+  String get kavaidUygulamasiHakkinda => 'حول تطبيق قواعد';
 
   @override
   String get hesabimiSil => 'حذف حسابي';
@@ -409,7 +418,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get kavaidArapcaSozlukUygulamasi => 'Kavaid - قاموس اللغة العربية';
+  String get kavaidArapcaSozlukUygulamasi => 'قواعد - قاموس اللغة العربية';
 
   @override
   String get paylasimSirasindaBirHataOlustu => 'حدث خطأ أثناء المشاركة';
@@ -477,7 +486,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get kavaidPremium => 'Kavaid Premium';
+  String get kavaidPremium => 'قواعد بريميوم';
 
   @override
   String get aiAsistanASinirsizErisim =>
@@ -1155,7 +1164,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get ismIMefUl => 'اسم المفعول';
 
   @override
-  String get fiilCekimleriKavaidSozluk => 'تصريف الأفعال • قاموس Kavaid';
+  String get fiilCekimleriKavaidSozluk => 'تصريف الأفعال • قاموس قواعد';
 
   @override
   String get m5500DenFazlaFiilin2 => 'تعلّم تصريف أكثر من 5500 فعل في 24 صيغة.';

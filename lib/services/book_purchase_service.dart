@@ -41,13 +41,13 @@ class BookPurchaseService extends ChangeNotifier {
   bool get hasError => _lastError.isNotEmpty;
   ProductDetails? get currentProduct => _currentProduct;
   
-  // Fallback fiyat bilgisi (Play Console bağlantısı yoksa)
+  // Fiyat yalnızca mağazadan gelir (ülkenin para birimiyle); gelmezse sabit
+  // TL fiyatı yerine boş gösterilir (subscription_screen ile aynı kural).
   String get currentBookPrice {
     if (_currentProduct != null) {
       return _currentProduct!.price;
     }
-    // Tüm kitaplar için tek fiyat
-    return '₺89,99';
+    return '—';
   }
 
   Future<void> initialize() async {

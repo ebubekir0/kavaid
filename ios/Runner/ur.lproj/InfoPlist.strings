@@ -1,2 +1,8 @@
 /* Localized versions of Info.plist keys */
 CFBundleDisplayName = "قواعد لغت";
+NSPhotoLibraryUsageDescription = "پروفائل تصویر منتخب کرنے کے لیے تصاویر تک رسائی درکار ہے۔";
+NSPhotoLibraryAddUsageDescription = "پروفائل تصویر منتخب کرنے کے لیے تصاویر تک رسائی درکار ہے۔";
+NSCameraUsageDescription = "پروفائل تصویر لینے کے لیے کیمرے تک رسائی درکار ہے۔";
+NSLocationWhenInUseUsageDescription = "ایپ کی خدمات کے لیے درست علاقائی ترتیبات لاگو کرنے کے لیے مقام استعمال ہوتا ہے۔";
+NSMicrophoneUsageDescription = "آواز سے الفاظ تلاش کرنے کے لیے مائیکروفون تک رسائی درکار ہے۔";
+NSSpeechRecognitionUsageDescription = "آپ کی صوتی تلاش کو متن میں بدلنے کے لیے تقریر کی شناخت درکار ہے۔";

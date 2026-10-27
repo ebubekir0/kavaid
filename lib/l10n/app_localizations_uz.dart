@@ -12,6 +12,15 @@ class AppLocalizationsUz extends AppLocalizations {
   String get kavaidSozluk => 'Kavaid Lug\'ati';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Davom etish';
+
+  @override
+  String get tanitimBasla => 'Boshlash';
+
+  @override
   String get tekrarDene => 'Qayta urinish';
 
   @override
@@ -226,7 +235,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get kelimeAra => 'So‘z qidirish';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Tasrif';
 
   @override
   String get kuranSozlugu => 'Qur’on lug‘ati';
@@ -482,7 +491,7 @@ class AppLocalizationsUz extends AppLocalizations {
   String get ceviriyeSinirsizErisim => 'Tarjimalarga cheksiz kirish';
 
   @override
-  String get m5500Fiilin24Siga => '5500+ fe’lning 24 ta Emsile shaklini ochish';
+  String get m5500Fiilin24Siga => '5500+ fe’lning 24 ta tasrif shaklini ochish';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -899,11 +908,11 @@ class AppLocalizationsUz extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'Bu so\'z haqida savol so\'ra';
 
   @override
-  String get arapcaTurkceSozluk => 'Arabcha–o\'zbekcha lug\'at';
+  String get arapcaTurkceSozluk => 'Arabcha–inglizcha lug\'at';
 
   @override
   String get arapcaYaDaTurkceYaz =>
-      'Arabcha yoki o\'zbekcha yozing, hammasi bitta kartada.';
+      'Arabcha yoki inglizcha yozing, hammasi bitta kartada.';
 
   @override
   String get sesleYaDaArapcaKlavyeyle =>

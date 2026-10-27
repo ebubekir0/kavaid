@@ -9,13 +9,22 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get kavaidSozluk => 'কাভাইদ অভিধান';
+  String get kavaidSozluk => 'Kavaid অভিধান';
+
+  @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'চালিয়ে যান';
+
+  @override
+  String get tanitimBasla => 'শুরু করুন';
 
   @override
   String get tekrarDene => 'পুনরায় চেষ্টা করুন';
 
   @override
-  String get kavaidArapcaSozluk => 'কাভাইদ - আরবি অভিধান';
+  String get kavaidArapcaSozluk => 'Kavaid - আরবি অভিধান';
 
   @override
   String get sozluk => 'অভিধান';
@@ -227,7 +236,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get kelimeAra => 'শব্দ খুঁজুন';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'তাসরীফ';
 
   @override
   String get kuranSozlugu => 'কুরআন অভিধান';
@@ -483,8 +492,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get ceviriyeSinirsizErisim => 'অনুবাদে আনলিমিটেড অ্যাক্সেস';
 
   @override
-  String get m5500Fiilin24Siga =>
-      '৫,৫০০+ ক্রিয়ার ২৪টি রূপের \'Emsile\' তালিকা';
+  String get m5500Fiilin24Siga => '৫,৫০০+ ক্রিয়ার ২৪টি রূপের তাসরীফ তালিকা';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -899,10 +907,11 @@ class AppLocalizationsBn extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'এই শব্দ সম্পর্কে প্রশ্ন করুন';
 
   @override
-  String get arapcaTurkceSozluk => 'আরবি-বাংলা অভিধান';
+  String get arapcaTurkceSozluk => 'আরবি-ইংরেজি অভিধান';
 
   @override
-  String get arapcaYaDaTurkceYaz => 'আরবি বা বাংলা লিখুন, সব এক কার্ডে পাবেন।';
+  String get arapcaYaDaTurkceYaz =>
+      'আরবি বা ইংরেজিতে লিখুন, সব এক কার্ডে পাবেন।';
 
   @override
   String get sesleYaDaArapcaKlavyeyle => 'ভয়েস বা আরবি কিবোর্ডে খুঁজুন';
@@ -921,8 +930,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get maziMuzariMastarVeEmir => 'মাজি, মুজারি, মাসদার ও আমর';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec =>
-      'সব রূপান্তরের জন্য এমসিলে (Emsile) দেখুন';
+  String get tumCekimlerIcinEmsileyeGec => 'সব রূপের জন্য তাসরীফ দেখুন';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -978,7 +986,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'তালিকা বা কার্ড দিয়ে রিভিশন';
 
   @override
-  String get sozlukKurAnVeEmsile => 'অভিধান, কুরআন ও এমসিলে রেকর্ড';
+  String get sozlukKurAnVeEmsile => 'অভিধান, কুরআন ও তাসরীফ রেকর্ড';
 
   @override
   String get a1DenC1EResimli => 'A1 থেকে C1 লেভেলের সচিত্র আরবি গল্প।';
@@ -1122,7 +1130,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get muzari => 'মুজারি';
 
   @override
-  String get emsileCekimleri => 'Emsile রূপান্তর';
+  String get emsileCekimleri => 'ক্রিয়ার তাসরীফ';
 
   @override
   String get maziGecmis => 'মাজি (অতীতকাল)';
@@ -1152,7 +1160,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      '৫,৫০০-এর বেশি ক্রিয়ার ২৪টি সিগার Emsile-i Muhtelife রূপান্তর শিখুন।';
+      '৫,৫০০-এর বেশি ক্রিয়ার ২৪টি সিগার তাসরীফ শিখুন।';
 
   @override
   String get tumFiilleriAc => 'সব ক্রিয়া দেখুন';
@@ -1180,7 +1188,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      '৫,৫০০-এর বেশি ক্রিয়ার ২৪টি সিগার Emsile-i Muhtelife রূপান্তর আনলক করুন';
+      '৫,৫০০-এর বেশি ক্রিয়ার ২৪টি সিগার তাসরীফ আনলক করুন';
 
   @override
   String get ucretsizFiiller => 'ফ্রি ক্রিয়া';

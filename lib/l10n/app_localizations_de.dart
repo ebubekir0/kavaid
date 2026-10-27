@@ -12,6 +12,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kavaidSozluk => 'Kavaid Wörterbuch';
 
   @override
+  String get markaAdi => 'Kavaid';
+
+  @override
+  String get tanitimDevam => 'Weiter';
+
+  @override
+  String get tanitimBasla => 'Los geht\'s';
+
+  @override
   String get tekrarDene => 'Erneut versuchen';
 
   @override
@@ -233,7 +242,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get kelimeAra => 'Wort suchen';
 
   @override
-  String get emsile => 'Emsile';
+  String get emsile => 'Konjugation';
 
   @override
   String get kuranSozlugu => 'Koran-Wörterbuch';
@@ -489,7 +498,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get m5500Fiilin24Siga =>
-      'Über 5.500 Verbkonjugationen (Emsile) in 24 Formen freischalten';
+      'Konjugation von über 5.500 Verben in 24 Formen freischalten';
 
   @override
   String get ogrenKismindakiTumMateryallereErisim =>
@@ -914,11 +923,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get buKelimeyleIlgiliSoruSor => 'Stelle eine Frage zu diesem Wort';
 
   @override
-  String get arapcaTurkceSozluk => 'Arabisch-Deutsches Wörterbuch';
+  String get arapcaTurkceSozluk => 'Arabisch-Englisches Wörterbuch';
 
   @override
   String get arapcaYaDaTurkceYaz =>
-      'Schreibe auf Arabisch oder Deutsch – alles auf einer Karte.';
+      'Schreibe auf Arabisch oder Englisch – alles auf einer Karte.';
 
   @override
   String get sesleYaDaArapcaKlavyeyle =>
@@ -938,8 +947,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get maziMuzariMastarVeEmir => 'Mazi, Müzari, Mastar und Imperativ';
 
   @override
-  String get tumCekimlerIcinEmsileyeGec =>
-      'Zur Emsile-Tabelle für alle Konjugationen';
+  String get tumCekimlerIcinEmsileyeGec => 'Alle Formen unter Konjugation';
 
   @override
   String get kelimeKartininEnSolundakiSimgeye =>
@@ -1001,7 +1009,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get listeYaDaKartlarlaTekrar => 'Wiederhole mit Listen oder Karten';
 
   @override
-  String get sozlukKurAnVeEmsile => 'Einträge aus Wörterbuch, Koran und Emsile';
+  String get sozlukKurAnVeEmsile =>
+      'Einträge aus Wörterbuch, Koran und Konjugation';
 
   @override
   String get a1DenC1EResimli =>
@@ -1150,7 +1159,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get muzari => 'Muzari';
 
   @override
-  String get emsileCekimleri => 'Emsile-Konjugationen';
+  String get emsileCekimleri => 'Verbkonjugationen';
 
   @override
   String get maziGecmis => 'Vergangenheit';
@@ -1181,7 +1190,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin2 =>
-      'Lerne die Emsile-i Muhtelife-Konjugationen von über 5.500 Verben in 24 Formen.';
+      'Lerne die Konjugation von über 5.500 Verben in allen 24 Formen.';
 
   @override
   String get tumFiilleriAc => 'Alle Verben freischalten';
@@ -1209,7 +1218,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get m5500DenFazlaFiilin3 =>
-      'Schalte die Emsile-i Muhtelife-Konjugationen von über 5.500 Verben in 24 Formen frei.';
+      'Schalte die Konjugation von über 5.500 Verben in allen 24 Formen frei.';
 
   @override
   String get ucretsizFiiller => 'Kostenlose Verben';

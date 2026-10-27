@@ -34,7 +34,10 @@ class SearchStore {
         _records = records,
         _maps = maps;
 
-  static const _magic = 'kavaid-search-1';
+  // Fihrist biçimi değişince (anlam normalleştirmesi gibi) artar; eski fihrist
+  // dosyası yok sayılıp yeniden kurulur.
+  static const _magic = 'kavaid-search-2';
+  static const _idxPrefix = 'search2_';
   static const _sep = '\u0001';
 
   // rankEntry'nin ham hâlleri
@@ -74,7 +77,7 @@ class SearchStore {
     return Map<String, dynamic>.from(jsonDecode(utf8.decode(bytes)) as Map);
   }
 
-  static String _idxPath(String dir, String version) => '$dir/search_$version.idx';
+  static String _idxPath(String dir, String version) => '$dir/$_idxPrefix$version.idx';
   static String _dictPath(String dir, String version) => '$dir/dict_$version.jsonl';
 
   static bool exists(String dir, String version) =>
@@ -233,10 +236,10 @@ class SearchStore {
   }
 
   static void _deleteOtherVersions(String dir, String version) {
-    final keep = {'search_$version.idx', 'dict_$version.jsonl'};
+    final keep = {'$_idxPrefix$version.idx', 'dict_$version.jsonl'};
     for (final f in Directory(dir).listSync().whereType<File>()) {
       final name = f.uri.pathSegments.last;
-      final ours = (name.startsWith('search_') && name.endsWith('.idx')) ||
+      final ours = (name.startsWith('search') && name.endsWith('.idx')) ||
           (name.startsWith('dict_') && name.endsWith('.jsonl')) ||
           name.endsWith('.idx.tmp') ||
           name.endsWith('.jsonl.tmp');
@@ -286,7 +289,7 @@ class _Fields {
       nk.add(rawK.isEmpty ? '' : normalizeArabic(rawK));
       nhk.add(rawHK.isEmpty ? '' : normalizeArabic(rawHK));
       nroot.add(rawRoot.isEmpty ? '' : normalizeArabic(rawRoot));
-      mean.add(foldLatin(rawMain));
+      mean.add(normalizeMeaning(rawMain));
     }
   }
 }

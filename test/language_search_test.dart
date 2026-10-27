@@ -43,6 +43,8 @@ void main() {
         times.add('$query ${sw.elapsedMilliseconds}ms');
         final top = results.take(5).map((w) => w.harekeliKelime).toList();
         expect(top, contains(expected), reason: '$lang "$query" → $top');
+        // Temel karşılık ilk sırada (emir kipi ya da mastar önüne geçmesin)
+        expect(top.first, expected, reason: '$lang "$query" → $top');
       }
       // ignore: avoid_print
       print('$lang: ${times.join(', ')}');

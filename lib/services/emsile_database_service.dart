@@ -8,6 +8,7 @@ import 'package:archive/archive.dart' show XZDecoder;
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'emsile_meanings.dart';
 import 'search_ranking.dart' show foldLatin, normalizeArabic;
 
 class EmsileDatabaseService {
@@ -344,6 +345,10 @@ class EmsileDatabaseService {
         likePattern,
         limit,
       ]);
+    } else if (EmsileMeanings.instance.usesPack) {
+      // Türkçe dışındaki sözlük dillerinde anlamlar o dilin paketinde
+      await EmsileMeanings.instance.ensureLoaded();
+      return _byIds(EmsileMeanings.instance.search(query, limit: limit));
     } else {
       // Türkçe karakterden bağımsız: "inandi" yazınca "inandı" da bulunur.
       final folded = foldLatin(query);
@@ -361,7 +366,32 @@ class EmsileDatabaseService {
       ''', [folded, '$folded%', '% $folded%', '%$folded%', limit]);
     }
 
-    return _parseResults(results);
+    final parsed = _parseResults(results);
+    // Urduca anlamlar da Arap harfli: fiil biçimlerinden sonra anlamı uyanlar
+    if (_containsArabic(query) && EmsileMeanings.instance.usesPack) {
+      await EmsileMeanings.instance.ensureLoaded();
+      final seen = {for (final v in parsed) v['id'] as int};
+      final more = EmsileMeanings.instance.search(query, limit: limit).where((id) => !seen.contains(id));
+      parsed.addAll(await _byIds(more.take(limit - parsed.length).toList()));
+    }
+    return parsed;
+  }
+
+  /// Kimlik listesindeki fiiller, listedeki sırayla.
+  Future<List<Map<String, dynamic>>> _byIds(List<int> ids) async {
+    if (ids.isEmpty) return [];
+    final db = await instance.database;
+    final rows = <Map<String, Object?>>[];
+    for (var start = 0; start < ids.length; start += 500) {
+      final chunk = ids.sublist(start, min(start + 500, ids.length));
+      rows.addAll(await db.rawQuery(
+        'SELECT * FROM emsile WHERE id IN (${List.filled(chunk.length, '?').join(',')})',
+        chunk,
+      ));
+    }
+    final order = {for (var i = 0; i < ids.length; i++) ids[i]: i};
+    rows.sort((a, b) => order[a['id'] as int]!.compareTo(order[b['id'] as int]!));
+    return _parseResults(rows);
   }
 
   /// Kimliğine göre tek fiil kaydı (kayıtlı listeler için).

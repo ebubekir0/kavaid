@@ -25,6 +25,7 @@ class SearchStore {
     required this.nKoku,
     required this.meanings,
     required this.popularity,
+    required this.imperative,
     Int32List? offsets,
     Int32List? lengths,
     RandomAccessFile? records,
@@ -36,8 +37,8 @@ class SearchStore {
 
   // Fihrist biçimi değişince (anlam normalleştirmesi gibi) artar; eski fihrist
   // dosyası yok sayılıp yeniden kurulur.
-  static const _magic = 'kavaid-search-2';
-  static const _idxPrefix = 'search2_';
+  static const _magic = 'kavaid-search-3';
+  static const _idxPrefix = 'search3_';
   static const _sep = '\u0001';
 
   // rankEntry'nin ham hâlleri
@@ -52,6 +53,8 @@ class SearchStore {
   final List<String> meanings;
   // Her kaydın kökünden sözlükte kaç kayıt türediği: yaygınlık ölçüsü
   final List<int> popularity;
+  // Emir kipi mi (anlamla aramada temel biçimden sonra gelir)
+  final List<bool> imperative;
 
   final Int32List? _offsets;
   final Int32List? _lengths;
@@ -95,6 +98,7 @@ class SearchStore {
       final main = List<String>.filled(n, ''), nk = List<String>.filled(n, ''), nhk = List<String>.filled(n, '');
       final nroot = List<String>.filled(n, ''), mean = List<String>.filled(n, '');
       final pop = List<int>.filled(n, 0);
+      final imp = List<bool>.filled(n, false);
       final offsets = Int32List(n), lengths = Int32List(n);
       for (var i = 0; i < n; i++) {
         final f = lines[i + 1].split(_sep);
@@ -109,6 +113,7 @@ class SearchStore {
         pop[i] = int.parse(f[8]);
         offsets[i] = int.parse(f[9]);
         lengths[i] = int.parse(f[10]);
+        imp[i] = f[11] == '1';
       }
       return SearchStore._(
         kelime: k,
@@ -120,6 +125,7 @@ class SearchStore {
         nKoku: nroot,
         meanings: mean,
         popularity: pop,
+        imperative: imp,
         offsets: offsets,
         lengths: lengths,
         records: File(_dictPath(dir, version)).openSync(),
@@ -135,7 +141,7 @@ class SearchStore {
     final n = words.length;
     final f = _Fields()..add(words, 0, n);
     final k = f.k, hk = f.hk, root = f.root, main = f.main;
-    final nk = f.nk, nhk = f.nhk, nroot = f.nroot, mean = f.mean;
+    final nk = f.nk, nhk = f.nhk, nroot = f.nroot, mean = f.mean, imp = f.imp;
     final pop = rootPopularity(nroot);
 
     if (dir != null && version != null) {
@@ -150,7 +156,7 @@ class SearchStore {
             ..writeAll([
               clean(k[i]), clean(hk[i]), clean(root[i]), clean(main[i]),
               clean(nk[i]), clean(nhk[i]), clean(nroot[i]), clean(mean[i]),
-              pop[i], offsets[i], lengths[i],
+              pop[i], offsets[i], lengths[i], imp[i] ? 1 : 0,
             ], _sep);
         }
         final tmp = File('${_idxPath(dir, version)}.tmp')..writeAsStringSync(idx.toString(), flush: true);
@@ -166,6 +172,7 @@ class SearchStore {
           nKoku: nroot,
           meanings: mean,
           popularity: pop,
+          imperative: imp,
           offsets: offsets,
           lengths: lengths,
           records: File(_dictPath(dir, version)).openSync(),
@@ -184,6 +191,7 @@ class SearchStore {
       nKoku: nroot,
       meanings: mean,
       popularity: pop,
+      imperative: imp,
       maps: words,
     );
   }
@@ -207,6 +215,7 @@ class SearchStore {
       nKoku: f.nroot,
       meanings: f.mean,
       popularity: rootPopularity(f.nroot),
+      imperative: f.imp,
       maps: words,
     );
   }
@@ -274,6 +283,7 @@ class SearchStore {
 class _Fields {
   final k = <String>[], hk = <String>[], root = <String>[], main = <String>[];
   final nk = <String>[], nhk = <String>[], nroot = <String>[], mean = <String>[];
+  final imp = <bool>[];
 
   void add(List<Map<String, dynamic>> words, int start, int end) {
     for (var i = start; i < end; i++) {
@@ -290,6 +300,8 @@ class _Fields {
       nhk.add(rawHK.isEmpty ? '' : normalizeArabic(rawHK));
       nroot.add(rawRoot.isEmpty ? '' : normalizeArabic(rawRoot));
       mean.add(normalizeMeaning(rawMain));
+      final type = (map['dilbilgiselOzellikler'] as Map?)?['tur'];
+      imp.add(type is String && type.contains('Emir'));
     }
   }
 }

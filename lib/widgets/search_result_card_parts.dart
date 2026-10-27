@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../models/word_model.dart';
 import '../services/arabic_definitions.dart';
 import '../services/language_service.dart';
-import '../services/search_ranking.dart' show foldTurkishChar;
+import '../services/search_ranking.dart' show containsArabic, foldTurkishChar;
 import 'package:kavaid/l10n/l10n.dart';
 import '../utils/word_type_label.dart';
 
@@ -265,14 +265,21 @@ class MeaningText extends StatelessWidget {
   final String? searchQuery;
 
   static const _fontSize = 14.5;
+  static final _latinLetter = RegExp('[A-Za-z]');
 
   @override
   Widget build(BuildContext context) {
     final textColor = _secondaryText(isDarkMode);
+    final text = word.sadeAnlam ?? '';
+    // Arap yazılı anlam (Urduca): Latin boyunda küçük görünüyordu; Arapça şerh
+    // satırı gibi büyük ve kapalı kartta tek satır (kart boyu değişmesin).
+    final arabicScript = containsArabic(text) && !_latinLetter.hasMatch(text);
+    final fontSize = arabicScript ? 17.0 : _fontSize;
+    final lineHeight = arabicScript ? 1.5 : 1.35;
     final baseStyle = TextStyle(
-      fontSize: _fontSize,
+      fontSize: fontSize,
       color: textColor,
-      height: 1.35,
+      height: lineHeight,
       fontWeight: FontWeight.w400,
     );
     final highlightStyle = baseStyle.copyWith(
@@ -282,15 +289,14 @@ class MeaningText extends StatelessWidget {
           ? const Color(0x40007AFF)
           : const Color(0x1A007AFF),
     );
-    const harfStyle = TextStyle(
-      fontSize: _fontSize,
+    final harfStyle = TextStyle(
+      fontSize: fontSize,
       color: _blue,
       fontWeight: FontWeight.w700,
       fontFamily: 'ScheherazadeNew',
-      height: 1.35,
+      height: lineHeight,
     );
 
-    final text = word.sadeAnlam ?? '';
     final spans = <InlineSpan>[
       for (final (segment, highlighted) in highlightSegments(text, searchQuery))
         TextSpan(text: segment, style: highlighted ? highlightStyle : baseStyle),
@@ -326,9 +332,12 @@ class MeaningText extends StatelessWidget {
       }
     }
 
+    // Kapalı kart en çok iki satır: uzun anlamlı dillerde (Endonezce, Urduca)
+    // kartlar birbirinden çok uzun olmasın; tamamı açılınca görünür.
     return RichText(
       text: TextSpan(children: spans),
-      maxLines: expanded ? null : 3,
+      textDirection: arabicScript ? TextDirection.rtl : null,
+      maxLines: expanded ? null : (arabicScript ? 1 : 2),
       overflow: expanded ? TextOverflow.visible : TextOverflow.ellipsis,
     );
   }
@@ -715,9 +724,11 @@ class ArabicQuickLine extends StatelessWidget {
         children: [
           SizedBox(
             width: double.infinity,
+            // Kapalıyken tek satır: Arapça tanım satırı Latin anlamdan uzun
+            // boylu; iki satırda kartlar diğer dillerden belirgin büyüyordu.
             child: Text(
               arabicDisplay(first['d'].toString()),
-              maxLines: expanded ? null : 2,
+              maxLines: expanded ? null : 1,
               overflow: expanded ? null : TextOverflow.ellipsis,
               // Açılınca renk değişmesin; satır yerinde ve aynı kalır
               style: arabicDefinitionStyle(isDarkMode),

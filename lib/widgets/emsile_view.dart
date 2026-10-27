@@ -4,6 +4,7 @@ import '../models/custom_word.dart';
 import 'save_button.dart';
 import 'package:kavaid/l10n/l10n.dart';
 import '../services/arabic_definitions.dart';
+import '../services/emsile_meanings.dart';
 
 /// Emsile Ekran\u0131
 /// - Kapal\u0131 sat\u0131r: RTL  [G\u0130TMEK ............. \u0630\u064e\u0647\u064e\u0628\u064e  \u064a\u064e\u0630\u0652\u0647\u064e\u0628\u0640\u064f  \u203a]
@@ -111,6 +112,19 @@ class _EmsileViewState extends State<EmsileView> {
   void initState() {
     super.initState();
     _prefetchArabic();
+    // Türkçe dışındaki sözlük dillerinde fiil anlamları o dilin paketinden
+    EmsileMeanings.instance.version.addListener(_onMeaningsLoaded);
+    EmsileMeanings.instance.ensureLoaded();
+  }
+
+  void _onMeaningsLoaded() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    EmsileMeanings.instance.version.removeListener(_onMeaningsLoaded);
+    super.dispose();
   }
 
   /// Arapça anlam dilinde listedeki fiillerin maddelerini veritabanından okur;
@@ -343,14 +357,17 @@ class _EmsileViewState extends State<EmsileView> {
     );
   }
 
-  /// Fiilin anlamları. Arapça anlam dilinde verideki Türkçe anlamlar gösterilmez;
-  /// fiilin Arapça maddesi varsa şerhleri gelir (yoksa boş).
+  /// Fiilin anlamları. Verideki anlamlar Türkçe: Arapça anlam dilinde fiilin
+  /// Arapça maddesinin şerhleri, İngilizce/Endonezce/Malayca/Urducada o dilin
+  /// paketi gelir (yoksa ya da paket yüklenmediyse boş; Türkçe gösterilmez).
   List<String> _meaningsOf(Map<String, dynamic> verb) {
     final arabic = ArabicDefinitions.instance;
     if (arabic.isActive) {
       final entry = arabic.ofHeadword(_e(verb, 1)) ?? arabic.ofHeadword(verb['mazi']?.toString() ?? '');
       return [for (final s in entry?['senses'] as List? ?? const []) (s as Map)['d'].toString()];
     }
+    final meanings = EmsileMeanings.instance;
+    if (meanings.usesPack) return meanings.of(verb['id'] as int) ?? const [];
     return [for (final a in verb['anlamlar'] as List<dynamic>? ?? const []) a.toString()];
   }
 

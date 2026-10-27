@@ -100,13 +100,6 @@ String foldTurkishChar(String ch) {
 }
 
 final RegExp _latinLetterRx = RegExp('[A-Za-z]');
-final RegExp _infinitiveToRx = RegExp(r'(^|[,;] ?)to (?=\S)');
-
-/// İngilizce mastar eki "to " anlam parçalarının başından atılır ("to write,
-/// to record" → "write, record"); yoksa "write" araması emir kipini ("write")
-/// temel fiilden (كَتَبَ "to write") önce buluyordu.
-String stripInfinitiveTo(String text) =>
-    text.replaceAllMapped(_infinitiveToRx, (m) => m[1]!);
 
 /// Bir kaydın ana anlamını aramaya uygun hale getirir: Arap yazılı anlamlar
 /// (Urduca) [normalizeArabic] ile, diğerleri [foldLatin] ile.
@@ -115,7 +108,7 @@ String normalizeMeaning(String mainMeaning) {
   if (containsArabic(mainMeaning) && !_latinLetterRx.hasMatch(mainMeaning)) {
     return normalizeArabic(mainMeaning);
   }
-  return stripInfinitiveTo(foldLatin(mainMeaning));
+  return foldLatin(mainMeaning);
 }
 
 /// Türkçe/Latin metni aramaya uygun hale getirir: küçük harf, Türkçe
@@ -178,7 +171,7 @@ class SearchQuery {
   factory SearchQuery.parse(String input, {String arabicGuess = ''}) {
     final raw = input.trim();
     final isArabic = containsArabic(raw);
-    final latin = isArabic ? '' : stripInfinitiveTo(foldLatin(raw));
+    final latin = isArabic ? '' : foldLatin(raw);
     return SearchQuery(
       raw: raw,
       isArabic: isArabic,
@@ -263,6 +256,7 @@ EntryRank? rankEntry({
   required String meanings,
   String rawMeaning = '',
   int popularity = 0,
+  bool imperative = false,
 }) {
   final wordLength = nHarekeli.isNotEmpty ? nHarekeli.length : nKelime.length;
 
@@ -322,7 +316,10 @@ EntryRank? rankEntry({
       best = altRank;
     }
   }
-  if (best != null) return best;
+  // Emir kipi temel biçimden sonra: "write" → كَتَبَ, اُكْتُبْ değil; "yaz" → صَيْفٌ.
+  if (best != null) {
+    return imperative ? (rank: best.rank + 40, sec: best.sec, type: best.type) : best;
+  }
 
   final guess = query.arabicGuess;
   if (guess.isNotEmpty) {
@@ -414,8 +411,8 @@ EntryRank? _rankMeaning(
   final rawBest = rawMeaning.isEmpty || rawQuery.isEmpty
       ? null
       : _bestMeaningMatch(
-          stripInfinitiveTo(turkishLower(rawMeaning)).split(_meaningSplitRx),
-          stripInfinitiveTo(turkishLower(rawQuery)),
+          turkishLower(rawMeaning).split(_meaningSplitRx),
+          turkishLower(rawQuery),
           maxTier,
         );
   // Kelime ortası eşleşmeler yalnızca yazım birebir uyuyorsa sayılır;
@@ -433,11 +430,13 @@ EntryRank? _rankMeaning(
       ? 0
       : 50;
   return (
-    // Önce eşleşme kalitesi, sonra yazım birebirliği, sonra anlamın sırası.
+    // Önce eşleşme kalitesi, sonra yazım birebirliği, sonra anlamın sırası;
+    // yalnız "to " atılınca uyan İngilizce mastar ("to water") biraz sonra.
     rank:
         100 +
         best.tier * 100 +
         accentPenalty +
+        (best.infinitive ? 10 : 0) +
         (best.index < 49 ? best.index : 49),
     sec: sec,
     type: best.tier == 0 ? WordMatchType.exact : WordMatchType.prefix,
@@ -449,8 +448,10 @@ EntryRank? _rankMeaning(
 /// ("su içmek"), 2 parça sorguyla başlıyor ("sulamak"), 3 sorgu parçada ayrı
 /// bir kelime ("temiz su"), 4 parçadaki bir kelime sorguyla başlıyor
 /// ("en güzeli"), 5 sorgu bir kelimenin ortasında. [maxTier]'dan zayıf
-/// eşleşmeler sayılmaz.
-({int tier, int index})? _bestMeaningMatch(
+/// eşleşmeler sayılmaz. İngilizce mastar eki ("to write") parçadan atılarak
+/// bakılır, [infinitive] ile işaretlenir: "write" temel fiili (كَتَبَ) bulur,
+/// "water" yine önce isme (مَاءٌ) gider.
+({int tier, int index, bool infinitive})? _bestMeaningMatch(
   List<String> parts,
   String q,
   int maxTier,
@@ -458,9 +459,12 @@ EntryRank? _rankMeaning(
   if (q.isEmpty) return null;
   int? bestTier;
   var bestIndex = 0;
+  var bestInfinitive = false;
   for (var j = 0; j < parts.length; j++) {
-    final m = parts[j].trim();
+    var m = parts[j].trim();
     if (m.isEmpty || !m.contains(q)) continue;
+    final infinitive = m.startsWith('to ') && !q.startsWith('to ');
+    if (infinitive) m = m.substring(3);
 
     final int tier;
     if (m == q) {
@@ -477,13 +481,16 @@ EntryRank? _rankMeaning(
       tier = 5;
     }
     if (tier > maxTier) continue;
-    if (bestTier == null || tier < bestTier) {
+    if (bestTier == null ||
+        tier < bestTier ||
+        (tier == bestTier && bestInfinitive && !infinitive)) {
       bestTier = tier;
       bestIndex = j;
+      bestInfinitive = infinitive;
     }
   }
   if (bestTier == null) return null;
-  return (tier: bestTier, index: bestIndex);
+  return (tier: bestTier, index: bestIndex, infinitive: bestInfinitive);
 }
 
 /// Türkçe kurallarına göre küçük harfe çevirir (İ→i, I→ı).

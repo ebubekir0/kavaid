@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
+import '../data/embedded_words.dart';
 import '../utils/perf_log.dart';
 import '../utils/safe_purchase_wrapper.dart';
 import '../widgets/arabic_letters_background.dart';
@@ -84,6 +85,7 @@ class AppStartupService extends ChangeNotifier {
 
       _startWarmups();
       _startDeferredTasks();
+      if (PerfLog.bench) unawaited(_runSearchBench());
     } catch (e) {
       _errorMessage = e.toString();
       _setState(
@@ -92,6 +94,18 @@ class AppStartupService extends ChangeNotifier {
         message: l10n.sozlukYuklenemedi,
         isMainDictionaryReady: false,
       );
+    }
+  }
+
+  /// Ölçüm derlemesi (PERF_BENCH): o sözlük dilinde örnek aramalar; ilk arama
+  /// fihristin hazır olmasını bekler, süreleri ondan sonrakiler gösterir.
+  Future<void> _runSearchBench() async {
+    final lang = EmbeddedWords.currentLang;
+    await DatabaseService.instance.searchWordsRanked('a');
+    for (final q in PerfLog.benchQueries[lang] ?? PerfLog.benchQueries['en']!) {
+      final results = await DatabaseService.instance.searchWordsRanked(q);
+      final top = results.take(3).map((r) => r.word.harekeliKelime).join(' ');
+      PerfLog.note('bench $lang "$q" → $top');
     }
   }
 

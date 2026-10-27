@@ -64,6 +64,11 @@ class _SearchResultCardState extends State<SearchResultCard>
   // PERFORMANCE: ScreenshotController lazy oluşturulacak — sadece paylaşım yapıldığında
   ScreenshotController? _screenshotController;
   bool _isExpanded = false;
+  // Kapanma animasyonu sürüyor: üst satır kapalı hâline baştan geçer ve
+  // detayla aynı anda küçülür (eskiden fazla yazı animasyonun sonunda
+  // birden kayboluyordu).
+  bool _isCollapsing = false;
+  bool get _headerExpanded => _isExpanded && !_isCollapsing;
   bool _hasEverExpanded = false; // İlk defa açılma durumu için
 
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
@@ -178,16 +183,17 @@ class _SearchResultCardState extends State<SearchResultCard>
     // Arapça klavyeyi kapatmak için callback'i çağır
     widget.onExpand?.call();
 
-    if (!_isExpanded) {
+    if (!_headerExpanded) {
       // Düğme kararı bellekteki dizinden anında verilir; kart beklemeden açılır.
       _ensureEmsileLookup();
 
       // PERFORMANCE: Animasyonu lazy initialize et ama anında başlat
       _initializeAnimation();
 
-      // İlk defa açılıyorsa işaretle
+      // İlk defa açılıyorsa işaretle (kapanırken dokunulursa geri açılır)
       setState(() {
         _isExpanded = true;
+        _isCollapsing = false;
         if (!_hasEverExpanded) {
           _hasEverExpanded = true;
         }
@@ -209,11 +215,13 @@ class _SearchResultCardState extends State<SearchResultCard>
   void _collapseCard() {
     if (!mounted || _animationController == null) return;
 
-    if (_isExpanded) {
+    if (_headerExpanded) {
+      setState(() => _isCollapsing = true);
       _animationController!.reverse().then((_) {
-        if (mounted) {
+        if (mounted && _isCollapsing) {
           setState(() {
             _isExpanded = false;
+            _isCollapsing = false;
           });
         }
       });
@@ -298,7 +306,7 @@ class _SearchResultCardState extends State<SearchResultCard>
       borderRadius: BorderRadius.circular(6),
       child: Container(
         // Arapça madde açıkken ١ ile ٢ arası diğer anlamlar arasıyla aynı kalsın
-        padding: EdgeInsets.fromLTRB(12, 12, 12, _isExpanded && _arabicEntry != null ? 4 : 12),
+        padding: EdgeInsets.fromLTRB(12, 12, 12, _headerExpanded && _arabicEntry != null ? 4 : 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -333,27 +341,42 @@ class _SearchResultCardState extends State<SearchResultCard>
             if (_arabicEntry case final entry?) ...[
               // İlk anlamın şerhi; açılınca yerinde kalır, altına örneği gelir
               const SizedBox(height: 6),
-              ArabicQuickLine(
-                word: widget.word,
-                entry: entry,
-                isDarkMode: isDarkMode,
-                expanded: _isExpanded,
+              _animatedHeader(
+                ArabicQuickLine(
+                  word: widget.word,
+                  entry: entry,
+                  isDarkMode: isDarkMode,
+                  expanded: _headerExpanded,
+                ),
               ),
             ]
             // Türkçe anlam ve harfi cerler (tam genişlikte)
             else if (widget.word.sadeAnlam?.isNotEmpty == true ||
                 widget.word.harfiCerler.isNotEmpty) ...[
               const SizedBox(height: 6),
-              MeaningText(
-                word: widget.word,
-                isDarkMode: isDarkMode,
-                expanded: _isExpanded,
-                searchQuery: widget.searchQuery,
+              _animatedHeader(
+                MeaningText(
+                  word: widget.word,
+                  isDarkMode: isDarkMode,
+                  expanded: _headerExpanded,
+                  searchQuery: widget.searchQuery,
+                ),
               ),
             ],
           ],
         ),
       ),
+    );
+  }
+
+  /// Üst satırdaki anlam açılıp kapanırken boyu detay alanıyla aynı sürede
+  /// değişir (boyu değişmedikçe ek iş yapmaz).
+  Widget _animatedHeader(Widget child) {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 150),
+      curve: _isCollapsing ? Curves.easeInCubic : Curves.easeOutCubic,
+      alignment: AlignmentDirectional.topStart,
+      child: child,
     );
   }
 
@@ -394,7 +417,7 @@ class _SearchResultCardState extends State<SearchResultCard>
           height: 28,
           alignment: Alignment.center,
           child: AnimatedRotation(
-            turns: _isExpanded ? 0.5 : 0,
+            turns: _headerExpanded ? 0.5 : 0,
             duration: const Duration(milliseconds: 200),
             child: Icon(
               Icons.keyboard_arrow_down,

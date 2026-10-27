@@ -436,6 +436,7 @@ CREATE TABLE IF NOT EXISTS pending_ai_words (
         meanings: meanings,
         rawMeaning: query.isArabic ? '' : store.mainMeaning[i],
         popularity: popularity[i],
+        imperative: store.imperative[i],
       );
       if (r == null) continue;
       if (query.isArabic && r.rank >= 6 && results.length >= 360) continue;

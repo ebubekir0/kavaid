@@ -18,6 +18,20 @@ class PerfLog {
 
   static void took(String name, Stopwatch sw) => _write('$name ${sw.elapsedMilliseconds}ms');
 
+  static void note(String line) => _write(line);
+
+  /// Ölçüm derlemesinde (`--dart-define=PERF_BENCH=true`) açılış bitince o sözlük
+  /// dilinde bu aramalar yapılır ve süreleri yazılır: telefonda klavyeye dokunmadan ölçüm.
+  static const bench = bool.fromEnvironment('PERF_BENCH');
+  static const benchQueries = <String, List<String>>{
+    'tr': ['kitap', 'su', 'yazmak', 'güzel', 'كتاب'],
+    'en': ['book', 'water', 'write', 'beautiful', 'كتاب'],
+    'id': ['buku', 'air', 'menulis', 'indah', 'كتاب'],
+    'ms': ['buku', 'air', 'menulis', 'cantik', 'كتاب'],
+    'ur': ['کتاب', 'پانی', 'لکھنا', 'خوبصورت', 'كتب'],
+    'ar': ['book', 'كتاب', 'ماء', 'كتب', 'جميل'],
+  };
+
   // Release'de debugPrint susturulduğu için doğrudan print
   // ignore: avoid_print
   static void _write(String line) => _enabled ? print('PERF $line') : null;

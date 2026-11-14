@@ -130,6 +130,72 @@ abstract class AppLocalizations {
   /// **'Kavaid'**
   String get markaAdi;
 
+  /// No description provided for @paylas.
+  ///
+  /// In tr, this message translates to:
+  /// **'Paylaş'**
+  String get paylas;
+
+  /// No description provided for @kelimeyiPaylas.
+  ///
+  /// In tr, this message translates to:
+  /// **'Kelimeyi paylaş'**
+  String get kelimeyiPaylas;
+
+  /// Kelime oyunu: bölüm numarası
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm {n}'**
+  String oyunBolum(int n);
+
+  /// Kelime oyunu: ilk soruda nasıl oynandığını anlatan satır
+  ///
+  /// In tr, this message translates to:
+  /// **'Harfleri sırayla birleştir, kelimeyi bul'**
+  String get oyunNasil;
+
+  /// Kelime oyunu: ipucu düğmesi (bir harfi gösterir)
+  ///
+  /// In tr, this message translates to:
+  /// **'Harf aç'**
+  String get oyunHarfAc;
+
+  /// Kelime oyunu: çarktaki harflerin yerini değiştiren düğme
+  ///
+  /// In tr, this message translates to:
+  /// **'Karıştır'**
+  String get oyunKaristir;
+
+  /// Kelime oyunu: bölüm sonu kartının başlığı
+  ///
+  /// In tr, this message translates to:
+  /// **'Bölüm tamamlandı'**
+  String get oyunBolumTamam;
+
+  /// Kelime oyunu: bölüm sonu kartındaki düğme
+  ///
+  /// In tr, this message translates to:
+  /// **'Sonraki bölüm'**
+  String get oyunSonrakiBolum;
+
+  /// Kelime oyunu: ipucu için puan yetmiyor
+  ///
+  /// In tr, this message translates to:
+  /// **'Harf açmak için {n} puan gerekiyor'**
+  String oyunPuanYetmiyor(int n);
+
+  /// Kelime oyunu: günün ilk doğru cevabında seri ve ödül bildirimi
+  ///
+  /// In tr, this message translates to:
+  /// **'{n} günlük seri · +{bonus} puan'**
+  String oyunGunlukSeri(int n, int bonus);
+
+  /// Kelime oyunu: kazanılan puan
+  ///
+  /// In tr, this message translates to:
+  /// **'+{n} puan'**
+  String oyunArtiPuan(int n);
+
   /// Tanıtım ekranında sonraki sayfa düğmesi
   ///
   /// In tr, this message translates to:

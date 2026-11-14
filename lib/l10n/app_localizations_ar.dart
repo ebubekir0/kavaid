@@ -15,6 +15,47 @@ class AppLocalizationsAr extends AppLocalizations {
   String get markaAdi => 'قواعد';
 
   @override
+  String get paylas => 'مشاركة';
+
+  @override
+  String get kelimeyiPaylas => 'مشاركة الكلمة';
+
+  @override
+  String oyunBolum(int n) {
+    return 'المستوى $n';
+  }
+
+  @override
+  String get oyunNasil => 'صِل الحروف بالترتيب لتجد الكلمة';
+
+  @override
+  String get oyunHarfAc => 'اكشف حرفًا';
+
+  @override
+  String get oyunKaristir => 'خلط الحروف';
+
+  @override
+  String get oyunBolumTamam => 'اكتمل المستوى';
+
+  @override
+  String get oyunSonrakiBolum => 'المستوى التالي';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'تحتاج إلى $n نقطة لكشف حرف';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return 'سلسلة $n يوم · +$bonus نقطة';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n نقطة';
+  }
+
+  @override
   String get tanitimDevam => 'متابعة';
 
   @override

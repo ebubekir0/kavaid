@@ -15,6 +15,47 @@ class AppLocalizationsRu extends AppLocalizations {
   String get markaAdi => 'Kavaid';
 
   @override
+  String get paylas => 'Поделиться';
+
+  @override
+  String get kelimeyiPaylas => 'Поделиться словом';
+
+  @override
+  String oyunBolum(int n) {
+    return 'Уровень $n';
+  }
+
+  @override
+  String get oyunNasil => 'Соединяйте буквы по порядку, чтобы найти слово';
+
+  @override
+  String get oyunHarfAc => 'Открыть букву';
+
+  @override
+  String get oyunKaristir => 'Перемешать';
+
+  @override
+  String get oyunBolumTamam => 'Уровень пройден';
+
+  @override
+  String get oyunSonrakiBolum => 'Следующий уровень';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'Нужно $n очков, чтобы открыть букву';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return 'Серия: $n дн. · +$bonus очков';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n очков';
+  }
+
+  @override
   String get tanitimDevam => 'Далее';
 
   @override

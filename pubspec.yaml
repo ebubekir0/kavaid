@@ -16,7 +16,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 5.0.0+5019
+# App Store'da yayındaki sürüm "7" (29 Ekim 2026); Apple yeni sürüm adının
+# ondan büyük olmasını istiyor, bu yüzden iki mağaza da 7.x serisinde.
+# Play'deki son versionCode 5019; her yüklemede +1.
+version: 7.1.0+5020
 
 environment:
   sdk: ^3.8.1
@@ -190,6 +193,10 @@ flutter:
     - assets/books/frankenstein/
     - assets/data/
     - assets/data/lang/
+    # Kelime oyununun bölümleri (tool/oyun/build_levels.dart üretir)
+    - assets/data/oyun/
+    # Paylaşım kartı (WhatsApp durumu) arka planları: Cloudflare Workers AI, FLUX.2 klein ile üretildi
+    - assets/share_backgrounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -217,6 +224,16 @@ flutter:
           weight: 600
         - asset: assets/fonts/ScheherazadeNew-Bold.ttf
           weight: 700
+    # Paylaşım kartı: başlık kelime (rika hattı) ve anlam yazısı. Lisans: assets/fonts/OFL-*.txt
+    # Amiri denendi ve çıkarıldı: Flutter'da harekeleri harflerin üstüne yerleştirmiyor.
+    - family: ArefRuqaa
+      fonts:
+        - asset: assets/fonts/ArefRuqaa-Bold.ttf
+          weight: 700
+    - family: PlayfairDisplay
+      fonts:
+        - asset: assets/fonts/PlayfairDisplay-Italic.ttf
+          style: italic
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

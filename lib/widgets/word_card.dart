@@ -7,6 +7,7 @@ import '../services/tts_service.dart';
 import '../services/turkce_analytics_service.dart';
 import '../services/auth_service.dart';
 import '../services/language_service.dart';
+import '../services/word_share_service.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:kavaid/l10n/l10n.dart';
 
@@ -217,6 +218,24 @@ class _WordCardState extends State<WordCard> {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
         ),
+        const SizedBox(width: 12),
+
+        // Paylaş: önizleme ve tema seçimiyle görsel kart (WordShareService)
+        Builder(
+          builder: (buttonContext) => IconButton(
+            key: const ValueKey('word-card-share'),
+            tooltip: l10n.paylas,
+            onPressed: () => WordShareService.share(buttonContext, widget.word),
+            icon: Icon(
+              Icons.share_rounded,
+              color: isDarkMode ? const Color(0xFF8E8E93) : const Color(0xFF6D6D70),
+            ),
+            iconSize: 20,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ),
+        const SizedBox(width: 12),
 
         // Kaydetme butonu
         IconButton(

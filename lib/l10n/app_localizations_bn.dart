@@ -15,6 +15,47 @@ class AppLocalizationsBn extends AppLocalizations {
   String get markaAdi => 'Kavaid';
 
   @override
+  String get paylas => 'শেয়ার করুন';
+
+  @override
+  String get kelimeyiPaylas => 'শব্দটি শেয়ার করুন';
+
+  @override
+  String oyunBolum(int n) {
+    return 'ধাপ $n';
+  }
+
+  @override
+  String get oyunNasil => 'অক্ষরগুলো ক্রমানুসারে যুক্ত করে শব্দটি খুঁজুন';
+
+  @override
+  String get oyunHarfAc => 'অক্ষর দেখুন';
+
+  @override
+  String get oyunKaristir => 'এলোমেলো করুন';
+
+  @override
+  String get oyunBolumTamam => 'ধাপ সম্পন্ন';
+
+  @override
+  String get oyunSonrakiBolum => 'পরের ধাপ';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'অক্ষর দেখতে $n পয়েন্ট লাগবে';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return 'টানা $n দিন · +$bonus পয়েন্ট';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n পয়েন্ট';
+  }
+
+  @override
   String get tanitimDevam => 'চালিয়ে যান';
 
   @override

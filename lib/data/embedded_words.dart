@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:isolate';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:archive/archive.dart' show XZDecoder;
 import 'package:flutter/services.dart';
@@ -43,11 +44,25 @@ class EmbeddedWords {
 
   /// Arayüz diline göre varsayılan anlam dili: o dilin paketi varsa o, Türkçe ise Türkçe,
   /// sözlüğü olmayan dillerde İngilizce.
-  static String defaultFor(String uiLang) {
+  ///
+  /// Pakistan istisnası: telefonların çoğu İngilizce ayarlı olduğu için arayüz İngilizce
+  /// açılır, ama kullanıcı Arapça–Urduca sözlük bekler (mağaza girişi de bunu söyler).
+  /// Cihaz ülkesi Pakistan ise İngilizce arayüzde sözlük Urduca açılır; kullanıcı
+  /// Profil > Sözlük dili'nden değiştirirse seçimi korunur.
+  /// [deviceCountry] testler içindir; verilmezse cihazın bölge ayarı okunur.
+  static String defaultFor(String uiLang, {String? deviceCountry}) {
     if (_forcedMeaningLang.isNotEmpty) return _forcedMeaningLang;
     if (uiLang == 'tr') return 'tr';
+    final country = deviceCountry ?? _deviceCountry;
+    if (uiLang == 'en' && country == 'PK' && langPacks.containsKey('ur')) {
+      return 'ur';
+    }
     return langPacks.containsKey(uiLang) ? uiLang : 'en';
   }
+
+  /// Cihazın bölge ayarındaki ülke kodu (ör. en_PK → PK); yoksa null.
+  static String? get _deviceCountry =>
+      PlatformDispatcher.instance.locale.countryCode?.toUpperCase();
 
   static Future<String> meaningLang() async {
     final saved = (await SharedPreferences.getInstance()).getString(meaningLangKey);

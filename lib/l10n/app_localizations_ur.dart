@@ -15,6 +15,47 @@ class AppLocalizationsUr extends AppLocalizations {
   String get markaAdi => 'قواعد';
 
   @override
+  String get paylas => 'شیئر کریں';
+
+  @override
+  String get kelimeyiPaylas => 'لفظ شیئر کریں';
+
+  @override
+  String oyunBolum(int n) {
+    return 'مرحلہ $n';
+  }
+
+  @override
+  String get oyunNasil => 'حروف کو ترتیب سے جوڑیں اور لفظ تلاش کریں';
+
+  @override
+  String get oyunHarfAc => 'حرف کھولیں';
+
+  @override
+  String get oyunKaristir => 'ترتیب بدلیں';
+
+  @override
+  String get oyunBolumTamam => 'مرحلہ مکمل';
+
+  @override
+  String get oyunSonrakiBolum => 'اگلا مرحلہ';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'حرف کھولنے کے لیے $n پوائنٹس درکار ہیں';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return '$n دن کا تسلسل · +$bonus پوائنٹس';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n پوائنٹس';
+  }
+
+  @override
   String get tanitimDevam => 'جاری رکھیں';
 
   @override

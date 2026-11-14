@@ -1,14 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../services/admin_service.dart';
-import '../services/auth_service.dart';
-import '../services/message_tracking_service.dart';
 import '../services/promo_code_service.dart';
-import '../services/global_config_service.dart';
 
+/// Kurucu paneli: promosyon ve sınıf kodları.
+///
+/// Tek ekran: üstte "Yeni kod", altında kodların listesi (kime verildi, kaç
+/// kişi kullandı). Biten ve eski tek kullanımlık kodlar menüden toplu silinir.
+/// Açılışta yalnız kod listesi okunur (eski panel istatistik sorgularıyla geç
+/// açılıyordu).
 class AdminConsoleScreen extends StatefulWidget {
   final double bottomPadding;
   final double topPadding;
@@ -23,1449 +24,560 @@ class AdminConsoleScreen extends StatefulWidget {
   State<AdminConsoleScreen> createState() => _AdminConsoleScreenState();
 }
 
-class _AdminConsoleScreenState extends State<AdminConsoleScreen> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => false; // PERFORMANCE: Lazy loading için false
-  final AdminService _adminService = AdminService();
-  final AuthService _authService = AuthService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final MessageTrackingService _trackingService = MessageTrackingService();
-  final TextEditingController _emailController = TextEditingController();
-  
-  // İstatistikler
-  int _totalUsers = 0;
-  int _usersWithUsername = 0;
-  int _onlineUsers = 0;
-  int _activeUsersWithUsername = 0;
-  List<Map<String, dynamic>> _recentRegistrations = [];
-  List<Map<String, dynamic>> _recentUsernameSelections = [];
-  List<Map<String, dynamic>> _onlineUsersList = [];
-  
-  bool _chatEnabled = true;
-  late TabController _tabController;
-  int _currentTabIndex = 0; // Mevcut sekme index'ini takip et
+enum _Filter { active, finished, all }
+
+class _Code {
+  final String code;
+  final String label;
+  final int used;
+  final int max;
+  final bool isActive;
+  final DateTime? createdAt;
+  final DateTime? expiresAt;
+
+  const _Code({
+    required this.code,
+    required this.label,
+    required this.used,
+    required this.max,
+    required this.isActive,
+    required this.createdAt,
+    required this.expiresAt,
+  });
+
+  factory _Code.from(Map<String, dynamic> d) => _Code(
+        code: (d['code'] as String?) ?? (d['id'] as String?) ?? '?',
+        label: (d['label'] as String?) ?? '',
+        used: (d['usedCount'] as num?)?.toInt() ?? 0,
+        max: (d['maxUses'] as num?)?.toInt() ?? 1,
+        isActive: d['isActive'] == true,
+        createdAt: (d['createdAt'] as Timestamp?)?.toDate(),
+        expiresAt: (d['expiresAt'] as Timestamp?)?.toDate(),
+      );
+
+  bool get isFull => used >= max;
+  bool get isExpired => expiresAt != null && expiresAt!.isBefore(DateTime.now());
+  bool get isUsable => isActive && !isFull && !isExpired;
+
+  /// Eski kampanyalardan kalan tek kişilik kodlar.
+  bool get isSingleUse => max <= 1;
+
+  String get status => !isActive
+      ? 'Kapalı'
+      : isFull
+          ? 'Doldu'
+          : isExpired
+              ? 'Süresi doldu'
+              : 'Aktif';
+}
+
+String _date(DateTime? d) => d == null
+    ? '—'
+    : '${d.day.toString().padLeft(2, '0')}.${d.month.toString().padLeft(2, '0')}.${d.year}';
+
+class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
+  final _service = PromoCodeService();
+  List<_Code>? _codes;
+  bool _loading = true;
+  bool _error = false;
+  _Filter _filter = _Filter.active;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
-    
-    // TabController listener ekle
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        _currentTabIndex = _tabController.index;
-      }
+    if (AdminService().isFounder()) _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = false;
     });
-    
-    _startPeriodicUpdates();
-    _loadStats();
-    _loadChatStatus();
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    _emailController.dispose();
-    super.dispose();
-  }
-  
-  Future<void> _loadChatStatus() async {
-    final enabled = await _adminService.isChatEnabled();
-    if (mounted) setState(() => _chatEnabled = enabled);
-  }
-
-  void _startPeriodicUpdates() {
-    Future.delayed(const Duration(minutes: 5), () {
-      if (mounted) {
-        _loadStats(silent: true); // Silent güncelleme - UI'ı etkilemez
-        _startPeriodicUpdates();
-      }
+    final raw = await _service.listPromoCodes();
+    if (!mounted) return;
+    setState(() {
+      _loading = false;
+      _error = raw == null;
+      _codes = raw?.map(_Code.from).toList();
     });
   }
 
-  Future<void> _loadStats({bool silent = false}) async {
-    if (!_adminService.isFounder()) return;
+  void _snack(String text, {bool error = false}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(text),
+        backgroundColor: error ? Colors.red : null,
+      ));
+  }
 
-    // Manuel yenilemede loading indicator göster (overlay olarak)
-    if (!silent && mounted) {
-      // Loading overlay göster
-      _showLoadingOverlay();
-    }
+  Future<void> _copy(String text, String message) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (mounted) _snack(message);
+  }
 
-    try {
-      await Future.wait([
-        _loadBasicStats(),
-        _loadRecentRegistrations(),
-        _loadRecentUsernameSelections(),
-        _loadOnlineUsers(),
-      ]);
-    } catch (e) {
-      debugPrint('Error loading stats: $e');
-    } finally {
-      if (!silent && mounted) {
-        // Loading overlay'i kapat
-        Navigator.of(context).pop();
-      }
-      // Her durumda data'yı güncelle
-      if (mounted) setState(() {});
+  List<_Code> get _visible {
+    final all = _codes ?? const <_Code>[];
+    switch (_filter) {
+      case _Filter.active:
+        return all.where((c) => c.isUsable).toList();
+      case _Filter.finished:
+        return all.where((c) => !c.isUsable).toList();
+      case _Filter.all:
+        return all;
     }
   }
 
-  void _showLoadingOverlay() {
-    showDialog(
+  // ---------------------------------------------------------------- Yeni kod
+
+  Future<void> _openCreateSheet() async {
+    final labelCtrl = TextEditingController();
+    var people = 100;
+    var count = 1;
+    var busy = false;
+
+    final created = await showModalBottomSheet<List<String>>(
       context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
-  }
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) {
+          Widget choices(List<int> values, int selected, String Function(int) text,
+                  void Function(int) onPick) =>
+              Wrap(
+                spacing: 8,
+                children: [
+                  for (final v in values)
+                    ChoiceChip(
+                      label: Text(text(v)),
+                      selected: v == selected,
+                      onSelected: busy ? null : (_) => setSheet(() => onPick(v)),
+                    ),
+                ],
+              );
 
-  Future<void> _loadBasicStats() async {
-    // Tüm kullanıcıları çek
-    final usersSnapshot = await _firestore.collection('users').get();
-    final allUsers = usersSnapshot.docs;
-
-    _totalUsers = allUsers.length;
-
-    // Kullanıcı adı seçmiş olanları say
-    _usersWithUsername = allUsers.where((doc) {
-      final data = doc.data();
-      final username = data['username'] as String?;
-      return username != null && username.isNotEmpty;
-    }).length;
-
-    // Online kullanıcıları say (son 5 dakikada aktif)
-    final now = DateTime.now();
-    final fiveMinutesAgo = now.subtract(const Duration(minutes: 5));
-    
-    final onlineUsers = allUsers.where((doc) {
-      final data = doc.data();
-      final lastSeen = data['lastSeen'] as Timestamp?;
-      return lastSeen != null && lastSeen.toDate().isAfter(fiveMinutesAgo);
-    }).toList();
-
-    _onlineUsers = onlineUsers.length;
-
-    // Online + kullanıcı adı olan kullanıcıları say
-    _activeUsersWithUsername = onlineUsers.where((doc) {
-      final data = doc.data();
-      final username = data['username'] as String?;
-      return username != null && username.isNotEmpty;
-    }).length;
-  }
-
-  Future<void> _loadRecentRegistrations() async {
-    final usersSnapshot = await _firestore
-        .collection('users')
-        .orderBy('createdAt', descending: true)
-        .limit(10)
-        .get();
-
-    _recentRegistrations = usersSnapshot.docs.map((doc) {
-      final data = doc.data();
-      return {
-        'uid': doc.id,
-        'email': data['email'] ?? 'Bilinmiyor',
-        'createdAt': data['createdAt'] as Timestamp?,
-        'username': data['username'] ?? 'Yok',
-        'photoUrl': data['photoUrl'],
-      };
-    }).toList();
-  }
-
-  Future<void> _loadRecentUsernameSelections() async {
-    try {
-      // Önce username'i null olmayan kullanıcıları al
-      final usersSnapshot = await _firestore
-          .collection('users')
-          .where('username', isNull: false)
-          .get();
-
-      // Client-side'da sırala ve filtrele
-      final usersList = usersSnapshot.docs
-          .where((doc) {
-            final data = doc.data();
-            final username = data['username'] as String?;
-            return username != null && username.trim().isNotEmpty;
-          })
-          .map((doc) {
-            final data = doc.data();
-            return {
-              'uid': doc.id,
-              'username': data['username'] ?? 'Yok',
-              'usernameSetAt': data['usernameSetAt'] as Timestamp?,
-              'email': data['email'] ?? 'Bilinmiyor',
-              'photoUrl': data['photoUrl'],
-              'createdAt': data['createdAt'] as Timestamp?,
-            };
-          })
-          .toList();
-
-      // usernameSetAt varsa ona göre sırala, yoksa createdAt'e göre
-      usersList.sort((a, b) {
-        final aTime = a['usernameSetAt'] as Timestamp? ?? a['createdAt'] as Timestamp?;
-        final bTime = b['usernameSetAt'] as Timestamp? ?? b['createdAt'] as Timestamp?;
-        
-        if (aTime == null && bTime == null) return 0;
-        if (aTime == null) return 1;
-        if (bTime == null) return -1;
-        
-        return bTime.compareTo(aTime); // Descending order
-      });
-
-      // İlk 20'sini al
-      _recentUsernameSelections = usersList.take(20).toList();
-      
-      debugPrint('✅ Username selections yüklendi: ${_recentUsernameSelections.length} kullanıcı');
-      
-    } catch (e) {
-      debugPrint('❌ Username selections yüklenemedi: $e');
-      _recentUsernameSelections = [];
-    }
-  }
-
-  Future<void> _loadOnlineUsers() async {
-    final now = DateTime.now();
-    final fiveMinutesAgo = now.subtract(const Duration(minutes: 5));
-    
-    final usersSnapshot = await _firestore
-        .collection('users')
-        .where('lastSeen', isGreaterThan: Timestamp.fromDate(fiveMinutesAgo))
-        .orderBy('lastSeen', descending: true)
-        .get();
-
-    _onlineUsersList = usersSnapshot.docs.map((doc) {
-      final data = doc.data();
-      return {
-        'uid': doc.id,
-        'username': data['username'] ?? 'Kullanıcı adı yok',
-        'email': data['email'] ?? 'Bilinmiyor',
-        'lastSeen': data['lastSeen'] as Timestamp?,
-        'photoUrl': data['photoUrl'],
-      };
-    }).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    // Kurucu kontrolü - sadece ebubekir@gmail.com
-    if (!_adminService.isFounder()) {
-      return Scaffold(
-        backgroundColor: isDarkMode ? const Color(0xFF0B141A) : Colors.white,
-        body: SafeArea(
-          child: Center(
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+                20, 0, 20, 20 + MediaQuery.of(ctx).viewInsets.bottom),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red.withValues(alpha: 0.1),
-                  ),
-                  child: Icon(
-                    Icons.security,
-                    size: 60,
-                    color: Colors.red[400],
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Text(
-                  'Kurucu Paneli',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: isDarkMode ? Colors.white : Colors.black87,
+                Text('Yeni kod', style: Theme.of(ctx).textTheme.titleLarge),
+                const SizedBox(height: 4),
+                Text('Her kod, giren kişiye 30 gün Premium verir.',
+                    style: Theme.of(ctx).textTheme.bodySmall),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: labelCtrl,
+                  enabled: !busy,
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: const InputDecoration(
+                    labelText: 'Kime veriyorsun? (isteğe bağlı)',
+                    hintText: 'ör. @nahwu_pedia veya ITHLA 18 Aralık',
+                    border: OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  'Bu alan sadece kuruca özeldir\n(ebubekir@gmail.com)',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                    height: 1.5,
+                const Text('Kaç kişi kullanabilsin?'),
+                const SizedBox(height: 6),
+                choices(const [1, 30, 100, 300], people, (v) => '$v kişi',
+                    (v) => people = v),
+                const SizedBox(height: 14),
+                const Text('Kaç kod?'),
+                const SizedBox(height: 6),
+                choices(const [1, 10, 25, 50], count, (v) => '$v', (v) => count = v),
+                if (count > 1) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    'Hepsi aynı etiketle oluşur; dağıttıkça listede tek tek etiketini değiştirebilirsin.',
+                    style: Theme.of(ctx).textTheme.bodySmall,
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Mevcut hesap: ${FirebaseAuth.instance.currentUser?.email ?? "Giriş yapılmamış"}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[500],
+                ],
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: busy
+                        ? null
+                        : () async {
+                            setSheet(() => busy = true);
+                            final codes = await _service.createBatchPromoCodes(
+                              count: count,
+                              maxUses: people,
+                              label: labelCtrl.text,
+                            );
+                            if (ctx.mounted) Navigator.pop(ctx, codes);
+                          },
+                    icon: busy
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.add),
+                    label: Text(busy
+                        ? 'Oluşturuluyor…'
+                        : count == 1
+                            ? 'Oluştur ve kopyala'
+                            : '$count kod oluştur ve kopyala'),
                   ),
                 ),
               ],
             ),
+          );
+        },
+      ),
+    );
+    labelCtrl.dispose();
+
+    if (!mounted || created == null) return;
+    if (created.isEmpty) {
+      _snack('Kod oluşturulamadı', error: true);
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: created.join('\n')));
+    if (!mounted) return;
+    if (created.length == 1) {
+      _snack('Kod kopyalandı: ${created.first}');
+    } else {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text('${created.length} kod oluşturuldu'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 260,
+            child: ListView(
+              children: [
+                const Text('Hepsi panoya kopyalandı.'),
+                const SizedBox(height: 8),
+                for (final c in created)
+                  SelectableText(c,
+                      style: const TextStyle(
+                          fontFamily: 'monospace',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Tamam')),
+          ],
         ),
       );
     }
-
-    return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF0B141A) : const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: const Text('🏛️ Kurucu Dashboard'),
-        backgroundColor: const Color(0xFF2196F3),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh_rounded),
-            onPressed: _loadStats,
-            tooltip: 'Yenile',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: const Color(0xFF2196F3),
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: const Color(0xFF2196F3),
-              isScrollable: true,
-              tabs: const [
-                Tab(text: '📈 İstatistikler'),
-                Tab(text: '👥 Kullanıcılar'),
-                Tab(text: '🟢 Online'),
-                Tab(text: '🛡️ Yönetim'),
-                Tab(text: '🔧 Ayarlar'),
-              ],
-            ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildGeneralStats(isDarkMode),
-                _buildUsersTab(isDarkMode),
-                _buildOnlineTab(isDarkMode),
-                _buildModerators(isDarkMode),
-                _buildSettings(isDarkMode),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    await _load();
   }
 
-  // İstatistikler sekmesi
-  Widget _buildGeneralStats(bool isDarkMode) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // İstatistik kartları
-          Row(
-            children: [
-              Expanded(child: _buildStatCard(
-                title: 'Toplam Kullanıcı', 
-                value: _totalUsers.toString(),
-                icon: Icons.people,
-                color: Colors.blue,
-                isDarkMode: isDarkMode,
-              )),
-              const SizedBox(width: 12),
-              Expanded(child: _buildStatCard(
-                title: 'Kullanıcı Adı Seçen', 
-                value: _usersWithUsername.toString(),
-                icon: Icons.badge,
-                color: Colors.green,
-                isDarkMode: isDarkMode,
-              )),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(child: _buildStatCard(
-                title: 'Online Şimdi', 
-                value: _onlineUsers.toString(),
-                icon: Icons.circle,
-                color: Colors.orange,
-                isDarkMode: isDarkMode,
-              )),
-              const SizedBox(width: 12),
-              Expanded(child: _buildStatCard(
-                title: 'Aktif + Kullanıcı Adı', 
-                value: _activeUsersWithUsername.toString(),
-                icon: Icons.verified_user,
-                color: Colors.purple,
-                isDarkMode: isDarkMode,
-              )),
-            ],
-          ),
-          const SizedBox(height: 24),
+  // ------------------------------------------------------- Tek kod işlemleri
 
-          // Yüzdeler
-          _buildPercentageCard(isDarkMode),
-        ],
-      ),
-    );
-  }
-
-  // Kullanıcılar sekmesi
-  Widget _buildUsersTab(bool isDarkMode) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Son kullanıcı adı seçenler (ÜSTTE)
-          _buildSectionTitle('🏷️ En Son Kullanıcı Adı Seçenler', isDarkMode),
-          _buildUserList(_recentUsernameSelections, showUsername: true, isDarkMode: isDarkMode),
-          
-          const SizedBox(height: 24),
-          
-          // Son kayıtlar (ALTTA)
-          _buildSectionTitle('🆕 En Son Kayıt Olanlar', isDarkMode),
-          _buildUserList(_recentRegistrations, showEmail: true, isDarkMode: isDarkMode),
-        ],
-      ),
-    );
-  }
-
-  // Online sekmesi
-  Widget _buildOnlineTab(bool isDarkMode) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTitle('🟢 Şu Anda Online Olanlar', isDarkMode),
-          const SizedBox(height: 8),
-          Text(
-            'Son 5 dakikada aktif olan kullanıcılar',
-            style: TextStyle(
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              fontSize: 14,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildOnlineUsersList(isDarkMode),
-        ],
-      ),
-    );
-  }
-
-  // İstatistik kartı
-  Widget _buildStatCard({
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required bool isDarkMode,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const Spacer(),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Moderatörler tab
-  Widget _buildModerators(bool isDarkMode) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Moderatör ekleme
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.person_add, color: Colors.blue, size: 24),
-                    SizedBox(width: 8),
-                    Text(
-                      'Moderatör Yönetimi',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Adresi',
-                    hintText: 'ornek@gmail.com',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _assignModerator,
-                        icon: const Icon(Icons.add),
-                        label: const Text('Moderatör Ata'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.all(16),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _removeModerator,
-                        icon: const Icon(Icons.remove),
-                        label: const Text('Moderatör Kaldır'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.all(16),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // Moderatör listesi
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.people, color: Colors.orange, size: 24),
-                    SizedBox(width: 8),
-                    Text(
-                      'Aktif Moderatörler',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                StreamBuilder<QuerySnapshot>(
-                  stream: _adminService.getModerators(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    
-                    final moderators = snapshot.data!.docs;
-                    
-                    if (moderators.isEmpty) {
-                      return Center(
-                        child: Column(
-                          children: [
-                            Icon(Icons.person_off, size: 48, color: Colors.grey[400]),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Henüz moderatör bulunmuyor',
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                    
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: moderators.length,
-                      itemBuilder: (context, index) {
-                        final mod = moderators[index].data() as Map<String, dynamic>;
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: Colors.blue,
-                              child: Text(
-                                (mod['username'] ?? 'M')[0].toUpperCase(),
-                                style: const TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            title: Text(mod['username'] ?? 'Moderatör'),
-                            subtitle: Text(mod['email'] ?? ''),
-                            trailing: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(color: Colors.grey[300]!, width: 0.5),
-                              ),
-                              child: const Text(
-                                'Moderatör',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black87,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Ayarlar tab
-  Widget _buildSettings(bool isDarkMode) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.settings, color: Colors.grey[700], size: 24),
-              const SizedBox(width: 8),
-              const Text(
-                'Sistem Ayarları',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          
-          // Chat kontrolü
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Chat Kontrolü',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Tüm mesajları silme butonu - sadece kurucu için
-                if (_adminService.isFounder())
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _deleteAllMessages,
-                      icon: const Icon(Icons.delete_sweep),
-                      label: const Text('Tüm Mesajları Sil'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red.shade600,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.all(16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-          
-          const SizedBox(height: 20),
-          
-          // 🎁 KAMPANYA YÖNETİMİ
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.campaign, color: Colors.purple, size: 24),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Kampanya Yönetimi',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Kampanya aç/kapat toggle
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Twitter Kampanyası',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: isDarkMode ? Colors.white70 : Colors.black87,
-                        ),
-                      ),
-                    ),
-                    Switch(
-                      value: GlobalConfigService().campaignEnabled,
-                      onChanged: (value) async {
-                        await GlobalConfigService().toggleCampaignStatus();
-                        if (mounted) setState(() {});
-                      },
-                      activeThumbColor: Colors.green,
-                    ),
-                  ],
-                ),
-                const Divider(),
-                const SizedBox(height: 8),
-                // Promo kod oluştur
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _createSinglePromoCode(),
-                        icon: const Icon(Icons.add, size: 14),
-                        label: const Text('1 Kod', style: TextStyle(fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _createBatchPromoCodes(5),
-                        icon: const Icon(Icons.library_add, size: 14),
-                        label: const Text('5 Kod', style: TextStyle(fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () => _createBatchPromoCodes(1000),
-                        icon: const Icon(Icons.flash_on, size: 14),
-                        label: const Text('1000 Kod', style: TextStyle(fontSize: 12)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                // Kodları listele butonu
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showPromoCodesList(),
-                    icon: const Icon(Icons.list_alt, size: 18),
-                    label: const Text('Tüm Promo Kodları'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.purple,
-                      side: const BorderSide(color: Colors.purple),
-                      padding: const EdgeInsets.all(14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-          
-          // Kurucu bilgisi
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Kurucu Bilgileri',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Color(0xFF2196F3),
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
-                  title: const Text('Kurucu'),
-                  subtitle: Text(FirebaseAuth.instance.currentUser?.email ?? ''),
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: Colors.black87,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: const Text(
-                      'Kurucu',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Tüm mesajları sil
-  Future<void> _deleteAllMessages() async {
-    bool? confirm = await showDialog<bool>(
+  Future<void> _editLabel(_Code c) async {
+    final ctrl = TextEditingController(text: c.label);
+    final value = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tüm Mesajları Sil'),
-        content: const Text('Tüm chat mesajlarını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.'),
+      builder: (ctx) => AlertDialog(
+        title: Text('${c.code} kime verildi?'),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'ör. @nahwu_pedia'),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('İptal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Vazgeç')),
+          FilledButton(
+              onPressed: () => Navigator.pop(ctx, ctrl.text), child: const Text('Kaydet')),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (value == null) return;
+    final ok = await _service.setPromoCodeLabel(c.code, value);
+    if (!mounted) return;
+    ok ? await _load() : _snack('Etiket kaydedilemedi', error: true);
+  }
+
+  Future<void> _deactivate(_Code c) async {
+    final ok = await _service.deactivatePromoCode(c.code);
+    if (!mounted) return;
+    _snack(ok ? '${c.code} kapatıldı: artık kullanılamaz' : 'Kapatılamadı', error: !ok);
+    if (ok) await _load();
+  }
+
+  Future<bool> _confirmDelete(int n, String what) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('$n kod silinsin mi?'),
+        content: Text(
+          '$what kalıcı olarak silinecek, geri alınamaz.\n\n'
+          'Bu kodları daha önce kullananların Premium süresi etkilenmez.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Vazgeç')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Sil'),
           ),
         ],
       ),
     );
+    return ok == true;
+  }
 
-    if (confirm == true) {
-      try {
-        await _adminService.deleteAllMessages();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tüm mesajlar başarıyla silindi'),
-              backgroundColor: Colors.green,
+  Future<void> _delete(List<_Code> codes, String what) async {
+    if (codes.isEmpty) return;
+    if (!await _confirmDelete(codes.length, what)) return;
+    setState(() => _loading = true);
+    final n = await _service.deletePromoCodes(codes.map((c) => c.code).toList());
+    if (!mounted) return;
+    _snack(n == codes.length ? '$n kod silindi' : '$n/${codes.length} kod silindi',
+        error: n != codes.length);
+    await _load();
+  }
+
+  // ----------------------------------------------------------------- Temizle
+
+  Future<void> _openCleanup() async {
+    final all = _codes ?? const <_Code>[];
+    final finished = all.where((c) => !c.isUsable).toList();
+    final single = all.where((c) => c.isSingleUse).toList();
+    final pick = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const ListTile(
+              title: Text('Eski kodları temizle'),
+              subtitle: Text('Silinen kodlar listeden de veritabanından da kalkar.'),
             ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Mesajlar silinirken hata: $e'),
-              backgroundColor: Colors.red,
+            ListTile(
+              leading: const Icon(Icons.done_all),
+              title: Text('Biten kodlar (${finished.length})'),
+              subtitle: const Text('Kapatılmış, dolmuş ya da süresi geçmiş'),
+              enabled: finished.isNotEmpty,
+              onTap: () => Navigator.pop(ctx, 1),
             ),
-          );
-        }
-      }
-    }
+            ListTile(
+              leading: const Icon(Icons.person_off_outlined),
+              title: Text('Tek kişilik eski kodlar (${single.length})'),
+              subtitle: const Text('Eski kampanya ve toplu üretimden kalan 1 kişilik kodlar'),
+              enabled: single.isNotEmpty,
+              onTap: () => Navigator.pop(ctx, 2),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (!mounted) return;
+    if (pick == 1) await _delete(finished, 'Biten ${finished.length} kod');
+    if (pick == 2) await _delete(single, 'Tek kişilik ${single.length} eski kod');
   }
 
-  // Moderatör atama
-  Future<void> _assignModerator() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email adresi boş olamaz')),
-      );
-      return;
+  // ------------------------------------------------------------------ Arayüz
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    if (!AdminService().isFounder()) {
+      return const Scaffold(body: Center(child: Text('Bu alan yalnız kurucuya açık')));
     }
 
-    try {
-      await _adminService.assignModerator(email);
-      _emailController.clear();
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Moderatör başarıyla atandı'),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
+    final all = _codes ?? const <_Code>[];
+    final activeCount = all.where((c) => c.isUsable).length;
+    final finishedCount = all.length - activeCount;
+    final totalUses = all.fold<int>(0, (s, c) => s + c.used);
+    final visible = _visible;
 
-  // Moderatör kaldırma
-  Future<void> _removeModerator() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email adresi boş olamaz')),
-      );
-      return;
-    }
-
-    try {
-      await _adminService.removeModerator(email);
-      _emailController.clear();
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Moderatör başarıyla kaldırıldı'),
-            backgroundColor: Colors.orange,
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Promosyon Kodları'),
+        actions: [
+          IconButton(
+            tooltip: 'Yenile',
+            onPressed: _loading ? null : _load,
+            icon: const Icon(Icons.refresh),
           ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Hata: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-  
-  // Yardımcı metodlar
-
-  Widget _buildPercentageCard(bool isDarkMode) {
-    final usernamePercentage = _totalUsers > 0 
-        ? ((_usersWithUsername / _totalUsers) * 100).toStringAsFixed(1)
-        : '0.0';
-    
-    final onlinePercentage = _totalUsers > 0 
-        ? ((_onlineUsers / _totalUsers) * 100).toStringAsFixed(1)
-        : '0.0';
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDarkMode ? const Color(0xFF1E2832) : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+          IconButton(
+            tooltip: 'Eski kodları temizle',
+            onPressed: _loading || all.isEmpty ? null : _openCleanup,
+            icon: const Icon(Icons.cleaning_services_outlined),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '📈 Yüzdeler',
-            style: TextStyle(
-              color: isDarkMode ? Colors.white : Colors.black87,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(16, 12, 16, widget.bottomPadding + 24),
+          children: [
+            Card(
+              elevation: 0,
+              color: scheme.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '%$usernamePercentage',
-                      style: const TextStyle(
-                        color: Colors.green,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      _codes == null
+                          ? 'Kodlar yükleniyor…'
+                          : '$activeCount aktif kod · toplam $totalUses kişi kullandı',
+                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 4),
-                    const Text('Kullanıcı adı seçen', 
-                      style: TextStyle(fontSize: 12),
-                      textAlign: TextAlign.center,
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _openCreateSheet,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Yeni kod'),
+                      ),
                     ),
                   ],
                 ),
               ),
-              Expanded(
-                child: Column(
-                  children: [
-                    Text(
-                      '%$onlinePercentage',
-                      style: const TextStyle(
-                        color: Colors.orange,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text('Online olan',
-                      style: TextStyle(fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionTitle(String title, bool isDarkMode) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: TextStyle(
-          color: isDarkMode ? Colors.white : Colors.black87,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserList(List<Map<String, dynamic>> users, 
-                       {bool showEmail = false, bool showUsername = false, required bool isDarkMode}) {
-    if (users.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text(
-            showUsername 
-                ? 'Henüz kullanıcı adı seçen kullanıcı yok'
-                : 'Henüz kayıt olan kullanıcı yok',
-            style: TextStyle(
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              fontSize: 14,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: users.length,
-      itemBuilder: (context, index) {
-        final user = users[index];
-        final timestamp = showUsername 
-            ? user['usernameSetAt'] as Timestamp?
-            : user['createdAt'] as Timestamp?;
-        
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDarkMode ? const Color(0xFF1E2832) : Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
-            ),
-          ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundImage: user['photoUrl'] != null 
-                  ? NetworkImage(user['photoUrl'])
-                  : null,
-              child: user['photoUrl'] == null 
-                  ? Text((showUsername ? user['username'] : user['email'])?.substring(0, 1).toUpperCase() ?? '?')
-                  : null,
-            ),
-            title: Text(
-              showUsername ? (user['username'] ?? 'Yok') : (user['email'] ?? 'Bilinmiyor'),
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
-              ),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (showUsername && user['email'] != null) 
-                  Text(user['email'] ?? 'Bilinmiyor'),
-                if (timestamp != null)
-                  Text(DateFormat('dd/MM/yyyy HH:mm').format(timestamp.toDate())),
+            const SizedBox(height: 12),
+            SegmentedButton<_Filter>(
+              segments: [
+                ButtonSegment(value: _Filter.active, label: Text('Aktif ($activeCount)')),
+                ButtonSegment(value: _Filter.finished, label: Text('Biten ($finishedCount)')),
+                ButtonSegment(value: _Filter.all, label: Text('Tümü (${all.length})')),
               ],
+              selected: {_filter},
+              showSelectedIcon: false,
+              onSelectionChanged: (s) => setState(() => _filter = s.first),
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOnlineUsersList(bool isDarkMode) {
-    if (_onlineUsersList.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(20),
-          child: Text('Henüz online kullanıcı yok'),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _onlineUsersList.length,
-      itemBuilder: (context, index) {
-        final user = _onlineUsersList[index];
-        final lastSeen = user['lastSeen'] as Timestamp?;
-        final username = user['username'] as String;
-        
-        return Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDarkMode ? const Color(0xFF1E2832) : Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isDarkMode ? Colors.grey[700]! : Colors.grey[300]!,
-            ),
-          ),
-          child: ListTile(
-            leading: Stack(
-              children: [
-                CircleAvatar(
-                  backgroundImage: user['photoUrl'] != null 
-                      ? NetworkImage(user['photoUrl'])
-                      : null,
-                  child: user['photoUrl'] == null 
-                      ? Text(username.substring(0, 1).toUpperCase())
-                      : null,
+            const SizedBox(height: 8),
+            if (_loading && _codes == null)
+              const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_error)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    const Text('Kodlar yüklenemedi. İnternet bağlantısını kontrol et.'),
+                    TextButton(onPressed: _load, child: const Text('Tekrar dene')),
+                  ],
                 ),
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
+              )
+            else if (visible.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Text(
+                    _filter == _Filter.active ? 'Aktif kod yok. "Yeni kod" ile oluştur.' : 'Kod yok.',
+                    textAlign: TextAlign.center,
                   ),
                 ),
-              ],
-            ),
-            title: Text(
-              username == 'Kullanıcı adı yok' ? '👤 ${user['email']}' : '🏷️ $username',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isDarkMode ? Colors.white : Colors.black87,
-              ),
-            ),
-            subtitle: Text(
-              lastSeen != null 
-                  ? 'Son görülme: ${DateFormat('HH:mm').format(lastSeen.toDate())}'
-                  : 'Bilinmiyor',
-            ),
-            trailing: const Icon(Icons.circle, color: Colors.green, size: 12),
-          ),
-        );
-      },
+              )
+            else
+              for (final c in visible) _tile(c, scheme),
+          ],
+        ),
+      ),
     );
   }
 
-  // ========== PROMO KOD YÖNETİM METODLARI ==========
-
-  Future<void> _createSinglePromoCode() async {
-    final code = await PromoCodeService().createPromoCode();
-    if (!mounted) return;
-    
-    if (code != null) {
-      await Clipboard.setData(ClipboardData(text: code));
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('✅ Kod oluşturuldu ve kopyalandı: $code'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('❌ Kod oluşturulamadı'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
-  Future<void> _createBatchPromoCodes([int count = 5]) async {
-    // UI kilitlenmesini engellemek için yükleniyor göster
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$count kod oluşturuluyor... Lütfen bekleyin.')));
-    
-    final codes = await PromoCodeService().createBatchPromoCodes(count: count);
-    if (!mounted) return;
-    
-    if (codes.isNotEmpty) {
-      final allCodes = codes.join('\n');
-      await Clipboard.setData(ClipboardData(text: allCodes));
-      if (!mounted) return;
-
-      showDialog(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('✅ Kodlar Oluşturuldu'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+  Widget _tile(_Code c, ColorScheme scheme) {
+    final statusColor = c.isUsable ? Colors.green : scheme.outline;
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => _copy(c.code, '${c.code} kopyalandı'),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 10, 4, 12),
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('${codes.length} adet kod oluşturuldu ve panoya kopyalandı!'),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                constraints: const BoxConstraints(maxHeight: 200),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          c.code,
+                          style: TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            decoration: c.isUsable ? null : TextDecoration.lineThrough,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(c.status,
+                              style: TextStyle(fontSize: 12, color: statusColor)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      c.label.isEmpty ? 'Kime verildiği yazılmamış' : c.label,
+                      style: TextStyle(
+                        color: c.label.isEmpty ? scheme.outline : null,
+                        fontStyle: c.label.isEmpty ? FontStyle.italic : null,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: c.max == 0 ? 0 : (c.used / c.max).clamp(0, 1).toDouble(),
+                        minHeight: 6,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${c.used}/${c.max} kişi kullandı · ${_date(c.createdAt)}',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: codes.take(10).map((c) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 2),
-                      child: Text(c, style: const TextStyle(fontFamily: 'monospace', fontWeight: FontWeight.w600, fontSize: 15)),
-                    )).toList()
-                      ..addAll(codes.length > 10 ? [const Padding(padding: EdgeInsets.only(top: 8), child: Text('...ve diğerleri (Panoya kopyalandı)'))] : []),
-                  ),
-                ),
+              ),
+              PopupMenuButton<String>(
+                onSelected: (v) {
+                  switch (v) {
+                    case 'copy':
+                      _copy(c.code, '${c.code} kopyalandı');
+                    case 'label':
+                      _editLabel(c);
+                    case 'close':
+                      _deactivate(c);
+                    case 'delete':
+                      _delete([c], c.code);
+                  }
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(value: 'copy', child: Text('Kopyala')),
+                  const PopupMenuItem(value: 'label', child: Text('Kime verildi?')),
+                  if (c.isUsable) const PopupMenuItem(value: 'close', child: Text('Kapat')),
+                  const PopupMenuItem(value: 'delete', child: Text('Sil')),
+                ],
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Tamam'),
-            ),
-          ],
         ),
-      );
-    }
-  }
-
-  Future<void> _showPromoCodesList() async {
-    final codes = await PromoCodeService().listPromoCodes();
-    if (!mounted) return;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Row(
-          children: [
-            const Icon(Icons.vpn_key, color: Colors.purple, size: 22),
-            const SizedBox(width: 8),
-            Text('Promo Kodları (${codes.length})'),
-          ],
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 400,
-          child: codes.isEmpty
-              ? const Center(child: Text('Henüz promo kodu yok'))
-              : ListView.builder(
-                  itemCount: codes.length,
-                  itemBuilder: (context, index) {
-                    final code = codes[index];
-                    final codeStr = code['code'] as String? ?? code['id'] as String? ?? '?';
-                    final isActive = code['isActive'] as bool? ?? false;
-                    final usedCount = code['usedCount'] as int? ?? 0;
-                    final maxUses = code['maxUses'] as int? ?? 1;
-                    
-                    return Card(
-                      color: isActive ? null : Colors.grey[200],
-                      child: ListTile(
-                        title: Text(
-                          codeStr,
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                            color: isActive ? Colors.black : Colors.grey,
-                            decoration: isActive ? null : TextDecoration.lineThrough,
-                          ),
-                        ),
-                        subtitle: Text(
-                          '${isActive ? "✅ Aktif" : "❌ Deaktif"} • Kullanım: $usedCount/$maxUses',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.copy, size: 18),
-                              onPressed: () {
-                                Clipboard.setData(ClipboardData(text: codeStr));
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('$codeStr kopyalandı')),
-                                );
-                              },
-                            ),
-                            if (isActive)
-                              IconButton(
-                                icon: const Icon(Icons.block, size: 18, color: Colors.red),
-                                onPressed: () async {
-                                  await PromoCodeService().deactivatePromoCode(codeStr);
-                                  if (!ctx.mounted) return;
-                                  Navigator.pop(ctx);
-                                  _showPromoCodesList();
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Kapat'),
-          ),
-        ],
       ),
     );
   }
 }
-

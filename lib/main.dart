@@ -12,6 +12,7 @@ import 'dart:io' show Platform;
 import 'services/connectivity_service.dart';
 import 'screens/home_screen.dart';
 import 'screens/learning_screen.dart';
+import 'screens/game/game_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/admin_console_screen.dart';
 import 'services/admin_service.dart';
@@ -1074,12 +1075,17 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  /// Kelime oyunu sekmesi şimdilik kapalı (14 Kasım 2026). Geri açmak için true
+  /// yapmak yeterli; oyun kodu yerinde duruyor, kapalıyken hiç kurulmuyor.
+  static const bool _gameTabEnabled = false;
+
   // Görünür sekmelerin IndexedStack index'lerini döndür
   List<int> _getVisibleStackIndices() {
     return [
       0, // Sözlük
       2, // Ceviri
       if (LanguageService().isTurkishUi) 1, // Öğren (Türkçeye özel)
+      if (_gameTabEnabled) 5, // Oyun
       3, // Profil
       if (_adminService.isAdmin()) 4, // Admin Console
     ];
@@ -1335,6 +1341,22 @@ class _MainScreenState extends State<MainScreen> {
                                     systemNavBarHeight,
                               )
                             : const SizedBox.shrink(),
+
+                        // 5: Oyun (kelime oyunu) - state korunur
+                        _tab(
+                          5,
+                          [
+                            totalBottomPadding,
+                            widget.isDarkMode,
+                            DictionaryLanguage.current.value,
+                          ],
+                          () => GameScreen(
+                            key: const ValueKey('game_screen'),
+                            bottomPadding: totalBottomPadding,
+                            isDarkMode: widget.isDarkMode,
+                            lang: DictionaryLanguage.current.value,
+                          ),
+                        ),
                       ];
 
                       return IndexedStack(
@@ -1520,6 +1542,12 @@ class _MainScreenState extends State<MainScreen> {
                                 icon: Icon(Icons.school_outlined),
                                 activeIcon: Icon(Icons.school),
                                 label: l10n.ogren,
+                              ),
+                            if (_gameTabEnabled)
+                              BottomNavigationBarItem(
+                                icon: const Icon(Icons.sports_esports_outlined),
+                                activeIcon: const Icon(Icons.sports_esports),
+                                label: l10n.oyun,
                               ),
                             BottomNavigationBarItem(
                               icon: const Icon(Icons.person_outline),

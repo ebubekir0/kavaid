@@ -12,7 +12,7 @@ class ReviewService {
 
   final InAppReview _inAppReview = InAppReview.instance;
   static const String _hasRatedAppKey = 'has_rated_app_v2';
-  static const String _appleStoreId = '6503463570';
+  static const String _appleStoreId = '6749201928';
   static const String _androidStoreId = 'com.onbir.kavaid';
 
   bool _hasRated = false;

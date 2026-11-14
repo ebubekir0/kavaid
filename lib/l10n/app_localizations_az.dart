@@ -15,6 +15,47 @@ class AppLocalizationsAz extends AppLocalizations {
   String get markaAdi => 'Kavaid';
 
   @override
+  String get paylas => 'Paylaş';
+
+  @override
+  String get kelimeyiPaylas => 'Sözü paylaş';
+
+  @override
+  String oyunBolum(int n) {
+    return 'Bölmə $n';
+  }
+
+  @override
+  String get oyunNasil => 'Hərfləri sıra ilə birləşdir, sözü tap';
+
+  @override
+  String get oyunHarfAc => 'Hərf aç';
+
+  @override
+  String get oyunKaristir => 'Qarışdır';
+
+  @override
+  String get oyunBolumTamam => 'Bölmə tamamlandı';
+
+  @override
+  String get oyunSonrakiBolum => 'Növbəti bölmə';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'Hərf açmaq üçün $n xal lazımdır';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return '$n günlük seriya · +$bonus xal';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n xal';
+  }
+
+  @override
   String get tanitimDevam => 'Davam et';
 
   @override

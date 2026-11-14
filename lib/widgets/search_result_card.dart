@@ -17,6 +17,7 @@ import 'ai_chat_sheet.dart';
 import 'save_button.dart';
 import 'search_result_card_parts.dart';
 import '../services/arabic_definitions.dart';
+import '../services/word_share_service.dart';
 import 'package:kavaid/l10n/l10n.dart';
 
 // Global expanded card controller sınıfı ve ilgili mantık kaldırıldı.
@@ -70,6 +71,7 @@ class _SearchResultCardState extends State<SearchResultCard>
   bool _isCollapsing = false;
   bool get _headerExpanded => _isExpanded && !_isCollapsing;
   bool _hasEverExpanded = false; // İlk defa açılma durumu için
+  bool _isSharing = false; // Paylaşım penceresi açılırken ikinci dokunuşu yok say
 
   // PERFORMANCE: Animasyon controller'ı lazy-loading ile optimize et
   AnimationController? _animationController;
@@ -556,26 +558,97 @@ class _SearchResultCardState extends State<SearchResultCard>
               onSpeak: _ttsService.speak,
             ),
 
-          // AI asistanı: tek satır, sade
-          if (_shouldShowAiTeacherButton)
-            Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: AiAssistPills(
-                isDarkMode: isDarkMode,
-                showMoreExamples:
-                    !LanguageService().isArabic &&
-                    _arabicEntry == null &&
-                    widget.word.ornekCumleler?.isNotEmpty == true,
-                onAsk: () => _showAiChatSheet(),
-                onMoreExamples: () => _showAiChatSheet(
-                  openingMessage:
-                      l10n.buKelimeyleSeviyemeUygun5,
+          // Alt satır: AI asistanı hapları (varsa) ve en sonda paylaş düğmesi
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _shouldShowAiTeacherButton
+                      ? AiAssistPills(
+                          isDarkMode: isDarkMode,
+                          showMoreExamples:
+                              !LanguageService().isArabic &&
+                              _arabicEntry == null &&
+                              widget.word.ornekCumleler?.isNotEmpty == true,
+                          onAsk: () => _showAiChatSheet(),
+                          onMoreExamples: () => _showAiChatSheet(
+                            openingMessage:
+                                l10n.buKelimeyleSeviyemeUygun5,
+                          ),
+                        )
+                      : const SizedBox.shrink(),
                 ),
-              ),
+                const SizedBox(width: 8),
+                _buildShareButton(isDarkMode),
+              ],
             ),
+          ),
         ],
       ),
     );
+  }
+
+  /// Kelimeyi görsel ve kavaid.app bağlantısıyla paylaşır (WordShareService).
+  /// Builder, paylaşım penceresinin iPad'de bu düğmeye bağlanması için.
+  Widget _buildShareButton(bool isDarkMode) {
+    return Builder(
+      builder: (buttonContext) => Material(
+        color: const Color(0xFF007AFF).withValues(alpha: isDarkMode ? 0.16 : 0.08),
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          key: const ValueKey('share-button'),
+          onTap: () => _shareWord(buttonContext),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.share_rounded,
+                  size: 14,
+                  color: isDarkMode
+                      ? const Color(0xFF4DA3FF)
+                      : const Color(0xFF007AFF),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  l10n.paylas,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: isDarkMode
+                        ? const Color(0xFF4DA3FF)
+                        : const Color(0xFF007AFF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareWord(BuildContext buttonContext) async {
+    if (_isSharing) return;
+    _isSharing = true;
+    try {
+      await WordShareService.share(buttonContext, widget.word);
+    } catch (e) {
+      debugPrint('❌ [SearchResultCard] Paylaşım hatası: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(content: Text(l10n.paylasimSirasindaBirHataOlustu)),
+          );
+      }
+    } finally {
+      _isSharing = false;
+    }
   }
 
   Widget _buildEmsileButton(bool isDarkMode) {

@@ -15,6 +15,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get markaAdi => 'Kavaid';
 
   @override
+  String get paylas => 'Share';
+
+  @override
+  String get kelimeyiPaylas => 'Share word';
+
+  @override
+  String oyunBolum(int n) {
+    return 'Level $n';
+  }
+
+  @override
+  String get oyunNasil => 'Connect the letters in order to find the word';
+
+  @override
+  String get oyunHarfAc => 'Reveal a letter';
+
+  @override
+  String get oyunKaristir => 'Shuffle';
+
+  @override
+  String get oyunBolumTamam => 'Level complete';
+
+  @override
+  String get oyunSonrakiBolum => 'Next level';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'You need $n points to reveal a letter';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return '$n-day streak · +$bonus points';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n points';
+  }
+
+  @override
   String get tanitimDevam => 'Continue';
 
   @override

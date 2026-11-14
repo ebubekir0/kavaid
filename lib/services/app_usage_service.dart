@@ -131,6 +131,21 @@ class AppUsageService extends ChangeNotifier {
     await markRatingPromptClicked();
   }
 
+  /// Değerlendirme kartını kullanım süresini beklemeden gösterilebilir yapar.
+  /// Kullanıcının memnun olduğu bir anın ardından çağrılır (ör. promosyon kodu
+  /// kullanıldığında). Karta daha önce dokunulmuşsa hiçbir şey değişmez.
+  Future<void> unlockRatingPrompt() async {
+    if (_hasClickedRatingPrompt ||
+        _totalUsageMinutes > _ratingPromptMinMinutes) {
+      return;
+    }
+    _totalUsageMinutes = _ratingPromptMinMinutes + 1;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_totalUsageKey, _totalUsageMinutes);
+    debugPrint('[AppUsage] Rating prompt unlocked early.');
+    notifyListeners();
+  }
+
   Future<void> resetUsageStats() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_totalUsageKey);

@@ -27,6 +27,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
 import '../services/purchase_manager.dart';
+import '../services/promo_code_service.dart';
 import 'subscription_screen.dart';
 import 'package:kavaid/widgets/email_auth_sheet.dart';
 import 'dart:io';
@@ -1148,7 +1149,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 
                 const SizedBox(height: 12),
-                
+
+                // Promosyon / sınıf kodu girişi: bütün arayüz dillerinde görünür
+                // (kampanya ekranı yalnız Türkçe arayüzde açılıyor).
+                GestureDetector(
+                  key: const ValueKey('promo-code-tile'),
+                  onTap: _showPromoCodeDialog,
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDarkMode
+                          ? const Color(0xFF2C2C2E)
+                          : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isDarkMode
+                            ? const Color(0xFF3A3A3C)
+                            : const Color(0xFFE5E5EA),
+                        width: 1,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isDarkMode
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.card_giftcard_rounded,
+                            color: Colors.amber.shade700,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            l10n.promosyonKodu,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: isDarkMode ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: isDarkMode
+                              ? const Color(0xFF8E8E93)
+                              : const Color(0xFF6D6D70),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+
                 // İletişim Kartı
                 GestureDetector(
                   onTap: () {
@@ -1422,6 +1491,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
     );
+  }
+
+  /// Promosyon ya da sınıf kodu girişi. Kodu doğrulama ve Premium tanımlama
+  /// PromoCodeService'te; burada yalnız giriş penceresi ve sonuç mesajı var.
+  Future<void> _showPromoCodeDialog() async {
+    var entered = '';
+    final code = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.promosyonKodu),
+        content: TextField(
+          autofocus: true,
+          textCapitalization: TextCapitalization.characters,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: const InputDecoration(hintText: 'KVDX9K2'),
+          onChanged: (value) => entered = value,
+          onSubmitted: (value) => Navigator.pop(dialogContext, value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.iptal),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, entered),
+            child: Text(l10n.kullan),
+          ),
+        ],
+      ),
+    );
+
+    final trimmed = (code ?? '').trim();
+    if (trimmed.isEmpty || !mounted) return;
+
+    final result = await PromoCodeService().redeemPromoCode(trimmed);
+    if (!mounted) return;
+
+    final success = result == 'success';
+    final String message;
+    if (success) {
+      message = l10n.tebrikler1AyPremiumHesabiniza;
+    } else if (result == 'already_used') {
+      message = l10n.buKoduDahaOnceKullandiniz;
+    } else if (result == 'expired') {
+      message = l10n.buKodunSuresiDolmus;
+    } else if (result == 'used') {
+      message = l10n.buKodunKullanimLimitiDolmus;
+    } else if (result == 'login_required') {
+      message = l10n.lutfenOnceGirisYapin;
+    } else {
+      message = l10n.gecersizVeyaKullanilmisKod;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: success ? Colors.green : Colors.red,
+          duration: Duration(seconds: success ? 4 : 3),
+        ),
+      );
   }
 
   Future<void> _shareApp() async {

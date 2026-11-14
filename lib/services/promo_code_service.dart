@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/app_usage_service.dart';
 import '../services/purchase_manager.dart';
 
 /// Promo kod sistemi — Sosyal medya kampanyası için
@@ -116,6 +117,8 @@ class PromoCodeService extends ChangeNotifier {
 
       debugPrint('✅ [PromoCode] Kod başarıyla kullanıldı: $trimmedCode -> Premium ${premiumUntil.toString()}\'e kadar');
       await PurchaseManager().checkPromoPremium(); // Anında algılaması için
+      // Kod kullanıldı: ana ekrandaki değerlendirme kartı beklemeden görünebilsin.
+      await AppUsageService().unlockRatingPrompt();
       notifyListeners();
       return 'success';
     } catch (e) {
@@ -203,15 +206,30 @@ class PromoCodeService extends ChangeNotifier {
 
   // ========== ADMİN FONKSİYONLARI ==========
 
-  /// Tek bir promo kodu oluştur
+  /// Tek bir promo kodu oluştur.
+  /// [label]: kodun kime/hangi kampanyaya verildiği (yönetici panelinde görünür).
   Future<String?> createPromoCode({
     int durationDays = 30,
     int maxUses = 1,
     DateTime? expiresAt,
+    String? label,
   }) async {
     try {
-      final code = _generateCode();
+      // Kod alanı 32^4 ≈ 1 milyon; çakışırsa eski kodun üzerine yazmamak için
+      // var olmayan bir kod bulana kadar yeniden üret.
+      String? code;
+      for (var attempt = 0; attempt < 6 && code == null; attempt++) {
+        final candidate = _generateCode();
+        final existing =
+            await _firestore.collection('promo_codes').doc(candidate).get();
+        if (!existing.exists) code = candidate;
+      }
+      if (code == null) {
+        debugPrint('❌ [PromoCode] Boş kod bulunamadı');
+        return null;
+      }
       await _firestore.collection('promo_codes').doc(code).set({
+        if (label != null && label.trim().isNotEmpty) 'label': label.trim(),
         'code': code,
         'type': 'premium_${durationDays}_days',
         'durationDays': durationDays,
@@ -237,12 +255,14 @@ class PromoCodeService extends ChangeNotifier {
     required int count,
     int durationDays = 30,
     int maxUses = 1,
+    String? label,
   }) async {
     final codes = <String>[];
     for (int i = 0; i < count; i++) {
       final code = await createPromoCode(
         durationDays: durationDays,
         maxUses: maxUses,
+        label: label,
       );
       if (code != null) codes.add(code);
     }
@@ -250,25 +270,61 @@ class PromoCodeService extends ChangeNotifier {
     return codes;
   }
 
-  /// Tüm promo kodlarını listele (admin)
-  Future<List<Map<String, dynamic>>> listPromoCodes({bool activeOnly = false}) async {
+  /// Tüm promo kodlarını listele (admin), en yeni önce.
+  /// orderBy kullanılmıyor: createdAt alanı olmayan eski belgeler sorgudan
+  /// düşer ve temizlikte görünmez kalırdı; sıralama istemcide yapılıyor.
+  /// Hata olursa null döner (boş liste ile "hiç kod yok" karışmasın).
+  Future<List<Map<String, dynamic>>?> listPromoCodes() async {
     try {
-      Query query = _firestore.collection('promo_codes').orderBy('createdAt', descending: true);
-      
-      if (activeOnly) {
-        query = query.where('isActive', isEqualTo: true);
-      }
-
-      final snapshot = await query.get();
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+      final snapshot = await _firestore.collection('promo_codes').get();
+      final list = snapshot.docs.map((doc) {
+        final data = Map<String, dynamic>.from(doc.data());
         data['id'] = doc.id;
         return data;
       }).toList();
+      int millis(Map<String, dynamic> d) =>
+          (d['createdAt'] as Timestamp?)?.millisecondsSinceEpoch ?? 0;
+      list.sort((a, b) => millis(b).compareTo(millis(a)));
+      return list;
     } catch (e) {
       debugPrint('❌ [PromoCode] Liste hatası: $e');
-      return [];
+      return null;
     }
+  }
+
+  /// Kodun kime verildiğini yaz/değiştir (boş metin etiketi kaldırır).
+  Future<bool> setPromoCodeLabel(String code, String label) async {
+    try {
+      await _firestore.collection('promo_codes').doc(code.toUpperCase()).update({
+        'label': label.trim().isEmpty ? FieldValue.delete() : label.trim(),
+      });
+      return true;
+    } catch (e) {
+      debugPrint('❌ [PromoCode] Etiket hatası: $e');
+      return false;
+    }
+  }
+
+  /// Birden çok kodu kalıcı olarak sil. Kodu daha önce kullananların
+  /// Premium süresi kullanıcı belgesinde tutulduğu için etkilenmez.
+  /// Silinen kod sayısını döner.
+  Future<int> deletePromoCodes(List<String> codes) async {
+    var deleted = 0;
+    for (var i = 0; i < codes.length; i += 400) {
+      final chunk = codes.sublist(i, min(i + 400, codes.length));
+      final batch = _firestore.batch();
+      for (final c in chunk) {
+        batch.delete(_firestore.collection('promo_codes').doc(c));
+      }
+      try {
+        await batch.commit();
+        deleted += chunk.length;
+      } catch (e) {
+        debugPrint('❌ [PromoCode] Toplu silme hatası: $e');
+        break;
+      }
+    }
+    return deleted;
   }
 
   /// Promo kodu deaktif et

@@ -15,6 +15,48 @@ class AppLocalizationsMs extends AppLocalizations {
   String get markaAdi => 'Kavaid';
 
   @override
+  String get paylas => 'Kongsi';
+
+  @override
+  String get kelimeyiPaylas => 'Kongsi perkataan';
+
+  @override
+  String oyunBolum(int n) {
+    return 'Tahap $n';
+  }
+
+  @override
+  String get oyunNasil =>
+      'Sambungkan huruf mengikut urutan untuk mencari perkataan';
+
+  @override
+  String get oyunHarfAc => 'Buka huruf';
+
+  @override
+  String get oyunKaristir => 'Kocok';
+
+  @override
+  String get oyunBolumTamam => 'Tahap selesai';
+
+  @override
+  String get oyunSonrakiBolum => 'Tahap seterusnya';
+
+  @override
+  String oyunPuanYetmiyor(int n) {
+    return 'Perlu $n mata untuk membuka huruf';
+  }
+
+  @override
+  String oyunGunlukSeri(int n, int bonus) {
+    return '$n hari berturut-turut · +$bonus mata';
+  }
+
+  @override
+  String oyunArtiPuan(int n) {
+    return '+$n mata';
+  }
+
+  @override
   String get tanitimDevam => 'Teruskan';
 
   @override
